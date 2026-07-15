@@ -8,11 +8,12 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+@net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
 public class NurFlickerOverlay {
     private static final ResourceLocation HUD_001 = new ResourceLocation("abnormalities", "textures/gui/nurhud001.png");
     private static final ResourceLocation HUD_002 = new ResourceLocation("abnormalities", "textures/gui/nurhud002.png");
     private static boolean showingFlicker = false;
-    private static int flickerCooldown = 0;
+    private static long cooldownEnd = 0;
     private static int flickerDuration = 0;
     private static long lastFlickerTime = 0;
     private static boolean renderedThisFrame = false;
@@ -46,16 +47,14 @@ public class NurFlickerOverlay {
         if (showingFlicker) {
             if (now - lastFlickerTime >= flickerDuration) {
                 showingFlicker = false;
-                flickerCooldown = 40 + (int)(Math.random() * 120);
+                cooldownEnd = now + 3000 + (long)(Math.random() * 5000);
             }
             tex = HUD_002;
         } else {
-            if (flickerCooldown > 0) {
-                flickerCooldown--;
-            } else if (now - lastFlickerTime > 800) {
+            if (now >= cooldownEnd && now - lastFlickerTime > 800) {
                 if (Math.random() < 0.03) {
                     showingFlicker = true;
-                    flickerDuration = 30 + (int)(Math.random() * 50);
+                    flickerDuration = (30 + (int)(Math.random() * 50)) * 50;
                     lastFlickerTime = now;
                 }
             }

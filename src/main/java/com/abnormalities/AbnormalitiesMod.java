@@ -1,7 +1,5 @@
 package com.abnormalities;
 
-import com.abnormalities.client.K3wCrashOverlay;
-import com.abnormalities.client.NurFlickerOverlay;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.K3wActionTracker;
 import com.abnormalities.entity.NurHorrorCycle;
@@ -26,8 +24,6 @@ public class AbnormalitiesMod {
         modBus.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(ModEvents.class);
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
-        MinecraftForge.EVENT_BUS.register(NurFlickerOverlay.class);
-        MinecraftForge.EVENT_BUS.register(K3wCrashOverlay.class);
         MinecraftForge.EVENT_BUS.register(K3wActionTracker.class);
         MinecraftForge.EVENT_BUS.register(AbnormalitiesCommands.class);
     }

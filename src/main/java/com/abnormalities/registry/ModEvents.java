@@ -173,8 +173,8 @@ public class ModEvents {
             if (walked + hitDist >= entityDist) return true;
             BlockState state = player.level().getBlockState(hit.getBlockPos());
             if (!SEE_THROUGH.contains(state.getBlock())) return false;
-            current = hit.getLocation().add(lookVec.scale(0.05));
             walked += hitDist + 0.05;
+            current = hit.getLocation().add(lookVec.scale(0.05));
         }
         return true;
     }
@@ -252,10 +252,14 @@ public class ModEvents {
         if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
-            new Thread(() -> {
-                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
-                System.exit(1);
-            }, "nur-crash").start();
+            ServerLevel sl = (ServerLevel) nur.level();
+            sl.getServer().tell(new net.minecraft.server.TickTask(
+                sl.getServer().getTickCount() + 25,
+                () -> {
+                    nur.discard();
+                    System.exit(1);
+                }
+            ));
         }
     }
 }

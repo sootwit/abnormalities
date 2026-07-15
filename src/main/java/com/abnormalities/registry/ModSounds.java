@@ -11,8 +11,6 @@ public class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, AbnormalitiesMod.MODID);
     public static final RegistryObject<SoundEvent> NUR_SOUND = SOUNDS.register("nur_sound",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "nur_sound")));
-    public static final RegistryObject<SoundEvent> K3W_SOUND = SOUNDS.register("k3w_sound",
-            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "k3w_sound")));
     public static final RegistryObject<SoundEvent> K3W_CRASH1 = SOUNDS.register("k3w_crash1",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "k3w_crash1")));
     public static final RegistryObject<SoundEvent> K3W_CRASH2 = SOUNDS.register("k3w_crash2",

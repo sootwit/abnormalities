@@ -219,14 +219,13 @@ public class K3wEntity extends Mob {
                 if (AbnormalitiesConfig.K3W_CRASH_ON_CATCH.get()) {
                     this.entityData.set(DATA_CRASHING, true);
                     SoundEvent nurScare = ModSounds.NUR_SOUND.get();
-                    new Thread(() -> {
-                        try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                        level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
-                                nurScare, SoundSource.MASTER, 10.0f, 1.0f);
-                        try { Thread.sleep(1500); } catch (InterruptedException ignored) {}
+                    level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
+                            nurScare, SoundSource.MASTER, 10.0f, 1.0f);
+                    net.minecraft.server.MinecraftServer srv = level().getServer();
+                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
                         System.exit(1);
-                    }, "k3w-crash").start();
+                    }));
                 }
             }
             return;
@@ -398,6 +397,12 @@ public class K3wEntity extends Mob {
             aTag.putInt("X", action.x);
             aTag.putInt("Y", action.y);
             aTag.putInt("Z", action.z);
+            if (action.entityType != null) {
+                aTag.putString("EntityType", net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(action.entityType).toString());
+            }
+            if (action.block != null) {
+                aTag.putString("Block", net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey((Block) action.block).toString());
+            }
             actionTag.add(aTag);
         }
         tag.put("PendingActions", actionTag);
@@ -429,7 +434,16 @@ public class K3wEntity extends Mob {
         for (int i = 0; i < actionTag.size(); i++) {
             CompoundTag aTag = actionTag.getCompound(i);
             K3wAction.ActionType type = K3wAction.ActionType.valueOf(aTag.getString("Type"));
-            pendingActions.add(new K3wAction(type, aTag.getInt("X"), aTag.getInt("Y"), aTag.getInt("Z"), (Object) null));
+            int ax = aTag.getInt("X"), ay = aTag.getInt("Y"), az = aTag.getInt("Z");
+            if (aTag.contains("EntityType")) {
+                EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
+                pendingActions.add(new K3wAction(type, (double)ax, (double)ay, (double)az, et));
+            } else if (aTag.contains("Block")) {
+                Block bl = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("Block")));
+                pendingActions.add(new K3wAction(type, ax, ay, az, bl));
+            } else {
+                pendingActions.add(new K3wAction(type, ax, ay, az, (Object) null));
+            }
         }
     }
 
