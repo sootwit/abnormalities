@@ -62,7 +62,7 @@ public class NurFlickerOverlay {
         }
         gg.pose().pushPose();
         gg.pose().setIdentity();
-        float alpha = showingFlicker ? 0.85F + (float)(Math.random() * 0.15F) : 0.7F;
+        float alpha = 1.0F;
         gg.setColor(1.0F, 1.0F, 1.0F, alpha);
         gg.blit(tex, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);

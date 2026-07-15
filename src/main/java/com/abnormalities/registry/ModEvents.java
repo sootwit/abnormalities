@@ -139,6 +139,7 @@ public class ModEvents {
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
+                if (overworld.getBlockState(spawnPos).canOcclude()) continue;
 
                 XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
                 if (xyz != null) {

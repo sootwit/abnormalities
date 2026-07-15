@@ -76,6 +76,10 @@ public class XyzEntity extends Mob {
     }
 
     @Override
+    public void push(double x, double y, double z) {
+    }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide) return false;
         if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -97,14 +101,6 @@ public class XyzEntity extends Mob {
         super.tick();
         if (level().isClientSide) return;
         this.setDeltaMovement(0, 0, 0);
-
-        if (fadeOutTick > 0) {
-            fadeOutTick--;
-            if (fadeOutTick <= 0) {
-                discard();
-            }
-            return;
-        }
 
         if (hasFailed || rewardGiven) return;
 
@@ -216,7 +212,7 @@ public class XyzEntity extends Mob {
         level().playSound(null, chestPos.getX(), chestPos.getY(), chestPos.getZ(),
                 SoundEvents.CHEST_OPEN, SoundSource.MASTER, 1.0f, 1.0f);
 
-        fadeOutTick = 40;
+        discard();
     }
 
     private void triggerFailure() {
@@ -264,7 +260,14 @@ public class XyzEntity extends Mob {
             }
         }
 
-        fadeOutTick = 60;
+        var nearbyNurs = level().getEntitiesOfClass(NurEntity.class, this.getBoundingBox().inflate(128.0D));
+        for (NurEntity nur : nearbyNurs) {
+            if (nur.currentState == NurEntity.State.STALKING) {
+                nur.startChasing(targetPlayer);
+            }
+        }
+
+        discard();
     }
 
     @Override
@@ -285,7 +288,6 @@ public class XyzEntity extends Mob {
         tag.putBoolean("MessageSent", messageSent);
         tag.putBoolean("RewardGiven", rewardGiven);
         tag.putBoolean("HasFailed", hasFailed);
-        tag.putInt("FadeOutTick", fadeOutTick);
         tag.putInt("Amount", this.entityData.get(DATA_AMOUNT));
     }
 
@@ -306,7 +308,6 @@ public class XyzEntity extends Mob {
         this.messageSent = tag.getBoolean("MessageSent");
         this.rewardGiven = tag.getBoolean("RewardGiven");
         this.hasFailed = tag.getBoolean("HasFailed");
-        this.fadeOutTick = tag.getInt("FadeOutTick");
         this.entityData.set(DATA_AMOUNT, tag.getInt("Amount"));
         this.entityData.set(DATA_ACTIVE, !hasFailed && !rewardGiven && timerTicks > 0);
         this.setPersistenceRequired();

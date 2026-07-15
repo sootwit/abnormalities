@@ -131,8 +131,8 @@ public class K3wEntity extends Mob {
             this.moveTo(first[0], first[1], first[2], (float) first[3], (float) first[4]);
             isMoving = true;
         }
-        spawnTimer = CHAT_DELAY + 200;
-        messageSent = true;
+        spawnTimer = CHAT_DELAY;
+        messageSent = false;
     }
 
     public void setInitialActions(List<K3wAction> actions) {
@@ -210,7 +210,7 @@ public class K3wEntity extends Mob {
         if (hitCooldown > 0) hitCooldown--;
 
         double dist = this.distanceTo(targetPlayer);
-        if (dist < 2.0D && hitCooldown <= 0 && !isCrashing()) {
+        if (dist < 2.0D && hitCooldown <= 0 && !isCrashing() && targetPlayer.isAlive()) {
             targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 5.0F);
             hitCooldown = 20;
 
