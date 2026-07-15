@@ -230,7 +230,7 @@ public class K3wEntity extends Mob {
                     net.minecraft.server.MinecraftServer srv = level().getServer();
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
-                        System.exit(1);
+                        sp.connection.disconnect(Component.literal("k3w got you."));
                     }));
                 }
             }

@@ -319,7 +319,7 @@ public class ModEvents {
                 sl.getServer().getTickCount() + 25,
                 () -> {
                     nur.discard();
-                    System.exit(1);
+                    ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));
                 }
             ));
         }

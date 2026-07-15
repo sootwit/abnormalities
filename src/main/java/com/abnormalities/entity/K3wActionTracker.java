@@ -83,6 +83,9 @@ public class K3wActionTracker {
 
             if (timer == totalDelay) {
                 spawnClone(player);
+                if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
+                    cleanup(uuid);
+                }
             }
         }
     }

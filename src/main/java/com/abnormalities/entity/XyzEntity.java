@@ -126,6 +126,7 @@ public class XyzEntity extends Mob {
         }
 
         for (ItemEntity itemEntity : level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(3.0D))) {
+            if (itemEntity.getOwner() != targetPlayer) continue;
             ItemStack dropped = itemEntity.getItem();
             if (isRequestedItem(dropped)) {
                 int amount = this.entityData.get(DATA_AMOUNT);
