@@ -1,0 +1,52 @@
+{
+    "nur_sound": {
+        "category": "master",
+        "range": 64,
+        "sounds": [
+            {
+                "name": "abnormalities:nur",
+                "stream": false
+            }
+        ]
+    },
+    "k3w_crash1": {
+        "category": "master",
+        "range": 64,
+        "sounds": [
+            {
+                "name": "abnormalities:k3w1edit",
+                "stream": true
+            }
+        ]
+    },
+    "k3w_crash2": {
+        "category": "master",
+        "range": 64,
+        "sounds": [
+            {
+                "name": "abnormalities:k3w2edit",
+                "stream": true
+            }
+        ]
+    },
+    "k3w_crash3": {
+        "category": "master",
+        "range": 64,
+        "sounds": [
+            {
+                "name": "abnormalities:k3w3edit",
+                "stream": true
+            }
+        ]
+    },
+    "k3w_crash4": {
+        "category": "master",
+        "range": 64,
+        "sounds": [
+            {
+                "name": "abnormalities:k3w4edit",
+                "stream": true
+            }
+        ]
+    }
+}
