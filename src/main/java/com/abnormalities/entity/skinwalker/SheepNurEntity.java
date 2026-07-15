@@ -30,6 +30,7 @@ public class SheepNurEntity extends Sheep {
 
     @Override
     protected void registerGoals() {
+        super.registerGoals();
         this.goalSelector.getAvailableGoals().clear();
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(this));
