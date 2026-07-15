@@ -3,6 +3,7 @@ package com.abnormalities.entity;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -12,6 +13,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -201,16 +203,16 @@ public class XyzEntity extends Mob {
             default -> new ItemStack(Items.GOLDEN_APPLE, appleAmt);
         };
 
-        if (player instanceof ServerPlayer sp) {
-            sp.getInventory().add(reward);
-        } else {
-            ItemEntity rewardEntity = new ItemEntity(level(), this.getX(), this.getY() + 2, this.getZ(), reward);
-            rewardEntity.setNoPickUpDelay();
-            level().addFreshEntity(rewardEntity);
+        BlockPos chestPos = this.blockPosition();
+        level().setBlockAndUpdate(chestPos, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState());
+        if (level().getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
+            chest.setItem(0, reward);
         }
 
         level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 3.0f, 1.5f);
+                SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 3.0f, 1.5f);
+        level().playSound(null, chestPos.getX(), chestPos.getY(), chestPos.getZ(),
+                SoundEvents.CHEST_OPEN, SoundSource.MASTER, 1.0f, 1.0f);
 
         fadeOutTick = 40;
     }
