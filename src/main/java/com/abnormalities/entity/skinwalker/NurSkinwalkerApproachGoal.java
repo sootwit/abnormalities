@@ -77,7 +77,6 @@ public class NurSkinwalkerApproachGoal extends Goal {
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
         nur.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
-        nur.currentState = NurEntity.State.CHASING;
         nur.startChasing(targetPlayer);
         level.addFreshEntity(nur);
         level.playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),

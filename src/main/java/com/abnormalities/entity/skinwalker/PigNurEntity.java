@@ -55,7 +55,6 @@ public class PigNurEntity extends Pig {
                             NurEntity nur = ModEntities.NUR.get().create(serverLevel);
                             if (nur != null) {
                                 nur.moveTo(dx, dy, dz, 0, 0);
-                                nur.currentState = NurEntity.State.CHASING;
                                 Player nearest = serverLevel.getNearestPlayer(nur, 64.0);
                                 if (nearest != null) nur.startChasing(nearest);
                                 serverLevel.addFreshEntity(nur);
