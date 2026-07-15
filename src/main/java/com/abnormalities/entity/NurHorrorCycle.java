@@ -22,6 +22,6 @@ public class NurHorrorCycle {
         chaseCount.incrementAndGet();
     }
     public static void stop() {
-        chaseCount.decrementAndGet();
+        if (chaseCount.get() > 0) chaseCount.decrementAndGet();
     }
 }

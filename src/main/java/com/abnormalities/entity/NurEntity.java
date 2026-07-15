@@ -211,7 +211,8 @@ public class NurEntity extends Mob {
             double dz = targetPos.getZ() + 0.5 - this.getZ();
             double hDist = Math.sqrt(dx * dx + dz * dz);
             if (hDist < 2.0 && dy < -3) {
-                this.teleportTo(this.getX(), targetPos.getY(), this.getZ());
+                int safeY = level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, this.blockPosition().getX(), this.blockPosition().getZ());
+                this.teleportTo(this.getX(), safeY, this.getZ());
                 return;
             }
             if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
@@ -331,9 +332,32 @@ public class NurEntity extends Mob {
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide) {
+        if (level() != null && !level().isClientSide) {
             this.entityData.set(DATA_CHASING, false);
-            NurHorrorCycle.stop();
+            if (currentState == State.CHASING) NurHorrorCycle.stop();
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putString("NurState", currentState.name());
+        tag.putBoolean("Chasing", isChasing());
+        if (currentTarget != null) tag.putUUID("TargetUUID", currentTarget.getUUID());
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains("NurState")) {
+            try { currentState = State.valueOf(tag.getString("NurState")); } catch (Exception ignored) {}
+        }
+        if (tag.contains("TargetUUID") && level().getServer() != null) {
+            currentTarget = level().getServer().getPlayerList().getPlayer(tag.getUUID("TargetUUID"));
+        }
+        if (tag.getBoolean("Chasing") && currentState == State.CHASING) {
+            this.entityData.set(DATA_CHASING, true);
+            NurHorrorCycle.start();
         }
     }
 }

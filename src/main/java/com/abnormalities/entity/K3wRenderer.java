@@ -30,12 +30,12 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
     @Override
     protected void setupRotations(K3wEntity entity, PoseStack poseStack, float ageInTicks, float yBodyRot, float partialTick) {
         super.setupRotations(entity, poseStack, ageInTicks, yBodyRot, partialTick);
-        float gx = (float) (Math.random() - 0.5) * 0.03F;
-        float gz = (float) (Math.random() - 0.5) * 0.03F;
+        float gx = (float) Math.sin(ageInTicks * 7.3F) * 0.03F;
+        float gz = (float) Math.cos(ageInTicks * 5.1F) * 0.03F;
         poseStack.translate(gx, 0, gz);
-        if (Math.random() < 0.08) {
-            float sx = 1.0F + (float) (Math.random() - 0.5) * 0.15F;
-            float sy = 1.0F + (float) (Math.random() - 0.5) * 0.08F;
+        if ((int)(ageInTicks * 3) % 13 == 0) {
+            float sx = 1.0F + (float) Math.sin(ageInTicks * 11.7F) * 0.075F;
+            float sy = 1.0F + (float) Math.cos(ageInTicks * 8.3F) * 0.04F;
             poseStack.scale(sx, sy, sx);
         }
     }

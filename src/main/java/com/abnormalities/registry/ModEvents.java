@@ -104,16 +104,15 @@ public class ModEvents {
             task.ticksRemaining--;
             if (task.ticksRemaining <= 0) {
                 it.remove();
+                Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
+                if (target == null) continue;
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
                 nur.moveTo(task.sx + 0.5, task.sy, task.sz + 0.5, 0, 0);
                 nur.currentState = NurEntity.State.STALKING;
                 task.level.addFreshEntity(nur);
-                Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
-                if (target != null) {
-                    task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
-                            SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
-                }
+                task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             }
         }
         long currentDay = overworld.getDayTime() / 24000L;
@@ -138,7 +137,7 @@ public class ModEvents {
                 double sx = player.getX() + Math.cos(angle) * dist;
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+                BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
 
                 XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
@@ -188,7 +187,7 @@ public class ModEvents {
             double sx = player.getX() + Math.cos(angle) * dist;
             double sz = player.getZ() + Math.sin(angle) * dist;
             int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-            BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+            BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
             if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
             if (player instanceof ServerPlayer sp) {

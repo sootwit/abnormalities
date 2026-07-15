@@ -106,8 +106,10 @@ public class XyzEntity extends Mob {
         if (hasFailed || rewardGiven) return;
 
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) {
-            discard();
-            return;
+            if (targetUUID != null && level().getServer() != null) {
+                targetPlayer = level().getServer().getPlayerList().getPlayer(targetUUID);
+            }
+            if (targetPlayer == null) return;
         }
 
         if (!messageSent) return;
@@ -199,9 +201,13 @@ public class XyzEntity extends Mob {
             default -> new ItemStack(Items.GOLDEN_APPLE, appleAmt);
         };
 
-        ItemEntity rewardEntity = new ItemEntity(level(), this.getX(), this.getY() + 40, this.getZ(), reward);
-        rewardEntity.setNoPickUpDelay();
-        level().addFreshEntity(rewardEntity);
+        if (player instanceof ServerPlayer sp) {
+            sp.getInventory().add(reward);
+        } else {
+            ItemEntity rewardEntity = new ItemEntity(level(), this.getX(), this.getY() + 2, this.getZ(), reward);
+            rewardEntity.setNoPickUpDelay();
+            level().addFreshEntity(rewardEntity);
+        }
 
         level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.MASTER, 3.0f, 1.5f);

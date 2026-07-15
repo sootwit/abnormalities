@@ -52,8 +52,8 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("xyz");
         XYZ_SPAWN_WEIGHT = b.comment("lower = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
-        XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 512);
-        XYZ_REWARD_GOLDEN_CARROTS = b.comment("stack size of golden carrots given as reward").defineInRange("rewardGoldenCarrots", 32, 1, 512);
+        XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 64);
+        XYZ_REWARD_GOLDEN_CARROTS = b.comment("stack size of golden carrots given as reward").defineInRange("rewardGoldenCarrots", 32, 1, 64);
         XYZ_REWARD_GOLDEN_APPLES = b.comment("count of golden apples given as reward").defineInRange("rewardGoldenApples", 2, 1, 64);
         b.pop();
         SPEC = b.build();

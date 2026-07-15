@@ -18,6 +18,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
@@ -39,6 +40,8 @@ public class K3wActionTracker {
         if (event.phase != TickEvent.Phase.END) return;
         ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return;
+
+        ACTIVE_CLONES.values().forEach(list -> list.removeIf(e -> !e.isAlive()));
 
         for (Player player : overworld.players()) {
             UUID uuid = player.getUUID();
@@ -228,5 +231,12 @@ public class K3wActionTracker {
         FORCED_SPAWNS.remove(uuid);
         ACTION_LOGS.remove(uuid);
         POSITION_BUFFERS.remove(uuid);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() != null) {
+            cleanup(event.getEntity().getUUID());
+        }
     }
 }

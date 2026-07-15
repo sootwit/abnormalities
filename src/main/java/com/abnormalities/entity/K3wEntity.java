@@ -244,7 +244,7 @@ public class K3wEntity extends Mob {
         if (!messageSent && spawnTimer >= CHAT_DELAY) {
             if (targetPlayer instanceof ServerPlayer sp) {
                 sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                        Component.literal("<k3w> you have 30 seconds to run").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC), false));
+                        Component.literal("<k3w> you have " + AbnormalitiesConfig.K3W_FOLLOW_TIME.get() + " seconds to run").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC), false));
             }
             targetPlayer.level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
@@ -310,7 +310,7 @@ public class K3wEntity extends Mob {
                 if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
                 if (level().getBlockState(pos).isAir()) {
                     if (action.block != null) {
-                        level().setBlockAndUpdate(pos, ((Block) action.block).defaultBlockState());
+                        level().setBlockAndUpdate(pos, action.block.defaultBlockState());
                         level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                                 net.minecraft.sounds.SoundEvents.STONE_PLACE, SoundSource.MASTER, 1.0f, 0.8f);
                     }
@@ -353,7 +353,7 @@ public class K3wEntity extends Mob {
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
         super.remove(reason);
-        if (!level().isClientSide && targetPlayer != null) {
+        if (level() != null && !level().isClientSide && targetPlayer != null) {
             level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 3.0f, 1.8f);
         }
@@ -390,10 +390,12 @@ public class K3wEntity extends Mob {
             aTag.putInt("Y", action.y);
             aTag.putInt("Z", action.z);
             if (action.entityType != null) {
-                aTag.putString("EntityType", net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(action.entityType).toString());
+                var etKey = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(action.entityType);
+                if (etKey != null) aTag.putString("EntityType", etKey.toString());
             }
             if (action.block != null) {
-                aTag.putString("Block", net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey((Block) action.block).toString());
+                var blKey = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(action.block);
+                if (blKey != null) aTag.putString("Block", blKey.toString());
             }
             actionTag.add(aTag);
         }
@@ -429,12 +431,12 @@ public class K3wEntity extends Mob {
             int ax = aTag.getInt("X"), ay = aTag.getInt("Y"), az = aTag.getInt("Z");
             if (aTag.contains("EntityType")) {
                 EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
-                pendingActions.add(new K3wAction(type, (double)ax, (double)ay, (double)az, et));
+                if (et != null) pendingActions.add(new K3wAction(type, (double)ax, (double)ay, (double)az, et));
             } else if (aTag.contains("Block")) {
                 Block bl = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("Block")));
-                pendingActions.add(new K3wAction(type, ax, ay, az, bl));
+                if (bl != null) pendingActions.add(new K3wAction(type, ax, ay, az, bl));
             } else {
-                pendingActions.add(new K3wAction(type, ax, ay, az, (Object) null));
+                pendingActions.add(new K3wAction(type, ax, ay, az, (Block) null));
             }
         }
     }
@@ -444,10 +446,10 @@ public class K3wEntity extends Mob {
 
         final ActionType type;
         final int x, y, z;
-        final Object block;
+        final Block block;
         final EntityType<?> entityType;
 
-        K3wAction(ActionType type, int x, int y, int z, Object block) {
+        K3wAction(ActionType type, int x, int y, int z, Block block) {
             this.type = type;
             this.x = x;
             this.y = y;
