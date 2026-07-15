@@ -64,7 +64,7 @@ public class K3wActionTracker {
             if (!MESSAGES_SENT.getOrDefault(uuid, false) && timer >= spawnAt) {
                 if (player instanceof ServerPlayer sp) {
                     sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                            Component.literal("<k3w> run").withStyle(ChatFormatting.WHITE), false));
+                            Component.literal("<" + player.getName().getString() + "> run").withStyle(ChatFormatting.WHITE), false));
                 }
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
@@ -93,7 +93,7 @@ public class K3wActionTracker {
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
         if (player instanceof ServerPlayer sp) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                    net.minecraft.network.chat.Component.literal("<k3w> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+                    net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
         }
     }
 

@@ -24,9 +24,9 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue K3W_SPAWN_WEIGHT;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
-        CRASH_ON_DEATH = b.comment("crash game when killed by nur").define("crashOnDeath", true);
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
         b.push("nur");
+        CRASH_ON_DEATH = b.comment("crash game when killed by nur").define("crashOnDeath", true);
         NUR_SPAWN_WEIGHT = b.comment("lower = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
@@ -44,7 +44,7 @@ public class AbnormalitiesConfig {
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
         K3W_KILL_MOBS = b.comment("k3w can undo mob kills").define("killMobs", true);
         K3W_REVIVE_MOBS = b.comment("k3w can revive killed mobs").define("reviveMobs", true);
-        K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 7)").defineInRange("followTime", 7, 1, 60);
+        K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
         b.pop();
         SPEC = b.build();
     }
