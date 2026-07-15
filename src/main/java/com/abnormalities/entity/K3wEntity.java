@@ -103,6 +103,9 @@ public class K3wEntity extends Mob {
     }
 
     public void setTargetPlayer(Player player) {
+        if (player != null && player == this.targetPlayer) {
+            return;
+        }
         this.targetPlayer = player;
         if (player != null) {
             UUID uuid = player.getUUID();
@@ -200,6 +203,9 @@ public class K3wEntity extends Mob {
             discard();
             return;
         }
+        if (!targetPlayer.isSleeping() && waitingForDay && level().getDayTime() % 24000L >= 2000) {
+            waitingForDay = false;
+        }
 
         if (hitCooldown > 0) hitCooldown--;
 
@@ -293,20 +299,6 @@ public class K3wEntity extends Mob {
                     undonePositions.add(actionPos);
                     it.remove();
                 }
-            }
-        }
-    }
-
-    private void processUndoActions(double x, double y, double z) {
-        BlockPos currentPos = new BlockPos((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
-        Iterator<K3wAction> it = pendingActions.iterator();
-        while (it.hasNext()) {
-            K3wAction action = it.next();
-            BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
-            if (actionPos.equals(currentPos) && !undonePositions.contains(actionPos)) {
-                executeUndo(action);
-                undonePositions.add(actionPos);
-                it.remove();
             }
         }
     }

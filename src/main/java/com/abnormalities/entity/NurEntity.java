@@ -95,6 +95,7 @@ public class NurEntity extends Mob {
                 return;
             }
             soundLoopTick = 0;
+            soundTick = -1;
         }
         if (silenceTimer > 0) silenceTimer--;
         if (attackCooldown > 0) attackCooldown--;
@@ -213,12 +214,14 @@ public class NurEntity extends Mob {
                 this.teleportTo(this.getX(), targetPos.getY(), this.getZ());
                 return;
             }
-            for (int bx = -2; bx <= 2; bx++) {
-                for (int bz = -2; bz <= 2; bz++) {
-                    BlockPos below = nurPos.offset(bx, -1, bz);
-                    BlockState belowState = level().getBlockState(below);
-                    if (!belowState.isAir() && !belowState.is(Blocks.BEDROCK)) {
-                        level().destroyBlock(below, false);
+            if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
+                for (int bx = -2; bx <= 2; bx++) {
+                    for (int bz = -2; bz <= 2; bz++) {
+                        BlockPos below = nurPos.offset(bx, -1, bz);
+                        BlockState belowState = level().getBlockState(below);
+                        if (!belowState.isAir() && !belowState.is(Blocks.BEDROCK)) {
+                            level().destroyBlock(below, false);
+                        }
                     }
                 }
             }

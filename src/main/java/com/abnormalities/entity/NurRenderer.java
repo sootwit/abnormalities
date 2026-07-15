@@ -55,7 +55,7 @@ public class NurRenderer extends EntityRenderer<NurEntity> {
         var m = poseStack.last().pose();
         var n = poseStack.last().normal();
         int light = 15 << 20 | 15 << 4;
-        int alpha = entity.isChasing() ? 255 : 255;
+        int alpha = 255;
         vc.vertex(m, -hw, -hh, 0).color(255, 255, 255, alpha).uv(0, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
         vc.vertex(m, hw, -hh, 0).color(255, 255, 255, alpha).uv(1, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
         vc.vertex(m, hw, hh, 0).color(255, 255, 255, alpha).uv(1, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();

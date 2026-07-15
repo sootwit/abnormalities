@@ -127,6 +127,10 @@ public class K3wActionTracker {
             return;
         }
 
+        if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
+            return;
+        }
+
         K3wEntity clone = ModEntities.K3W.get().create(level);
         if (clone == null) {
             cleanup(uuid);
@@ -143,6 +147,8 @@ public class K3wActionTracker {
 
         level.addFreshEntity(clone);
         ACTIVE_CLONES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(clone);
+        ACTION_LOGS.put(uuid, new ArrayList<>());
+        POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 5.0f, 0.3f);
@@ -216,6 +222,7 @@ public class K3wActionTracker {
     }
 
     private static void cleanup(UUID uuid) {
+        ACTIVE_CLONES.remove(uuid);
         SPAWN_TIMERS.remove(uuid);
         MESSAGES_SENT.remove(uuid);
         FORCED_SPAWNS.remove(uuid);

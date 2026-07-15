@@ -40,7 +40,6 @@ public class ModEntities {
     }
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(com.abnormalities.entity.NurModel.LAYER_LOCATION, com.abnormalities.entity.NurModel::createBodyLayer);
         event.registerLayerDefinition(com.abnormalities.entity.K3wModel.LAYER_LOCATION, com.abnormalities.entity.K3wModel::createBodyLayer);
     }
 }
