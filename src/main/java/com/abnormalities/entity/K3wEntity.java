@@ -210,7 +210,7 @@ public class K3wEntity extends Mob {
         if (hitCooldown > 0) hitCooldown--;
 
         double dist = this.distanceTo(targetPlayer);
-        if (dist < 2.0D && hitCooldown <= 0) {
+        if (dist < 2.0D && hitCooldown <= 0 && !isCrashing()) {
             targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 5.0F);
             hitCooldown = 20;
 
@@ -262,12 +262,8 @@ public class K3wEntity extends Mob {
 
         double[] target = K3wActionTracker.getDelayedPosition(targetPlayer);
         if (target != null) {
-            boolean shouldFly = target.length > 3 && target[3] > 0.5;
-            if (shouldFly) {
-                this.setNoGravity(true);
-            } else if (this.onGround()) {
-                this.setNoGravity(false);
-            }
+            boolean shouldFly = target[1] - this.getY() > 2.0;
+            this.setNoGravity(shouldFly);
             double dx = target[0] - this.getX();
             double dy = target[1] - this.getY();
             double dz = target[2] - this.getZ();
