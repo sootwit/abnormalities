@@ -3,6 +3,11 @@
   "entity.abnormalities.nur": "nur",
   "entity.abnormalities.k3w": "k3w",
   "entity.abnormalities.xyz": "xYz",
+  "entity.abnormalities.chicken_nur": "Chicken",
+  "entity.abnormalities.cow_nur": "Cow",
+  "entity.abnormalities.sheep_nur": "Sheep",
+  "entity.abnormalities.pig_nur": "Pig",
+  "entity.abnormalities.villager_nur": "Villager",
   "commands.abnormalities.forcerandomevent": "Forces a random abnormalities event",
   "commands.abnormalities.callevent": "Calls a specific abnormalities event",
   "abnormalities.config.gracePeriodDays": "Grace Period (Days)",
@@ -26,5 +31,10 @@
   "abnormalities.config.xyz.spawnWeight": "xYz Spawn Weight",
   "abnormalities.config.xyz.rewardCookies": "xYz Cookie Reward",
   "abnormalities.config.xyz.rewardGoldenCarrots": "xYz Golden Carrot Reward",
-  "abnormalities.config.xyz.rewardGoldenApples": "xYz Golden Apple Reward"
+  "abnormalities.config.xyz.rewardGoldenApples": "xYz Golden Apple Reward",
+  "abnormalities.config.skinwalker.spawnWeight": "Skinwalker Spawn Weight",
+  "abnormalities.config.skinwalker.approachSpeed": "Skinwalker Approach Speed",
+  "abnormalities.config.skinwalker.detectionRange": "Skinwalker Detection Range",
+  "abnormalities.config.skinwalker.transformTime": "Skinwalker Transform Time",
+  "abnormalities.config.skinwalker.killSpawnChance": "Skinwalker Kill Spawn Chance"
 }

@@ -3,6 +3,7 @@ package com.abnormalities.registry;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.XyzEntity;
+import com.abnormalities.entity.skinwalker.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,6 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -177,6 +180,44 @@ public class ModEvents {
                         xyz.setMessageSent(true);
                     }
                 }
+            }
+        }
+
+        for (Player player : overworld.players()) {
+            if (player.tickCount % 40 != 0) continue;
+            if (overworld.random.nextInt(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get()) != 0) continue;
+            double angle = overworld.random.nextDouble() * Math.PI * 2;
+            double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
+            double sx = player.getX() + Math.cos(angle) * dist;
+            double sz = player.getZ() + Math.sin(angle) * dist;
+            int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+            BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+            if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
+            if (overworld.getBlockState(spawnPos).canOcclude()) continue;
+            var biomeHolder = overworld.getBiome(spawnPos);
+            var biomeRegistry = overworld.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BIOME);
+            var biomeKey = biomeRegistry.getResourceKey(biomeHolder.value());
+            if (biomeKey.isEmpty()) continue;
+            var biome = biomeKey.get();
+            EntityType<?> swType = null;
+            if (biome == net.minecraft.world.level.biome.Biomes.PLAINS || biome == net.minecraft.world.level.biome.Biomes.SUNFLOWER_PLAINS || biome == net.minecraft.world.level.biome.Biomes.MEADOW) {
+                int roll = overworld.random.nextInt(3);
+                swType = roll == 0 ? ModEntities.CHICKEN_NUR.get() : roll == 1 ? ModEntities.COW_NUR.get() : ModEntities.SHEEP_NUR.get();
+            } else if (biome == net.minecraft.world.level.biome.Biomes.SAVANNA) {
+                swType = overworld.random.nextBoolean() ? ModEntities.COW_NUR.get() : ModEntities.SHEEP_NUR.get();
+            } else if (biome == net.minecraft.world.level.biome.Biomes.FOREST) {
+                swType = ModEntities.PIG_NUR.get();
+            } else if (biome == net.minecraft.world.level.biome.Biomes.DESERT || biome == net.minecraft.world.level.biome.Biomes.TAIGA || biome == net.minecraft.world.level.biome.Biomes.SNOWY_PLAINS) {
+                swType = ModEntities.VILLAGER_NUR.get();
+            }
+            if (swType == null) continue;
+            var nearby = overworld.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
+                    e -> e instanceof ChickenNurEntity || e instanceof CowNurEntity || e instanceof SheepNurEntity || e instanceof PigNurEntity || e instanceof VillagerNurEntity);
+            if (nearby.size() >= 3) continue;
+            var entity = swType.create(overworld);
+            if (entity != null) {
+                entity.moveTo(sx + 0.5, sy, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
+                overworld.addFreshEntity(entity);
             }
         }
 
