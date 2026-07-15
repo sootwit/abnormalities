@@ -22,6 +22,10 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue K3W_REVIVE_MOBS;
     public static final ForgeConfigSpec.IntValue K3W_FOLLOW_TIME;
     public static final ForgeConfigSpec.IntValue K3W_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue XYZ_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue XYZ_REWARD_COOKIES;
+    public static final ForgeConfigSpec.IntValue XYZ_REWARD_GOLDEN_CARROTS;
+    public static final ForgeConfigSpec.IntValue XYZ_REWARD_GOLDEN_APPLES;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -45,6 +49,12 @@ public class AbnormalitiesConfig {
         K3W_KILL_MOBS = b.comment("k3w can undo mob kills").define("killMobs", true);
         K3W_REVIVE_MOBS = b.comment("k3w can revive killed mobs").define("reviveMobs", true);
         K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
+        b.pop();
+        b.push("xyz");
+        XYZ_SPAWN_WEIGHT = b.comment("lower = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 512);
+        XYZ_REWARD_GOLDEN_CARROTS = b.comment("stack size of golden carrots given as reward").defineInRange("rewardGoldenCarrots", 32, 1, 512);
+        XYZ_REWARD_GOLDEN_APPLES = b.comment("count of golden apples given as reward").defineInRange("rewardGoldenApples", 2, 1, 64);
         b.pop();
         SPEC = b.build();
     }

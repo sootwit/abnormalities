@@ -2,12 +2,15 @@ package com.abnormalities.registry;
 
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
+import com.abnormalities.entity.XyzEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -116,6 +119,66 @@ public class ModEvents {
         long currentDay = overworld.getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         long time = overworld.getDayTime() % 24000L;
+
+        if (time < 13000L && time > 2000L) {
+            for (Player player : overworld.players()) {
+                if (player.tickCount % 40 != 0) continue;
+                if (overworld.random.nextInt(AbnormalitiesConfig.XYZ_SPAWN_WEIGHT.get()) != 0) continue;
+                boolean alreadyHasXyz = false;
+                for (XyzEntity existing : overworld.getEntitiesOfClass(XyzEntity.class, player.getBoundingBox().inflate(256.0D))) {
+                    if (existing.getTargetPlayer() == player && existing.isActive()) {
+                        alreadyHasXyz = true;
+                        break;
+                    }
+                }
+                if (alreadyHasXyz) continue;
+
+                double angle = overworld.random.nextDouble() * Math.PI * 2;
+                double dist = 45.0D + overworld.random.nextDouble() * 35.0D;
+                double sx = player.getX() + Math.cos(angle) * dist;
+                double sz = player.getZ() + Math.sin(angle) * dist;
+                int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+                if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
+
+                XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
+                if (xyz != null) {
+                    xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                    xyz.setTargetPlayer(player);
+                    overworld.addFreshEntity(xyz);
+
+                    var tag = net.minecraft.tags.ItemTags.create(new ResourceLocation("abnormalities", "xyz_items"));
+                    var items = new java.util.ArrayList<net.minecraft.world.item.Item>();
+                    for (var holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
+                        items.add(holder.value());
+                    }
+                    if (items.isEmpty()) continue;
+
+                    net.minecraft.world.item.Item chosenItem = items.get(overworld.random.nextInt(items.size()));
+                    int amount = 1;
+                    if (overworld.random.nextBoolean()) {
+                        amount = 2 + overworld.random.nextInt(15);
+                    }
+                    int seconds = 60 + overworld.random.nextInt(181);
+                    xyz.startRequest(amount, chosenItem, seconds);
+
+                    String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
+                    String msg;
+                    if (amount == 1) {
+                        String prefix = "aeiou".indexOf(Character.toLowerCase(itemName.charAt(0))) >= 0 ? "an" : "a";
+                        msg = player.getName().getString() + ", bring me " + prefix + " " + itemName + " in " + seconds + "s";
+                    } else {
+                        msg = player.getName().getString() + ", bring me " + amount + " " + itemName + "s in " + seconds + "s";
+                    }
+                    if (player instanceof ServerPlayer sp) {
+                        sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                        xyz.setMessageSent(true);
+                    }
+                }
+            }
+        }
+
         if (time < 13000L || time > 23000L) return;
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
