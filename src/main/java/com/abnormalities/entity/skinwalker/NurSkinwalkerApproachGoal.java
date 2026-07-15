@@ -48,7 +48,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void tick() {
         if (targetPlayer == null) return;
         double dist = mob.distanceTo(targetPlayer);
-        double speed = AbnormalitiesConfig.SW_APPROACH_SPEED.get();
+        double speed = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getValue();
         int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
         Level level = mob.level();
         if (dist < 2.0D) {
