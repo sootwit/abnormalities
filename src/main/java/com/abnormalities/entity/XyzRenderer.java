@@ -46,13 +46,10 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
 
         Vec3 camPos = player.getEyePosition(partialTick);
         double dx = entity.getX() - camPos.x;
-        double dy = (entity.getY() + hh) - camPos.y;
         double dz = entity.getZ() - camPos.z;
         float yaw = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
-        float pitch = (float) -(Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180.0D / Math.PI));
 
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
 
         ResourceLocation tex = getTextureLocation(entity);
         RenderType renderType = RenderType.entityCutoutNoCull(tex);

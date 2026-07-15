@@ -96,6 +96,7 @@ public class XyzEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        this.setDeltaMovement(0, 0, 0);
 
         if (fadeOutTick > 0) {
             fadeOutTick--;

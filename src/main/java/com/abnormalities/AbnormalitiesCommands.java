@@ -80,7 +80,8 @@ public class AbnormalitiesCommands {
             return;
         }
         net.minecraft.world.item.Item chosenItem = items.get(level.random.nextInt(items.size()));
-        int amount = level.random.nextBoolean() ? 1 : (2 + level.random.nextInt(15));
+        int maxStack = chosenItem.getMaxStackSize();
+        int amount = maxStack <= 1 ? 1 : (level.random.nextBoolean() ? 1 : Math.min(maxStack, 2 + level.random.nextInt(15)));
 
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 25.0D + level.random.nextDouble() * 20.0D;

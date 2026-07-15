@@ -155,8 +155,9 @@ public class ModEvents {
 
                     net.minecraft.world.item.Item chosenItem = items.get(overworld.random.nextInt(items.size()));
                     int amount = 1;
-                    if (overworld.random.nextBoolean()) {
-                        amount = 2 + overworld.random.nextInt(15);
+                    int maxStack = chosenItem.getMaxStackSize();
+                    if (maxStack > 1 && overworld.random.nextBoolean()) {
+                        amount = Math.min(maxStack, 2 + overworld.random.nextInt(15));
                     }
                     int seconds = 60 + overworld.random.nextInt(181);
                     xyz.startRequest(amount, chosenItem, seconds);
