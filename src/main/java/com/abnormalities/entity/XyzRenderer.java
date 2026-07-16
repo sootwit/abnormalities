@@ -52,18 +52,17 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
 
         ResourceLocation tex = getTextureLocation(entity);
-        RenderType renderType = RenderType.entityCutoutNoCull(tex);
+        RenderType renderType = RenderType.entityTranslucentEmissive(tex);
         VertexConsumer vc = bufferSource.getBuffer(renderType);
 
         var m = poseStack.last().pose();
         var n = poseStack.last().normal();
         int light = 15 << 20 | 15 << 4;
-        int alpha = 255;
 
-        vc.vertex(m, -hw, -hh, 0).color(255, 255, 255, alpha).uv(0, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
-        vc.vertex(m, hw, -hh, 0).color(255, 255, 255, alpha).uv(1, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
-        vc.vertex(m, hw, hh, 0).color(255, 255, 255, alpha).uv(1, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
-        vc.vertex(m, -hw, hh, 0).color(255, 255, 255, alpha).uv(0, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, -hw, -hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, hw, -hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1, 1).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, hw, hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
+        vc.vertex(m, -hw, hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
 
         poseStack.popPose();
     }

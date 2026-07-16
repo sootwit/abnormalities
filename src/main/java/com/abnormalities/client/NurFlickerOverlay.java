@@ -47,14 +47,14 @@ public class NurFlickerOverlay {
         if (showingFlicker) {
             if (now - lastFlickerTime >= flickerDuration) {
                 showingFlicker = false;
-                cooldownEnd = now + 3000 + (long)(Math.random() * 5000);
+                cooldownEnd = now + 2000 + (long)(Math.random() * 1000);
             }
             tex = HUD_002;
         } else {
-            if (now >= cooldownEnd && now - lastFlickerTime > 800) {
-                if (Math.random() < 0.03) {
+            if (now >= cooldownEnd) {
+                if (Math.random() < 0.05) {
                     showingFlicker = true;
-                    flickerDuration = (30 + (int)(Math.random() * 50)) * 50;
+                    flickerDuration = 50;
                     lastFlickerTime = now;
                 }
             }
