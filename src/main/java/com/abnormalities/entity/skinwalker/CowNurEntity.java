@@ -49,22 +49,14 @@ public class CowNurEntity extends Cow {
             int chance = com.abnormalities.config.AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get();
             if (serverLevel.random.nextInt(100) < chance) {
                 double dx = getX(), dy = getY(), dz = getZ();
-                var srv = serverLevel.getServer();
-                serverLevel.getServer().tell(new net.minecraft.server.TickTask(0, new Runnable() {
-                    int rem = 40;
-                    @Override
-                    public void run() {
-                        if (--rem > 0) {
-                            srv.tell(new net.minecraft.server.TickTask(0, this));
-                            return;
-                        }
-                        NurEntity nur = ModEntities.NUR.get().create(serverLevel);
-                        if (nur != null) {
-                            nur.moveTo(dx, dy, dz, 0, 0);
-                            Player nearest = serverLevel.getNearestPlayer(nur, 64.0);
-                            if (nearest != null) nur.startChasing(nearest);
-                            serverLevel.addFreshEntity(nur);
-                        }
+                int targetTick = serverLevel.getServer().getTickCount() + 44;
+                serverLevel.getServer().tell(new net.minecraft.server.TickTask(targetTick, () -> {
+                    NurEntity nur = ModEntities.NUR.get().create(serverLevel);
+                    if (nur != null) {
+                        nur.moveTo(dx, dy, dz, 0, 0);
+                        Player nearest = serverLevel.getNearestPlayer(nur, 64.0);
+                        if (nearest != null) nur.startChasing(nearest);
+                        serverLevel.addFreshEntity(nur);
                     }
                 }));
             }
