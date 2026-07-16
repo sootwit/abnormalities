@@ -244,7 +244,7 @@ public class K3wEntity extends Mob {
         if (!messageSent && spawnTimer >= CHAT_DELAY) {
             if (targetPlayer instanceof ServerPlayer sp) {
                 sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                        Component.literal(targetPlayer.getName().getString() + ", run").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC), false));
+                        Component.literal(targetPlayer.getName().getString() + " run"), false));
             }
             targetPlayer.level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
