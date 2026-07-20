@@ -87,9 +87,9 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
 
     private static void playKnock(ServerPlayer player, int index, int total) {
         float progress = (float) index / Math.max(total - 1, 1);
-        float vol = 0.4f + progress * 1.6f;
+        float vol = 0.4f + progress * 1.8f;
         float pitch = 0.7f + progress * 0.5f;
-        float spread = Math.max(6.0f - index * 0.4f, 2.0f);
+        float spread = Math.max(6.0f - index * 0.5f, 1.0f);
         var rng = player.getRandom();
         var kpos = player.position().add(
             rng.nextGaussian() * spread,
@@ -97,13 +97,8 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             rng.nextGaussian() * spread
         );
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            SoundEvents.AMBIENT_CAVE, SoundSource.MASTER,
-            kpos.x, kpos.y, kpos.z, vol * 0.7f, pitch, 0));
-        if (index >= total / 2) {
-            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                Holder.direct(SoundEvents.STONE_BREAK), SoundSource.MASTER,
-                kpos.x, kpos.y, kpos.z, vol * 1.5f, pitch * 0.5f, 0));
-        }
+            Holder.direct(SoundEvents.STONE_BREAK), SoundSource.MASTER,
+            kpos.x, kpos.y, kpos.z, vol, pitch * 0.8f, 0));
     }
 
     @SubscribeEvent

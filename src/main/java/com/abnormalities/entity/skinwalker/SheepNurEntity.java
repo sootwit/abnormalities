@@ -1,7 +1,7 @@
 package com.abnormalities.entity.skinwalker;
 
-import com.abnormalities.entity.NurEntity;
-import com.abnormalities.registry.ModEntities;
+import com.abnormalities.config.AbnormalitiesConfig;
+import com.abnormalities.registry.ModEvents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -47,21 +47,8 @@ public class SheepNurEntity extends Sheep {
     public void die(DamageSource source) {
         super.die(source);
         if (!level().isClientSide && level() instanceof ServerLevel serverLevel) {
-            int chance = com.abnormalities.config.AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get();
-            if (serverLevel.random.nextInt(100) < chance) {
-                double dx = getX(), dy = getY(), dz = getZ();
-                var srv = serverLevel.getServer();
-                if (srv == null) return;
-                int targetTick = srv.getTickCount() + 44;
-                srv.tell(new net.minecraft.server.TickTask(targetTick, () -> {
-                    NurEntity nur = ModEntities.NUR.get().create(serverLevel);
-                    if (nur != null) {
-                        nur.moveTo(dx, dy, dz, 0, 0);
-                        Player nearest = serverLevel.getNearestPlayer(nur, 64.0);
-                        if (nearest != null) nur.startChasing(nearest);
-                        serverLevel.addFreshEntity(nur);
-                    }
-                }));
+            if (serverLevel.random.nextInt(100) < AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) {
+                ModEvents.scheduleSkinwalkerSpawn(40, getX(), getY(), getZ(), serverLevel);
             }
         }
     }
