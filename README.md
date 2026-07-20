@@ -6,6 +6,7 @@ you will not enjoy your stay.
 ### WHAT IT ADDS
 
 *   entities that either stalk, watch, or reward you
+*   events that happen randomly
 
 ### THINGS YOU WANT TO KNOW BEFORE PLAYING
 
