@@ -2,9 +2,12 @@ package com.abnormalities.entity.skinwalker;
 
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModEvents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -53,12 +56,22 @@ public class VillagerNurEntity extends Villager {
     }
 
     @Override
+    public Component getName() {
+        return hasCustomName() ? getCustomName() : Component.translatable(this.getType().getDescriptionId());
+    }
+
+    @Override
     public void die(DamageSource source) {
         super.die(source);
         if (!level().isClientSide && level() instanceof ServerLevel serverLevel) {
+            if (!(source.getEntity() instanceof ServerPlayer player)) return;
             if (serverLevel.random.nextInt(100) < AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) {
-                ModEvents.scheduleSkinwalkerSpawn(40, getX(), getY(), getZ(), serverLevel);
+                ModEvents.scheduleSkinwalkerSpawn(40, getX(), getY(), getZ(), serverLevel, player.getUUID());
             }
         }
+    }
+
+    @Override
+    public void thunderHit(ServerLevel level, LightningBolt lightning) {
     }
 }

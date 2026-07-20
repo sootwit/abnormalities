@@ -84,18 +84,20 @@ public class ModEvents {
         int ticksRemaining;
         final double x, y, z;
         final ServerLevel level;
-        SkinwalkerSpawnTask(int delay, double x, double y, double z, ServerLevel level) {
+        final java.util.UUID targetUUID;
+        SkinwalkerSpawnTask(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
             this.ticksRemaining = delay;
             this.x = x;
             this.y = y;
             this.z = z;
             this.level = level;
+            this.targetUUID = targetUUID;
         }
     }
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
 
-    public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level) {
-        PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level));
+    public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
+        PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level, targetUUID));
     }
 
     public static void forceNurSpawn(ServerPlayer player) {
@@ -144,8 +146,8 @@ public class ModEvents {
             NurEntity nur = ModEntities.NUR.get().create(task.level);
             if (nur == null) continue;
             nur.moveTo(task.x, task.y, task.z, 0, 0);
-            Player nearest = task.level.getNearestPlayer(nur, 64.0);
-            if (nearest != null) nur.startChasing(nearest);
+            Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
+            if (target != null) nur.startChasing(target);
             task.level.addFreshEntity(nur);
         }
         long currentDay = overworld.getDayTime() / 24000L;

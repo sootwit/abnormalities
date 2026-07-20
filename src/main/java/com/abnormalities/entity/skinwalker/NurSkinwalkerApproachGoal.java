@@ -3,10 +3,11 @@ package com.abnormalities.entity.skinwalker;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.registry.ModEntities;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -18,6 +19,8 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private Player targetPlayer;
     private int proximityTimer;
     private int pathRecalcTimer;
+    private int forcedChunkX = Integer.MIN_VALUE;
+    private int forcedChunkZ = Integer.MIN_VALUE;
 
     public NurSkinwalkerApproachGoal(Mob mob) {
         this.mob = mob;
@@ -27,15 +30,18 @@ public class NurSkinwalkerApproachGoal extends Goal {
     @Override
     public boolean canUse() {
         if (mob.level().isClientSide) return false;
-        double range = AbnormalitiesConfig.SW_DETECTION_RANGE.get();
-        targetPlayer = mob.level().getNearestPlayer(mob, range);
+        targetPlayer = mob.level().getNearestPlayer(mob, Double.MAX_VALUE);
         return targetPlayer != null;
     }
 
     @Override
     public boolean canContinueToUse() {
-        if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) return false;
-        return mob.distanceTo(targetPlayer) < AbnormalitiesConfig.SW_DETECTION_RANGE.get() * 1.5;
+        if (!mob.isAlive()) return false;
+        if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()
+                || targetPlayer.level() != mob.level()) {
+            targetPlayer = mob.level().getNearestPlayer(mob, Double.MAX_VALUE);
+        }
+        return targetPlayer != null;
     }
 
     @Override
@@ -47,10 +53,22 @@ public class NurSkinwalkerApproachGoal extends Goal {
     @Override
     public void tick() {
         if (targetPlayer == null) return;
-        double dist = mob.distanceTo(targetPlayer);
-        double speed = mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
-        int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
         Level level = mob.level();
+        if (level instanceof ServerLevel serverLevel) {
+            int cx = mob.blockPosition().getX() >> 4;
+            int cz = mob.blockPosition().getZ() >> 4;
+            if (cx != forcedChunkX || cz != forcedChunkZ) {
+                if (forcedChunkX != Integer.MIN_VALUE) {
+                    serverLevel.setChunkForced(forcedChunkX, forcedChunkZ, false);
+                }
+                serverLevel.setChunkForced(cx, cz, true);
+                forcedChunkX = cx;
+                forcedChunkZ = cz;
+            }
+        }
+        double dist = mob.distanceTo(targetPlayer);
+        double speed = mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
         if (dist < 2.0D) {
             proximityTimer++;
             mob.getLookControl().setLookAt(targetPlayer.getX(), targetPlayer.getEyeY(), targetPlayer.getZ(), 30, 30);
@@ -65,8 +83,10 @@ public class NurSkinwalkerApproachGoal extends Goal {
                 mob.getNavigation().moveTo(targetPlayer, speed);
                 pathRecalcTimer = 20 + mob.getRandom().nextInt(20);
             }
-            if (mob.isInWater() && mob.getY() < targetPlayer.getY()) {
-                mob.setDeltaMovement(mob.getDeltaMovement().add(0, 0.05, 0));
+            if (mob.isInWater() || mob.isInLava()) {
+                if (mob.getY() < targetPlayer.getY()) {
+                    mob.setDeltaMovement(mob.getDeltaMovement().add(0, 0.08, 0));
+                }
             }
         }
     }
@@ -86,6 +106,10 @@ public class NurSkinwalkerApproachGoal extends Goal {
 
     @Override
     public void stop() {
+        if (forcedChunkX != Integer.MIN_VALUE && mob.level() instanceof ServerLevel serverLevel) {
+            serverLevel.setChunkForced(forcedChunkX, forcedChunkZ, false);
+            forcedChunkX = Integer.MIN_VALUE;
+        }
         targetPlayer = null;
         proximityTimer = 0;
         mob.getNavigation().stop();

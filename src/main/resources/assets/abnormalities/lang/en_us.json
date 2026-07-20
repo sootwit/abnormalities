@@ -8,6 +8,7 @@
   "entity.abnormalities.sheep_nur": "Sheep",
   "entity.abnormalities.pig_nur": "Pig",
   "entity.abnormalities.villager_nur": "Villager",
+  "entity.abnormalities.villager_nur.none": "Villager",
   "entity.abnormalities.villager_profession.none": "Villager",
   "commands.abnormalities.forcerandomevent": "Forces a random abnormalities event",
   "commands.abnormalities.callevent": "Calls a specific abnormalities event",
