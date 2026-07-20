@@ -19,4 +19,10 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "k3w_crash3")));
     public static final RegistryObject<SoundEvent> K3W_CRASH4 = SOUNDS.register("k3w_crash4",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "k3w_crash4")));
+    public static final RegistryObject<SoundEvent> WHISPER_SOUND = SOUNDS.register("whisper_sound",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "whisper_sound")));
+    public static final RegistryObject<SoundEvent> HEARTBEAT_SOUND = SOUNDS.register("heartbeat_sound",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "heartbeat_sound")));
+    public static final RegistryObject<SoundEvent> TINNITUS_SOUND = SOUNDS.register("tinnitus_sound",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "tinnitus_sound")));
 }

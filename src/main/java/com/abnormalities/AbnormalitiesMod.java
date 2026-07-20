@@ -3,6 +3,7 @@ package com.abnormalities;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.K3wActionTracker;
 import com.abnormalities.entity.NurHorrorCycle;
+import com.abnormalities.horror.*;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
 import com.abnormalities.registry.ModSounds;
@@ -26,5 +27,22 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
         MinecraftForge.EVENT_BUS.register(K3wActionTracker.class);
         MinecraftForge.EVENT_BUS.register(AbnormalitiesCommands.class);
+        MinecraftForge.EVENT_BUS.register(ReputationManager.class);
+        MinecraftForge.EVENT_BUS.register(ActionLogger.class);
+        MinecraftForge.EVENT_BUS.register(HorrorEventPool.class);
+        MinecraftForge.EVENT_BUS.register(MirrorStageEvent.class);
+        MinecraftForge.EVENT_BUS.register(SomeoneElsesBuildEvent.class);
+        MinecraftForge.EVENT_BUS.register(TheTallyEvent.class);
+        MinecraftForge.EVENT_BUS.register(CountTheKnocksEvent.class);
+
+        HorrorEventPool.register(new FogKnowsYourNameEvent());
+        HorrorEventPool.register(new DontOpenYourEyesEvent());
+        HorrorEventPool.register(new CountTheKnocksEvent());
+        HorrorEventPool.register(new MirrorStageEvent());
+        HorrorEventPool.register(new SomeoneElsesBuildEvent());
+        HorrorEventPool.register(new TheTallyEvent());
+        HorrorEventPool.register(new ItRemembersEvent());
+        HorrorEventPool.register(new HotbarNurEvent());
+        HorrorEventPool.register(new HelpHotbarEvent());
     }
 }

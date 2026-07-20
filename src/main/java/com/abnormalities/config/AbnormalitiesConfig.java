@@ -31,12 +31,14 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.DoubleValue SW_DETECTION_RANGE;
     public static final ForgeConfigSpec.IntValue SW_TRANSFORM_TIME;
     public static final ForgeConfigSpec.IntValue SW_KILL_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.BooleanValue HORROR_EVENTS_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue HORROR_EVENT_HOSTILITY_FACTOR;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
         b.push("nur");
         CRASH_ON_DEATH = b.comment("crash game when killed by nur").define("crashOnDeath", true);
-        NUR_SPAWN_WEIGHT = b.comment("lower = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
+        NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
         NUR_LAVA = b.comment("nur can walk on lava by replacing it with stone").define("lavaWalk", true);
@@ -47,7 +49,7 @@ public class AbnormalitiesConfig {
         NUR_BRIDGE = b.comment("nur can bridge horizontally to reach you").define("bridge", true);
         b.pop();
         b.push("k3w");
-        K3W_SPAWN_WEIGHT = b.comment("lower = rarer spawns").defineInRange("spawnWeight", 8000, 1, 100000);
+        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 8000, 1, 100000);
         K3W_CRASH_ON_CATCH = b.comment("crash game when k3w catches you").define("crashOnCatch", true);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
@@ -56,17 +58,21 @@ public class AbnormalitiesConfig {
         K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
         b.pop();
         b.push("xyz");
-        XYZ_SPAWN_WEIGHT = b.comment("lower = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        XYZ_SPAWN_WEIGHT = b.comment("higher = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
         XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 64);
         XYZ_REWARD_GOLDEN_CARROTS = b.comment("stack size of golden carrots given as reward").defineInRange("rewardGoldenCarrots", 32, 1, 64);
         XYZ_REWARD_GOLDEN_APPLES = b.comment("count of golden apples given as reward").defineInRange("rewardGoldenApples", 2, 1, 64);
         b.pop();
         b.push("skinwalker");
-        SW_SPAWN_WEIGHT = b.comment("lower = rarer skinwalker spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 400, 1, 10000);
         SW_APPROACH_SPEED = b.comment("speed at which skinwalkers approach player").defineInRange("approachSpeed", 0.12, 0.05, 0.3);
         SW_DETECTION_RANGE = b.comment("range at which skinwalkers detect players").defineInRange("detectionRange", 16.0, 8.0, 32.0);
         SW_TRANSFORM_TIME = b.comment("ticks within 2 blocks before transformation (240 = 12s)").defineInRange("transformTime", 240, 100, 600);
         SW_KILL_SPAWN_CHANCE = b.comment("percent chance to spawn nur on death").defineInRange("killSpawnChance", 75, 0, 100);
+        b.pop();
+        b.push("horror");
+        HORROR_EVENTS_ENABLED = b.comment("enable psychological horror events").define("enabled", true);
+        HORROR_EVENT_HOSTILITY_FACTOR = b.comment("global hostility factor for rep-based weight scaling").defineInRange("hostilityFactor", 1.0, 0.0, 3.0);
         b.pop();
         SPEC = b.build();
     }

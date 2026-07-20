@@ -48,7 +48,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void tick() {
         if (targetPlayer == null) return;
         double dist = mob.distanceTo(targetPlayer);
-        double speed = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).getValue();
+        double speed = mob.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
         Level level = mob.level();
         if (dist < 2.0D) {
@@ -77,8 +77,8 @@ public class NurSkinwalkerApproachGoal extends Goal {
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
         nur.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
-        nur.startChasing(targetPlayer);
         level.addFreshEntity(nur);
+        nur.startChasing(targetPlayer);
         level.playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0F, 0.3F);
         mob.discard();

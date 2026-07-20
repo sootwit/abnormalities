@@ -33,7 +33,7 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
         float gx = (float) Math.sin(ageInTicks * 7.3F) * 0.03F;
         float gz = (float) Math.cos(ageInTicks * 5.1F) * 0.03F;
         poseStack.translate(gx, 0, gz);
-        if ((int)(ageInTicks * 3) % 13 == 0) {
+        if ((float) Math.sin(ageInTicks * 0.5F) > 0.92F) {
             float sx = 1.0F + (float) Math.sin(ageInTicks * 11.7F) * 0.075F;
             float sy = 1.0F + (float) Math.cos(ageInTicks * 8.3F) * 0.04F;
             poseStack.scale(sx, sy, sx);

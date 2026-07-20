@@ -103,7 +103,7 @@ public class K3wEntity extends Mob {
     }
 
     public void setTargetPlayer(Player player) {
-        if (player != null && player == this.targetPlayer) {
+        if (player != null && this.targetPlayer != null && player.getUUID().equals(this.targetPlayer.getUUID())) {
             return;
         }
         this.targetPlayer = player;
@@ -230,7 +230,7 @@ public class K3wEntity extends Mob {
                     net.minecraft.server.MinecraftServer srv = level().getServer();
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
-                        sp.connection.disconnect(Component.literal("k3w got you."));
+                        sp.connection.disconnect(Component.literal("got you!"));
                     }));
                 }
             }
@@ -261,40 +261,41 @@ public class K3wEntity extends Mob {
         }
 
         double[] target = K3wActionTracker.getDelayedPosition(targetPlayer);
-        if (target != null) {
-            boolean shouldFly = target[1] - this.getY() > 2.0;
-            this.setNoGravity(shouldFly);
-            double dx = target[0] - this.getX();
-            double dy = target[1] - this.getY();
-            double dz = target[2] - this.getZ();
-            double horizDist = Math.sqrt(dx * dx + dz * dz);
-            if (horizDist > 0.5) {
-                this.getMoveControl().setWantedPosition(target[0], target[1], target[2], 1.0D);
-                this.getLookControl().setLookAt(target[0], target[1], target[2], 30, 30);
-                if (shouldFly) {
-                    double speed = 0.5D;
-                    this.setDeltaMovement(dx / horizDist * speed, dy > 1 ? 0.3D : dy < -1 ? -0.3D : 0, dz / horizDist * speed);
-                }
+        if (target == null) {
+            target = new double[]{targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(), 0};
+        }
+        boolean shouldFly = target[1] - this.getY() > 2.0;
+        this.setNoGravity(shouldFly);
+        double dx = target[0] - this.getX();
+        double dy = target[1] - this.getY();
+        double dz = target[2] - this.getZ();
+        double horizDist = Math.sqrt(dx * dx + dz * dz);
+        if (horizDist > 0.5) {
+            this.getMoveControl().setWantedPosition(target[0], target[1], target[2], 1.0D);
+            this.getLookControl().setLookAt(target[0], target[1], target[2], 30, 30);
+            if (shouldFly) {
+                double speed = 0.5D;
+                this.setDeltaMovement(dx / horizDist * speed, dy > 1 ? 0.3D : dy < -1 ? -0.3D : 0, dz / horizDist * speed);
             }
-            if (this.onGround() && horizDist > 1) {
-                BlockPos inFront = this.blockPosition().relative(this.getDirection());
-                if (level().getBlockState(inFront).canOcclude()) {
-                    this.jumpFromGround();
-                }
+        }
+        if (this.onGround() && horizDist > 1) {
+            BlockPos inFront = this.blockPosition().relative(this.getDirection());
+            if (level().getBlockState(inFront).canOcclude()) {
+                this.jumpFromGround();
             }
-            if (this.isInWater() && horizDist > 0.5) {
-                this.setDeltaMovement(this.getDeltaMovement().x, 0.2D, this.getDeltaMovement().z);
-            }
-            BlockPos targetPos = new BlockPos((int) Math.floor(target[0]), (int) Math.floor(target[1]), (int) Math.floor(target[2]));
-            Iterator<K3wAction> it = pendingActions.iterator();
-            while (it.hasNext()) {
-                K3wAction action = it.next();
-                BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
-                if (Math.abs(actionPos.getX() - targetPos.getX()) <= 1 && Math.abs(actionPos.getY() - targetPos.getY()) <= 1 && Math.abs(actionPos.getZ() - targetPos.getZ()) <= 1 && !undonePositions.contains(actionPos)) {
-                    executeUndo(action);
-                    undonePositions.add(actionPos);
-                    it.remove();
-                }
+        }
+        if (this.isInWater() && horizDist > 0.5) {
+            this.setDeltaMovement(this.getDeltaMovement().x, 0.2D, this.getDeltaMovement().z);
+        }
+        BlockPos targetPos = new BlockPos((int) Math.floor(target[0]), (int) Math.floor(target[1]), (int) Math.floor(target[2]));
+        Iterator<K3wAction> it = pendingActions.iterator();
+        while (it.hasNext()) {
+            K3wAction action = it.next();
+            BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
+            if (Math.abs(actionPos.getX() - targetPos.getX()) <= 1 && Math.abs(actionPos.getY() - targetPos.getY()) <= 1 && Math.abs(actionPos.getZ() - targetPos.getZ()) <= 1 && !undonePositions.contains(actionPos)) {
+                executeUndo(action);
+                undonePositions.add(actionPos);
+                it.remove();
             }
         }
     }
@@ -423,7 +424,8 @@ public class K3wEntity extends Mob {
         net.minecraft.nbt.ListTag actionTag = tag.getList("PendingActions", 10);
         for (int i = 0; i < actionTag.size(); i++) {
             CompoundTag aTag = actionTag.getCompound(i);
-            K3wAction.ActionType type = K3wAction.ActionType.valueOf(aTag.getString("Type"));
+            K3wAction.ActionType type;
+            try { type = K3wAction.ActionType.valueOf(aTag.getString("Type")); } catch (Exception ignored) { continue; }
             int ax = aTag.getInt("X"), ay = aTag.getInt("Y"), az = aTag.getInt("Z");
             if (aTag.contains("EntityType")) {
                 EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));

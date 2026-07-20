@@ -69,13 +69,13 @@ public class K3wModel extends HumanoidModel<K3wEntity> {
         hat.yRot = head.yRot;
         hat.xRot = head.xRot;
 
-        rightArm.xRot = (float) Math.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
+        rightArm.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F;
         rightArm.zRot = glitch;
-        leftArm.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 2.0F * limbSwingAmount * 0.5F;
+        leftArm.xRot = (float) Math.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
         leftArm.zRot = -glitch;
 
-        rightLeg.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
-        leftLeg.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+        rightLeg.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+        leftLeg.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
 
         body.zRot = staticFlicker;
         head.zRot = staticFlicker * 0.5F;

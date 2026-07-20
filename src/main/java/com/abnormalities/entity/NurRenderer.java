@@ -32,6 +32,7 @@ public class NurRenderer extends EntityRenderer<NurEntity> {
     }
     @Override
     public void render(NurEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         var mc = Minecraft.getInstance();
         var player = mc.player;
         if (player == null) return;

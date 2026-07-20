@@ -67,15 +67,14 @@ public class ModEvents {
 
     private static class SpawnTask {
         int ticksRemaining;
-        final double sx, sz;
-        final int sy;
         final ServerLevel level;
         final java.util.UUID playerUUID;
-        SpawnTask(int delay, double sx, int sy, double sz, ServerLevel level, java.util.UUID playerUUID) {
+        final double angle;
+        final double dist;
+        SpawnTask(int delay, double angle, double dist, ServerLevel level, java.util.UUID playerUUID) {
             this.ticksRemaining = delay;
-            this.sx = sx;
-            this.sy = sy;
-            this.sz = sz;
+            this.angle = angle;
+            this.dist = dist;
             this.level = level;
             this.playerUUID = playerUUID;
         }
@@ -90,10 +89,7 @@ public class ModEvents {
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 10.0D + level.random.nextDouble() * 15.0D;
-        double sx = player.getX() + Math.cos(angle) * dist;
-        double sz = player.getZ() + Math.sin(angle) * dist;
-        int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-        PENDING_SPAWNS.add(new SpawnTask(100, sx, sy, sz, level, player.getUUID()));
+        PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
     }
 
     @SubscribeEvent
@@ -109,9 +105,12 @@ public class ModEvents {
                 it.remove();
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
                 if (target == null) continue;
+                double sx = target.getX() + Math.cos(task.angle) * task.dist;
+                double sz = target.getZ() + Math.sin(task.angle) * task.dist;
+                int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
-                nur.moveTo(task.sx + 0.5, task.sy, task.sz + 0.5, 0, 0);
+                nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
                 nur.currentState = NurEntity.State.STALKING;
                 task.level.addFreshEntity(nur);
                 task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -183,6 +182,7 @@ public class ModEvents {
             }
         }
 
+        if (time >= 2000L && time <= 23000L) {
         for (Player player : overworld.players()) {
             if (player.tickCount % 40 != 0) continue;
             if (overworld.random.nextInt(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get()) != 0) continue;
@@ -195,8 +195,7 @@ public class ModEvents {
             if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
             if (overworld.getBlockState(spawnPos).canOcclude()) continue;
             var biomeHolder = overworld.getBiome(spawnPos);
-            var biomeRegistry = overworld.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.BIOME);
-            var biomeKey = biomeRegistry.getResourceKey(biomeHolder.value());
+            var biomeKey = biomeHolder.unwrapKey();
             if (biomeKey.isEmpty()) continue;
             var biome = biomeKey.get();
             EntityType<?> swType = null;
@@ -220,6 +219,7 @@ public class ModEvents {
                 overworld.addFreshEntity(entity);
             }
         }
+        }
 
         if (time < 13000L || time > 23000L) return;
         for (Player player : overworld.players()) {
@@ -227,11 +227,6 @@ public class ModEvents {
             if (overworld.random.nextInt(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get()) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
-            double sx = player.getX() + Math.cos(angle) * dist;
-            double sz = player.getZ() + Math.sin(angle) * dist;
-            int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-            BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-            if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
             if (player instanceof ServerPlayer sp) {
                 sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
@@ -239,7 +234,7 @@ public class ModEvents {
             }
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
-            PENDING_SPAWNS.add(new SpawnTask(100, sx, sy, sz, overworld, player.getUUID()));
+            PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
         }
     }
 
@@ -353,13 +348,13 @@ public class ModEvents {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!(event.getSource().getEntity() instanceof NurEntity nur)) return;
-        nur.discard();
         if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
             ServerLevel sl = (ServerLevel) nur.level();
-            sl.getServer().tell(new net.minecraft.server.TickTask(
-                sl.getServer().getTickCount() + 25,
+            var srv = sl.getServer();
+            srv.tell(new net.minecraft.server.TickTask(
+                srv.getTickCount() + 25,
                 () -> {
                     nur.discard();
                     ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));

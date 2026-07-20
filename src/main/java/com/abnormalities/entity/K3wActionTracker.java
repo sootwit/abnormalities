@@ -27,6 +27,7 @@ public class K3wActionTracker {
     private static final int CHAT_DELAY = 600;
     private static final int FORCED_SPAWN_DELAY = 300;
     private static final int SPAWN_DISTANCE = 64;
+    private static final int POST_SPAWN_COOLDOWN = 4800;
 
     private static final Map<UUID, List<K3wEntity>> ACTIVE_CLONES = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_TIMERS = new HashMap<>();
@@ -34,6 +35,7 @@ public class K3wActionTracker {
     private static final Map<UUID, Boolean> FORCED_SPAWNS = new HashMap<>();
     private static final Map<UUID, List<K3wEntity.K3wAction>> ACTION_LOGS = new HashMap<>();
     private static final Map<UUID, Deque<double[]>> POSITION_BUFFERS = new HashMap<>();
+    private static final Map<UUID, Integer> SPAWN_COOLDOWNS = new HashMap<>();
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -45,6 +47,30 @@ public class K3wActionTracker {
 
         for (Player player : overworld.players()) {
             UUID uuid = player.getUUID();
+
+            boolean tracked = SPAWN_TIMERS.containsKey(uuid) || ACTIVE_CLONES.containsKey(uuid);
+
+            if (tracked) {
+                Deque<double[]> posBuf = POSITION_BUFFERS.computeIfAbsent(uuid, k -> new ArrayDeque<>());
+                posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0});
+                int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+                if (posBuf.size() > followTicks + 40) {
+                    posBuf.removeFirst();
+                }
+            }
+
+            int cd = SPAWN_COOLDOWNS.getOrDefault(uuid, 0);
+            if (cd > 0) {
+                SPAWN_COOLDOWNS.put(uuid, cd - 1);
+                continue;
+            }
+            if (SPAWN_COOLDOWNS.containsKey(uuid) && cd == 0) {
+                SPAWN_COOLDOWNS.remove(uuid);
+                if (SPAWN_TIMERS.containsKey(uuid)) {
+                    cleanup(uuid);
+                }
+                continue;
+            }
 
             if (!SPAWN_TIMERS.containsKey(uuid)) {
                 if (overworld.random.nextInt(AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get()) == 0 && overworld.isNight()) {
@@ -74,17 +100,10 @@ public class K3wActionTracker {
                 MESSAGES_SENT.put(uuid, true);
             }
 
-            Deque<double[]> posBuf = POSITION_BUFFERS.computeIfAbsent(uuid, k -> new ArrayDeque<>());
-            posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0});
-            int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
-            if (posBuf.size() > followTicks) {
-                posBuf.removeFirst();
-            }
-
-            if (timer == totalDelay) {
-                spawnClone(player);
-                if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
-                    cleanup(uuid);
+            if (timer >= totalDelay) {
+                if (spawnClone(player)) {
+                    SPAWN_TIMERS.put(uuid, 0);
+                    MESSAGES_SENT.put(uuid, false);
                 }
             }
         }
@@ -92,6 +111,7 @@ public class K3wActionTracker {
 
     public static void forceK3wSpawn(Player player) {
         UUID uuid = player.getUUID();
+        SPAWN_COOLDOWNS.remove(uuid);
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, true);
         FORCED_SPAWNS.put(uuid, true);
@@ -123,24 +143,24 @@ public class K3wActionTracker {
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
     }
 
-    private static void spawnClone(Player player) {
+    private static boolean spawnClone(Player player) {
         UUID uuid = player.getUUID();
         ServerLevel level = (ServerLevel) player.level();
 
         Deque<double[]> posBuf = POSITION_BUFFERS.getOrDefault(uuid, new ArrayDeque<>());
         if (posBuf.isEmpty()) {
             cleanup(uuid);
-            return;
+            return false;
         }
 
         if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
-            return;
+            return false;
         }
 
         K3wEntity clone = ModEntities.K3W.get().create(level);
         if (clone == null) {
             cleanup(uuid);
-            return;
+            return false;
         }
 
         clone.setTargetPlayer(player);
@@ -155,9 +175,11 @@ public class K3wActionTracker {
         ACTIVE_CLONES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(clone);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
+        SPAWN_COOLDOWNS.put(uuid, POST_SPAWN_COOLDOWN);
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 5.0f, 0.3f);
+        return true;
     }
 
     @SubscribeEvent
@@ -234,6 +256,7 @@ public class K3wActionTracker {
         FORCED_SPAWNS.remove(uuid);
         ACTION_LOGS.remove(uuid);
         POSITION_BUFFERS.remove(uuid);
+        SPAWN_COOLDOWNS.remove(uuid);
     }
 
     @SubscribeEvent

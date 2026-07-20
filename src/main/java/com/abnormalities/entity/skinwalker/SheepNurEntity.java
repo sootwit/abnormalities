@@ -50,8 +50,10 @@ public class SheepNurEntity extends Sheep {
             int chance = com.abnormalities.config.AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get();
             if (serverLevel.random.nextInt(100) < chance) {
                 double dx = getX(), dy = getY(), dz = getZ();
-                int targetTick = serverLevel.getServer().getTickCount() + 44;
-                serverLevel.getServer().tell(new net.minecraft.server.TickTask(targetTick, () -> {
+                var srv = serverLevel.getServer();
+                if (srv == null) return;
+                int targetTick = srv.getTickCount() + 44;
+                srv.tell(new net.minecraft.server.TickTask(targetTick, () -> {
                     NurEntity nur = ModEntities.NUR.get().create(serverLevel);
                     if (nur != null) {
                         nur.moveTo(dx, dy, dz, 0, 0);

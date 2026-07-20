@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -14,8 +15,9 @@ public class NurFlickerOverlay {
     private static final ResourceLocation HUD_002 = new ResourceLocation("abnormalities", "textures/gui/nurhud002.png");
     private static boolean showingFlicker = false;
     private static long cooldownEnd = 0;
-    private static int flickerDuration = 0;
+    private static long flickerDuration = 0;
     private static long lastFlickerTime = 0;
+    private static long nextFlickerTime = 0;
     private static boolean renderedThisFrame = false;
     @SubscribeEvent
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
@@ -25,6 +27,7 @@ public class NurFlickerOverlay {
     }
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
+        if (event.getOverlay() != VanillaGuiOverlay.SUBTITLES.type()) return;
         if (renderedThisFrame) return;
         renderedThisFrame = true;
         Minecraft mc = Minecraft.getInstance();
@@ -38,7 +41,12 @@ public class NurFlickerOverlay {
                 break;
             }
         }
-        if (!chasing) return;
+        if (!chasing) {
+            showingFlicker = false;
+            cooldownEnd = 0;
+            nextFlickerTime = 0;
+            return;
+        }
         GuiGraphics gg = event.getGuiGraphics();
         int sw = gg.guiWidth();
         int sh = gg.guiHeight();
@@ -51,12 +59,11 @@ public class NurFlickerOverlay {
             }
             tex = HUD_002;
         } else {
-            if (now >= cooldownEnd) {
-                if (Math.random() < 0.05) {
-                    showingFlicker = true;
-                    flickerDuration = 50;
-                    lastFlickerTime = now;
-                }
+            if (now >= cooldownEnd && now >= nextFlickerTime) {
+                showingFlicker = true;
+                flickerDuration = 50 + (long)(Math.random() * 150);
+                lastFlickerTime = now;
+                nextFlickerTime = now + 3000 + (long)(Math.random() * 4000);
             }
             tex = HUD_001;
         }

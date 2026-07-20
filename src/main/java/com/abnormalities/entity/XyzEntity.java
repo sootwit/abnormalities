@@ -229,6 +229,8 @@ public class XyzEntity extends Mob {
         if (timeOfDay < 13000L) {
             long jumpTo = currentDayTime + (13000L - timeOfDay) + 100;
             serverLevel.setDayTime(jumpTo);
+        } else {
+            serverLevel.setDayTime(currentDayTime + 100);
         }
 
         level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
@@ -254,7 +256,6 @@ public class XyzEntity extends Mob {
             NurEntity nur = com.abnormalities.registry.ModEntities.NUR.get().create(serverLevel);
             if (nur != null) {
                 nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
-                nur.currentState = NurEntity.State.STALKING;
                 serverLevel.addFreshEntity(nur);
                 nur.startChasing(targetPlayer);
             }
