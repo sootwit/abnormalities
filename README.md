@@ -1,19 +1,22 @@
 # abnormalities
-
 READ THE DESCRIPTION, PLEASE.
-
-Forge 1.20.1.
 
 you will not enjoy your stay.
 
+### WHAT IT ADDS
+
+*   entities that either stalk, watch, or reward you
+
 ### THINGS YOU WANT TO KNOW BEFORE PLAYING
 
-- Mod can crash your game
-- Mod can crash your game intentionally
-- Mod plays sounds on master volume (you cant escape)
-- Mod WILL put things on your screen
-- Do NOT play this mod if you have a heart condition
-- This mod WILL make you paranoid
+*   Does NOT reset your day counter
+*   Mod can crash your game intentionally
+*   Mod plays sounds on master volume (you cant escape)
+*   Mod WILL put things on your screen
+*   Mod will NOT mess with your computer
+*   Do NOT play this mod if you have a heart condition
+*   Entities can grief things (can be changed in the config)
+*   This mod WILL make you paranoid
 
 Inspired by The Broken Script / wendigodrip.
 
@@ -21,7 +24,7 @@ Inspired by The Broken Script / wendigodrip.
 
 Q: What does this mod do?
 
-A: find out.
+A: it adds horror to the game
 
 Q: Can I put this in my modpack?
 
@@ -32,6 +35,10 @@ Q: Why did my game crash?
 A: the mod did that. its a feature.
 
 Q: How do I configure it?
+
+Q: I found a bug.
+
+A: please report your bug to the issues page
 
 A: abnormalities.toml in your config folder
 
@@ -47,15 +54,11 @@ Q: How do I make the entities less aggressive?
 
 A: config file. lower spawn weights, disable features.
 
-Q: &lt;o&gt;
-
-A: &lt;o&gt;
-
 ## Credits
 
-- wendigodrip / broken script - for the idea and inspiration
-- me - for coding this entire thing
-- you - for reading this far i guess
+-   wendigodrip / broken script - for the idea and inspiration
+-   me - for coding this entire thing
+-   you - for reading this far i guess
 
 ## MIT License
 
