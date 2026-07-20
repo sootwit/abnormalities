@@ -83,7 +83,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
                 mob.getNavigation().moveTo(targetPlayer, speed);
                 pathRecalcTimer = 20 + mob.getRandom().nextInt(20);
             }
-            if (mob.isInWater() || mob.isInLava()) {
+            if (mob.isInWater()) {
                 if (mob.getY() < targetPlayer.getY()) {
                     mob.setDeltaMovement(mob.getDeltaMovement().add(0, 0.08, 0));
                 }
