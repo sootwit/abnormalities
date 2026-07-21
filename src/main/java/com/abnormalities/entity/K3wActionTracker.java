@@ -73,7 +73,7 @@ public class K3wActionTracker {
             }
 
             if (!SPAWN_TIMERS.containsKey(uuid)) {
-                if (overworld.random.nextInt(AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get()) == 0 && overworld.isNight()) {
+                if (player.tickCount % 40 == 0 && overworld.random.nextInt(AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get()) == 0 && overworld.isNight()) {
                     long currentDay = overworld.getDayTime() / 24000L;
                     if (currentDay >= AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) {
                         startSpawnSequence(player);

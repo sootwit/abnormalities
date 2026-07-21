@@ -49,7 +49,7 @@ public class AbnormalitiesConfig {
         NUR_BRIDGE = b.comment("nur can bridge horizontally to reach you").define("bridge", true);
         b.pop();
         b.push("k3w");
-        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 8000, 1, 100000);
+        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
         K3W_CRASH_ON_CATCH = b.comment("crash game when k3w catches you").define("crashOnCatch", true);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);

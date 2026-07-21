@@ -21,6 +21,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -178,6 +180,23 @@ public class K3wEntity extends Mob {
         super.tick();
         if (level().isClientSide) return;
 
+        BlockPos bp = this.blockPosition();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = 0; dy <= 2; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos p = bp.offset(dx, dy, dz);
+                    BlockState s = level().getBlockState(p);
+                    if (s.getBlock() instanceof DoorBlock door) {
+                        door.setOpen(this, level(), s, p, true);
+                    } else if (s.getBlock() instanceof TrapDoorBlock) {
+                        if (!s.getValue(TrapDoorBlock.OPEN)) {
+                            level().setBlock(p, s.setValue(TrapDoorBlock.OPEN, true), 2);
+                        }
+                    }
+                }
+            }
+        }
+
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) {
             var nearest = level().getNearestPlayer(this, 64.0D);
             if (nearest != null) {
@@ -240,16 +259,6 @@ public class K3wEntity extends Mob {
         spawnTimer++;
 
         int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
-
-        if (!messageSent && spawnTimer >= CHAT_DELAY) {
-            if (targetPlayer instanceof ServerPlayer sp) {
-                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                        Component.literal("<" + targetPlayer.getName().getString() + "> run"), false));
-            }
-            targetPlayer.level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
-                    net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
-            messageSent = true;
-        }
 
         if (spawnTimer < CHAT_DELAY + followTicks) return;
 
