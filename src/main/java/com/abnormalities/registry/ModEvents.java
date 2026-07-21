@@ -28,9 +28,13 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class ModEvents {
     private static final String[] PRE_SPAWN_TEXTS = {"PRAY.", "HOPE.", "LIFE.", "SOUL."};
@@ -95,6 +99,8 @@ public class ModEvents {
         }
     }
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
+    private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
+    private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
         PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level, targetUUID));
@@ -253,6 +259,7 @@ public class ModEvents {
                 int cx = ((int)Math.floor(sx)) >> 4;
                 int cz = ((int)Math.floor(sz)) >> 4;
                 overworld.setChunkForced(cx, cz, true);
+                SW_CHUNKS.put(entity.getUUID(), new int[]{cx, cz});
             }
         }
         }
@@ -272,6 +279,7 @@ public class ModEvents {
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
         }
+        tickSkinwalkerChunks(overworld);
     }
 
     @SubscribeEvent
@@ -396,6 +404,45 @@ public class ModEvents {
                     ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));
                 }
             ));
+        }
+    }
+
+    private static void tickSkinwalkerChunks(ServerLevel level) {
+        Set<String> active = new HashSet<>();
+        Iterator<Map.Entry<UUID, int[]>> it = SW_CHUNKS.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, int[]> entry = it.next();
+            net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
+            if (e == null) continue;
+            if (!e.isAlive()) {
+                int[] p = entry.getValue();
+                SW_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                it.remove();
+                continue;
+            }
+            int cx = e.blockPosition().getX() >> 4;
+            int cz = e.blockPosition().getZ() >> 4;
+            String key = cx + "," + cz;
+            active.add(key);
+            if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
+                SW_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                entry.getValue()[0] = cx;
+                entry.getValue()[1] = cz;
+            }
+            level.setChunkForced(cx, cz, true);
+        }
+        SW_RELEASE_QUEUE.keySet().removeAll(active);
+        Iterator<Map.Entry<String, Integer>> rit = SW_RELEASE_QUEUE.entrySet().iterator();
+        while (rit.hasNext()) {
+            Map.Entry<String, Integer> r = rit.next();
+            int t = r.getValue() - 1;
+            if (t <= 0) {
+                String[] parts = r.getKey().split(",");
+                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
+                rit.remove();
+            } else {
+                r.setValue(t);
+            }
         }
     }
 }

@@ -20,11 +20,6 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private Player targetPlayer;
     private int proximityTimer;
     private int pathRecalcTimer;
-    private int forcedChunkX = Integer.MIN_VALUE;
-    private int forcedChunkZ = Integer.MIN_VALUE;
-    private int prevChunkX = Integer.MIN_VALUE;
-    private int prevChunkZ = Integer.MIN_VALUE;
-    private int chunkGraceTicks = 0;
 
     public NurSkinwalkerApproachGoal(Mob mob) {
         this.mob = mob;
@@ -57,28 +52,6 @@ public class NurSkinwalkerApproachGoal extends Goal {
     @Override
     public void tick() {
         if (targetPlayer == null) return;
-        Level level = mob.level();
-        if (level instanceof ServerLevel serverLevel) {
-            int cx = mob.blockPosition().getX() >> 4;
-            int cz = mob.blockPosition().getZ() >> 4;
-            if (cx != forcedChunkX || cz != forcedChunkZ) {
-                if (forcedChunkX != Integer.MIN_VALUE) {
-                    prevChunkX = forcedChunkX;
-                    prevChunkZ = forcedChunkZ;
-                    chunkGraceTicks = 40;
-                }
-                serverLevel.setChunkForced(cx, cz, true);
-                forcedChunkX = cx;
-                forcedChunkZ = cz;
-            }
-            if (chunkGraceTicks > 0) {
-                chunkGraceTicks--;
-                if (chunkGraceTicks <= 0 && prevChunkX != Integer.MIN_VALUE) {
-                    serverLevel.setChunkForced(prevChunkX, prevChunkZ, false);
-                    prevChunkX = Integer.MIN_VALUE;
-                }
-            }
-        }
         double dist = mob.distanceTo(targetPlayer);
         double speed = mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
         int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
@@ -126,15 +99,6 @@ public class NurSkinwalkerApproachGoal extends Goal {
 
     @Override
     public void stop() {
-        if (forcedChunkX != Integer.MIN_VALUE && mob.level() instanceof ServerLevel serverLevel) {
-            serverLevel.setChunkForced(forcedChunkX, forcedChunkZ, false);
-            if (prevChunkX != Integer.MIN_VALUE) {
-                serverLevel.setChunkForced(prevChunkX, prevChunkZ, false);
-            }
-        }
-        forcedChunkX = Integer.MIN_VALUE;
-        prevChunkX = Integer.MIN_VALUE;
-        chunkGraceTicks = 0;
         targetPlayer = null;
         proximityTimer = 0;
         mob.getNavigation().stop();
