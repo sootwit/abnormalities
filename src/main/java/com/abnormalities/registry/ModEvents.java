@@ -250,6 +250,9 @@ public class ModEvents {
             if (entity != null) {
                 entity.moveTo(sx + 0.5, sy, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
                 overworld.addFreshEntity(entity);
+                int cx = ((int)Math.floor(sx)) >> 4;
+                int cz = ((int)Math.floor(sz)) >> 4;
+                overworld.setChunkForced(cx, cz, true);
             }
         }
         }
