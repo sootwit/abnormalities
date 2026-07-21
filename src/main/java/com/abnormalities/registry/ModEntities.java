@@ -50,27 +50,27 @@ public class ModEntities {
     public static final RegistryObject<EntityType<ChickenNurEntity>> CHICKEN_NUR = ENTITIES.register("chicken_nur", () ->
             EntityType.Builder.of(ChickenNurEntity::new, MobCategory.CREATURE)
                     .sized(0.4f, 0.7f)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(256)
                     .build("chicken_nur"));
     public static final RegistryObject<EntityType<CowNurEntity>> COW_NUR = ENTITIES.register("cow_nur", () ->
             EntityType.Builder.of(CowNurEntity::new, MobCategory.CREATURE)
                     .sized(0.9f, 1.4f)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(256)
                     .build("cow_nur"));
     public static final RegistryObject<EntityType<SheepNurEntity>> SHEEP_NUR = ENTITIES.register("sheep_nur", () ->
             EntityType.Builder.of(SheepNurEntity::new, MobCategory.CREATURE)
                     .sized(0.9f, 1.3f)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(256)
                     .build("sheep_nur"));
     public static final RegistryObject<EntityType<PigNurEntity>> PIG_NUR = ENTITIES.register("pig_nur", () ->
             EntityType.Builder.of(PigNurEntity::new, MobCategory.CREATURE)
                     .sized(0.9f, 0.9f)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(256)
                     .build("pig_nur"));
     public static final RegistryObject<EntityType<VillagerNurEntity>> VILLAGER_NUR = ENTITIES.register("villager_nur", () ->
             EntityType.Builder.of(VillagerNurEntity::new, MobCategory.CREATURE)
                     .sized(0.6f, 1.95f)
-                    .clientTrackingRange(8)
+                    .clientTrackingRange(256)
                     .build("villager_nur"));
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {

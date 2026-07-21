@@ -22,6 +22,9 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private int pathRecalcTimer;
     private int forcedChunkX = Integer.MIN_VALUE;
     private int forcedChunkZ = Integer.MIN_VALUE;
+    private int prevChunkX = Integer.MIN_VALUE;
+    private int prevChunkZ = Integer.MIN_VALUE;
+    private int chunkGraceTicks = 0;
 
     public NurSkinwalkerApproachGoal(Mob mob) {
         this.mob = mob;
@@ -60,11 +63,20 @@ public class NurSkinwalkerApproachGoal extends Goal {
             int cz = mob.blockPosition().getZ() >> 4;
             if (cx != forcedChunkX || cz != forcedChunkZ) {
                 if (forcedChunkX != Integer.MIN_VALUE) {
-                    serverLevel.setChunkForced(forcedChunkX, forcedChunkZ, false);
+                    prevChunkX = forcedChunkX;
+                    prevChunkZ = forcedChunkZ;
+                    chunkGraceTicks = 40;
                 }
                 serverLevel.setChunkForced(cx, cz, true);
                 forcedChunkX = cx;
                 forcedChunkZ = cz;
+            }
+            if (chunkGraceTicks > 0) {
+                chunkGraceTicks--;
+                if (chunkGraceTicks <= 0 && prevChunkX != Integer.MIN_VALUE) {
+                    serverLevel.setChunkForced(prevChunkX, prevChunkZ, false);
+                    prevChunkX = Integer.MIN_VALUE;
+                }
             }
         }
         double dist = mob.distanceTo(targetPlayer);
@@ -116,8 +128,13 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void stop() {
         if (forcedChunkX != Integer.MIN_VALUE && mob.level() instanceof ServerLevel serverLevel) {
             serverLevel.setChunkForced(forcedChunkX, forcedChunkZ, false);
-            forcedChunkX = Integer.MIN_VALUE;
+            if (prevChunkX != Integer.MIN_VALUE) {
+                serverLevel.setChunkForced(prevChunkX, prevChunkZ, false);
+            }
         }
+        forcedChunkX = Integer.MIN_VALUE;
+        prevChunkX = Integer.MIN_VALUE;
+        chunkGraceTicks = 0;
         targetPlayer = null;
         proximityTimer = 0;
         mob.getNavigation().stop();
