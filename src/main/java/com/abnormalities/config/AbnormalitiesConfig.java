@@ -15,7 +15,7 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue NUR_BREAK_DROPS;
     public static final ForgeConfigSpec.BooleanValue NUR_TOWER;
     public static final ForgeConfigSpec.BooleanValue NUR_BRIDGE;
-    public static final ForgeConfigSpec.BooleanValue K3W_CRASH_ON_CATCH;
+    public static final ForgeConfigSpec.BooleanValue K3W_KICK_ON_CATCH;
     public static final ForgeConfigSpec.BooleanValue K3W_BREAK_BLOCKS;
     public static final ForgeConfigSpec.BooleanValue K3W_PLACE_BLOCKS;
     public static final ForgeConfigSpec.BooleanValue K3W_KILL_MOBS;
@@ -58,7 +58,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("k3w");
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
-        K3W_CRASH_ON_CATCH = b.comment("kick player when k3w catches you").define("crashOnCatch", true);
+        K3W_KICK_ON_CATCH = b.comment("kick player when k3w catches you").define("kickOnCatch", true);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
         K3W_KILL_MOBS = b.comment("k3w can undo mob kills").define("killMobs", true);

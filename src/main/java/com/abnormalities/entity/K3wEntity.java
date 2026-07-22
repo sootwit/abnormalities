@@ -235,7 +235,7 @@ public class K3wEntity extends Mob {
 
         double dist = this.distanceTo(targetPlayer);
         if (dist < 2.0D && hitCooldown <= 0 && !isCrashing() && targetPlayer.isAlive()) {
-            targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 5.0F);
+            targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 10.0F);
             hitCooldown = 20;
 
             if (!level().isClientSide && targetPlayer instanceof ServerPlayer sp) {
@@ -246,7 +246,7 @@ public class K3wEntity extends Mob {
                 level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                         chosen.get(), SoundSource.MASTER, 10.0f, 1.0f);
 
-                if (AbnormalitiesConfig.K3W_CRASH_ON_CATCH.get()) {
+                if (AbnormalitiesConfig.K3W_KICK_ON_CATCH.get()) {
                     this.entityData.set(DATA_CRASHING, true);
                     net.minecraft.server.MinecraftServer srv = level().getServer();
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 22, () -> {
@@ -255,7 +255,7 @@ public class K3wEntity extends Mob {
                     }));
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
-                        sp.connection.disconnect(Component.literal("Unknown error"));
+                        sp.connection.disconnect(Component.literal("got you!"));
                     }));
                 }
             }
@@ -356,7 +356,7 @@ public class K3wEntity extends Mob {
     @Override
     public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
         if (target instanceof Player p) {
-            p.hurt(p.damageSources().mobAttack(this), 5.0F);
+            p.hurt(p.damageSources().mobAttack(this), 10.0F);
             return true;
         }
         return false;
