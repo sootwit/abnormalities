@@ -320,10 +320,10 @@ public class ModEvents {
                 return;
             }
         }
-        var nureRep = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
+        var nurRep = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
         boolean lookingAtStalking = false;
         boolean hasStalking = false;
-        for (NurEntity nur : nureRep) {
+        for (NurEntity nur : nurRep) {
             if (nur.currentState == NurEntity.State.STALKING) {
                 hasStalking = true;
                 if (isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur)) {
