@@ -14,7 +14,7 @@ public class NurHorrorCycle {
     private static final Map<UUID, Set<UUID>> playerNurs = new HashMap<>();
     private static final Map<UUID, Long> chaseStart = new HashMap<>();
     private static final Map<UUID, Long> originalDayTime = new HashMap<>();
-    public static int speedMultiplier = 20;
+    public static int speedMultiplier = 100;
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
