@@ -54,7 +54,7 @@ public class NurEntity extends Mob {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 9999.0D)
-                .add(Attributes.MOVEMENT_SPEED, 0.45D)
+                .add(Attributes.MOVEMENT_SPEED, 1.8D)
                 .add(Attributes.ATTACK_DAMAGE, 999.0D)
                 .add(Attributes.FOLLOW_RANGE, 128.0D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.0D)
@@ -196,7 +196,7 @@ public class NurEntity extends Mob {
         double dz = currentTarget.getZ() - this.getZ();
         double dy = currentTarget.getY() - this.getY();
         double horizDist = Math.sqrt(dx * dx + dz * dz);
-        double speed = 0.45D;
+        double speed = 1.8D;
         double mx = 0, mz = 0;
         if (horizDist > 0.1) {
             mx = dx / horizDist * speed;
@@ -279,12 +279,9 @@ public class NurEntity extends Mob {
                 if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get() && !aboveState.is(Blocks.BEDROCK) && !aboveState.is(Blocks.COBBLESTONE)) {
                     level().destroyBlock(above, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
-                return;
-            }
-            if (level().getBlockState(above).isAir()) {
+            } else {
                 level().setBlockAndUpdate(nurPos, Blocks.COBBLESTONE.defaultBlockState());
                 this.moveTo(nurPos.getX() + 0.5, nurPos.getY() + 1, nurPos.getZ() + 0.5);
-                return;
             }
         }
 

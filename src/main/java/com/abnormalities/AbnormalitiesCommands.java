@@ -10,6 +10,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -203,13 +204,19 @@ public class AbnormalitiesCommands {
         double sx = player.getX() + Math.cos(angle) * dist;
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        BlockPos spawnPos = BlockPos.containing(sx, sy + 1, sz);
+        if (!level.getBlockState(spawnPos.below()).canOcclude()) return;
+        if (level.getBlockState(spawnPos).canOcclude()) return;
         Entity raw = disguise.create(level);
         if (raw instanceof Mob mob) {
             mob.setPersistenceRequired();
             mob.getPersistentData().putBoolean("abnormalities:skinwalker", true);
             mob.goalSelector.addGoal(1, new com.abnormalities.entity.skinwalker.NurSkinwalkerApproachGoal(mob));
-            mob.moveTo(sx + 0.5, sy + 1, sz + 0.5, level.random.nextFloat() * 360.0F, 0);
+            mob.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0);
             level.addFreshEntity(mob);
+            int cx = ((int)Math.floor(spawnPos.getX())) >> 4;
+            int cz = ((int)Math.floor(spawnPos.getZ())) >> 4;
+            level.setChunkForced(cx, cz, true);
         }
     }
 }

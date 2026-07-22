@@ -278,6 +278,16 @@ public class ModEvents {
                 skinwalker.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(skinwalker));
                 skinwalker.moveTo(sx + 0.5, sy + 1, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
                 overworld.addFreshEntity(skinwalker);
+                int decoys = 1 + overworld.random.nextInt(3);
+                for (int d = 0; d < decoys; d++) {
+                    Entity decoy = disguise.create(overworld);
+                    if (decoy instanceof Mob dm) {
+                        double da = overworld.random.nextDouble() * Math.PI * 2;
+                        double dd = 1.0 + overworld.random.nextDouble() * 3.0;
+                        dm.moveTo(sx + 0.5 + Math.cos(da) * dd, sy + 1, sz + 0.5 + Math.sin(da) * dd, overworld.random.nextFloat() * 360.0F, 0);
+                        overworld.addFreshEntity(dm);
+                    }
+                }
                 int cx = ((int)Math.floor(sx)) >> 4;
                 int cz = ((int)Math.floor(sz)) >> 4;
                 overworld.setChunkForced(cx, cz, true);
