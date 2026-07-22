@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -35,7 +34,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public boolean canUse() {
         if (mob.level().isClientSide) return false;
         if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
-        targetPlayer = mob.level().getNearestPlayer(mob, 128.0D);
+        targetPlayer = mob.level().getNearestPlayer(mob, AbnormalitiesConfig.SW_DETECTION_RANGE.get());
         return targetPlayer != null;
     }
 
@@ -45,7 +44,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
         if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()
                 || targetPlayer.level() != mob.level()) {
-            targetPlayer = mob.level().getNearestPlayer(mob, 128.0D);
+            targetPlayer = mob.level().getNearestPlayer(mob, AbnormalitiesConfig.SW_DETECTION_RANGE.get());
         }
         return targetPlayer != null;
     }
@@ -66,7 +65,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void tick() {
         if (targetPlayer == null) return;
         double dist = mob.distanceTo(targetPlayer);
-        double speed = mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        double speed = AbnormalitiesConfig.SW_APPROACH_SPEED.get();
         int transformTime = AbnormalitiesConfig.SW_TRANSFORM_TIME.get();
         if (dist < 2.0D) {
             proximityTimer++;

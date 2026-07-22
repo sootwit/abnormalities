@@ -1,6 +1,7 @@
 package com.abnormalities.horror;
 
 import com.abnormalities.ReputationManager;
+import com.abnormalities.config.AbnormalitiesConfig;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -77,7 +78,7 @@ public class HorrorEventPool {
         double[] weights = new double[eligible.size()];
         for (int i = 0; i < eligible.size(); i++) {
             AbstractHorrorEvent e = eligible.get(i);
-            double mult = ReputationManager.getWeightMultiplier(player, e.getHostilityFactor());
+            double mult = ReputationManager.getWeightMultiplier(player, e.getHostilityFactor() * AbnormalitiesConfig.HORROR_EVENT_HOSTILITY_FACTOR.get());
             double w = e.getBaseWeight() * mult;
             weights[i] = w;
             totalWeight += w;
@@ -105,6 +106,7 @@ public class HorrorEventPool {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (!AbnormalitiesConfig.HORROR_EVENTS_ENABLED.get()) return;
         ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return;
         long gt = overworld.getGameTime();
