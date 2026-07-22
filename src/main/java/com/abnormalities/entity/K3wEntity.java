@@ -133,6 +133,9 @@ public class K3wEntity extends Mob {
             this.moveTo(first[0], first[1], first[2], (float) first[3], (float) first[4]);
             isMoving = true;
         }
+    }
+
+    public void initTimers() {
         spawnTimer = CHAT_DELAY;
         messageSent = false;
     }
@@ -208,7 +211,9 @@ public class K3wEntity extends Mob {
                 for (int i = 0; i < 20; i++) {
                     dummyPath.add(new double[]{nearest.getX(), nearest.getY(), nearest.getZ(), nearest.getYRot(), nearest.getXRot()});
                 }
-                setInitialPath(dummyPath);
+                this.pathPoints.clear();
+                this.pathPoints.addAll(dummyPath);
+                this.isMoving = true;
             } else {
                 discard();
                 return;
@@ -243,10 +248,11 @@ public class K3wEntity extends Mob {
 
                 if (AbnormalitiesConfig.K3W_CRASH_ON_CATCH.get()) {
                     this.entityData.set(DATA_CRASHING, true);
-                    SoundEvent nurScare = ModSounds.NUR_SOUND.get();
-                    level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
-                            nurScare, SoundSource.MASTER, 10.0f, 1.0f);
                     net.minecraft.server.MinecraftServer srv = level().getServer();
+                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 22, () -> {
+                        level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
+                                ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
+                    }));
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
                         sp.connection.disconnect(Component.literal("got you!"));

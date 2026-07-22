@@ -167,6 +167,7 @@ public class K3wActionTracker {
 
         List<double[]> path = new ArrayList<>(posBuf);
         clone.setInitialPath(path);
+        clone.initTimers();
 
         List<K3wEntity.K3wAction> actions = ACTION_LOGS.getOrDefault(uuid, new ArrayList<>());
         clone.setInitialActions(actions);

@@ -48,5 +48,35 @@
                 "stream": true
             }
         ]
+    },
+    "whisper_sound": {
+        "category": "master",
+        "range": 16,
+        "sounds": [
+            {
+                "name": "abnormalities:whisper",
+                "stream": true
+            }
+        ]
+    },
+    "heartbeat_sound": {
+        "category": "master",
+        "range": 32,
+        "sounds": [
+            {
+                "name": "abnormalities:heartbeat",
+                "stream": true
+            }
+        ]
+    },
+    "tinnitus_sound": {
+        "category": "master",
+        "range": 32,
+        "sounds": [
+            {
+                "name": "abnormalities:tinnitus",
+                "stream": true
+            }
+        ]
     }
 }

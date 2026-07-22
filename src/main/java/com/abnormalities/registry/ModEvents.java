@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -136,7 +138,7 @@ public class ModEvents {
                 int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
-                nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
                 nur.currentState = NurEntity.State.STALKING;
                 task.level.addFreshEntity(nur);
                 task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -178,13 +180,13 @@ public class ModEvents {
                 double sx = player.getX() + Math.cos(angle) * dist;
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+                BlockPos spawnPos = BlockPos.containing(sx, sy + 1, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
                 if (overworld.getBlockState(spawnPos).canOcclude()) continue;
 
                 XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
                 if (xyz != null) {
-                    xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                    xyz.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
                     xyz.setTargetPlayer(player);
                     overworld.addFreshEntity(xyz);
 
@@ -195,13 +197,34 @@ public class ModEvents {
                     }
                     if (items.isEmpty()) continue;
 
-                    net.minecraft.world.item.Item chosenItem = items.get(overworld.random.nextInt(items.size()));
-                    int amount = 1;
-                    int maxStack = chosenItem.getMaxStackSize();
-                    if (maxStack > 1 && overworld.random.nextBoolean()) {
-                        amount = Math.min(maxStack, 2 + overworld.random.nextInt(15));
+                    if (player instanceof ServerPlayer sp && !hasEndAccess(sp)) {
+                        var endTag = net.minecraft.tags.ItemTags.create(new ResourceLocation("abnormalities", "xyz_end_items"));
+                        var endItems = new java.util.HashSet<net.minecraft.world.item.Item>();
+                        for (var holder : BuiltInRegistries.ITEM.getTagOrEmpty(endTag)) {
+                            endItems.add(holder.value());
+                        }
+                        items.removeIf(endItems::contains);
+                        if (items.isEmpty()) continue;
                     }
-                    int seconds = 60 + overworld.random.nextInt(181);
+
+                    net.minecraft.world.item.Item chosenItem = items.get(overworld.random.nextInt(items.size()));
+                    int maxStack = chosenItem.getMaxStackSize();
+                    int amount;
+                    if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
+                        amount = Math.min(maxStack, AbnormalitiesConfig.XYZ_STATIC_ITEM_COUNT.get());
+                    } else {
+                        int min = Math.min(maxStack, AbnormalitiesConfig.XYZ_MIN_ITEMS.get());
+                        int max = Math.min(maxStack, AbnormalitiesConfig.XYZ_MAX_ITEMS.get());
+                        amount = max > min ? min + overworld.random.nextInt(max - min + 1) : min;
+                    }
+                    int seconds;
+                    if (AbnormalitiesConfig.XYZ_STATIC_WAIT.get()) {
+                        seconds = AbnormalitiesConfig.XYZ_STATIC_WAIT_SECONDS.get();
+                    } else {
+                        int min = AbnormalitiesConfig.XYZ_MIN_WAIT.get();
+                        int max = AbnormalitiesConfig.XYZ_MAX_WAIT.get();
+                        seconds = min + (max > min ? overworld.random.nextInt(max - min + 1) : 0);
+                    }
                     xyz.startRequest(amount, chosenItem, seconds);
 
                     String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
@@ -230,36 +253,25 @@ public class ModEvents {
             double sx = player.getX() + Math.cos(angle) * dist;
             double sz = player.getZ() + Math.sin(angle) * dist;
             int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-            BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+            BlockPos spawnPos = BlockPos.containing(sx, sy + 1, sz);
             if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
             if (overworld.getBlockState(spawnPos).canOcclude()) continue;
-            var biomeHolder = overworld.getBiome(spawnPos);
-            var biomeKey = biomeHolder.unwrapKey();
-            if (biomeKey.isEmpty()) continue;
-            var biome = biomeKey.get();
-            EntityType<?> swType = null;
-            if (biome == net.minecraft.world.level.biome.Biomes.PLAINS || biome == net.minecraft.world.level.biome.Biomes.SUNFLOWER_PLAINS || biome == net.minecraft.world.level.biome.Biomes.MEADOW) {
-                int roll = overworld.random.nextInt(3);
-                swType = roll == 0 ? ModEntities.CHICKEN_NUR.get() : roll == 1 ? ModEntities.COW_NUR.get() : ModEntities.SHEEP_NUR.get();
-            } else if (biome == net.minecraft.world.level.biome.Biomes.SAVANNA) {
-                swType = overworld.random.nextBoolean() ? ModEntities.COW_NUR.get() : ModEntities.SHEEP_NUR.get();
-            } else if (biome == net.minecraft.world.level.biome.Biomes.FOREST) {
-                swType = ModEntities.PIG_NUR.get();
-            } else if (biome == net.minecraft.world.level.biome.Biomes.DESERT || biome == net.minecraft.world.level.biome.Biomes.TAIGA || biome == net.minecraft.world.level.biome.Biomes.SNOWY_PLAINS) {
-                swType = ModEntities.VILLAGER_NUR.get();
-            }
-            if (swType == null) continue;
+            EntityType<?> disguise = pickRandomDisguise(overworld.random);
+            if (disguise == null) continue;
             var nearby = overworld.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
-                    e -> e instanceof ChickenNurEntity || e instanceof CowNurEntity || e instanceof SheepNurEntity || e instanceof PigNurEntity || e instanceof VillagerNurEntity);
+                    e -> e.getPersistentData().getBoolean("abnormalities:skinwalker"));
             if (nearby.size() >= 3) continue;
-            var entity = swType.create(overworld);
-            if (entity != null) {
-                entity.moveTo(sx + 0.5, sy, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
-                overworld.addFreshEntity(entity);
+            Entity raw = disguise.create(overworld);
+            if (raw instanceof Mob skinwalker) {
+                skinwalker.setPersistenceRequired();
+                skinwalker.getPersistentData().putBoolean("abnormalities:skinwalker", true);
+                skinwalker.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(skinwalker));
+                skinwalker.moveTo(sx + 0.5, sy + 1, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
+                overworld.addFreshEntity(skinwalker);
                 int cx = ((int)Math.floor(sx)) >> 4;
                 int cz = ((int)Math.floor(sz)) >> 4;
                 overworld.setChunkForced(cx, cz, true);
-                SW_CHUNKS.put(entity.getUUID(), new int[]{cx, cz});
+                SW_CHUNKS.put(skinwalker.getUUID(), new int[]{cx, cz});
             }
         }
         }
@@ -390,21 +402,69 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (!(event.getSource().getEntity() instanceof NurEntity nur)) return;
-        if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
-            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
-            ServerLevel sl = (ServerLevel) nur.level();
-            var srv = sl.getServer();
-            srv.tell(new net.minecraft.server.TickTask(
-                srv.getTickCount() + 25,
-                () -> {
-                    nur.discard();
-                    ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));
-                }
-            ));
+        if (event.getEntity() instanceof Player player) {
+            if (!(event.getSource().getEntity() instanceof NurEntity)) return;
+            if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
+                player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                        SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
+                ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));
+                var srv = ((ServerLevel) player.level()).getServer();
+                srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 10, () -> {
+                    throw new net.minecraft.ReportedException(
+                        net.minecraft.CrashReport.forThrowable(new RuntimeException("nur got you."), "nur got you.")
+                    );
+                }));
+            }
+            return;
         }
+        if (event.getEntity().level().isClientSide) return;
+        if (!event.getEntity().getPersistentData().getBoolean("abnormalities:skinwalker")) return;
+        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
+        if (event.getEntity().level().random.nextInt(100) >= AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) return;
+        scheduleSkinwalkerSpawn(40, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),
+                (ServerLevel) event.getEntity().level(), player.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) return;
+        if (!(event.getEntity() instanceof Mob mob)) return;
+        if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return;
+        boolean hasGoal = mob.goalSelector.getAvailableGoals().stream()
+                .anyMatch(g -> g.getGoal() instanceof NurSkinwalkerApproachGoal);
+        if (!hasGoal) {
+            mob.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(mob));
+        }
+    }
+
+    public static boolean hasEndAccess(net.minecraft.server.level.ServerPlayer player) {
+        var endRoot = player.getServer().getAdvancements().getAdvancement(new ResourceLocation("minecraft", "end/root"));
+        return endRoot != null && player.getAdvancements().getOrStartProgress(endRoot).isDone();
+    }
+
+    private static final java.util.Set<String> EXCLUDED_DISGUISES = java.util.Set.of(
+        "armor_stand", "shulker", "ender_dragon", "wither", "giant", "illusioner"
+    );
+    private static java.util.List<net.minecraft.world.entity.EntityType<?>> cachedDisguiseTypes = null;
+
+    private static net.minecraft.world.entity.EntityType<?> pickRandomDisguise(net.minecraft.util.RandomSource random) {
+        if (cachedDisguiseTypes == null) {
+            cachedDisguiseTypes = new java.util.ArrayList<>();
+            for (java.util.Map.Entry<net.minecraft.resources.ResourceKey<net.minecraft.world.entity.EntityType<?>>, net.minecraft.world.entity.EntityType<?>> entry : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getEntries()) {
+                net.minecraft.world.entity.EntityType<?> type = entry.getValue();
+                if (type.getCategory() == net.minecraft.world.entity.MobCategory.MISC) continue;
+                net.minecraft.resources.ResourceLocation key = entry.getKey().location();
+                if (key.getNamespace().equals(com.abnormalities.AbnormalitiesMod.MODID)) continue;
+                String path = key.getPath();
+                if (EXCLUDED_DISGUISES.contains(path)) continue;
+                Class<? extends net.minecraft.world.entity.Entity> baseClass = type.getBaseClass();
+                if (baseClass != null && net.minecraft.world.entity.Mob.class.isAssignableFrom(baseClass)) {
+                    cachedDisguiseTypes.add(type);
+                }
+            }
+        }
+        if (cachedDisguiseTypes.isEmpty()) return null;
+        return cachedDisguiseTypes.get(random.nextInt(cachedDisguiseTypes.size()));
     }
 
     private static void tickSkinwalkerChunks(ServerLevel level) {

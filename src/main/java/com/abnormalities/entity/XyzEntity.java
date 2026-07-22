@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -117,6 +118,15 @@ public class XyzEntity extends Mob {
         int secondsLeft = Math.max(0, (timerTicks + 19) / 20);
         this.entityData.set(DATA_SECONDS_LEFT, secondsLeft);
 
+        int mins = secondsLeft / 60;
+        int secs = secondsLeft % 60;
+        String timeStr = String.format("%02d:%02d", mins, secs);
+        Component hotbar = Component.literal(timeStr + " - " + entityData.get(DATA_AMOUNT) + "x " + getRequestedItemName())
+                .withStyle(ChatFormatting.LIGHT_PURPLE);
+        if (targetPlayer instanceof ServerPlayer sp) {
+            sp.connection.send(new ClientboundSetActionBarTextPacket(hotbar));
+        }
+
         if (timerTicks <= 0) {
             triggerFailure();
             return;
@@ -212,6 +222,9 @@ public class XyzEntity extends Mob {
         level().playSound(null, chestPos.getX(), chestPos.getY(), chestPos.getZ(),
                 SoundEvents.CHEST_OPEN, SoundSource.MASTER, 1.0f, 1.0f);
 
+        if (targetPlayer instanceof ServerPlayer sp) {
+            sp.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
+        }
         discard();
     }
 
@@ -268,6 +281,9 @@ public class XyzEntity extends Mob {
             }
         }
 
+        if (targetPlayer instanceof ServerPlayer sp) {
+            sp.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
+        }
         discard();
     }
 

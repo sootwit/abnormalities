@@ -1,5 +1,6 @@
 package com.abnormalities;
 
+import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.K3wActionTracker;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.horror.HorrorEventPool;
@@ -128,9 +129,30 @@ public class AbnormalitiesCommands {
             player.sendSystemMessage(Component.literal("no items in xyz_items tag!").withStyle(ChatFormatting.RED));
             return;
         }
+
+        if (!ModEvents.hasEndAccess(player)) {
+            var endTag = net.minecraft.tags.ItemTags.create(new net.minecraft.resources.ResourceLocation("abnormalities", "xyz_end_items"));
+            var endItems = new java.util.HashSet<net.minecraft.world.item.Item>();
+            for (var holder : net.minecraft.core.registries.BuiltInRegistries.ITEM.getTagOrEmpty(endTag)) {
+                endItems.add(holder.value());
+            }
+            items.removeIf(endItems::contains);
+            if (items.isEmpty()) {
+                player.sendSystemMessage(Component.literal("no accessible items for this player!").withStyle(ChatFormatting.RED));
+                return;
+            }
+        }
+
         var chosenItem = items.get(level.random.nextInt(items.size()));
         int maxStack = chosenItem.getMaxStackSize();
-        int amount = maxStack <= 1 ? 1 : (level.random.nextBoolean() ? 1 : Math.min(maxStack, 2 + level.random.nextInt(15)));
+        int amount;
+        if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
+            amount = Math.min(maxStack, AbnormalitiesConfig.XYZ_STATIC_ITEM_COUNT.get());
+        } else {
+            int min = Math.min(maxStack, AbnormalitiesConfig.XYZ_MIN_ITEMS.get());
+            int max = Math.min(maxStack, AbnormalitiesConfig.XYZ_MAX_ITEMS.get());
+            amount = max > min ? min + level.random.nextInt(max - min + 1) : min;
+        }
 
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 25.0D + level.random.nextDouble() * 20.0D;
@@ -140,10 +162,17 @@ public class AbnormalitiesCommands {
 
         XyzEntity xyz = ModEntities.XYZ.get().create(level);
         if (xyz != null) {
-            xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+            xyz.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
             xyz.setTargetPlayer(player);
             level.addFreshEntity(xyz);
-            int seconds = 60 + level.random.nextInt(181);
+            int seconds;
+            if (AbnormalitiesConfig.XYZ_STATIC_WAIT.get()) {
+                seconds = AbnormalitiesConfig.XYZ_STATIC_WAIT_SECONDS.get();
+            } else {
+                int min = AbnormalitiesConfig.XYZ_MIN_WAIT.get();
+                int max = AbnormalitiesConfig.XYZ_MAX_WAIT.get();
+                seconds = min + (max > min ? level.random.nextInt(max - min + 1) : 0);
+            }
             xyz.startRequest(amount, chosenItem, seconds);
 
             String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
