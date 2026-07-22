@@ -20,6 +20,10 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private Player targetPlayer;
     private int proximityTimer;
     private int pathRecalcTimer;
+    private Vec3 wanderTarget;
+    private double lastPlayerX;
+    private double lastPlayerZ;
+    private boolean directPursuit;
 
     public NurSkinwalkerApproachGoal(Mob mob) {
         this.mob = mob;
@@ -47,6 +51,12 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void start() {
         proximityTimer = 0;
         pathRecalcTimer = 0;
+        wanderTarget = null;
+        directPursuit = false;
+        if (targetPlayer != null) {
+            lastPlayerX = targetPlayer.getX();
+            lastPlayerZ = targetPlayer.getZ();
+        }
     }
 
     @Override
@@ -64,9 +74,37 @@ public class NurSkinwalkerApproachGoal extends Goal {
             }
         } else {
             proximityTimer = Math.max(0, proximityTimer - 2);
+            boolean playerMoved = Math.abs(targetPlayer.getX() - lastPlayerX) > 1.5 ||
+                    Math.abs(targetPlayer.getZ() - lastPlayerZ) > 1.5;
+            if (playerMoved) {
+                directPursuit = false;
+                wanderTarget = null;
+                lastPlayerX = targetPlayer.getX();
+                lastPlayerZ = targetPlayer.getZ();
+            }
+            if (!directPursuit && wanderTarget == null) {
+                double angle = mob.getRandom().nextDouble() * Math.PI * 2;
+                double radius = 4.0 + mob.getRandom().nextDouble() * 4.0;
+                double wx = targetPlayer.getX() + Math.cos(angle) * radius;
+                double wz = targetPlayer.getZ() + Math.sin(angle) * radius;
+                int wy = mob.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                        (int) wx, (int) wz);
+                wanderTarget = new Vec3(wx, wy + 1, wz);
+                pathRecalcTimer = 0;
+            }
             pathRecalcTimer--;
             if (pathRecalcTimer <= 0) {
-                mob.getNavigation().moveTo(targetPlayer, speed);
+                if (directPursuit) {
+                    mob.getNavigation().moveTo(targetPlayer, speed);
+                } else if (wanderTarget != null) {
+                    mob.getNavigation().moveTo(wanderTarget.x, wanderTarget.y, wanderTarget.z, speed);
+                    if (mob.distanceToSqr(wanderTarget) < 4.0) {
+                        wanderTarget = null;
+                        if (!playerMoved) {
+                            directPursuit = true;
+                        }
+                    }
+                }
                 pathRecalcTimer = 10 + mob.getRandom().nextInt(10);
             }
             if (dist > 50 && mob.getNavigation().isDone()) {
@@ -101,6 +139,8 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public void stop() {
         targetPlayer = null;
         proximityTimer = 0;
+        wanderTarget = null;
+        directPursuit = false;
         mob.getNavigation().stop();
     }
 }
