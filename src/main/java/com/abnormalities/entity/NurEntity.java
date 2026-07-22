@@ -206,6 +206,19 @@ public class NurEntity extends Mob {
         if (dy < -1) {
             my = -0.8D;
         }
+        if (this.onGround() && horizDist > 1.5) {
+            BlockPos ahead = this.blockPosition().offset((int)Math.signum(dx), 1, (int)Math.signum(dz));
+            if (!level().getBlockState(ahead).isAir() || !level().getBlockState(ahead.below()).isAir()) {
+                this.jumpFromGround();
+            }
+            if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
+                BlockPos aheadGround = this.blockPosition().offset((int)Math.signum(dx), 0, (int)Math.signum(dz));
+                BlockState aheadState = level().getBlockState(aheadGround);
+                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK) && !aheadState.is(Blocks.COBBLESTONE)) {
+                    level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+                }
+            }
+        }
         this.setDeltaMovement(mx, my, mz);
         this.hasImpulse = true;
     }
