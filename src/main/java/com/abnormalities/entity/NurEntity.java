@@ -66,6 +66,9 @@ public class NurEntity extends Mob {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            return super.hurt(source, amount);
+        }
         Entity direct = source.getDirectEntity();
         boolean fromProjectile = source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE);
         boolean fromExplosion = source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION);
@@ -361,7 +364,7 @@ public class NurEntity extends Mob {
         if (tag.contains("TargetUUID") && level().getServer() != null) {
             currentTarget = level().getServer().getPlayerList().getPlayer(tag.getUUID("TargetUUID"));
         }
-        if (tag.getBoolean("Chasing") && currentState == State.CHASING) {
+        if (tag.getBoolean("Chasing") && currentState == State.CHASING && currentTarget != null) {
             this.entityData.set(DATA_CHASING, true);
             if (!level().isClientSide) NurHorrorCycle.start(this.getUUID());
         }

@@ -479,8 +479,7 @@ public class ModEvents {
         while (it.hasNext()) {
             Map.Entry<UUID, int[]> entry = it.next();
             net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
-            if (e == null) continue;
-            if (!e.isAlive()) {
+            if (e == null || !e.isAlive()) {
                 int[] p = entry.getValue();
                 SW_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
                 it.remove();
