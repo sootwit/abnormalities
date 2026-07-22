@@ -197,6 +197,9 @@ public class AbnormalitiesCommands {
 
     public static void forceSkinwalkerSpawn(ServerPlayer player) {
         var level = (net.minecraft.server.level.ServerLevel) player.level();
+        var nearby = level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
+            e -> e.getPersistentData().getBoolean("abnormalities:skinwalker"));
+        if (nearby.size() >= 10) return;
         EntityType<?> disguise = ModEvents.pickRandomDisguise(level.random);
         if (disguise == null) return;
         double angle = level.random.nextDouble() * Math.PI * 2;

@@ -275,13 +275,14 @@ public class NurEntity extends Mob {
         if (AbnormalitiesConfig.NUR_TOWER.get() && dy > 0) {
             BlockPos above = nurPos.above();
             BlockState aboveState = level().getBlockState(above);
-            if (!aboveState.isAir()) {
-                if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get() && !aboveState.is(Blocks.BEDROCK) && !aboveState.is(Blocks.COBBLESTONE)) {
+            if (!aboveState.isAir() && !aboveState.is(Blocks.BEDROCK) && !aboveState.getFluidState().isSource()) {
+                if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
                     level().destroyBlock(above, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
-            } else {
+            } else if (aboveState.isAir()) {
                 level().setBlockAndUpdate(nurPos, Blocks.COBBLESTONE.defaultBlockState());
                 this.moveTo(nurPos.getX() + 0.5, nurPos.getY() + 1, nurPos.getZ() + 0.5);
+                nurPos = this.blockPosition();
             }
         }
 
