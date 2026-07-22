@@ -14,7 +14,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -25,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -107,6 +111,7 @@ public class AbnormalitiesCommands {
             case "nurSpawns" -> ModEvents.forceNurSpawn(player);
             case "k3wSpawns" -> K3wActionTracker.forceK3wSpawn(player);
             case "xyzSpawns" -> forceXyzSpawn(player);
+            case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
@@ -186,6 +191,25 @@ public class AbnormalitiesCommands {
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                     Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
             xyz.setMessageSent(true);
+        }
+    }
+
+    public static void forceSkinwalkerSpawn(ServerPlayer player) {
+        var level = (net.minecraft.server.level.ServerLevel) player.level();
+        EntityType<?> disguise = ModEvents.pickRandomDisguise(level.random);
+        if (disguise == null) return;
+        double angle = level.random.nextDouble() * Math.PI * 2;
+        double dist = 10.0D + level.random.nextDouble() * 10.0D;
+        double sx = player.getX() + Math.cos(angle) * dist;
+        double sz = player.getZ() + Math.sin(angle) * dist;
+        int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        Entity raw = disguise.create(level);
+        if (raw instanceof Mob mob) {
+            mob.setPersistenceRequired();
+            mob.getPersistentData().putBoolean("abnormalities:skinwalker", true);
+            mob.goalSelector.addGoal(1, new com.abnormalities.entity.skinwalker.NurSkinwalkerApproachGoal(mob));
+            mob.moveTo(sx + 0.5, sy + 1, sz + 0.5, level.random.nextFloat() * 360.0F, 0);
+            level.addFreshEntity(mob);
         }
     }
 }

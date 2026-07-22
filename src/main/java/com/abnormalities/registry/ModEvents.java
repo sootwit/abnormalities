@@ -522,7 +522,7 @@ public class ModEvents {
     );
     private static java.util.List<net.minecraft.world.entity.EntityType<?>> cachedDisguiseTypes = null;
 
-    private static net.minecraft.world.entity.EntityType<?> pickRandomDisguise(net.minecraft.util.RandomSource random) {
+    public static net.minecraft.world.entity.EntityType<?> pickRandomDisguise(net.minecraft.util.RandomSource random) {
         if (cachedDisguiseTypes == null) {
             cachedDisguiseTypes = new java.util.ArrayList<>();
             for (java.util.Map.Entry<net.minecraft.resources.ResourceKey<net.minecraft.world.entity.EntityType<?>>, net.minecraft.world.entity.EntityType<?>> entry : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getEntries()) {
