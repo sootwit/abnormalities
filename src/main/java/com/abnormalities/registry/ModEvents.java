@@ -547,6 +547,17 @@ public class ModEvents {
                     cachedDisguiseTypes.add(type);
                 }
             }
+            if (cachedDisguiseTypes.isEmpty()) {
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.COW);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.PIG);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.SHEEP);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.CHICKEN);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.VILLAGER);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.WANDERING_TRADER);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.WOLF);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.CAT);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.HORSE);
+            }
         }
         if (cachedDisguiseTypes.isEmpty()) return null;
         return cachedDisguiseTypes.get(random.nextInt(cachedDisguiseTypes.size()));
