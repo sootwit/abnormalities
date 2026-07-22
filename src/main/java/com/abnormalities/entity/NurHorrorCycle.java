@@ -13,6 +13,7 @@ import java.util.*;
 public class NurHorrorCycle {
     private static final Map<UUID, Set<UUID>> playerNurs = new HashMap<>();
     private static final Map<UUID, Long> chaseStart = new HashMap<>();
+    private static final Map<UUID, Long> originalDayTime = new HashMap<>();
     public static int speedMultiplier = 20;
 
     @SubscribeEvent
@@ -30,8 +31,9 @@ public class NurHorrorCycle {
             });
             if (e.getValue().isEmpty()) {
                 chaseStart.remove(e.getKey());
+                Long orig = originalDayTime.remove(e.getKey());
                 if (p.connection != null)
-                    p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), overworld.getDayTime(), true));
+                    p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), orig != null ? orig : overworld.getDayTime(), true));
                 return true;
             }
             return false;
@@ -39,13 +41,13 @@ public class NurHorrorCycle {
 
         if (playerNurs.isEmpty()) return;
 
-        long realDayTime = overworld.getDayTime();
         long realGameTime = overworld.getGameTime();
         for (var entry : playerNurs.entrySet()) {
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(entry.getKey());
             if (p == null || p.connection == null) continue;
             long start = chaseStart.get(entry.getKey());
-            long perceived = realDayTime + (realGameTime - start) * speedMultiplier;
+            long orig = originalDayTime.get(entry.getKey());
+            long perceived = orig + (realGameTime - start) * speedMultiplier;
             p.connection.send(new ClientboundSetTimePacket(realGameTime, perceived, true));
         }
     }
@@ -54,6 +56,7 @@ public class NurHorrorCycle {
         if (!playerNurs.containsKey(playerId)) {
             ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
             if (overworld == null) return;
+            originalDayTime.put(playerId, overworld.getDayTime());
             chaseStart.put(playerId, overworld.getGameTime());
             playerNurs.put(playerId, new HashSet<>());
         }
@@ -67,11 +70,12 @@ public class NurHorrorCycle {
         if (nurs.isEmpty()) {
             playerNurs.remove(playerId);
             chaseStart.remove(playerId);
+            Long orig = originalDayTime.remove(playerId);
             ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
             if (overworld == null) return;
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(playerId);
             if (p != null && p.connection != null)
-                p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), overworld.getDayTime(), true));
+                p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), orig != null ? orig : overworld.getDayTime(), true));
         }
     }
 }
