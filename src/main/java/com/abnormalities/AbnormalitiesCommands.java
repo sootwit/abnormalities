@@ -198,9 +198,15 @@ public class AbnormalitiesCommands {
         var level = (net.minecraft.server.level.ServerLevel) player.level();
         var nearby = level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
             e -> e.getPersistentData().getBoolean("abnormalities:skinwalker"));
-        if (nearby.size() >= 10) return;
+        if (nearby.size() >= 10) {
+            player.sendSystemMessage(Component.literal("too many skinwalkers nearby"));
+            return;
+        }
         EntityType<?> disguise = ModEvents.pickRandomDisguise(level.random);
-        if (disguise == null) return;
+        if (disguise == null) {
+            player.sendSystemMessage(Component.literal("no valid disguise found"));
+            return;
+        }
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 10.0D + level.random.nextDouble() * 10.0D;
         double sx = player.getX() + Math.cos(angle) * dist;
@@ -216,6 +222,7 @@ public class AbnormalitiesCommands {
             int cx = ((int)Math.floor(sx)) >> 4;
             int cz = ((int)Math.floor(sz)) >> 4;
             level.setChunkForced(cx, cz, true);
+            player.sendSystemMessage(Component.literal("spawned " + raw.getType().builtInRegistryHolder().key().location().toString()));
         }
     }
 }
