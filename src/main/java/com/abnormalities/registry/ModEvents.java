@@ -407,13 +407,19 @@ public class ModEvents {
             if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
-                ((ServerPlayer) player).connection.disconnect(Component.literal("nur got you."));
-                var srv = ((ServerLevel) player.level()).getServer();
-                srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 10, () -> {
-                    throw new net.minecraft.ReportedException(
-                        net.minecraft.CrashReport.forThrowable(new RuntimeException("nur got you."), "nur got you.")
-                    );
-                }));
+                ServerPlayer sp = (ServerPlayer) player;
+                net.minecraft.network.chat.MutableComponent crash = net.minecraft.network.chat.Component.literal("");
+                net.minecraft.network.chat.MutableComponent inner = crash;
+                for (int i = 0; i < 200; i++) {
+                    net.minecraft.network.chat.MutableComponent next =
+                        net.minecraft.network.chat.Component.literal("");
+                    inner.append(next);
+                    inner = next;
+                }
+                inner.withStyle(net.minecraft.ChatFormatting.DARK_RED);
+                inner.withStyle(net.minecraft.ChatFormatting.BOLD);
+                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                    crash, false));
             }
             return;
         }
