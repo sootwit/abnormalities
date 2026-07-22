@@ -88,8 +88,12 @@ public class NurEntity extends Mob {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
             currentTarget = findNearestPlayer();
             if (currentTarget == null) {
+                this.entityData.set(DATA_CHASING, false);
+                if (currentState == State.CHASING) {
+                    NurHorrorCycle.stop(this.getUUID());
+                    currentState = State.STALKING;
+                }
                 if (tickCount > 200) {
-                    this.entityData.set(DATA_CHASING, false);
                     discard();
                 }
                 return;
@@ -174,7 +178,7 @@ public class NurEntity extends Mob {
             this.getLookControl().setLookAt(currentTarget, 30, 30);
         }
         if (dist < 3.0D && attackCooldown <= 0) {
-            currentTarget.hurt(currentTarget.damageSources().mobAttack(this), 999.0F);
+            currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
             silenceTimer = 40;
         }
@@ -293,7 +297,7 @@ public class NurEntity extends Mob {
     @Override
     public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
         if (target instanceof Player p) {
-            p.hurt(p.damageSources().mobAttack(this), 999.0F);
+            p.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             return true;
         }
         return false;
@@ -311,7 +315,7 @@ public class NurEntity extends Mob {
         if (!level().isClientSide) {
             level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
-            NurHorrorCycle.start();
+            NurHorrorCycle.start(this.getUUID());
         }
     }
 
@@ -331,10 +335,12 @@ public class NurEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
+        if (level() != null && !level().isClientSide && currentState == State.CHASING) {
+            NurHorrorCycle.stop(this.getUUID());
+        }
         super.remove(reason);
         if (level() != null && !level().isClientSide) {
             this.entityData.set(DATA_CHASING, false);
-            if (currentState == State.CHASING) NurHorrorCycle.stop();
         }
     }
 
@@ -357,7 +363,7 @@ public class NurEntity extends Mob {
         }
         if (tag.getBoolean("Chasing") && currentState == State.CHASING) {
             this.entityData.set(DATA_CHASING, true);
-            NurHorrorCycle.start();
+            if (!level().isClientSide) NurHorrorCycle.start(this.getUUID());
         }
     }
 }
