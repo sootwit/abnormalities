@@ -4,7 +4,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 public class AbnormalitiesConfig {
     public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.BooleanValue CRASH_ON_DEATH;
+    public static final ForgeConfigSpec.BooleanValue KICK_ON_DEATH;
     public static final ForgeConfigSpec.IntValue GRACE_PERIOD_DAYS;
     public static final ForgeConfigSpec.IntValue NUR_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.DoubleValue NUR_CURSOR_TRIGGER_DISTANCE;
@@ -45,7 +45,7 @@ public class AbnormalitiesConfig {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
         b.push("nur");
-        CRASH_ON_DEATH = b.comment("crash game when killed by nur").define("crashOnDeath", true);
+        KICK_ON_DEATH = b.comment("kick player when killed by nur").define("kickOnDeath", true);
         NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
@@ -58,7 +58,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("k3w");
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
-        K3W_CRASH_ON_CATCH = b.comment("crash game when k3w catches you").define("crashOnCatch", true);
+        K3W_CRASH_ON_CATCH = b.comment("kick player when k3w catches you").define("crashOnCatch", true);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
         K3W_KILL_MOBS = b.comment("k3w can undo mob kills").define("killMobs", true);

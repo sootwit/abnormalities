@@ -255,7 +255,7 @@ public class K3wEntity extends Mob {
                     }));
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
                         K3wEntity.this.discard();
-                        sp.connection.disconnect(Component.literal("got you!"));
+                        sp.connection.disconnect(Component.literal("Unknown error"));
                     }));
                 }
             }

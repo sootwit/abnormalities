@@ -404,22 +404,10 @@ public class ModEvents {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (!(event.getSource().getEntity() instanceof NurEntity)) return;
-            if (!player.level().isClientSide && AbnormalitiesConfig.CRASH_ON_DEATH.get()) {
+            if (!player.level().isClientSide && AbnormalitiesConfig.KICK_ON_DEATH.get()) {
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
-                ServerPlayer sp = (ServerPlayer) player;
-                net.minecraft.network.chat.MutableComponent crash = net.minecraft.network.chat.Component.literal("");
-                net.minecraft.network.chat.MutableComponent inner = crash;
-                for (int i = 0; i < 200; i++) {
-                    net.minecraft.network.chat.MutableComponent next =
-                        net.minecraft.network.chat.Component.literal("");
-                    inner.append(next);
-                    inner = next;
-                }
-                inner.withStyle(net.minecraft.ChatFormatting.DARK_RED);
-                inner.withStyle(net.minecraft.ChatFormatting.BOLD);
-                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                    crash, false));
+                ((ServerPlayer) player).connection.disconnect(Component.literal("Unknown error"));
             }
             return;
         }
