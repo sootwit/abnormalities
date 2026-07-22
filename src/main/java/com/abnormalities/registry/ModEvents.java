@@ -535,10 +535,10 @@ public class ModEvents {
     public static net.minecraft.world.entity.EntityType<?> pickRandomDisguise(net.minecraft.util.RandomSource random) {
         if (cachedDisguiseTypes == null) {
             cachedDisguiseTypes = new java.util.ArrayList<>();
-            for (java.util.Map.Entry<net.minecraft.resources.ResourceKey<net.minecraft.world.entity.EntityType<?>>, net.minecraft.world.entity.EntityType<?>> entry : net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getEntries()) {
-                net.minecraft.world.entity.EntityType<?> type = entry.getValue();
+            for (net.minecraft.world.entity.EntityType<?> type : net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE) {
                 if (type.getCategory() == net.minecraft.world.entity.MobCategory.MISC) continue;
-                net.minecraft.resources.ResourceLocation key = entry.getKey().location();
+                net.minecraft.resources.ResourceLocation key = net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(type);
+                if (key == null) continue;
                 if (key.getNamespace().equals(com.abnormalities.AbnormalitiesMod.MODID)) continue;
                 String path = key.getPath();
                 if (EXCLUDED_DISGUISES.contains(path)) continue;
