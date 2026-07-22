@@ -10,6 +10,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -20,6 +23,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     private static final Map<UUID, Integer> STATE = new HashMap<>();
     private static final Map<UUID, Integer> TICKS = new HashMap<>();
     private static final Map<UUID, Integer> KNOX = new HashMap<>();
+    private static final Map<UUID, Vec3> START_POS = new HashMap<>();
 
     private static final int TICKS_PER_KNOCK = 80;
     private static final int ANSWER_WINDOW = 1200;
@@ -45,6 +49,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         STATE.put(uuid, S_KNOCKING);
         TICKS.put(uuid, 0);
         KNOX.put(uuid, 0);
+        START_POS.put(uuid, player.position());
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 99999, 0, false, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 254, false, false, false));
         WhisperManager.sendWhisper(player, "count the knocks...");
@@ -59,6 +64,19 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         int tick = TICKS.merge(uuid, 1, Integer::sum);
 
         if (state == S_KNOCKING) {
+            Vec3 startPos = START_POS.get(uuid);
+            if (startPos != null && player.position().distanceTo(startPos) > 3.0D) {
+                Vec3 look = player.getLookAngle();
+                Vec3 behind = player.position().add(-look.x * 2, 0, -look.z * 2);
+                Creeper creeper = EntityType.CREEPER.create(player.level());
+                if (creeper != null) {
+                    creeper.moveTo(behind.x, behind.y, behind.z, player.getYRot(), 0);
+                    player.level().addFreshEntity(creeper);
+                }
+                STATE.put(uuid, S_DONE);
+                cleanup(player);
+                return;
+            }
             int knox = KNOX.getOrDefault(uuid, 0);
             int target = TARGET.getOrDefault(uuid, 0);
             int expectedKnox = tick / TICKS_PER_KNOCK;
@@ -148,9 +166,11 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     }
 
     private static void cleanup(ServerPlayer player) {
+        UUID uuid = player.getUUID();
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         HorrorEventPool.clearOngoing(player);
+        START_POS.remove(uuid);
     }
 
     @Override
@@ -160,5 +180,6 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         STATE.remove(uuid);
         TICKS.remove(uuid);
         KNOX.remove(uuid);
+        START_POS.remove(uuid);
     }
 }

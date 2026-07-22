@@ -1,5 +1,6 @@
 package com.abnormalities.entity.skinwalker;
 
+import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.registry.ModEntities;
@@ -33,6 +34,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     @Override
     public boolean canUse() {
         if (mob.level().isClientSide) return false;
+        if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
         targetPlayer = mob.level().getNearestPlayer(mob, Double.MAX_VALUE);
         return targetPlayer != null;
     }
@@ -42,7 +44,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
         if (!mob.isAlive()) return false;
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()
                 || targetPlayer.level() != mob.level()) {
-            targetPlayer = mob.level().getNearestPlayer(mob, Double.MAX_VALUE);
+            targetPlayer = mob.level().getNearestPlayer(mob, 128.0D);
         }
         return targetPlayer != null;
     }
@@ -125,6 +127,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private void transformIntoNur() {
         Level level = mob.level();
         if (level.isClientSide) return;
+        if (targetPlayer != null) ReputationManager.addRep(targetPlayer, -75);
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
         nur.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());

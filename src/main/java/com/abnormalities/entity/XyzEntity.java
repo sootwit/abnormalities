@@ -1,5 +1,6 @@
 package com.abnormalities.entity;
 
+import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
@@ -196,6 +197,8 @@ public class XyzEntity extends Mob {
         rewardGiven = true;
         this.entityData.set(DATA_ACTIVE, false);
 
+        ReputationManager.addRep(player, 50);
+
         if (player instanceof ServerPlayer sp) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                     Component.literal("thank you.").withStyle(ChatFormatting.LIGHT_PURPLE), false));
@@ -234,6 +237,8 @@ public class XyzEntity extends Mob {
         this.entityData.set(DATA_ACTIVE, false);
 
         if (targetPlayer == null || level().isClientSide) return;
+
+        ReputationManager.addRep(targetPlayer, -100);
 
         ServerLevel serverLevel = (ServerLevel) level();
         long currentDayTime = serverLevel.getDayTime();

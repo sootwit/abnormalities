@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.EnumSet;
+import java.util.UUID;
 
 public class NurEntity extends Mob {
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
@@ -33,6 +34,7 @@ public class NurEntity extends Mob {
     public int soundTick = -1;
     public int silenceTimer = 0;
     public Player currentTarget = null;
+    public UUID chasedPlayerId;
     private boolean hasPlayedSecondSound = false;
     private int attackCooldown = 0;
     private int soundLoopTick = 0;
@@ -93,7 +95,8 @@ public class NurEntity extends Mob {
             if (currentTarget == null) {
                 this.entityData.set(DATA_CHASING, false);
                 if (currentState == State.CHASING) {
-                    NurHorrorCycle.stop(this.getUUID());
+                    if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
+                    chasedPlayerId = null;
                     currentState = State.STALKING;
                 }
                 if (tickCount > 200) {
@@ -315,11 +318,12 @@ public class NurEntity extends Mob {
         attackCooldown = 0;
         soundLoopTick = 0;
         this.entityData.set(DATA_CHASING, true);
-        if (!level().isClientSide) {
-            level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                    ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
-            NurHorrorCycle.start(this.getUUID());
-        }
+    if (!level().isClientSide) {
+        level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
+        this.chasedPlayerId = player.getUUID();
+        NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+    }
     }
 
     private Player findNearestPlayer() {
@@ -338,9 +342,9 @@ public class NurEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
-        if (level() != null && !level().isClientSide && currentState == State.CHASING) {
-            NurHorrorCycle.stop(this.getUUID());
-        }
+    if (level() != null && !level().isClientSide && currentState == State.CHASING && chasedPlayerId != null) {
+        NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
+    }
         super.remove(reason);
         if (level() != null && !level().isClientSide) {
             this.entityData.set(DATA_CHASING, false);
@@ -366,7 +370,8 @@ public class NurEntity extends Mob {
         }
         if (tag.getBoolean("Chasing") && currentState == State.CHASING && currentTarget != null) {
             this.entityData.set(DATA_CHASING, true);
-            if (!level().isClientSide) NurHorrorCycle.start(this.getUUID());
+            this.chasedPlayerId = currentTarget.getUUID();
+            if (!level().isClientSide) NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
         }
     }
 }

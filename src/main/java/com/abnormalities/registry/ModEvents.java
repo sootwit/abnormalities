@@ -1,5 +1,6 @@
 package com.abnormalities.registry;
 
+import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.XyzEntity;
@@ -13,10 +14,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -27,6 +34,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import java.util.ArrayList;
@@ -103,6 +112,7 @@ public class ModEvents {
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
     private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
+    private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
         PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level, targetUUID));
@@ -310,6 +320,35 @@ public class ModEvents {
                 return;
             }
         }
+        var nureRep = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
+        boolean lookingAtStalking = false;
+        boolean hasStalking = false;
+        for (NurEntity nur : nureRep) {
+            if (nur.currentState == NurEntity.State.STALKING) {
+                hasStalking = true;
+                if (isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur)) {
+                    lookingAtStalking = true;
+                    break;
+                }
+            }
+        }
+        UUID puid = player.getUUID();
+        int lt = REP_LOOK_TICKS.getOrDefault(puid, 0);
+        if (lookingAtStalking) {
+            REP_LOOK_TICKS.put(puid, lt + 1);
+            if (lt >= 9) {
+                ReputationManager.addRep(player, -5);
+                REP_LOOK_TICKS.put(puid, 0);
+            }
+        } else if (hasStalking) {
+            REP_LOOK_TICKS.put(puid, lt + 1);
+            if (lt >= 9) {
+                ReputationManager.addRep(player, 1);
+                REP_LOOK_TICKS.put(puid, 0);
+            }
+        } else if (lt != 0) {
+            REP_LOOK_TICKS.put(puid, 0);
+        }
     }
 
     private static boolean isPlayerLookingAtEntity(Player player, NurEntity entity) {
@@ -420,14 +459,56 @@ public class ModEvents {
     }
 
     @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        if (event.getLevel().isClientSide) return;
+        Entity target = event.getTarget();
+        if (!target.getPersistentData().getBoolean("abnormalities:skinwalker")) return;
+        Player player = event.getEntity();
+        ItemStack held = player.getItemInHand(event.getHand());
+        if (target instanceof Animal animal && animal.isFood(held)) {
+            target.getPersistentData().remove("abnormalities:skinwalker");
+            ReputationManager.addRep(player, 15);
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
+            return;
+        }
+        if (target instanceof AbstractVillager && held.is(Items.BREAD)) {
+            target.getPersistentData().remove("abnormalities:skinwalker");
+            ReputationManager.addRep(player, 15);
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
+            if (!player.getAbilities().instabuild) held.shrink(1);
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onTradeWithVillager(TradeWithVillagerEvent event) {
+        AbstractVillager villager = event.getAbstractVillager();
+        if (!villager.getPersistentData().getBoolean("abnormalities:skinwalker")) return;
+        villager.getPersistentData().remove("abnormalities:skinwalker");
+        ReputationManager.addRep(event.getEntity(), 15);
+        event.getEntity().level().playSound(null, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),
+                SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
+    }
+
+    @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide) return;
         if (!(event.getEntity() instanceof Mob mob)) return;
-        if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return;
-        boolean hasGoal = mob.goalSelector.getAvailableGoals().stream()
-                .anyMatch(g -> g.getGoal() instanceof NurSkinwalkerApproachGoal);
-        if (!hasGoal) {
-            mob.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(mob));
+        if (mob.getPersistentData().getBoolean("abnormalities:skinwalker")) {
+            boolean hasGoal = mob.goalSelector.getAvailableGoals().stream()
+                    .anyMatch(g -> g.getGoal() instanceof NurSkinwalkerApproachGoal);
+            if (!hasGoal) {
+                mob.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(mob));
+            }
+        }
+        if (mob instanceof AgeableMob baby && baby.isBaby()) {
+            var adults = mob.level().getEntitiesOfClass(mob.getClass(), mob.getBoundingBox().inflate(8.0D),
+                    e -> e != mob && !e.isBaby() && e.getPersistentData().getBoolean("abnormalities:skinwalker"));
+            for (var adult : adults) {
+                adult.getPersistentData().remove("abnormalities:skinwalker");
+            }
         }
     }
 
