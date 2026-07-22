@@ -1,11 +1,9 @@
 package com.abnormalities;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -50,11 +48,6 @@ public class ReputationManager {
         if (actualDelta == 0) return;
         REP.put(player.getUUID(), clamped);
         save();
-        if (player instanceof ServerPlayer sp) {
-            String sign = actualDelta > 0 ? "+" : "";
-            ChatFormatting color = actualDelta > 0 ? ChatFormatting.GREEN : ChatFormatting.RED;
-            sp.displayClientMessage(Component.literal(sign + actualDelta + " rep (" + getTierLabel(clamped) + ")").withStyle(color), true);
-        }
     }
 
     public static void addRep(UUID playerUUID, int delta) {
