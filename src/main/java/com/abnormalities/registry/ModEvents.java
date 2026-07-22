@@ -557,6 +557,17 @@ public class ModEvents {
                 cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.WOLF);
                 cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.CAT);
                 cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.HORSE);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.DONKEY);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.MULE);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.GOAT);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.FOX);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.RABBIT);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.PANDA);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.BEE);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.ZOMBIE);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.SKELETON);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.SPIDER);
+                cachedDisguiseTypes.add(net.minecraft.world.entity.EntityType.CREEPER);
             }
         }
         if (cachedDisguiseTypes.isEmpty()) return null;
