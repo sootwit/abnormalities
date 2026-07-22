@@ -3,6 +3,7 @@ package com.abnormalities.horror;
 import com.abnormalities.WhisperManager;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,9 +69,14 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             if (startPos != null && player.position().distanceTo(startPos) > 3.0D) {
                 Vec3 look = player.getLookAngle();
                 Vec3 behind = player.position().add(-look.x * 2, 0, -look.z * 2);
+                BlockPos spawnPos = BlockPos.containing(behind);
+                if (!player.level().getBlockState(spawnPos).isAir() && !player.level().getBlockState(spawnPos.above()).isAir()) {
+                    spawnPos = player.blockPosition();
+                }
                 Creeper creeper = EntityType.CREEPER.create(player.level());
                 if (creeper != null) {
-                    creeper.moveTo(behind.x, behind.y, behind.z, player.getYRot(), 0);
+                    creeper.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, player.getYRot(), 0);
+                    creeper.setInvulnerable(true);
                     player.level().addFreshEntity(creeper);
                 }
                 STATE.put(uuid, S_DONE);

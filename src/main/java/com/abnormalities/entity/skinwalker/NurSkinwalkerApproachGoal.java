@@ -35,13 +35,14 @@ public class NurSkinwalkerApproachGoal extends Goal {
     public boolean canUse() {
         if (mob.level().isClientSide) return false;
         if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
-        targetPlayer = mob.level().getNearestPlayer(mob, Double.MAX_VALUE);
+        targetPlayer = mob.level().getNearestPlayer(mob, 128.0D);
         return targetPlayer != null;
     }
 
     @Override
     public boolean canContinueToUse() {
         if (!mob.isAlive()) return false;
+        if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()
                 || targetPlayer.level() != mob.level()) {
             targetPlayer = mob.level().getNearestPlayer(mob, 128.0D);
