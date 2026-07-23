@@ -20,6 +20,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.EnumSet;
 import java.util.UUID;
@@ -266,8 +271,9 @@ public class NurEntity extends Mob {
                     level().destroyBlock(above, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
             } else if (aboveState.isAir()) {
-                level().setBlockAndUpdate(nurPos, Blocks.COBBLESTONE.defaultBlockState());
-                this.moveTo(nurPos.getX() + 0.5, nurPos.getY() + 1, nurPos.getZ() + 0.5);
+                BlockPos belowCenter = BlockPos.containing(this.getX(), this.getY() - 1, this.getZ());
+                level().setBlockAndUpdate(belowCenter, Blocks.COBBLESTONE.defaultBlockState());
+                this.moveTo(this.getX(), belowCenter.getY() + 1, this.getZ());
                 nurPos = this.blockPosition();
             }
         }
@@ -304,18 +310,22 @@ public class NurEntity extends Mob {
             }
         }
         if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
-            for (int bx = -2; bx <= 2; bx++) {
-                for (int bz = -2; bz <= 2; bz++) {
-                    for (int by = 0; by < 3; by++) {
-                        BlockPos check = nurPos.offset(bx, by, bz);
-                        if (check.equals(nurPos)) continue;
-                        BlockState state = level().getBlockState(check);
-                        if (!state.isAir() && !state.is(Blocks.BEDROCK) && !state.is(Blocks.COBBLESTONE)) {
-                            level().destroyBlock(check, false);
-                        }
+            Vec3 dir = new Vec3(
+                currentTarget.getX() - this.getX(),
+                currentTarget.getY() - this.getY(),
+                currentTarget.getZ() - this.getZ()
+            ).normalize();
+            AABB movedBox = this.getBoundingBox().move(dir.scale(0.8));
+            VoxelShape movedShape = Shapes.create(movedBox);
+            BlockPos.betweenClosedStream(movedBox).forEach(pos -> {
+                BlockState state = level().getBlockState(pos);
+                if (!state.isAir() && !state.is(Blocks.BEDROCK) && !state.is(Blocks.COBBLESTONE)) {
+                    VoxelShape shape = state.getCollisionShape(level(), pos);
+                    if (!shape.isEmpty() && Shapes.joinIsNotEmpty(shape.move(pos.getX(), pos.getY(), pos.getZ()), movedShape, BooleanOp.AND)) {
+                        level().destroyBlock(pos, false);
                     }
                 }
-            }
+            });
         }
     }
 
