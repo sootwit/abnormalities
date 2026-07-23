@@ -178,10 +178,8 @@ public class NurEntity extends Mob {
         }
         this.getNavigation().stop();
         double dist = this.distanceTo(currentTarget);
-        if (dist > 2.5D) {
-            pushTowardTarget();
-            this.getLookControl().setLookAt(currentTarget, 30, 30);
-        }
+        pushTowardTarget();
+        this.getLookControl().setLookAt(currentTarget, 30, 30);
         tryReachTarget();
         if (dist < 3.0D && attackCooldown <= 0) {
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
@@ -210,7 +208,7 @@ public class NurEntity extends Mob {
             int sx = (int)Math.signum(dx);
             int sz = (int)Math.signum(dz);
             BlockPos ahead = this.blockPosition().offset(sx, 1, sz);
-            if (!level().getBlockState(ahead).isAir() || !level().getBlockState(ahead.below()).isAir()) {
+            if (!level().getBlockState(ahead).isAir()) {
                 this.jumpFromGround();
             }
             if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
