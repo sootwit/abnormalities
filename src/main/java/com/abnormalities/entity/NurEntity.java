@@ -256,14 +256,14 @@ public class NurEntity extends Mob {
         if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
             int stepX = (int) Math.signum(targetPos.getX() + 0.5 - this.getX());
             int stepZ = (int) Math.signum(targetPos.getZ() + 0.5 - this.getZ());
-            for (int bx = -2; bx <= 2; bx++) {
-                for (int bz = -2; bz <= 2; bz++) {
-                    for (int by = 0; by < 3; by++) {
+            for (int by = 0; by < 3; by++) {
+                for (int bx = -2; bx <= 2; bx++) {
+                    for (int bz = -2; bz <= 2; bz++) {
                         BlockPos check;
                         if (dy > 0) {
-                            check = nurPos.offset(bx, by, bz);
+                            check = nurPos.offset(bx, by + 1, bz);
                         } else {
-                            check = nurPos.offset(bx + (stepX != 0 ? stepX : 0), by, bz + (stepZ != 0 ? stepZ : 0));
+                            check = nurPos.offset(bx + stepX, by, bz + stepZ);
                         }
                         if (check.equals(nurPos)) continue;
                         BlockState state = level().getBlockState(check);
