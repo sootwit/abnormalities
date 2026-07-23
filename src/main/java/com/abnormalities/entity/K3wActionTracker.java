@@ -282,10 +282,8 @@ public class K3wActionTracker {
         if (server == null) return;
         server.tell(new net.minecraft.server.TickTask(server.getTickCount() + delayTicks, () -> {
             if (player.connection == null) return;
-            StringBuilder sb = new StringBuilder(msg);
-            String reversed = sb.reverse().toString();
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal("<" + reversed + "> " + msg).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false));
+                Component.literal("<" + player.getName().getString() + "> " + msg).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false));
         }));
     }
 }
