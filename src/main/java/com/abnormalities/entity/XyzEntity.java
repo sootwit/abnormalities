@@ -109,8 +109,7 @@ public class XyzEntity extends Mob {
             net.minecraft.world.level.block.Blocks.SPORE_BLOSSOM, net.minecraft.world.level.block.Blocks.HANGING_ROOTS,
             net.minecraft.world.level.block.Blocks.MOSS_BLOCK, net.minecraft.world.level.block.Blocks.MOSS_CARPET,
             net.minecraft.world.level.block.Blocks.AZALEA, net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA,
-            net.minecraft.world.level.block.Blocks.BAMBOO, net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING,
-            net.minecraft.world.level.block.Blocks.SUSPICIOUS_SAND, net.minecraft.world.level.block.Blocks.SUSPICIOUS_GRAVEL
+            net.minecraft.world.level.block.Blocks.BAMBOO, net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING
         );
         int bx = net.minecraft.util.Mth.floor(cx) >> 4;
         int bz = net.minecraft.util.Mth.floor(cz) >> 4;
