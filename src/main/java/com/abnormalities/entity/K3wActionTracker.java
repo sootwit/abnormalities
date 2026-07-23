@@ -14,6 +14,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -266,5 +267,25 @@ public class K3wActionTracker {
         if (event.getEntity() != null) {
             cleanup(event.getEntity().getUUID());
         }
+    }
+
+    @SubscribeEvent
+    public static void onServerChat(ServerChatEvent event) {
+        ServerPlayer player = event.getPlayer();
+        UUID uuid = player.getUUID();
+        List<K3wEntity> clones = ACTIVE_CLONES.get(uuid);
+        if (clones == null || clones.isEmpty()) return;
+        if (clones.stream().noneMatch(K3wEntity::isAlive)) return;
+        String msg = event.getMessage().getString();
+        int delayTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        var server = player.getServer();
+        if (server == null) return;
+        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + delayTicks, () -> {
+            if (player.connection == null) return;
+            StringBuilder sb = new StringBuilder(msg);
+            String reversed = sb.reverse().toString();
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                Component.literal("<" + reversed + "> " + msg).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false));
+        }));
     }
 }
