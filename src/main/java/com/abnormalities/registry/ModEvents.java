@@ -200,24 +200,7 @@ public class ModEvents {
                     xyz.setTargetPlayer(player);
                     overworld.addFreshEntity(xyz);
 
-                    var tag = net.minecraft.tags.ItemTags.create(new ResourceLocation("abnormalities", "xyz_items"));
-                    var items = new java.util.ArrayList<net.minecraft.world.item.Item>();
-                    for (var holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
-                        items.add(holder.value());
-                    }
-                    if (items.isEmpty()) continue;
-
-                    if (player instanceof ServerPlayer sp && !hasEndAccess(sp)) {
-                        var endTag = net.minecraft.tags.ItemTags.create(new ResourceLocation("abnormalities", "xyz_end_items"));
-                        var endItems = new java.util.HashSet<net.minecraft.world.item.Item>();
-                        for (var holder : BuiltInRegistries.ITEM.getTagOrEmpty(endTag)) {
-                            endItems.add(holder.value());
-                        }
-                        items.removeIf(endItems::contains);
-                        if (items.isEmpty()) continue;
-                    }
-
-                    net.minecraft.world.item.Item chosenItem = items.get(overworld.random.nextInt(items.size()));
+                    net.minecraft.world.item.Item chosenItem = XyzEntity.pickNearbyItem(overworld, sx, sz);
                     int maxStack = chosenItem.getMaxStackSize();
                     int amount;
                     if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {

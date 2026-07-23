@@ -72,7 +72,7 @@ public class AbnormalitiesConfig {
         XYZ_STATIC_WAIT = b.comment("use fixed wait time instead of random range").define("staticWaitTime", false);
         XYZ_STATIC_WAIT_SECONDS = b.comment("fixed xyz wait time in seconds (5-4096)").defineInRange("staticWaitSeconds", 120, 5, 4096);
         XYZ_MIN_ITEMS = b.comment("minimum item count requested from player").defineInRange("minItems", 1, 1, 64);
-        XYZ_MAX_ITEMS = b.comment("maximum item count requested from player").defineInRange("maxItems", 16, 1, 64);
+        XYZ_MAX_ITEMS = b.comment("maximum item count requested from player").defineInRange("maxItems", 32, 1, 64);
         XYZ_STATIC_AMOUNT = b.comment("use fixed item count instead of random range").define("staticAmount", false);
         XYZ_STATIC_ITEM_COUNT = b.comment("fixed item count when staticAmount is true (1-64)").defineInRange("staticItemCount", 4, 1, 64);
         XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 64);

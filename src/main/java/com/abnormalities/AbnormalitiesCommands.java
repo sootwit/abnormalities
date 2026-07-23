@@ -126,30 +126,7 @@ public class AbnormalitiesCommands {
 
     public static void forceXyzSpawn(ServerPlayer player) {
         var level = (net.minecraft.server.level.ServerLevel) player.level();
-        var tag = net.minecraft.tags.ItemTags.create(new net.minecraft.resources.ResourceLocation("abnormalities", "xyz_items"));
-        var items = new java.util.ArrayList<net.minecraft.world.item.Item>();
-        for (var holder : net.minecraft.core.registries.BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
-            items.add(holder.value());
-        }
-        if (items.isEmpty()) {
-            player.sendSystemMessage(Component.literal("no items in xyz_items tag!").withStyle(ChatFormatting.RED));
-            return;
-        }
-
-        if (!ModEvents.hasEndAccess(player)) {
-            var endTag = net.minecraft.tags.ItemTags.create(new net.minecraft.resources.ResourceLocation("abnormalities", "xyz_end_items"));
-            var endItems = new java.util.HashSet<net.minecraft.world.item.Item>();
-            for (var holder : net.minecraft.core.registries.BuiltInRegistries.ITEM.getTagOrEmpty(endTag)) {
-                endItems.add(holder.value());
-            }
-            items.removeIf(endItems::contains);
-            if (items.isEmpty()) {
-                player.sendSystemMessage(Component.literal("no accessible items for this player!").withStyle(ChatFormatting.RED));
-                return;
-            }
-        }
-
-        var chosenItem = items.get(level.random.nextInt(items.size()));
+        var chosenItem = XyzEntity.pickNearbyItem(level, player.getX(), player.getZ());
         int maxStack = chosenItem.getMaxStackSize();
         int amount;
         if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
