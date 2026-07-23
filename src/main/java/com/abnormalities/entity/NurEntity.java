@@ -216,12 +216,12 @@ public class NurEntity extends Mob {
             if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
                 BlockPos aheadGround = this.blockPosition().offset(sx, 0, sz);
                 BlockState aheadState = level().getBlockState(aheadGround);
-                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK) && !aheadState.is(Blocks.COBBLESTONE)) {
+                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK)) {
                     level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
                 BlockPos aheadHead = this.blockPosition().offset(sx, 1, sz);
                 BlockState headState = level().getBlockState(aheadHead);
-                if (!headState.isAir() && !headState.is(Blocks.BEDROCK) && !headState.is(Blocks.COBBLESTONE)) {
+                if (!headState.isAir() && !headState.is(Blocks.BEDROCK)) {
                     level().destroyBlock(aheadHead, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
             }
@@ -291,6 +291,7 @@ public class NurEntity extends Mob {
                 for (int checkY = 0; checkY >= -4; checkY--) {
                     BlockPos check = bridgeTarget.offset(0, checkY, 0);
                     if (level().getBlockState(check).canOcclude()) {
+                        if (checkY == 0) break;
                         BlockPos placeAt = bridgeTarget.offset(0, checkY + 1, 0);
                         if (level().getBlockState(placeAt).isAir()) {
                             level().setBlockAndUpdate(placeAt, Blocks.COBBLESTONE.defaultBlockState());
