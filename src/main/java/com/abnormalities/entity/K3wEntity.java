@@ -253,7 +253,7 @@ public class K3wEntity extends Mob {
                         level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                                 ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
                     }));
-                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 30, () -> {
+                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 32, () -> {
                         K3wEntity.this.discard();
                         sp.connection.disconnect(Component.literal("got you!"));
                     }));
