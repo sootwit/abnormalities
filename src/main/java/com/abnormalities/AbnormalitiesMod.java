@@ -44,5 +44,7 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new ItRemembersEvent());
         HorrorEventPool.register(new HotbarNurEvent());
         HorrorEventPool.register(new HelpHotbarEvent());
+        HorrorEventPool.register(new HighRepGateEvent());
+        HorrorEventPool.register(new LowRepGateEvent());
     }
 }
