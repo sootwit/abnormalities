@@ -280,10 +280,17 @@ public class K3wActionTracker {
         int delayTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
         var server = player.getServer();
         if (server == null) return;
-        server.tell(new net.minecraft.server.TickTask(server.getTickCount() + delayTicks, () -> {
-            if (player.connection == null) return;
-            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal("<" + player.getName().getString() + "> " + msg), false));
-        }));
+        int targetTick = server.getTickCount() + delayTicks;
+        server.execute(new Runnable() {
+            public void run() {
+                if (server.getTickCount() < targetTick) {
+                    server.execute(this);
+                    return;
+                }
+                if (player.connection == null) return;
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                    Component.literal("<" + player.getName().getString() + "> " + msg), false));
+            }
+        });
     }
 }
