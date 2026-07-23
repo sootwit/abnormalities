@@ -294,7 +294,7 @@ public class NurEntity extends Mob {
                 for (int checkY = 0; checkY >= -4; checkY--) {
                     BlockPos check = bridgeTarget.offset(0, checkY, 0);
                     if (level().getBlockState(check).canOcclude()) {
-                        if (checkY == 0) break;
+                        if (checkY >= -1) break;
                         BlockPos placeAt = bridgeTarget.offset(0, checkY + 1, 0);
                         if (level().getBlockState(placeAt).isAir()) {
                             level().setBlockAndUpdate(placeAt, Blocks.COBBLESTONE.defaultBlockState());
