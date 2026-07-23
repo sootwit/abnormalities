@@ -186,6 +186,11 @@ public class NurEntity extends Mob {
         pushTowardTarget();
         this.getLookControl().setLookAt(currentTarget, 30, 30);
         tryReachTarget();
+        if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp && tickCount % 60 == 0) {
+            sp.connection.send(new net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket(
+                net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES, this,
+                net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES));
+        }
         if (dist < 3.0D && attackCooldown <= 0) {
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
