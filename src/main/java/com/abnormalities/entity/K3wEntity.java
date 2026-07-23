@@ -30,8 +30,7 @@ import java.util.*;
 
 public class K3wEntity extends Mob {
     private static final int CHAT_DELAY = 600;
-    private static final EntityDataAccessor<Long> DATA_TARGET_UUID_MOST = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.LONG);
-    private static final EntityDataAccessor<Long> DATA_TARGET_UUID_LEAST = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.LONG);
+    private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.BOOLEAN);
 
     private final List<K3wAction> pendingActions = new ArrayList<>();
@@ -65,8 +64,7 @@ public class K3wEntity extends Mob {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_TARGET_UUID_MOST, 0L);
-        this.entityData.define(DATA_TARGET_UUID_LEAST, 0L);
+        this.entityData.define(DATA_TARGET_UUID, Optional.empty());
         this.entityData.define(DATA_CRASHING, false);
     }
 
@@ -88,12 +86,8 @@ public class K3wEntity extends Mob {
     }
 
     public UUID getTargetUUID() {
-        long most = this.entityData.get(DATA_TARGET_UUID_MOST);
-        long least = this.entityData.get(DATA_TARGET_UUID_LEAST);
-        if (most == 0L && least == 0L) {
-            return targetPlayer != null ? targetPlayer.getUUID() : null;
-        }
-        return new UUID(most, least);
+        Optional<UUID> opt = this.entityData.get(DATA_TARGET_UUID);
+        return opt.orElse(targetPlayer != null ? targetPlayer.getUUID() : null);
     }
 
     public boolean isCrashing() {
@@ -111,8 +105,7 @@ public class K3wEntity extends Mob {
         this.targetPlayer = player;
         if (player != null) {
             UUID uuid = player.getUUID();
-            this.entityData.set(DATA_TARGET_UUID_MOST, uuid.getMostSignificantBits());
-            this.entityData.set(DATA_TARGET_UUID_LEAST, uuid.getLeastSignificantBits());
+            this.entityData.set(DATA_TARGET_UUID, Optional.of(uuid));
             this.setCustomName(net.minecraft.network.chat.Component.literal(player.getName().getString()));
             this.setCustomNameVisible(true);
         }

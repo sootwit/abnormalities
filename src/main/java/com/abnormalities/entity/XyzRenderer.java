@@ -36,7 +36,7 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
     public void render(XyzEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         var mc = Minecraft.getInstance();
-        var player = mc.player;
+        var player = mc.cameraEntity;
         if (player == null) return;
 
         float hw = 2.0F;

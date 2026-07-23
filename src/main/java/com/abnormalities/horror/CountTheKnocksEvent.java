@@ -139,6 +139,11 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
 
     private static void triggerWrongStatic(ServerPlayer player, UUID uuid) {
         if (STATE.put(uuid, S_DONE) == S_DONE) return;
+        TARGET.remove(uuid);
+        STATE.remove(uuid);
+        TICKS.remove(uuid);
+        KNOX.remove(uuid);
+        START_POS.remove(uuid);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             SoundEvents.AMBIENT_CAVE, SoundSource.MASTER,
             player.getX(), player.getY() + 1, player.getZ(),

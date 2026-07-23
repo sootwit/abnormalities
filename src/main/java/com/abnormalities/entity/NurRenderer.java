@@ -34,7 +34,7 @@ public class NurRenderer extends EntityRenderer<NurEntity> {
     public void render(NurEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         var mc = Minecraft.getInstance();
-        var player = mc.player;
+        var player = mc.cameraEntity;
         if (player == null) return;
         float hw = 2.0F;
         float hh = 2.67F;
