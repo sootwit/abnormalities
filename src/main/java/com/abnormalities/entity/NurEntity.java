@@ -262,7 +262,7 @@ public class NurEntity extends Mob {
                         BlockPos check = nurPos.offset(bx + (stepX != 0 ? stepX : 0), by, bz + (stepZ != 0 ? stepZ : 0));
                         if (check.equals(nurPos)) continue;
                         BlockState state = level().getBlockState(check);
-                        if (!state.isAir() && !state.is(Blocks.BEDROCK) && !state.is(Blocks.COBBLESTONE)) {
+                        if (!state.isAir() && !state.is(Blocks.BEDROCK)) {
                             level().destroyBlock(check, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                         }
                     }
