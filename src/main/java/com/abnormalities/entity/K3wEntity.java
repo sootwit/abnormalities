@@ -307,7 +307,7 @@ public class K3wEntity extends Mob {
         while (it.hasNext()) {
             K3wAction action = it.next();
             BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
-            if (Math.abs(actionPos.getX() - targetPos.getX()) <= 1 && Math.abs(actionPos.getY() - targetPos.getY()) <= 1 && Math.abs(actionPos.getZ() - targetPos.getZ()) <= 1 && !undonePositions.contains(actionPos)) {
+            if (Math.abs(actionPos.getX() - targetPos.getX()) <= 3 && Math.abs(actionPos.getY() - targetPos.getY()) <= 3 && Math.abs(actionPos.getZ() - targetPos.getZ()) <= 3 && !undonePositions.contains(actionPos)) {
                 executeUndo(action);
                 undonePositions.add(actionPos);
                 it.remove();
