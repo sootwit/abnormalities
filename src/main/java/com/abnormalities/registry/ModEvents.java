@@ -190,13 +190,13 @@ public class ModEvents {
                 double sx = player.getX() + Math.cos(angle) * dist;
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                BlockPos spawnPos = BlockPos.containing(sx, sy + 1, sz);
+                BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
-                if (overworld.getBlockState(spawnPos).canOcclude()) continue;
+                if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
 
                 XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
                 if (xyz != null) {
-                    xyz.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+                    xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
                     xyz.setTargetPlayer(player);
                     overworld.addFreshEntity(xyz);
 

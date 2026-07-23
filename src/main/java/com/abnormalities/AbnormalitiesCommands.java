@@ -145,7 +145,7 @@ public class AbnormalitiesCommands {
 
         XyzEntity xyz = ModEntities.XYZ.get().create(level);
         if (xyz != null) {
-            xyz.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+            xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
             xyz.setTargetPlayer(player);
             level.addFreshEntity(xyz);
             int seconds;
