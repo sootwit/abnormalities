@@ -180,9 +180,9 @@ public class NurEntity extends Mob {
         double dist = this.distanceTo(currentTarget);
         if (dist > 2.5D) {
             pushTowardTarget();
-            tryReachTarget();
             this.getLookControl().setLookAt(currentTarget, 30, 30);
         }
+        tryReachTarget();
         if (dist < 3.0D && attackCooldown <= 0) {
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
@@ -261,10 +261,7 @@ public class NurEntity extends Mob {
                     for (int by = 0; by < 3; by++) {
                         BlockPos check = nurPos.offset(bx + (stepX != 0 ? stepX : 0), by, bz + (stepZ != 0 ? stepZ : 0));
                         BlockState state = level().getBlockState(check);
-                        if (!state.isAir() && !state.is(Blocks.BEDROCK) && !state.is(Blocks.COBBLESTONE)) {
-                            level().destroyBlock(check, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
-                        }
-                        if (state.is(Blocks.COBBLESTONE) && level().getGameTime() % 60 == 0) {
+                        if (!state.isAir() && !state.is(Blocks.BEDROCK)) {
                             level().destroyBlock(check, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                         }
                     }
