@@ -283,7 +283,7 @@ public class K3wActionTracker {
         server.tell(new net.minecraft.server.TickTask(server.getTickCount() + delayTicks, () -> {
             if (player.connection == null) return;
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal("<" + player.getName().getString() + "> " + msg).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC), false));
+                Component.literal("<" + player.getName().getString() + "> " + msg), false));
         }));
     }
 }
