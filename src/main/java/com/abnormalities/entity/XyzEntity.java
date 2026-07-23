@@ -246,9 +246,15 @@ public class XyzEntity extends Mob {
 
         if (timeOfDay < 13000L) {
             long jumpTo = currentDayTime + (13000L - timeOfDay) + 100;
-            serverLevel.setDayTime(jumpTo);
+            if (targetPlayer instanceof net.minecraft.server.level.ServerPlayer) {
+                ((net.minecraft.server.level.ServerPlayer) targetPlayer).connection.send(
+                    new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), jumpTo, true));
+            }
         } else {
-            serverLevel.setDayTime(currentDayTime + 100);
+            if (targetPlayer instanceof net.minecraft.server.level.ServerPlayer) {
+                ((net.minecraft.server.level.ServerPlayer) targetPlayer).connection.send(
+                    new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), currentDayTime + 100, true));
+            }
         }
 
         level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),

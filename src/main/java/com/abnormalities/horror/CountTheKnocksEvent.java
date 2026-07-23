@@ -166,6 +166,10 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         HorrorEventPool.clearOngoing(player);
+        TARGET.remove(uuid);
+        STATE.remove(uuid);
+        TICKS.remove(uuid);
+        KNOX.remove(uuid);
         START_POS.remove(uuid);
     }
 
