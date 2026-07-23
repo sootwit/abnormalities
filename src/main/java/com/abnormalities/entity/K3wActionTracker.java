@@ -67,7 +67,8 @@ public class K3wActionTracker {
             if (SPAWN_COOLDOWNS.containsKey(uuid) && cd == 0) {
                 SPAWN_COOLDOWNS.remove(uuid);
                 if (SPAWN_TIMERS.containsKey(uuid)) {
-                    cleanup(uuid);
+                    SPAWN_TIMERS.remove(uuid);
+                    MESSAGES_SENT.remove(uuid);
                 }
                 continue;
             }

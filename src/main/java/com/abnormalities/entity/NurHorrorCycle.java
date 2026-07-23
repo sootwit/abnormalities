@@ -22,22 +22,28 @@ public class NurHorrorCycle {
         ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
-        playerNurs.entrySet().removeIf(e -> {
-            ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(e.getKey());
-            if (p == null || !p.isAlive()) return true;
-            e.getValue().removeIf(id -> {
+        for (UUID playerId : Set.copyOf(playerNurs.keySet())) {
+            ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(playerId);
+            if (p == null || !p.isAlive()) {
+                playerNurs.remove(playerId);
+                chaseStart.remove(playerId);
+                originalDayTime.remove(playerId);
+                continue;
+            }
+            Set<UUID> nurs = playerNurs.get(playerId);
+            if (nurs == null) continue;
+            nurs.removeIf(id -> {
                 Entity en = overworld.getEntity(id);
                 return en == null || !en.isAlive();
             });
-            if (e.getValue().isEmpty()) {
-                chaseStart.remove(e.getKey());
-                Long orig = originalDayTime.remove(e.getKey());
+            if (nurs.isEmpty()) {
+                playerNurs.remove(playerId);
+                chaseStart.remove(playerId);
+                Long orig = originalDayTime.remove(playerId);
                 if (p.connection != null)
                     p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), orig != null ? orig : overworld.getDayTime(), true));
-                return true;
             }
-            return false;
-        });
+        }
 
         if (playerNurs.isEmpty()) return;
 
