@@ -52,6 +52,22 @@ public class XyzEntity extends Mob {
 
     public static net.minecraft.world.item.Item pickNearbyItem(net.minecraft.server.level.ServerLevel level, double cx, double cz) {
         java.util.HashSet<net.minecraft.world.item.Item> found = new java.util.HashSet<>();
+        java.util.Set<net.minecraft.world.level.block.Block> silkTouch = java.util.Set.of(
+            net.minecraft.world.level.block.Blocks.GRASS_BLOCK, net.minecraft.world.level.block.Blocks.MYCELIUM,
+            net.minecraft.world.level.block.Blocks.PODZOL, net.minecraft.world.level.block.Blocks.GRASS,
+            net.minecraft.world.level.block.Blocks.TALL_GRASS, net.minecraft.world.level.block.Blocks.FERN,
+            net.minecraft.world.level.block.Blocks.LARGE_FERN, net.minecraft.world.level.block.Blocks.DEAD_BUSH,
+            net.minecraft.world.level.block.Blocks.VINE, net.minecraft.world.level.block.Blocks.GLOW_LICHEN,
+            net.minecraft.world.level.block.Blocks.SEA_PICKLE,
+            net.minecraft.world.level.block.Blocks.TUBE_CORAL_BLOCK, net.minecraft.world.level.block.Blocks.BRAIN_CORAL_BLOCK,
+            net.minecraft.world.level.block.Blocks.BUBBLE_CORAL, net.minecraft.world.level.block.Blocks.FIRE_CORAL,
+            net.minecraft.world.level.block.Blocks.HORN_CORAL, net.minecraft.world.level.block.Blocks.ICE,
+            net.minecraft.world.level.block.Blocks.PACKED_ICE, net.minecraft.world.level.block.Blocks.BLUE_ICE,
+            net.minecraft.world.level.block.Blocks.SPAWNER, net.minecraft.world.level.block.Blocks.GLASS,
+            net.minecraft.world.level.block.Blocks.GLASS_PANE, net.minecraft.world.level.block.Blocks.SCULK,
+            net.minecraft.world.level.block.Blocks.SCULK_CATALYST, net.minecraft.world.level.block.Blocks.SCULK_SHRIEKER,
+            net.minecraft.world.level.block.Blocks.SCULK_SENSOR, net.minecraft.world.level.block.Blocks.CALIBRATED_SCULK_SENSOR
+        );
         int bx = net.minecraft.util.Mth.floor(cx) >> 4;
         int bz = net.minecraft.util.Mth.floor(cz) >> 4;
         for (int dx = -1; dx <= 1; dx++) {
@@ -69,6 +85,7 @@ public class XyzEntity extends Mob {
                             if (state.isAir()) continue;
                             var item = state.getBlock().asItem();
                             if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
+                            if (silkTouch.contains(state.getBlock())) continue;
                             found.add(item);
                             if (found.size() >= 30) break;
                         }
