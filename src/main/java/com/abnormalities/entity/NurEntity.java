@@ -207,15 +207,22 @@ public class NurEntity extends Mob {
             my = -0.8D;
         }
         if (this.onGround() && horizDist > 1.5) {
-            BlockPos ahead = this.blockPosition().offset((int)Math.signum(dx), 1, (int)Math.signum(dz));
+            int sx = (int)Math.signum(dx);
+            int sz = (int)Math.signum(dz);
+            BlockPos ahead = this.blockPosition().offset(sx, 1, sz);
             if (!level().getBlockState(ahead).isAir() || !level().getBlockState(ahead.below()).isAir()) {
                 this.jumpFromGround();
             }
             if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
-                BlockPos aheadGround = this.blockPosition().offset((int)Math.signum(dx), 0, (int)Math.signum(dz));
+                BlockPos aheadGround = this.blockPosition().offset(sx, 0, sz);
                 BlockState aheadState = level().getBlockState(aheadGround);
                 if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK) && !aheadState.is(Blocks.COBBLESTONE)) {
                     level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+                }
+                BlockPos aheadHead = this.blockPosition().offset(sx, 1, sz);
+                BlockState headState = level().getBlockState(aheadHead);
+                if (!headState.isAir() && !headState.is(Blocks.BEDROCK) && !headState.is(Blocks.COBBLESTONE)) {
+                    level().destroyBlock(aheadHead, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
                 }
             }
         }
@@ -251,21 +258,6 @@ public class NurEntity extends Mob {
             }
             this.setDeltaMovement(this.getDeltaMovement().x, -1.0D, this.getDeltaMovement().z);
             return;
-        }
-
-        if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
-            for (int bx = -1; bx <= 1; bx++) {
-                for (int bz = -1; bz <= 1; bz++) {
-                    for (int by = 0; by < 3; by++) {
-                        BlockPos check = nurPos.offset(bx, by, bz);
-                        if (check.equals(nurPos)) continue;
-                        BlockState state = level().getBlockState(check);
-                        if (!state.isAir() && !state.is(Blocks.BEDROCK)) {
-                            level().destroyBlock(check, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
-                        }
-                    }
-                }
-            }
         }
 
         if (AbnormalitiesConfig.NUR_TOWER.get() && dy > 0) {
