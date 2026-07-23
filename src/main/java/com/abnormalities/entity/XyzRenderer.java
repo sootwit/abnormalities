@@ -53,7 +53,7 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
 
         ResourceLocation tex = getTextureLocation(entity);
-        RenderType renderType = RenderType.entityTranslucentEmissive(tex);
+        RenderType renderType = RenderType.entityCutoutNoCull(tex);
         VertexConsumer vc = bufferSource.getBuffer(renderType);
 
         var m = poseStack.last().pose();
