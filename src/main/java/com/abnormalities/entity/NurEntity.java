@@ -254,12 +254,10 @@ public class NurEntity extends Mob {
         }
 
         if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
-            int stepX = (int) Math.signum(targetPos.getX() + 0.5 - this.getX());
-            int stepZ = (int) Math.signum(targetPos.getZ() + 0.5 - this.getZ());
-            for (int bx = -2; bx <= 2; bx++) {
-                for (int bz = -2; bz <= 2; bz++) {
+            for (int bx = -1; bx <= 1; bx++) {
+                for (int bz = -1; bz <= 1; bz++) {
                     for (int by = 0; by < 3; by++) {
-                        BlockPos check = nurPos.offset(bx + (stepX != 0 ? stepX : 0), by, bz + (stepZ != 0 ? stepZ : 0));
+                        BlockPos check = nurPos.offset(bx, by, bz);
                         if (check.equals(nurPos)) continue;
                         BlockState state = level().getBlockState(check);
                         if (!state.isAir() && !state.is(Blocks.BEDROCK)) {
