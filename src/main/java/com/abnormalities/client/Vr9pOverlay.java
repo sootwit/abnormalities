@@ -9,7 +9,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
 public class Vr9pOverlay {
-    private static final ResourceLocation VR9P = new ResourceLocation("abnormalities", "textures/gui/vr9p.png");
+    private static final ResourceLocation VR9P_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9pstop.png");
+    private static final ResourceLocation VR9P_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/vr9pcontinue.png");
     private static final ResourceLocation OVERLAY_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9p_overlaystop.png");
     private static final ResourceLocation OVERLAY_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/vr9p_overlaycontinue.png");
     private static final ResourceLocation TEXT_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9p_textstop.png");
@@ -35,11 +36,12 @@ public class Vr9pOverlay {
         int sh = gg.guiHeight();
         gg.pose().pushPose();
         gg.pose().setIdentity();
-        gg.blit(VR9P, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         if (currentState == 0) {
+            gg.blit(VR9P_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(TEXT_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         } else if (currentState == 1) {
+            gg.blit(VR9P_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(TEXT_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         }

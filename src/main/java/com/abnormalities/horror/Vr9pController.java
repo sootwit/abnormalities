@@ -2,8 +2,8 @@ package com.abnormalities.horror;
 
 import com.abnormalities.AbnormalitiesMod;
 import com.abnormalities.network.Vr9pPacket;
+import com.abnormalities.registry.ModSounds;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
@@ -20,6 +20,7 @@ public class Vr9pController {
         int ticks = 0;
         boolean showingStop = true;
         int nextSwitchAt = 20 + new Random().nextInt(60);
+        int totalTicks = 0;
     }
 
     @SubscribeEvent
@@ -38,8 +39,8 @@ public class Vr9pController {
             ACTIVE.put(sp.getUUID(), state);
             sendState(sp, Vr9pPacket.STATE_STOP, 40);
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.ANVIL_PLACE),
-                SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 0.5f, 0));
+                net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
+                SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 1.0f, 0));
         }
     }
 
@@ -48,16 +49,23 @@ public class Vr9pController {
         Vr9pState state = ACTIVE.get(uuid);
         if (state == null) return;
         state.ticks++;
+        state.totalTicks++;
         if (state.ticks >= state.nextSwitchAt) {
             state.ticks = 0;
             state.showingStop = !state.showingStop;
             state.nextSwitchAt = 20 + new Random().nextInt(80);
             if (state.showingStop) {
                 sendState(player, Vr9pPacket.STATE_STOP, 40 + new Random().nextInt(60));
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                    net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
+                    SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
             } else {
                 sendState(player, Vr9pPacket.STATE_CONTINUE, 20 + new Random().nextInt(40));
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                    net.minecraft.core.Holder.direct(ModSounds.VR9P_CONTINUE.get()),
+                    SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
             }
-            if (state.ticks > 200 && ACTIVE.size() > 5) {
+            if (state.totalTicks > 300) {
                 ACTIVE.remove(uuid);
                 sendState(player, Vr9pPacket.STATE_END, 0);
             }
