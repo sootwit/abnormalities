@@ -214,6 +214,11 @@ public class NurEntity extends Mob {
         if (dy < -1) {
             my = -0.8D;
         }
+        if (this.isInWater()) {
+            mx *= 3.0;
+            mz *= 3.0;
+            my = 0.3D;
+        }
         if (this.onGround() && horizDist > 1.5) {
             int sx = (int)Math.signum(dx);
             int sz = (int)Math.signum(dz);
