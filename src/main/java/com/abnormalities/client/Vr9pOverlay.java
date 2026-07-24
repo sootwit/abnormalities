@@ -39,11 +39,19 @@ public class Vr9pOverlay {
         if (currentState == 0) {
             gg.blit(VR9P_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-            gg.blit(TEXT_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+            if (elapsed < 200) {
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F - elapsed / 200.0F);
+                gg.blit(TEXT_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            }
         } else if (currentState == 1) {
             gg.blit(VR9P_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
             gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-            gg.blit(TEXT_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+            if (elapsed < 200) {
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F - elapsed / 200.0F);
+                gg.blit(TEXT_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            }
         }
         gg.pose().popPose();
     }
