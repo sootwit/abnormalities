@@ -121,8 +121,13 @@ public class ModEvents {
     public static void forceNurSpawn(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
         String text = PRE_SPAWN_TEXTS[level.random.nextInt(PRE_SPAWN_TEXTS.length)];
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
+        var srv = level.getServer();
+        if (srv != null) {
+            for (var p : srv.getPlayerList().getPlayers()) {
+                p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                        Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
+            }
+        }
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
         double angle = level.random.nextDouble() * Math.PI * 2;
@@ -286,9 +291,14 @@ public class ModEvents {
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
-            if (player instanceof ServerPlayer sp) {
-                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                        Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
+            if (player instanceof ServerPlayer) {
+                var srv = overworld.getServer();
+                if (srv != null) {
+                    for (var p : srv.getPlayerList().getPlayers()) {
+                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
+                    }
+                }
             }
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);

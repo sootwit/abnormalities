@@ -93,9 +93,12 @@ public class K3wActionTracker {
             int totalDelay = spawnAt + AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
 
             if (!MESSAGES_SENT.getOrDefault(uuid, false) && timer >= spawnAt) {
-                if (player instanceof ServerPlayer sp) {
-                    sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                            Component.literal("<" + player.getName().getString() + "> run").withStyle(ChatFormatting.WHITE), false));
+                var server = ServerLifecycleHooks.getCurrentServer();
+                if (server != null) {
+                    for (var p : server.getPlayerList().getPlayers()) {
+                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                Component.literal("<" + player.getName().getString() + "> run").withStyle(ChatFormatting.WHITE), false));
+                    }
                 }
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);

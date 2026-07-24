@@ -1,5 +1,6 @@
 package com.abnormalities.entity;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -23,6 +24,9 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
             if (mc.player != null && mc.player.getUUID().equals(targetUUID)) {
                 return mc.player.getSkinTextureLocation();
             }
+            var profile = new GameProfile(targetUUID, "");
+            var loc = mc.getSkinManager().getInsecureSkinLocation(profile);
+            return loc;
         }
         return STEVE;
     }
