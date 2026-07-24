@@ -78,5 +78,32 @@
                 "stream": true
             }
         ]
+    },
+    "vr9p_stop": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:vr9pstopedit",
+                "stream": true
+            }
+        ]
+    },
+    "vr9p_continue": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:vr9pcontinueedit",
+                "stream": true
+            }
+        ]
+    },
+    "vr9p_ambience": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:vr9pambience",
+                "stream": true
+            }
+        ]
     }
 }

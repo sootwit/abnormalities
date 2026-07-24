@@ -25,4 +25,10 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "heartbeat_sound")));
     public static final RegistryObject<SoundEvent> TINNITUS_SOUND = SOUNDS.register("tinnitus_sound",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "tinnitus_sound")));
+    public static final RegistryObject<SoundEvent> VR9P_STOP = SOUNDS.register("vr9p_stop",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "vr9p_stop")));
+    public static final RegistryObject<SoundEvent> VR9P_CONTINUE = SOUNDS.register("vr9p_continue",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "vr9p_continue")));
+    public static final RegistryObject<SoundEvent> VR9P_AMBIENCE = SOUNDS.register("vr9p_ambience",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "vr9p_ambience")));
 }
