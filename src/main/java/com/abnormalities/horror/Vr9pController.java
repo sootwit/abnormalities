@@ -24,6 +24,7 @@ public class Vr9pController {
         int totalTicks = 0;
         double lastX, lastZ;
         int graceTicks = 0;
+        int startupTicks = 10;
     }
 
     @SubscribeEvent
@@ -53,7 +54,7 @@ public class Vr9pController {
         st.lastZ = player.getZ();
         st.graceTicks = 30;
         ACTIVE.put(player.getUUID(), st);
-        sendState(player, Vr9pPacket.STATE_STOP, 0);
+        sendState(player, 2, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
@@ -65,6 +66,30 @@ public class Vr9pController {
         if (state == null) return;
         if (state.graceTicks < 0) return;
         state.totalTicks++;
+
+        if (state.startupTicks > 0) {
+            state.startupTicks--;
+            return;
+        }
+
+        if (state.ticks == 0 && state.graceTicks == 0) {
+            state.showingStop = player.getRandom().nextBoolean();
+            state.graceTicks = 30;
+            state.nextSwitchAt = 20 + player.getRandom().nextInt(60);
+            if (state.showingStop) {
+                sendState(player, Vr9pPacket.STATE_STOP, 0);
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                    net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
+                    SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
+            } else {
+                sendState(player, Vr9pPacket.STATE_CONTINUE, 0);
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                    net.minecraft.core.Holder.direct(ModSounds.VR9P_CONTINUE.get()),
+                    SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
+            }
+            return;
+        }
+
         state.ticks++;
 
         if (state.graceTicks > 0) {
