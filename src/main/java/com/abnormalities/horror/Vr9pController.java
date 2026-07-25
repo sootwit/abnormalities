@@ -86,4 +86,14 @@ public class Vr9pController {
     public static boolean isActive(UUID uuid) {
         return ACTIVE.containsKey(uuid);
     }
+
+    public static void forceStart(ServerPlayer player) {
+        if (ACTIVE.containsKey(player.getUUID())) return;
+        var state = new Vr9pState();
+        ACTIVE.put(player.getUUID(), state);
+        sendState(player, Vr9pPacket.STATE_STOP, 40);
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+            net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
+            SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
+    }
 }

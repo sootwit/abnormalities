@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -113,6 +113,7 @@ public class AbnormalitiesCommands {
             case "k3wSpawns" -> K3wActionTracker.forceK3wSpawn(player);
             case "xyzSpawns" -> forceXyzSpawn(player);
             case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
+            case "vr9p" -> com.abnormalities.horror.Vr9pController.forceStart(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
