@@ -30,8 +30,7 @@ public class Vr9pPacket {
     public static void handle(Vr9pPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             com.abnormalities.client.Vr9pOverlay.currentState = msg.state;
-            com.abnormalities.client.Vr9pOverlay.stateStartTime = System.currentTimeMillis();
-            com.abnormalities.client.Vr9pOverlay.stateDuration = msg.duration;
+            com.abnormalities.client.Vr9pOverlay.lastPacketTime = System.currentTimeMillis();
         });
         ctx.get().setPacketHandled(true);
     }
