@@ -15,6 +15,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import java.util.*;
 
 public class Vr9pController {
+    private static final int WRONG_TICK_THRESHOLD = 20;
     private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
     private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("vr9p");
 
@@ -108,15 +109,15 @@ public class Vr9pController {
 
         if (state.showingStop && playerMoved) {
             state.wrongTicks++;
-            LOGGER.info("{} STOP+move wrongTicks={}/5", player.getName().getString(), state.wrongTicks);
-            if (state.wrongTicks >= 5) {
+            LOGGER.info("{} STOP+move wrongTicks={}/{}", player.getName().getString(), state.wrongTicks, WRONG_TICK_THRESHOLD);
+            if (state.wrongTicks >= WRONG_TICK_THRESHOLD) {
                 punish(player, uuid);
                 return;
             }
         } else if (!state.showingStop && !playerMoved) {
             state.wrongTicks++;
-            LOGGER.info("{} CONTINUE+still wrongTicks={}/5", player.getName().getString(), state.wrongTicks);
-            if (state.wrongTicks >= 5) {
+            LOGGER.info("{} CONTINUE+still wrongTicks={}/{}", player.getName().getString(), state.wrongTicks, WRONG_TICK_THRESHOLD);
+            if (state.wrongTicks >= WRONG_TICK_THRESHOLD) {
                 punish(player, uuid);
                 return;
             }
