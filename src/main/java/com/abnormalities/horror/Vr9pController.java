@@ -48,11 +48,11 @@ public class Vr9pController {
     }
 
     private static void startVr9p(ServerPlayer player) {
-        var state = new Vr9pState();
-        state.lastX = player.getX();
-        state.lastZ = player.getZ();
-        state.graceTicks = 10;
-        ACTIVE.put(player.getUUID(), state);
+        var st = new Vr9pState();
+        st.lastX = player.getX();
+        st.lastZ = player.getZ();
+        st.graceTicks = 30;
+        ACTIVE.put(player.getUUID(), st);
         sendState(player, Vr9pPacket.STATE_STOP, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
@@ -91,7 +91,7 @@ public class Vr9pController {
             state.ticks = 0;
             state.showingStop = !state.showingStop;
             state.nextSwitchAt = 20 + new Random().nextInt(80);
-            state.graceTicks = 10;
+            state.graceTicks = 30;
             if (state.showingStop) {
                 sendState(player, Vr9pPacket.STATE_STOP, 0);
                 player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
