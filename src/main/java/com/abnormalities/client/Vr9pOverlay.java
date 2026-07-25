@@ -36,7 +36,7 @@ public class Vr9pOverlay {
         gg.pose().setIdentity();
 
         if (currentState == 2) {
-            gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+            gg.fill(0, 0, sw, sh, 0x88000000);
             int faceSize = Math.min(sw, sh) / 3;
             int fx = (sw - faceSize) / 2;
             int fy = (sh - faceSize) / 2 - faceSize / 4;
