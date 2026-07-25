@@ -23,8 +23,7 @@ public class Vr9pController {
         int nextSwitchAt = 20 + new Random().nextInt(60);
         int totalTicks = 0;
         double lastX, lastZ;
-        boolean hasMoved = false;
-        boolean hasBeenPunished = false;
+        int graceTicks = 0;
     }
 
     @SubscribeEvent
@@ -52,6 +51,7 @@ public class Vr9pController {
         var state = new Vr9pState();
         state.lastX = player.getX();
         state.lastZ = player.getZ();
+        state.graceTicks = 10;
         ACTIVE.put(player.getUUID(), state);
         sendState(player, Vr9pPacket.STATE_STOP, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
@@ -63,9 +63,14 @@ public class Vr9pController {
         UUID uuid = player.getUUID();
         Vr9pState state = ACTIVE.get(uuid);
         if (state == null) return;
-        if (state.hasBeenPunished) return;
+        if (state.graceTicks < 0) return;
         state.totalTicks++;
         state.ticks++;
+
+        if (state.graceTicks > 0) {
+            state.graceTicks--;
+            return;
+        }
 
         double dx = player.getX() - state.lastX;
         double dz = player.getZ() - state.lastZ;
@@ -86,6 +91,7 @@ public class Vr9pController {
             state.ticks = 0;
             state.showingStop = !state.showingStop;
             state.nextSwitchAt = 20 + new Random().nextInt(80);
+            state.graceTicks = 10;
             if (state.showingStop) {
                 sendState(player, Vr9pPacket.STATE_STOP, 0);
                 player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
@@ -108,7 +114,7 @@ public class Vr9pController {
     private static void punish(ServerPlayer player, UUID uuid) {
         Vr9pState s = ACTIVE.get(uuid);
         if (s == null) return;
-        s.hasBeenPunished = true;
+        s.graceTicks = -1;
         sendState(player, 2, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.NUR_SOUND.get()),
