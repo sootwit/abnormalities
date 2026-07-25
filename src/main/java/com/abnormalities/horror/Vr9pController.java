@@ -17,6 +17,7 @@ import java.util.*;
 public class Vr9pController {
     private static final int WRONG_TICK_THRESHOLD = 20;
     private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
+    private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
     private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("vr9p");
 
     private static class Vr9pState {
@@ -40,12 +41,16 @@ public class Vr9pController {
             if (p instanceof ServerPlayer) tickPlayer((ServerPlayer) p);
         }
 
+        COOLDOWNS.values().removeIf(cd -> cd <= 0);
+        COOLDOWNS.replaceAll((u, cd) -> cd - 1);
+
         if (overworld.random.nextInt(400) != 0) return;
 
         for (var player : overworld.players()) {
             if (!(player instanceof ServerPlayer)) continue;
             ServerPlayer sp = (ServerPlayer) player;
             if (ACTIVE.containsKey(sp.getUUID())) continue;
+            if (COOLDOWNS.containsKey(sp.getUUID())) continue;
             if (overworld.random.nextInt(3) != 0) continue;
             startVr9p(sp);
         }
@@ -103,7 +108,7 @@ public class Vr9pController {
 
         double dx = player.getX() - state.lastX;
         double dz = player.getZ() - state.lastZ;
-        boolean playerMoved = Math.sqrt(dx * dx + dz * dz) > 0.3;
+        boolean playerMoved = Math.sqrt(dx * dx + dz * dz) > 0.15;
         state.lastX = player.getX();
         state.lastZ = player.getZ();
 
@@ -147,6 +152,7 @@ public class Vr9pController {
 
         if (state.totalTicks > 300) {
             ACTIVE.remove(uuid);
+            COOLDOWNS.put(uuid, 1200);
             sendState(player, Vr9pPacket.STATE_END, 0);
             LOGGER.info("{} vr9p ended (timeout)", player.getName().getString());
         }
@@ -156,6 +162,7 @@ public class Vr9pController {
         Vr9pState s = ACTIVE.get(uuid);
         if (s == null) return;
         s.graceTicks = -1;
+        COOLDOWNS.put(uuid, 1200);
         LOGGER.info("{} PUNISHED (was {})", player.getName().getString(), s.showingStop ? "STOP" : "CONTINUE");
         sendState(player, 2, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
@@ -166,6 +173,7 @@ public class Vr9pController {
         if (srv != null) {
             srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 10, () -> {
                 ACTIVE.remove(uuid);
+                COOLDOWNS.put(uuid, 1200);
                 sendState(player, Vr9pPacket.STATE_END, 0);
                 player.connection.disconnect(Component.literal("STARGAZED"));
             }));
@@ -178,11 +186,13 @@ public class Vr9pController {
 
     public static void forceStart(ServerPlayer player) {
         if (ACTIVE.containsKey(player.getUUID())) return;
+        if (COOLDOWNS.containsKey(player.getUUID())) return;
         startVr9p(player);
     }
 
     public static void cleanup(UUID uuid) {
         ACTIVE.remove(uuid);
+        COOLDOWNS.put(uuid, 1200);
     }
 
     public static boolean isActive(UUID uuid) {
