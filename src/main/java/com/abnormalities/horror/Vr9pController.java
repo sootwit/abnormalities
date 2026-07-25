@@ -16,6 +16,7 @@ import java.util.*;
 
 public class Vr9pController {
     private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("vr9p");
 
     private static class Vr9pState {
         int ticks = 0;
@@ -56,9 +57,7 @@ public class Vr9pController {
         st.graceTicks = 30;
         ACTIVE.put(player.getUUID(), st);
         sendState(player, 2, 0);
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
-            SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
+        LOGGER.info("vr9p started for {} (startup 10 ticks, then grace 30)", player.getName().getString());
     }
 
     public static void tickPlayer(ServerPlayer player) {
@@ -70,6 +69,7 @@ public class Vr9pController {
 
         if (state.startupTicks > 0) {
             state.startupTicks--;
+            if (state.startupTicks == 0) LOGGER.info("{} startup done", player.getName().getString());
             return;
         }
 
@@ -77,6 +77,7 @@ public class Vr9pController {
             state.showingStop = player.getRandom().nextBoolean();
             state.graceTicks = 30;
             state.nextSwitchAt = 20 + player.getRandom().nextInt(60);
+            LOGGER.info("{} first state: {}", player.getName().getString(), state.showingStop ? "STOP" : "CONTINUE");
             if (state.showingStop) {
                 sendState(player, Vr9pPacket.STATE_STOP, 0);
                 player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
@@ -95,6 +96,7 @@ public class Vr9pController {
 
         if (state.graceTicks > 0) {
             state.graceTicks--;
+            if (state.graceTicks == 0) LOGGER.info("{} grace ended, wrongTicks={}", player.getName().getString(), state.wrongTicks);
             return;
         }
 
@@ -106,17 +108,20 @@ public class Vr9pController {
 
         if (state.showingStop && playerMoved) {
             state.wrongTicks++;
+            LOGGER.info("{} STOP+move wrongTicks={}/5", player.getName().getString(), state.wrongTicks);
             if (state.wrongTicks >= 5) {
                 punish(player, uuid);
                 return;
             }
         } else if (!state.showingStop && !playerMoved) {
             state.wrongTicks++;
+            LOGGER.info("{} CONTINUE+still wrongTicks={}/5", player.getName().getString(), state.wrongTicks);
             if (state.wrongTicks >= 5) {
                 punish(player, uuid);
                 return;
             }
         } else {
+            if (state.wrongTicks > 0) LOGGER.info("{} wrong state corrected", player.getName().getString());
             state.wrongTicks = 0;
         }
 
@@ -136,11 +141,13 @@ public class Vr9pController {
                     net.minecraft.core.Holder.direct(ModSounds.VR9P_CONTINUE.get()),
                     SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
             }
+            LOGGER.info("{} switched to {}, grace 30, wrongTicks reset", player.getName().getString(), state.showingStop ? "STOP" : "CONTINUE");
         }
 
         if (state.totalTicks > 300) {
             ACTIVE.remove(uuid);
             sendState(player, Vr9pPacket.STATE_END, 0);
+            LOGGER.info("{} vr9p ended (timeout)", player.getName().getString());
         }
     }
 
@@ -148,6 +155,7 @@ public class Vr9pController {
         Vr9pState s = ACTIVE.get(uuid);
         if (s == null) return;
         s.graceTicks = -1;
+        LOGGER.info("{} PUNISHED (was {})", player.getName().getString(), s.showingStop ? "STOP" : "CONTINUE");
         sendState(player, 2, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.NUR_SOUND.get()),
