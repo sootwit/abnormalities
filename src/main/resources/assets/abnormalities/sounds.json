@@ -96,14 +96,5 @@
                 "stream": true
             }
         ]
-    },
-    "vr9p_ambience": {
-        "category": "master",
-        "sounds": [
-            {
-                "name": "abnormalities:vr9pambience",
-                "stream": true
-            }
-        ]
     }
 }

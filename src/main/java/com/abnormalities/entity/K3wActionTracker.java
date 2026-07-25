@@ -122,9 +122,14 @@ public class K3wActionTracker {
         FORCED_SPAWNS.put(uuid, true);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
-        if (player instanceof ServerPlayer sp) {
-            sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                    net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+        if (player instanceof ServerPlayer) {
+            var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+            if (server != null) {
+                for (var p : server.getPlayerList().getPlayers()) {
+                    p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                            net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+                }
+            }
         }
     }
 

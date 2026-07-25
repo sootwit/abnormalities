@@ -42,6 +42,9 @@ public class Vr9pController {
                 net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
                 SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 1.0f, 0));
         }
+        for (var p : overworld.getServer().getPlayerList().getPlayers()) {
+            if (p instanceof ServerPlayer) tickPlayer((ServerPlayer) p);
+        }
     }
 
     public static void tickPlayer(ServerPlayer player) {

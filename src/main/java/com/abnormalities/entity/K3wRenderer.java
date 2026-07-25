@@ -24,9 +24,11 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
             if (mc.player != null && mc.player.getUUID().equals(targetUUID)) {
                 return mc.player.getSkinTextureLocation();
             }
-            var profile = new GameProfile(targetUUID, "");
-            var loc = mc.getSkinManager().getInsecureSkinLocation(profile);
-            return loc;
+            var conn = mc.getConnection();
+            if (conn != null) {
+                var info = conn.getPlayerInfo(targetUUID);
+                if (info != null) return info.getSkinLocation();
+            }
         }
         return STEVE;
     }
