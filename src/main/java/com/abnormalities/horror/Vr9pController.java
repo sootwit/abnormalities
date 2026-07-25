@@ -25,6 +25,7 @@ public class Vr9pController {
         double lastX, lastZ;
         int graceTicks = 0;
         int startupTicks = 10;
+        int wrongTicks = 0;
     }
 
     @SubscribeEvent
@@ -104,12 +105,19 @@ public class Vr9pController {
         state.lastZ = player.getZ();
 
         if (state.showingStop && playerMoved) {
-            punish(player, uuid);
-            return;
-        }
-        if (!state.showingStop && !playerMoved) {
-            punish(player, uuid);
-            return;
+            state.wrongTicks++;
+            if (state.wrongTicks >= 5) {
+                punish(player, uuid);
+                return;
+            }
+        } else if (!state.showingStop && !playerMoved) {
+            state.wrongTicks++;
+            if (state.wrongTicks >= 5) {
+                punish(player, uuid);
+                return;
+            }
+        } else {
+            state.wrongTicks = 0;
         }
 
         if (state.ticks >= state.nextSwitchAt) {
