@@ -28,6 +28,11 @@ public class Vr9pController {
         if (event.phase != TickEvent.Phase.END) return;
         var overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return;
+
+        for (var p : overworld.getServer().getPlayerList().getPlayers()) {
+            if (p instanceof ServerPlayer) tickPlayer((ServerPlayer) p);
+        }
+
         if (overworld.random.nextInt(400) != 0) return;
 
         for (var player : overworld.players()) {
@@ -41,9 +46,6 @@ public class Vr9pController {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                 net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
                 SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 1.0f, 0));
-        }
-        for (var p : overworld.getServer().getPlayerList().getPlayers()) {
-            if (p instanceof ServerPlayer) tickPlayer((ServerPlayer) p);
         }
     }
 
