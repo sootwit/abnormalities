@@ -119,7 +119,7 @@ public class Vr9pController {
             srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 10, () -> {
                 ACTIVE.remove(uuid);
                 sendState(player, Vr9pPacket.STATE_END, 0);
-                player.connection.disconnect(Component.literal("vr9p got you."));
+                player.connection.disconnect(Component.literal("STARGAZED"));
             }));
         }
     }
