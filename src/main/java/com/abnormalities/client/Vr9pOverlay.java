@@ -22,7 +22,7 @@ public class Vr9pOverlay {
 
     @SubscribeEvent
     public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.SUBTITLES.type()) return;
+        if (event.getOverlay() != VanillaGuiOverlay.VIGNETTE.type()) return;
         if (currentState < 0) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.player == null) return;

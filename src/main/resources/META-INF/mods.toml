@@ -5,6 +5,7 @@ license="${mod_license}"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
+logoFile="abnormalities_icon.png"
 description='''${mod_description}'''
 authors="${mod_authors}"
 [[dependencies.${mod_id}]]

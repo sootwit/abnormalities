@@ -4,6 +4,7 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.K3wActionTracker;
 import com.abnormalities.entity.NurHorrorCycle;
 import com.abnormalities.horror.*;
+import com.abnormalities.network.CrashPacket;
 import com.abnormalities.network.Vr9pPacket;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
@@ -61,5 +62,6 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new LowRepGateEvent());
 
         CHANNEL.registerMessage(0, Vr9pPacket.class, Vr9pPacket::encode, Vr9pPacket::decode, Vr9pPacket::handle);
+        CHANNEL.registerMessage(1, CrashPacket.class, CrashPacket::encode, CrashPacket::decode, CrashPacket::handle);
     }
 }

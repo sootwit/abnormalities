@@ -144,7 +144,7 @@ public class K3wEntity extends Mob {
             pendingActions.add(new K3wAction(
                     K3wAction.ActionType.BREAK,
                     pos.getX(), pos.getY(), pos.getZ(),
-                    state.getBlock()
+                    state
             ));
         }
     }
@@ -155,7 +155,7 @@ public class K3wEntity extends Mob {
             pendingActions.add(new K3wAction(
                     K3wAction.ActionType.PLACE,
                     pos.getX(), pos.getY(), pos.getZ(),
-                    state.getBlock()
+                    state
             ));
         }
     }
@@ -194,34 +194,33 @@ public class K3wEntity extends Mob {
         }
 
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) {
-            var nearest = level().getNearestPlayer(this, 64.0D);
-            if (nearest != null) {
-                setTargetPlayer(nearest);
-                int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
-                spawnTimer = CHAT_DELAY + followTicks;
-                messageSent = true;
-                List<double[]> dummyPath = new ArrayList<>();
-                for (int i = 0; i < 20; i++) {
-                    dummyPath.add(new double[]{nearest.getX(), nearest.getY(), nearest.getZ(), nearest.getYRot(), nearest.getXRot()});
-                }
-                this.pathPoints.clear();
-                this.pathPoints.addAll(dummyPath);
-                this.isMoving = true;
+            if (currentPathIndex < pathPoints.size()) {
+                isMoving = true;
             } else {
-                discard();
-                return;
+                var nearest = level().getNearestPlayer(this, 64.0D);
+                if (nearest != null) {
+                    setTargetPlayer(nearest);
+                    int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+                    spawnTimer = CHAT_DELAY + followTicks;
+                    messageSent = true;
+                    List<double[]> dummyPath = new ArrayList<>();
+                    for (int i = 0; i < 20; i++) {
+                        dummyPath.add(new double[]{nearest.getX(), nearest.getY(), nearest.getZ(), nearest.getYRot(), nearest.getXRot()});
+                    }
+                    this.pathPoints.clear();
+                    this.pathPoints.addAll(dummyPath);
+                    this.isMoving = true;
+                } else {
+                    discard();
+                    return;
+                }
             }
         }
 
-        if (targetPlayer.isSleeping()) {
-            waitingForDay = true;
-        }
-        if (waitingForDay && targetPlayer.level().getDayTime() % 24000L < 2000) {
-            discard();
-            return;
-        }
-        if (!targetPlayer.isSleeping() && waitingForDay && level().getDayTime() % 24000L >= 2000) {
-            waitingForDay = false;
+        if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+            if (targetPlayer.isSleeping()) waitingForDay = true;
+            if (waitingForDay && targetPlayer.level().getDayTime() % 24000L < 2000) { discard(); return; }
+            if (!targetPlayer.isSleeping() && waitingForDay && level().getDayTime() % 24000L >= 2000) waitingForDay = false;
         }
 
         if (hitCooldown > 0) hitCooldown--;
@@ -239,7 +238,7 @@ public class K3wEntity extends Mob {
                 level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                         chosen.get(), SoundSource.MASTER, 10.0f, 1.0f);
 
-                if (AbnormalitiesConfig.K3W_KICK_ON_CATCH.get()) {
+                if (AbnormalitiesConfig.K3W_PUNISH.get() != AbnormalitiesConfig.PunishMode.NONE) {
                     this.entityData.set(DATA_CRASHING, true);
                     net.minecraft.server.MinecraftServer srv = level().getServer();
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 22, () -> {
@@ -248,7 +247,13 @@ public class K3wEntity extends Mob {
                     }));
                     srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 32, () -> {
                         K3wEntity.this.discard();
-                        sp.connection.disconnect(Component.literal("got you!"));
+                        if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
+                            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                                new com.abnormalities.network.CrashPacket());
+                        } else {
+                            sp.connection.disconnect(Component.literal("got you!"));
+                        }
                     }));
                 }
             }
@@ -268,39 +273,39 @@ public class K3wEntity extends Mob {
             return;
         }
 
-        double[] target = K3wActionTracker.getDelayedPosition(targetPlayer);
-        if (target == null) {
-            target = new double[]{targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(), 0};
+        double[] target;
+        if (currentPathIndex >= pathPoints.size()) {
+            target = K3wActionTracker.getDelayedPosition(targetPlayer);
+            if (target == null) return;
+            this.setPos(target[0], target[1], target[2]);
+            this.setNoGravity(true);
+            this.noPhysics = true;
+            return;
         }
-        boolean shouldFly = target[1] - this.getY() > 2.0;
-        this.setNoGravity(shouldFly);
-        double dx = target[0] - this.getX();
-        double dy = target[1] - this.getY();
-        double dz = target[2] - this.getZ();
-        double horizDist = Math.sqrt(dx * dx + dz * dz);
-        if (horizDist > 0.5) {
-            this.getMoveControl().setWantedPosition(target[0], target[1], target[2], 1.0D);
-            this.getLookControl().setLookAt(target[0], target[1], target[2], 30, 30);
-            if (shouldFly) {
-                double speed = 0.5D;
-                this.setDeltaMovement(dx / horizDist * speed, dy > 1 ? 0.3D : dy < -1 ? -0.3D : 0, dz / horizDist * speed);
-            }
+        target = pathPoints.get(currentPathIndex);
+        double off = Math.sqrt(
+            (target[0] - this.getX()) * (target[0] - this.getX()) +
+            (target[1] - this.getY()) * (target[1] - this.getY()) +
+            (target[2] - this.getZ()) * (target[2] - this.getZ())
+        );
+
+        if (off > 10) {
+            this.teleportTo(target[0], target[1], target[2]);
+        } else {
+            this.setPos(target[0], target[1], target[2]);
         }
-        if (this.onGround() && horizDist > 1) {
-            BlockPos inFront = this.blockPosition().relative(this.getDirection());
-            if (level().getBlockState(inFront).canOcclude()) {
-                this.jumpFromGround();
-            }
-        }
-        if (this.isInWater() && horizDist > 0.5) {
-            this.setDeltaMovement(this.getDeltaMovement().x, 0.2D, this.getDeltaMovement().z);
-        }
-        BlockPos targetPos = new BlockPos((int) Math.floor(target[0]), (int) Math.floor(target[1]), (int) Math.floor(target[2]));
+        this.setNoGravity(true);
+        this.noPhysics = true;
+        this.setYRot((float) target[3]);
+        this.setXRot((float) target[4]);
+        if (currentPathIndex < pathPoints.size()) currentPathIndex++;
+
+        BlockPos targetPos = this.blockPosition();
         Iterator<K3wAction> it = pendingActions.iterator();
         while (it.hasNext()) {
             K3wAction action = it.next();
             BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
-            if (Math.abs(actionPos.getX() - targetPos.getX()) <= 3 && Math.abs(actionPos.getY() - targetPos.getY()) <= 3 && Math.abs(actionPos.getZ() - targetPos.getZ()) <= 3 && !undonePositions.contains(actionPos)) {
+            if (targetPos.distSqr(actionPos) <= 36 && !undonePositions.contains(actionPos)) {
                 executeUndo(action);
                 undonePositions.add(actionPos);
                 it.remove();
@@ -314,8 +319,8 @@ public class K3wEntity extends Mob {
             case BREAK -> {
                 if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
                 if (level().getBlockState(pos).isAir()) {
-                    if (action.block != null) {
-                        level().setBlockAndUpdate(pos, action.block.defaultBlockState());
+                    if (action.blockState != null) {
+                        level().setBlockAndUpdate(pos, action.blockState);
                         level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                                 net.minecraft.sounds.SoundEvents.STONE_PLACE, SoundSource.MASTER, 1.0f, 0.8f);
                     }
@@ -398,9 +403,8 @@ public class K3wEntity extends Mob {
                 var etKey = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getKey(action.entityType);
                 if (etKey != null) aTag.putString("EntityType", etKey.toString());
             }
-            if (action.block != null) {
-                var blKey = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(action.block);
-                if (blKey != null) aTag.putString("Block", blKey.toString());
+            if (action.blockState != null) {
+                aTag.putInt("BlockState", net.minecraft.world.level.block.Block.getId(action.blockState));
             }
             actionTag.add(aTag);
         }
@@ -438,11 +442,9 @@ public class K3wEntity extends Mob {
             if (aTag.contains("EntityType")) {
                 EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
                 if (et != null) pendingActions.add(new K3wAction(type, (double)ax, (double)ay, (double)az, et));
-            } else if (aTag.contains("Block")) {
-                Block bl = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("Block")));
-                if (bl != null) pendingActions.add(new K3wAction(type, ax, ay, az, bl));
-            } else {
-                pendingActions.add(new K3wAction(type, ax, ay, az, (Block) null));
+            } else if (aTag.contains("BlockState")) {
+                net.minecraft.world.level.block.state.BlockState bs = net.minecraft.world.level.block.Block.stateById(aTag.getInt("BlockState"));
+                if (bs != null) pendingActions.add(new K3wAction(type, ax, ay, az, bs));
             }
         }
     }
@@ -452,24 +454,24 @@ public class K3wEntity extends Mob {
 
         final ActionType type;
         final int x, y, z;
-        final Block block;
-        final EntityType<?> entityType;
+        final net.minecraft.world.level.block.state.BlockState blockState;
+        final net.minecraft.world.entity.EntityType<?> entityType;
 
-        K3wAction(ActionType type, int x, int y, int z, Block block) {
+        K3wAction(ActionType type, int x, int y, int z, net.minecraft.world.level.block.state.BlockState blockState) {
             this.type = type;
             this.x = x;
             this.y = y;
             this.z = z;
-            this.block = block;
+            this.blockState = blockState;
             this.entityType = null;
         }
 
-        K3wAction(ActionType type, double x, double y, double z, EntityType<?> entityType) {
+        K3wAction(ActionType type, double x, double y, double z, net.minecraft.world.entity.EntityType<?> entityType) {
             this.type = type;
             this.x = (int) Math.floor(x);
             this.y = (int) Math.floor(y);
             this.z = (int) Math.floor(z);
-            this.block = null;
+            this.blockState = null;
             this.entityType = entityType;
         }
     }

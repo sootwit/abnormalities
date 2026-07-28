@@ -3,8 +3,9 @@ package com.abnormalities.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class AbnormalitiesConfig {
+    public enum PunishMode { KICK, CRASH, NONE }
+
     public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.BooleanValue KICK_ON_DEATH;
     public static final ForgeConfigSpec.IntValue GRACE_PERIOD_DAYS;
     public static final ForgeConfigSpec.IntValue NUR_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.DoubleValue NUR_CURSOR_TRIGGER_DISTANCE;
@@ -15,7 +16,8 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue NUR_BREAK_DROPS;
     public static final ForgeConfigSpec.BooleanValue NUR_TOWER;
     public static final ForgeConfigSpec.BooleanValue NUR_BRIDGE;
-    public static final ForgeConfigSpec.BooleanValue K3W_KICK_ON_CATCH;
+    public static final ForgeConfigSpec.EnumValue<PunishMode> NUR_PUNISH;
+    public static final ForgeConfigSpec.EnumValue<PunishMode> K3W_PUNISH;
     public static final ForgeConfigSpec.BooleanValue K3W_BREAK_BLOCKS;
     public static final ForgeConfigSpec.BooleanValue K3W_PLACE_BLOCKS;
     public static final ForgeConfigSpec.BooleanValue K3W_KILL_MOBS;
@@ -41,11 +43,22 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue SW_KILL_SPAWN_CHANCE;
     public static final ForgeConfigSpec.BooleanValue HORROR_EVENTS_ENABLED;
     public static final ForgeConfigSpec.DoubleValue HORROR_EVENT_HOSTILITY_FACTOR;
+    public static final ForgeConfigSpec.BooleanValue VR9P_ENABLED;
+    public static final ForgeConfigSpec.IntValue VR9P_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue VR9P_COOLDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue VR9P_GRACE_TICKS;
+    public static final ForgeConfigSpec.IntValue VR9P_WRONG_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue VR9P_EVENT_DURATION;
+    public static final ForgeConfigSpec.IntValue VR9P_SWITCH_MIN;
+    public static final ForgeConfigSpec.IntValue VR9P_SWITCH_MAX;
+    public static final ForgeConfigSpec.DoubleValue VR9P_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue VR9P_MOVE_THRESHOLD;
+    public static final ForgeConfigSpec.EnumValue<PunishMode> VR9P_PUNISH;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
         b.push("nur");
-        KICK_ON_DEATH = b.comment("kick player when killed by nur").define("kickOnDeath", true);
+        NUR_PUNISH = b.comment("punishment mode when nur kills you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
         NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
@@ -58,14 +71,14 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("k3w");
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
-        K3W_KICK_ON_CATCH = b.comment("kick player when k3w catches you").define("kickOnCatch", true);
+        K3W_PUNISH = b.comment("punishment when k3w catches you: KICK, CRASH, or NONE").defineEnum("onCatch", PunishMode.KICK);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
         K3W_KILL_MOBS = b.comment("k3w can undo mob kills").define("killMobs", true);
         K3W_REVIVE_MOBS = b.comment("k3w can revive killed mobs").define("reviveMobs", true);
         K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
         b.pop();
-        b.push("xyz");
+        b.push("xYz");
         XYZ_SPAWN_WEIGHT = b.comment("higher = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
         XYZ_MIN_WAIT = b.comment("minimum wait time in seconds for xyz item request").defineInRange("minWaitSeconds", 60, 5, 4096);
         XYZ_MAX_WAIT = b.comment("maximum wait time in seconds for xyz item request").defineInRange("maxWaitSeconds", 240, 5, 4096);
@@ -89,6 +102,19 @@ public class AbnormalitiesConfig {
         b.push("horror");
         HORROR_EVENTS_ENABLED = b.comment("enable psychological horror events").define("enabled", true);
         HORROR_EVENT_HOSTILITY_FACTOR = b.comment("global hostility factor for rep-based weight scaling").defineInRange("hostilityFactor", 1.0, 0.0, 3.0);
+        b.pop();
+        b.push("vr9p");
+        VR9P_ENABLED = b.comment("enable vr9p overlay events").define("enabled", true);
+        VR9P_SPAWN_WEIGHT = b.comment("higher = rarer natural spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        VR9P_COOLDOWN_TICKS = b.comment("ticks between vr9p events (20 ticks = 1s)").defineInRange("cooldownTicks", 1200, 100, 72000);
+        VR9P_GRACE_TICKS = b.comment("ticks of grace after each state switch").defineInRange("graceTicks", 30, 5, 200);
+        VR9P_WRONG_THRESHOLD = b.comment("ticks of wrong behavior before punishment").defineInRange("wrongThreshold", 20, 1, 100);
+        VR9P_EVENT_DURATION = b.comment("max event duration in ticks").defineInRange("eventDuration", 300, 60, 1200);
+        VR9P_SWITCH_MIN = b.comment("minimum ticks between state switches").defineInRange("switchMin", 20, 5, 200);
+        VR9P_SWITCH_MAX = b.comment("maximum ticks between state switches").defineInRange("switchMax", 80, 10, 400);
+        VR9P_DAMAGE = b.comment("damage dealt on punishment").defineInRange("damage", 10.0, 1.0, 40.0);
+        VR9P_MOVE_THRESHOLD = b.comment("blocks/tick movement threshold (0.15 = walk speed)").defineInRange("moveThreshold", 0.15, 0.01, 1.0);
+        VR9P_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
         b.pop();
         SPEC = b.build();
     }

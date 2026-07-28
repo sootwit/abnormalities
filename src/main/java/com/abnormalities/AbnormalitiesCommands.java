@@ -23,9 +23,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -205,6 +203,7 @@ public class AbnormalitiesCommands {
             int cx = spawnAt.getX() >> 4;
             int cz = spawnAt.getZ() >> 4;
             level.setChunkForced(cx, cz, true);
+            com.abnormalities.registry.ModEvents.registerSkinwalkerChunk(mob.getUUID(), cx, cz);
         }
     }
 }

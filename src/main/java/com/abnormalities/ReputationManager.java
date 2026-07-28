@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.util.*;
 
 public class ReputationManager {
-    private static final Map<UUID, Integer> REP = new HashMap<>();
-    private static final int NEUTRAL = 1250;
     private static final int MIN = 0;
     private static final int MAX = 2500;
-    private static File dataFile;
+    private static final int NEUTRAL = 1250;
+    private static final Map<UUID, Integer> REP = new HashMap<>();
+    private static File dataFile = null;
     private static boolean loaded = false;
+    private static long lastSaveTime = 0;
 
     public static int getRep(Player player) {
         return getRep(player.getUUID());
@@ -76,6 +77,9 @@ public class ReputationManager {
 
     private static void save() {
         if (dataFile == null) return;
+        long now = System.currentTimeMillis();
+        if (now - lastSaveTime < 5000) return;
+        lastSaveTime = now;
         CompoundTag tag = new CompoundTag();
         ListTag list = new ListTag();
         for (var e : REP.entrySet()) {

@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
     private static final ResourceLocation STEVE = new ResourceLocation("textures/entity/player/wide/steve.png");
+    private static final java.util.Map<UUID, ResourceLocation> SKIN_CACHE = new java.util.HashMap<>();
 
     public K3wRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new K3wModel(ctx.bakeLayer(K3wModel.LAYER_LOCATION)), 0.0F);
@@ -19,18 +20,20 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
     @Override
     public ResourceLocation getTextureLocation(K3wEntity entity) {
         UUID targetUUID = entity.getTargetUUID();
-        if (targetUUID != null) {
-            var mc = Minecraft.getInstance();
-            if (mc.player != null && mc.player.getUUID().equals(targetUUID)) {
-                return mc.player.getSkinTextureLocation();
-            }
-            var conn = mc.getConnection();
-            if (conn != null) {
-                var info = conn.getPlayerInfo(targetUUID);
-                if (info != null) return info.getSkinLocation();
+        if (targetUUID == null) return STEVE;
+        var mc = Minecraft.getInstance();
+        if (mc.player != null && mc.player.getUUID().equals(targetUUID))
+            return mc.player.getSkinTextureLocation();
+        var conn = mc.getConnection();
+        if (conn != null) {
+            var info = conn.getPlayerInfo(targetUUID);
+            if (info != null) {
+                ResourceLocation skin = info.getSkinLocation();
+                SKIN_CACHE.put(targetUUID, skin);
+                return skin;
             }
         }
-        return STEVE;
+        return SKIN_CACHE.getOrDefault(targetUUID, STEVE);
     }
 
     @Override

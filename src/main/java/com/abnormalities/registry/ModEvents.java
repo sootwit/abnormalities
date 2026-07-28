@@ -140,40 +140,47 @@ public class ModEvents {
         if (event.phase != TickEvent.Phase.END) return;
         ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
         if (overworld == null) return;
-        Iterator<SpawnTask> it = PENDING_SPAWNS.iterator();
-        while (it.hasNext()) {
-            SpawnTask task = it.next();
-            task.ticksRemaining--;
-            if (task.ticksRemaining <= 0) {
-                it.remove();
-                Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
-                if (target == null) continue;
-                double sx = target.getX() + Math.cos(task.angle) * task.dist;
-                double sz = target.getZ() + Math.sin(task.angle) * task.dist;
-                int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+
+        long currentDay = overworld.getDayTime() / 24000L;
+        if (currentDay >= AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) {
+            Iterator<SpawnTask> it = PENDING_SPAWNS.iterator();
+            while (it.hasNext()) {
+                SpawnTask task = it.next();
+                task.ticksRemaining--;
+                if (task.ticksRemaining <= 0) {
+                    it.remove();
+                    Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
+                    if (target == null) continue;
+                    double sx = target.getX() + Math.cos(task.angle) * task.dist;
+                    double sz = target.getZ() + Math.sin(task.angle) * task.dist;
+                    int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                    NurEntity nur = ModEntities.NUR.get().create(task.level);
+                    if (nur == null) continue;
+                    nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+                    var states = NurEntity.State.values();
+                    NurEntity.State picked;
+                    do { picked = states[task.level.random.nextInt(states.length)]; } while (picked == NurEntity.State.CHASING);
+                    nur.currentState = picked;
+                    task.level.addFreshEntity(nur);
+                    task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                            SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
+                }
+            }
+            Iterator<SkinwalkerSpawnTask> sit = PENDING_SKINWALKER_SPAWNS.iterator();
+            while (sit.hasNext()) {
+                SkinwalkerSpawnTask task = sit.next();
+                task.ticksRemaining--;
+                if (task.ticksRemaining > 0) continue;
+                sit.remove();
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
-                nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
-                nur.currentState = NurEntity.State.STALKING;
+                nur.moveTo(task.x, task.y, task.z, 0, 0);
+                Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
+                if (target != null) nur.startChasing(target);
                 task.level.addFreshEntity(nur);
-                task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
-                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             }
         }
-        Iterator<SkinwalkerSpawnTask> sit = PENDING_SKINWALKER_SPAWNS.iterator();
-        while (sit.hasNext()) {
-            SkinwalkerSpawnTask task = sit.next();
-            task.ticksRemaining--;
-            if (task.ticksRemaining > 0) continue;
-            sit.remove();
-            NurEntity nur = ModEntities.NUR.get().create(task.level);
-            if (nur == null) continue;
-            nur.moveTo(task.x, task.y, task.z, 0, 0);
-            Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
-            if (target != null) nur.startChasing(target);
-            task.level.addFreshEntity(nur);
-        }
-        long currentDay = overworld.getDayTime() / 24000L;
+
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         long time = overworld.getDayTime() % 24000L;
 
@@ -291,13 +298,11 @@ public class ModEvents {
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
-            if (player instanceof ServerPlayer) {
-                var srv = overworld.getServer();
-                if (srv != null) {
-                    for (var p : srv.getPlayerList().getPlayers()) {
-                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                                Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
-                    }
+            var srv2 = overworld.getServer();
+            if (srv2 != null) {
+                for (var p : srv2.getPlayerList().getPlayers()) {
+                    p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                            Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
                 }
             }
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -316,9 +321,9 @@ public class ModEvents {
         if (player.tickCount % 2 != 0) return;
         var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
         for (NurEntity nur : entities) {
-            if (nur.currentTarget != null && nur.currentTarget != player) continue;
-            if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))
-                    && nur.currentState == NurEntity.State.STALKING) {
+            if (nur.currentState == NurEntity.State.CHASING) continue;
+            if (nur.currentState == NurEntity.State.DUMMY || nur.currentState == NurEntity.State.STALKING_DUMMY) continue;
+            if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
                 nur.startChasing(player);
                 return;
             }
@@ -446,10 +451,17 @@ public class ModEvents {
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (!(event.getSource().getEntity() instanceof NurEntity)) return;
-            if (!player.level().isClientSide && AbnormalitiesConfig.KICK_ON_DEATH.get()) {
-                player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
-                ((ServerPlayer) player).connection.disconnect(Component.literal("Unknown error"));
+            if (player.level().isClientSide) return;
+            if (!(player instanceof ServerPlayer sp)) return;
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
+            var mode = AbnormalitiesConfig.NUR_PUNISH.get();
+            if (mode == AbnormalitiesConfig.PunishMode.CRASH) {
+                com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                    net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                    new com.abnormalities.network.CrashPacket());
+            } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
+                sp.connection.disconnect(Component.literal("Unknown error"));
             }
             return;
         }
@@ -565,6 +577,17 @@ public class ModEvents {
         }
         if (cachedDisguiseTypes.isEmpty()) return null;
         return cachedDisguiseTypes.get(random.nextInt(cachedDisguiseTypes.size()));
+    }
+
+    public static void registerSkinwalkerChunk(UUID entityId, int cx, int cz) {
+        SW_CHUNKS.put(entityId, new int[]{cx, cz});
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() != null) {
+            REP_LOOK_TICKS.remove(event.getEntity().getUUID());
+        }
     }
 
     private static void tickSkinwalkerChunks(ServerLevel level) {

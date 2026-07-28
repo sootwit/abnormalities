@@ -309,6 +309,15 @@ public class XyzEntity extends Mob {
         };
 
         BlockPos chestPos = this.blockPosition();
+        if (!level().getBlockState(chestPos).canBeReplaced()) {
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    BlockPos adj = chestPos.offset(dx, 0, dz);
+                    if (level().getBlockState(adj).canBeReplaced()) { chestPos = adj; break; }
+                }
+                if (chestPos != this.blockPosition()) break;
+            }
+        }
         level().setBlockAndUpdate(chestPos, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState());
         if (level().getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
             chest.setItem(0, reward);
@@ -369,9 +378,9 @@ public class XyzEntity extends Mob {
             }
 
             double angle = level().random.nextDouble() * Math.PI * 2;
-            double dist = 20.0D + level().random.nextDouble() * 30.0D;
-            double sx = targetPlayer.getX() + Math.cos(angle) * dist;
-            double sz = targetPlayer.getZ() + Math.sin(angle) * dist;
+            double dist = 4.0D + level().random.nextDouble() * 8.0D;
+            double sx = this.getX() + Math.cos(angle) * dist;
+            double sz = this.getZ() + Math.sin(angle) * dist;
             int sy = serverLevel.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
 
             NurEntity nur = com.abnormalities.registry.ModEntities.NUR.get().create(serverLevel);

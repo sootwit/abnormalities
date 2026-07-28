@@ -126,8 +126,8 @@ public class K3wActionTracker {
             var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
                 for (var p : server.getPlayerList().getPlayers()) {
-                    p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                            net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+                            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                    net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
                 }
             }
         }
@@ -198,13 +198,13 @@ public class K3wActionTracker {
         if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         UUID uuid = player.getUUID();
-        if (!SPAWN_TIMERS.containsKey(uuid)) return;
+        if (!SPAWN_TIMERS.containsKey(uuid) && !ACTIVE_CLONES.containsKey(uuid)) return;
 
         BlockPos pos = event.getPos();
         var state = event.getState();
 
         List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
-        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.BREAK, pos.getX(), pos.getY(), pos.getZ(), state.getBlock()));
+        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.BREAK, pos.getX(), pos.getY(), pos.getZ(), state));
 
         List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         for (K3wEntity clone : clones) {
@@ -219,13 +219,13 @@ public class K3wActionTracker {
         if (!AbnormalitiesConfig.K3W_PLACE_BLOCKS.get()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         UUID uuid = player.getUUID();
-        if (!SPAWN_TIMERS.containsKey(uuid)) return;
+        if (!SPAWN_TIMERS.containsKey(uuid) && !ACTIVE_CLONES.containsKey(uuid)) return;
 
         BlockPos pos = event.getPos();
         var state = event.getState();
 
         List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
-        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.PLACE, pos.getX(), pos.getY(), pos.getZ(), state.getBlock()));
+        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.PLACE, pos.getX(), pos.getY(), pos.getZ(), state));
 
         List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         for (K3wEntity clone : clones) {

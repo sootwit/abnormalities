@@ -13,7 +13,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class NurFlickerOverlay {
     private static final ResourceLocation HUD_001 = new ResourceLocation("abnormalities", "textures/gui/nurhud001.png");
     private static final ResourceLocation HUD_002 = new ResourceLocation("abnormalities", "textures/gui/nurhud002.png");
+    private static final ResourceLocation DUMMY_HUD = new ResourceLocation("abnormalities", "textures/gui/k3whud001.png");
     private static boolean showingFlicker = false;
+    private static boolean showingDummy = false;
     private static long cooldownEnd = 0;
     private static long flickerDuration = 0;
     private static long lastFlickerTime = 0;
@@ -34,15 +36,15 @@ public class NurFlickerOverlay {
         if (mc == null || mc.player == null || mc.level == null) return;
         if (mc.options.hideGui) return;
         boolean chasing = false;
+        boolean dummy = false;
         var entities = mc.level.getEntitiesOfClass(NurEntity.class, mc.player.getBoundingBox().inflate(128.0D));
         for (NurEntity nur : entities) {
-            if (nur.isChasing()) {
-                chasing = true;
-                break;
-            }
+            if (nur.isChasing()) { chasing = true; break; }
+            if (nur.isDummy()) dummy = true;
         }
-        if (!chasing) {
+        if (!chasing && !dummy) {
             showingFlicker = false;
+            showingDummy = false;
             cooldownEnd = 0;
             nextFlickerTime = 0;
             return;
@@ -50,6 +52,16 @@ public class NurFlickerOverlay {
         GuiGraphics gg = event.getGuiGraphics();
         int sw = gg.guiWidth();
         int sh = gg.guiHeight();
+        if (dummy && !chasing) {
+            showingDummy = true;
+            gg.pose().pushPose();
+            gg.pose().setIdentity();
+            gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            gg.blit(DUMMY_HUD, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+            gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            gg.pose().popPose();
+            return;
+        }
         long now = System.currentTimeMillis();
         ResourceLocation tex;
         if (showingFlicker) {
@@ -69,8 +81,7 @@ public class NurFlickerOverlay {
         }
         gg.pose().pushPose();
         gg.pose().setIdentity();
-        float alpha = 1.0F;
-        gg.setColor(1.0F, 1.0F, 1.0F, alpha);
+        gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         gg.blit(tex, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         gg.pose().popPose();
