@@ -101,7 +101,16 @@ public class HushController {
                     if (ids != null && !ids.contains(mob.getId())) ids.add(mob.getId());
                 }
                 Vec3 lookTarget = player.getEyePosition();
-                mob.lookAt(player, 360.0F, 360.0F);
+                double dx = lookTarget.x - mob.getX();
+                double dz = lookTarget.z - mob.getZ();
+                double dy = lookTarget.y - mob.getEyeY();
+                double dist = Math.sqrt(dx * dx + dz * dz);
+                float yaw = (float)(Math.atan2(dz, dx) * 180.0F / Math.PI) - 90.0F;
+                float pitch = (float)(-Math.atan2(dy, dist) * 180.0F / Math.PI);
+                mob.setYRot(yaw);
+                mob.setXRot(pitch);
+                mob.yHeadRot = yaw;
+                mob.yBodyRot = yaw;
             }
         }
     }

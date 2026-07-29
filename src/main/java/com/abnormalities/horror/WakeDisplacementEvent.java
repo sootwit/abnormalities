@@ -13,6 +13,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Random;
 
+import java.util.Random;
+
 public class WakeDisplacementEvent {
     private static final Random RNG = new Random();
 
@@ -24,11 +26,14 @@ public class WakeDisplacementEvent {
         if (!AbnormalitiesConfig.W4K3_ENABLED.get()) return;
         if (event.wakeImmediately()) return;
 
-        BlockPos bedPos = sp.getSleepingPos().orElse(null);
-        if (bedPos == null) return;
-
         long currentDay = sp.level().getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
+
+        int chance = AbnormalitiesConfig.W4K3_CHANCE.get();
+        if (chance > 1 && RNG.nextInt(chance) != 0) return;
+
+        BlockPos bedPos = sp.getSleepingPos().orElse(null);
+        if (bedPos == null) return;
 
         var srv = sp.getServer();
         if (srv == null) return;

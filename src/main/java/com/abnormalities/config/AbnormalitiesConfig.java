@@ -65,6 +65,7 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue HUSH_COOLDOWN;
     public static final ForgeConfigSpec.BooleanValue W4K3_ENABLED;
     public static final ForgeConfigSpec.IntValue W4K3_DISTANCE;
+    public static final ForgeConfigSpec.IntValue W4K3_CHANCE;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -143,6 +144,7 @@ public class AbnormalitiesConfig {
         b.push("w4k3");
         W4K3_ENABLED = b.comment("enable waking up at different location").define("enabled", true);
         W4K3_DISTANCE = b.comment("minimum distance to teleport from bed (blocks)").defineInRange("distance", 60, 20, 200);
+        W4K3_CHANCE = b.comment("1 in N chance when sleeping (higher = rarer)").defineInRange("chance", 3, 1, 100);
         b.pop();
         SPEC = b.build();
     }
