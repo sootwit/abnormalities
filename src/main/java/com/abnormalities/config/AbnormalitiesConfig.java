@@ -54,6 +54,17 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.DoubleValue VR9P_DAMAGE;
     public static final ForgeConfigSpec.DoubleValue VR9P_MOVE_THRESHOLD;
     public static final ForgeConfigSpec.EnumValue<PunishMode> VR9P_PUNISH;
+    public static final ForgeConfigSpec.BooleanValue V1S1T_ENABLED;
+    public static final ForgeConfigSpec.IntValue V1S1T_INTERVAL;
+    public static final ForgeConfigSpec.IntValue V1S1T_VISIT_DAYS;
+    public static final ForgeConfigSpec.IntValue V1S1T_STAGE_UP;
+    public static final ForgeConfigSpec.BooleanValue HUSH_ENABLED;
+    public static final ForgeConfigSpec.IntValue HUSH_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue HUSH_DURATION;
+    public static final ForgeConfigSpec.IntValue HUSH_RANGE;
+    public static final ForgeConfigSpec.IntValue HUSH_COOLDOWN;
+    public static final ForgeConfigSpec.BooleanValue W4K3_ENABLED;
+    public static final ForgeConfigSpec.IntValue W4K3_DISTANCE;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -115,6 +126,23 @@ public class AbnormalitiesConfig {
         VR9P_DAMAGE = b.comment("damage dealt on punishment").defineInRange("damage", 10.0, 1.0, 40.0);
         VR9P_MOVE_THRESHOLD = b.comment("blocks/tick movement threshold (0.15 = walk speed)").defineInRange("moveThreshold", 0.15, 0.01, 1.0);
         VR9P_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
+        b.pop();
+        b.push("v1s1t");
+        V1S1T_ENABLED = b.comment("enable v1s1t home invasion events").define("enabled", true);
+        V1S1T_INTERVAL = b.comment("game ticks between v1s1t visit checks (20 = 1s)").defineInRange("checkInterval", 6000, 200, 72000);
+        V1S1T_VISIT_DAYS = b.comment("in-game days between visits").defineInRange("visitDays", 3, 1, 100);
+        V1S1T_STAGE_UP = b.comment("total visits to advance one stage").defineInRange("stageUp", 3, 1, 20);
+        b.pop();
+        b.push("hush");
+        HUSH_ENABLED = b.comment("enable hush events (mobs freeze and stare)").define("enabled", true);
+        HUSH_SPAWN_WEIGHT = b.comment("higher = rarer hush events").defineInRange("spawnWeight", 400, 1, 10000);
+        HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 60, 20, 400);
+        HUSH_RANGE = b.comment("how far mobs are affected (blocks)").defineInRange("range", 64, 16, 128);
+        HUSH_COOLDOWN = b.comment("ticks between hush events (20 = 1s)").defineInRange("cooldown", 3600, 200, 72000);
+        b.pop();
+        b.push("w4k3");
+        W4K3_ENABLED = b.comment("enable waking up at different location").define("enabled", true);
+        W4K3_DISTANCE = b.comment("minimum distance to teleport from bed (blocks)").defineInRange("distance", 60, 20, 200);
         b.pop();
         SPEC = b.build();
     }

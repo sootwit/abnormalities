@@ -450,11 +450,12 @@ public class ModEvents {
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof Player player) {
-            if (!(event.getSource().getEntity() instanceof NurEntity)) return;
+            if (!(event.getSource().getEntity() instanceof NurEntity nur)) return;
             if (player.level().isClientSide) return;
             if (!(player instanceof ServerPlayer sp)) return;
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
+            nur.discard();
             var mode = AbnormalitiesConfig.NUR_PUNISH.get();
             if (mode == AbnormalitiesConfig.PunishMode.CRASH) {
                 com.abnormalities.AbnormalitiesMod.CHANNEL.send(

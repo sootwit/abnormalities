@@ -225,6 +225,8 @@ public class K3wEntity extends Mob {
 
         if (hitCooldown > 0) hitCooldown--;
 
+        if (targetPlayer == null || !targetPlayer.isAlive()) return;
+
         double dist = this.distanceTo(targetPlayer);
         if (dist < 2.0D && hitCooldown <= 0 && !isCrashing() && targetPlayer.isAlive()) {
             targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 10.0F);

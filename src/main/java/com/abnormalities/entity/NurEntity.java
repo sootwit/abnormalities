@@ -46,6 +46,8 @@ public class NurEntity extends Mob {
     private int proximityCheckTick = 0;
     private int dummyTriggerTicks = 0;
     private int pendingDiscard = 0;
+    private boolean dummyTriggered = false;
+    private NurEntity.State lastState = null;
 
     public NurEntity(EntityType<? extends NurEntity> type, Level level) {
         super(type, level);
@@ -93,6 +95,7 @@ public class NurEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (dummyTriggered && currentState != State.DUMMY && currentState != State.STALKING_DUMMY) dummyTriggered = false;
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
             currentTarget = findNearestPlayer();
             if (currentTarget == null) {
@@ -181,7 +184,6 @@ public class NurEntity extends Mob {
         stalkBlockTick++;
         if (stalkBlockTick % 40 == 0) {
             replaceFluidsUnderneath();
-            if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) breakStalkArea();
         }
     }
 
@@ -204,7 +206,8 @@ public class NurEntity extends Mob {
         this.getNavigation().stop();
         this.setDeltaMovement(0, this.getDeltaMovement().y, 0);
         if (currentTarget == null) return;
-        if (isPlayerLookingAtMe(currentTarget)) {
+        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
+            dummyTriggered = true;
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 2.0f, 0.1f);
             this.entityData.set(DATA_DUMMY, true);
@@ -215,6 +218,7 @@ public class NurEntity extends Mob {
             }
             pendingDiscard = 3;
         }
+        if (tickCount > 200) discard();
     }
 
     private void tickStalkingDummy() {
@@ -231,10 +235,10 @@ public class NurEntity extends Mob {
         stalkBlockTick++;
         if (stalkBlockTick % 40 == 0) {
             replaceFluidsUnderneath();
-            if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) breakStalkArea();
         }
 
-        if (isPlayerLookingAtMe(currentTarget)) {
+        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
+            dummyTriggered = true;
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 2.0f, 0.1f);
             this.entityData.set(DATA_DUMMY, true);

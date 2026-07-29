@@ -10,6 +10,7 @@ public class CrashPacket {
     public static CrashPacket decode(FriendlyByteBuf buf) { return new CrashPacket(); }
     public static void handle(CrashPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().setPacketHandled(true);
-        Runtime.getRuntime().halt(0);
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        mc.execute(() -> mc.stop());
     }
 }
