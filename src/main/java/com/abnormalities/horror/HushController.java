@@ -135,4 +135,10 @@ public class HushController {
     public static boolean isActive(UUID uuid) {
         return ACTIVE.containsKey(uuid);
     }
+
+    public static void forceStart(ServerPlayer player) {
+        if (ACTIVE.containsKey(player.getUUID())) return;
+        var level = (ServerLevel) player.level();
+        startHush(player, level);
+    }
 }

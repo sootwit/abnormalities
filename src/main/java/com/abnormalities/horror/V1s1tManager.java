@@ -264,4 +264,14 @@ public class V1s1tManager {
     public static void cleanup(UUID uuid) {
         DATA.remove(uuid);
     }
+
+    public static void forceVisit(ServerPlayer player) {
+        var d = DATA.computeIfAbsent(player.getUUID(), k -> new V1s1tData());
+        var level = (ServerLevel) player.level();
+        d.lastVisitDay = level.getDayTime() / 24000L;
+        performVisit(player, level, d);
+        d.totalVisits++;
+        int newStage = Math.min(3, d.totalVisits / AbnormalitiesConfig.V1S1T_STAGE_UP.get());
+        d.stage = newStage;
+    }
 }

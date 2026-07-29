@@ -34,18 +34,28 @@ public class WakeDisplacementEvent {
         if (srv == null) return;
 
         srv.tell(new TickTask(srv.getTickCount() + 1, () -> {
-            if (!sp.isAlive() || sp.connection == null) return;
-            int dist = AbnormalitiesConfig.W4K3_DISTANCE.get();
-            double angle = RNG.nextDouble() * Math.PI * 2;
-            double dx = Math.cos(angle) * (dist + RNG.nextDouble() * 10.0);
-            double dz = Math.sin(angle) * (dist + RNG.nextDouble() * 10.0);
-            int targetX = bedPos.getX() + (int) Math.round(dx);
-            int targetZ = bedPos.getZ() + (int) Math.round(dz);
-            ServerLevel level = (ServerLevel) sp.level();
-            int targetY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, targetX, targetZ);
-            if (targetY < level.getMinBuildHeight() + 1) return;
-            BlockPos tp = new BlockPos(targetX, targetY + 1, targetZ);
-            sp.teleportTo(level, tp.getX() + 0.5, tp.getY(), tp.getZ() + 0.5, sp.getYRot(), sp.getXRot());
+            doDisplace(sp, bedPos);
         }));
+    }
+
+    public static void forceDisplace(ServerPlayer player) {
+        if (player.level().isClientSide) return;
+        BlockPos bedPos = player.getSleepingPos().orElse(player.blockPosition());
+        doDisplace(player, bedPos);
+    }
+
+    private static void doDisplace(ServerPlayer sp, BlockPos bedPos) {
+        if (!sp.isAlive() || sp.connection == null) return;
+        int dist = AbnormalitiesConfig.W4K3_DISTANCE.get();
+        double angle = RNG.nextDouble() * Math.PI * 2;
+        double dx = Math.cos(angle) * (dist + RNG.nextDouble() * 10.0);
+        double dz = Math.sin(angle) * (dist + RNG.nextDouble() * 10.0);
+        int targetX = bedPos.getX() + (int) Math.round(dx);
+        int targetZ = bedPos.getZ() + (int) Math.round(dz);
+        ServerLevel level = (ServerLevel) sp.level();
+        int targetY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, targetX, targetZ);
+        if (targetY < level.getMinBuildHeight() + 1) return;
+        BlockPos tp = new BlockPos(targetX, targetY + 1, targetZ);
+        sp.teleportTo(level, tp.getX() + 0.5, tp.getY(), tp.getZ() + 0.5, sp.getYRot(), sp.getXRot());
     }
 }
