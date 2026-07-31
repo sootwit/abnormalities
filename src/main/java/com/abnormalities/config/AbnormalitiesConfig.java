@@ -160,7 +160,7 @@ public class AbnormalitiesConfig {
         VR9P_STARGAZED_SPAWN_WEIGHT = b.comment("higher = rarer stargazed events").defineInRange("spawnWeight", 1200, 1, 10000);
         VR9P_STARGAZED_DURATION = b.comment("max event duration in ticks").defineInRange("duration", 160, 40, 1200);
         VR9P_STARGAZED_SWITCH_TICKS = b.comment("ticks between decisions (10 = 0.5s)").defineInRange("switchTicks", 10, 5, 60);
-        VR9P_STARGAZED_GRACE_TICKS = b.comment("grace after each switch").defineInRange("graceTicks", 5, 1, 30);
+        VR9P_STARGAZED_GRACE_TICKS = b.comment("grace after each switch").defineInRange("graceTicks", 15, 1, 60);
         VR9P_STARGAZED_WRONG_THRESHOLD = b.comment("wrong ticks before punishment").defineInRange("wrongThreshold", 3, 1, 20);
         VR9P_STARGAZED_PUNISH = b.comment("punishment for stargazed violation: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
         b.pop();
