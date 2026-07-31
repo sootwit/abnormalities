@@ -158,6 +158,7 @@ public class LureController {
                     if (player.connection != null) {
                         AbnormalitiesMod.CHANNEL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
                                 new Vr9pPacket(-1, 0));
+                        com.abnormalities.horror.SisterController.onKickWarning(player);
                         player.connection.disconnect(Component.literal("1ULL"));
                     }
                 }));

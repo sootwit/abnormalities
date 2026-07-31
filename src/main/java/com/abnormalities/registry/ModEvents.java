@@ -249,6 +249,7 @@ public class ModEvents {
                     if (player instanceof ServerPlayer sp) {
                         sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                                 Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                        com.abnormalities.horror.SisterController.onXyzWarning(sp);
                         xyz.setMessageSent(true);
                     }
                 }
@@ -470,6 +471,7 @@ public class ModEvents {
                     net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
                     new com.abnormalities.network.CrashPacket());
             } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
+                com.abnormalities.horror.SisterController.onKickWarning(sp);
                 sp.connection.disconnect(Component.literal("Unknown error"));
             }
             return;

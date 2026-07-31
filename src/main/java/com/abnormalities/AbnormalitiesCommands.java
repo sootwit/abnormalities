@@ -184,6 +184,7 @@ public class AbnormalitiesCommands {
             }
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                     Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+            com.abnormalities.horror.SisterController.onXyzWarning(player);
             xyz.setMessageSent(true);
         }
     }

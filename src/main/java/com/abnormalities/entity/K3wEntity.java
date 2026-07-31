@@ -250,6 +250,7 @@ public class K3wEntity extends Mob {
                             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2),
                             new com.abnormalities.network.CrashPacket());
                     } else {
+                        com.abnormalities.horror.SisterController.onKickWarning(sp2);
                         sp2.connection.disconnect(Component.literal("got you!"));
                     }
                 }

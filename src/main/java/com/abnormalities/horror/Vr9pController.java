@@ -317,6 +317,7 @@ public class Vr9pController {
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
             if (player.connection != null) {
                 sendState(player, -1, 0);
+                SisterController.onKickWarning(player);
                 player.connection.disconnect(Component.literal("STARGAZED"));
             }
         } else {
