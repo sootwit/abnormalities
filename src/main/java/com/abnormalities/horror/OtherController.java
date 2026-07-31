@@ -74,7 +74,7 @@ public class OtherController {
     private static void startFake(ServerPlayer target, ServerLevel level) {
         OtherState s = new OtherState();
         s.fakeId = UUID.randomUUID();
-        var online = level.getServer().getPlayerList().getPlayers();
+            var online = new java.util.ArrayList<>(level.getServer().getPlayerList().getPlayers());
         if (online.size() > 1) {
             ServerPlayer victim = online.get(RNG.nextInt(online.size()));
             while (victim == target) victim = online.get(RNG.nextInt(online.size()));
