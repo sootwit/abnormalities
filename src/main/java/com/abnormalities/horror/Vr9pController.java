@@ -227,7 +227,7 @@ public class Vr9pController {
             }
             if (player.containerMenu != player.inventoryMenu) strictViolation(player);
             if (player.swinging) strictViolation(player);
-        } else if (state.stargazed && !playerMoved) {
+        } else if (!playerMoved) {
             addWrong(player, uuid, state);
         } else {
             if (state.wrongTicks > 0) state.wrongTicks = 0;
