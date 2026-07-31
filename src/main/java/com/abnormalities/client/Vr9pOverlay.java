@@ -35,14 +35,14 @@ public class Vr9pOverlay {
         gg.pose().pushPose();
         gg.pose().setIdentity();
 
-        if (currentState == 2 || currentState == 3 || currentState == 4) {
-            gg.fill(0, 0, sw, sh, 0x88000000);
-            int faceSize = Math.min(sw, sh) / 3;
-            int fx = (sw - faceSize) / 2;
-            int fy = (sh - faceSize) / 2 - faceSize / 4;
-            gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+        int faceSize = Math.min(sw, sh) / 3;
+        int fx = (sw - faceSize) / 2;
+        int fy = (sh - faceSize) / 2 - faceSize / 4;
+
+        if (currentState == 3 || currentState == 4) {
             if (currentState == 3) {
                 gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+                gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 gg.blit(VR9P_STOP, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
@@ -52,6 +52,7 @@ public class Vr9pOverlay {
                 }
             } else if (currentState == 4) {
                 gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+                gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 gg.blit(VR9P_CONTINUE, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
@@ -60,10 +61,10 @@ public class Vr9pOverlay {
                     gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
                 }
             }
+        } else if (currentState == 2) {
+            gg.fill(0, 0, sw, sh, 0x88000000);
+            gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
         } else {
-            int faceSize = Math.min(sw, sh) / 3;
-            int fx = (sw - faceSize) / 2;
-            int fy = (sh - faceSize) / 2 - faceSize / 4;
             if (currentState == 0) {
                 gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
                 gg.blit(VR9P_STOP, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);

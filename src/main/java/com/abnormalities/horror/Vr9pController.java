@@ -141,13 +141,11 @@ public class Vr9pController {
     }
 
     private static void showState(ServerPlayer player, Vr9pState state) {
-        if (state.stargazed) {
-            sendState(player, state.showingStop ? Vr9pPacket.STATE_STARGAZED_STOP : Vr9pPacket.STATE_STARGAZED_CONTINUE, 0);
-        } else if (state.showingStop) {
-            sendState(player, Vr9pPacket.STATE_STOP, 0);
+        if (state.showingStop) {
+            sendState(player, state.stargazed ? Vr9pPacket.STATE_STARGAZED_STOP : Vr9pPacket.STATE_STOP, 0);
             playStop(player);
         } else {
-            sendState(player, Vr9pPacket.STATE_CONTINUE, 0);
+            sendState(player, state.stargazed ? Vr9pPacket.STATE_STARGAZED_CONTINUE : Vr9pPacket.STATE_CONTINUE, 0);
             playContinue(player);
         }
     }
@@ -218,19 +216,17 @@ public class Vr9pController {
 
         if (state.showingStop) {
             if (playerMoved) addWrong(player, uuid, state);
-            if (state.stargazed) {
-                float yawDelta = Math.abs(player.getYRot() - state.lastYRot);
-                float pitchDelta = Math.abs(player.getXRot() - state.lastXRot);
-                state.lastYRot = player.getYRot();
-                state.lastXRot = player.getXRot();
-                if (yawDelta > 1.0f || pitchDelta > 1.0f) strictViolation(player);
-                if (player.getInventory().selected != state.lastSlot) {
-                    state.lastSlot = player.getInventory().selected;
-                    strictViolation(player);
-                }
-                if (player.containerMenu != player.inventoryMenu) strictViolation(player);
-                if (player.swinging) strictViolation(player);
+            float yawDelta = Math.abs(player.getYRot() - state.lastYRot);
+            float pitchDelta = Math.abs(player.getXRot() - state.lastXRot);
+            state.lastYRot = player.getYRot();
+            state.lastXRot = player.getXRot();
+            if (yawDelta > 1.0f || pitchDelta > 1.0f) strictViolation(player);
+            if (player.getInventory().selected != state.lastSlot) {
+                state.lastSlot = player.getInventory().selected;
+                strictViolation(player);
             }
+            if (player.containerMenu != player.inventoryMenu) strictViolation(player);
+            if (player.swinging) strictViolation(player);
         } else if (state.stargazed && !playerMoved) {
             addWrong(player, uuid, state);
         } else {
