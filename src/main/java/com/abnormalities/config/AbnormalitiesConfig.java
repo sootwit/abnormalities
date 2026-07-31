@@ -16,6 +16,8 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue NUR_BREAK_DROPS;
     public static final ForgeConfigSpec.BooleanValue NUR_TOWER;
     public static final ForgeConfigSpec.BooleanValue NUR_BRIDGE;
+    public static final ForgeConfigSpec.IntValue NUR_SPEED_RAMP;
+    public static final ForgeConfigSpec.IntValue NUR_MAX_SPEED_MULT;
     public static final ForgeConfigSpec.EnumValue<PunishMode> NUR_PUNISH;
     public static final ForgeConfigSpec.EnumValue<PunishMode> K3W_PUNISH;
     public static final ForgeConfigSpec.BooleanValue K3W_BREAK_BLOCKS;
@@ -87,6 +89,8 @@ public class AbnormalitiesConfig {
         NUR_BREAK_DROPS = b.comment("broken blocks drop items").define("breakBlockDrops", false);
         NUR_TOWER = b.comment("nur can tower up to reach you").define("tower", true);
         NUR_BRIDGE = b.comment("nur can bridge horizontally to reach you").define("bridge", true);
+        NUR_SPEED_RAMP = b.comment("blocks of distance per +1x chase speed (10 = +1x every 10 blocks)").defineInRange("speedRamp", 10, 1, 100);
+        NUR_MAX_SPEED_MULT = b.comment("max chase speed multiplier at long distance").defineInRange("maxSpeedMult", 10, 1, 50);
         b.pop();
         b.push("k3w");
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);

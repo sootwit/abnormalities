@@ -301,7 +301,10 @@ public class NurEntity extends Mob {
         double dz = currentTarget.getZ() - this.getZ();
         double dy = currentTarget.getY() - this.getY();
         double horizDist = Math.sqrt(dx * dx + dz * dz);
-        double speed = 1.8D;
+        double ramp = AbnormalitiesConfig.NUR_SPEED_RAMP.get();
+        double maxMult = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
+        double mult = Math.min(maxMult, 1.0D + horizDist / ramp);
+        double speed = 1.8D * mult;
         double mx = 0, mz = 0;
         if (horizDist > 0.1) { mx = dx / horizDist * speed; mz = dz / horizDist * speed; }
         double my = this.getDeltaMovement().y;
@@ -379,8 +382,15 @@ public class NurEntity extends Mob {
             }
         }
         if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
+            double dx2 = currentTarget.getX() - this.getX();
+            double dz2 = currentTarget.getZ() - this.getZ();
+            double horiz2 = Math.sqrt(dx2 * dx2 + dz2 * dz2);
+            double ramp2 = AbnormalitiesConfig.NUR_SPEED_RAMP.get();
+            double maxMult2 = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
+            double mult2 = Math.min(maxMult2, 1.0D + horiz2 / ramp2);
+            double sweep = Math.min(24.0D, 0.8D * mult2);
             Vec3 dir = new Vec3(currentTarget.getX() - this.getX(), currentTarget.getY() - this.getY(), currentTarget.getZ() - this.getZ()).normalize();
-            AABB movedBox = this.getBoundingBox().move(dir.scale(0.8));
+            AABB movedBox = this.getBoundingBox().move(dir.scale(sweep));
             VoxelShape movedShape = Shapes.create(movedBox);
             BlockPos.betweenClosedStream(movedBox).forEach(pos -> {
                 BlockState state = level().getBlockState(pos);
