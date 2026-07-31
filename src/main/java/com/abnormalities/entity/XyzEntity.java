@@ -190,8 +190,12 @@ public class XyzEntity extends Mob {
         if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return super.hurt(source, amount);
         }
-        if (!hasFailed && !rewardGiven && targetPlayer != null) {
-            triggerFailure();
+        if (!hasFailed && !rewardGiven) {
+            if (source.getEntity() instanceof Player attacker) {
+                triggerFailure(attacker);
+            } else if (targetPlayer != null) {
+                triggerFailure(targetPlayer);
+            }
         }
         return false;
     }
@@ -232,7 +236,7 @@ public class XyzEntity extends Mob {
         }
 
         if (timerTicks <= 0) {
-            triggerFailure();
+            triggerFailure(targetPlayer);
             return;
         }
 
@@ -343,14 +347,15 @@ public class XyzEntity extends Mob {
         discard();
     }
 
-    private void triggerFailure() {
+    private void triggerFailure(Player attacker) {
         if (hasFailed) return;
         hasFailed = true;
         this.entityData.set(DATA_ACTIVE, false);
 
-        if (targetPlayer == null || level().isClientSide) return;
+        Player victim = attacker != null ? attacker : targetPlayer;
+        if (victim == null || level().isClientSide) return;
 
-        ReputationManager.addRep(targetPlayer, -100);
+        ReputationManager.addRep(victim, -100);
 
         ServerLevel serverLevel = (ServerLevel) level();
         long currentDayTime = serverLevel.getDayTime();
@@ -358,18 +363,18 @@ public class XyzEntity extends Mob {
 
         if (timeOfDay < 13000L) {
             long jumpTo = currentDayTime + (13000L - timeOfDay) + 100;
-            if (targetPlayer instanceof net.minecraft.server.level.ServerPlayer) {
-                ((net.minecraft.server.level.ServerPlayer) targetPlayer).connection.send(
+            if (victim instanceof net.minecraft.server.level.ServerPlayer) {
+                ((net.minecraft.server.level.ServerPlayer) victim).connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), jumpTo, true));
             }
         } else {
-            if (targetPlayer instanceof net.minecraft.server.level.ServerPlayer) {
-                ((net.minecraft.server.level.ServerPlayer) targetPlayer).connection.send(
+            if (victim instanceof net.minecraft.server.level.ServerPlayer) {
+                ((net.minecraft.server.level.ServerPlayer) victim).connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), currentDayTime + 100, true));
             }
         }
 
-        level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
+        level().playSound(null, victim.getX(), victim.getY(), victim.getZ(),
                 ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 0.3f);
 
         String[] spawnMessages = {
@@ -396,18 +401,18 @@ public class XyzEntity extends Mob {
             if (nur != null) {
                 nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
                 serverLevel.addFreshEntity(nur);
-                nur.startChasing(targetPlayer);
+                nur.startChasing(victim);
             }
         }
 
         var nearbyNurs = level().getEntitiesOfClass(NurEntity.class, this.getBoundingBox().inflate(128.0D));
         for (NurEntity nur : nearbyNurs) {
             if (nur.currentState == NurEntity.State.STALKING) {
-                nur.startChasing(targetPlayer);
+                nur.startChasing(victim);
             }
         }
 
-        if (targetPlayer instanceof ServerPlayer sp) {
+        if (victim instanceof ServerPlayer sp) {
             sp.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
         }
         discard();

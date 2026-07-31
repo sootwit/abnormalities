@@ -247,8 +247,13 @@ public class ModEvents {
                         msg = player.getName().getString() + ", bring me " + amount + " " + itemName + "s in " + seconds + "s";
                     }
                     if (player instanceof ServerPlayer sp) {
-                        sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                                Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                        var srv = overworld.getServer();
+                        if (srv != null) {
+                            for (var p : new java.util.ArrayList<>(srv.getPlayerList().getPlayers())) {
+                                p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                        Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                            }
+                        }
                         com.abnormalities.horror.SisterController.onXyzWarning(sp);
                         xyz.setMessageSent(true);
                     }
