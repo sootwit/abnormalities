@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "v1s1t", "hush", "w4k3");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -112,6 +112,7 @@ public class AbnormalitiesCommands {
             case "xyzSpawns" -> forceXyzSpawn(player);
             case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
             case "vr9p" -> com.abnormalities.horror.Vr9pController.forceStart(player);
+            case "vr9pStargazed" -> com.abnormalities.horror.Vr9pController.forceStartStargazed(player);
             case "v1s1t" -> com.abnormalities.horror.V1s1tManager.forceVisit(player);
             case "hush" -> com.abnormalities.horror.HushController.forceStart(player);
             case "w4k3" -> com.abnormalities.horror.WakeDisplacementEvent.forceDisplace(player);

@@ -9,6 +9,8 @@ public class Vr9pPacket {
     public static final int STATE_STOP = 0;
     public static final int STATE_CONTINUE = 1;
     public static final int STATE_END = 2;
+    public static final int STATE_STARGAZED_STOP = 3;
+    public static final int STATE_STARGAZED_CONTINUE = 4;
 
     private final int state;
     private final int duration;

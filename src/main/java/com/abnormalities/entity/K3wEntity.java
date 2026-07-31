@@ -44,6 +44,7 @@ public class K3wEntity extends Mob {
     private int currentPathIndex = 0;
     private boolean isMoving = false;
     private int hitCooldown = 0;
+    private int crashTimer = -1;
 
     public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
         super(type, level);
@@ -116,6 +117,7 @@ public class K3wEntity extends Mob {
         this.pathPoints.clear();
         this.currentPathIndex = 0;
         this.isMoving = false;
+        this.crashTimer = -1;
     }
 
     public void setInitialPath(List<double[]> path) {
@@ -225,6 +227,29 @@ public class K3wEntity extends Mob {
 
         if (hitCooldown > 0) hitCooldown--;
 
+        if (crashTimer >= 0) {
+            crashTimer++;
+            if (targetPlayer instanceof ServerPlayer sp2) {
+                if (crashTimer == 10) {
+                    level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
+                            ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
+                }
+                if (crashTimer >= 16) {
+                    K3wEntity.this.discard();
+                    if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
+                        com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                            net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2),
+                            new com.abnormalities.network.CrashPacket());
+                    } else {
+                        sp2.connection.disconnect(Component.literal("got you!"));
+                    }
+                }
+            } else if (crashTimer >= 16) {
+                discard();
+            }
+            return;
+        }
+
         if (targetPlayer == null || !targetPlayer.isAlive()) return;
 
         double dist = this.distanceTo(targetPlayer);
@@ -242,21 +267,7 @@ public class K3wEntity extends Mob {
 
                 if (AbnormalitiesConfig.K3W_PUNISH.get() != AbnormalitiesConfig.PunishMode.NONE) {
                     this.entityData.set(DATA_CRASHING, true);
-                    net.minecraft.server.MinecraftServer srv = level().getServer();
-                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 22, () -> {
-                        level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
-                                ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
-                    }));
-                    srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 32, () -> {
-                        K3wEntity.this.discard();
-                        if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
-                            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
-                                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
-                                new com.abnormalities.network.CrashPacket());
-                        } else {
-                            sp.connection.disconnect(Component.literal("got you!"));
-                        }
-                    }));
+                    crashTimer = 0;
                 }
             }
             return;
@@ -381,6 +392,7 @@ public class K3wEntity extends Mob {
         tag.putBoolean("MessageSent", messageSent);
         tag.putBoolean("IsMoving", isMoving);
         tag.putInt("CurrentPathIndex", currentPathIndex);
+        tag.putInt("CrashTimer", crashTimer);
 
         net.minecraft.nbt.ListTag pathTag = new net.minecraft.nbt.ListTag();
         for (double[] pt : pathPoints) {
@@ -426,6 +438,7 @@ public class K3wEntity extends Mob {
         messageSent = tag.getBoolean("MessageSent");
         isMoving = tag.getBoolean("IsMoving");
         currentPathIndex = tag.getInt("CurrentPathIndex");
+        crashTimer = tag.getInt("CrashTimer");
 
         pathPoints.clear();
         net.minecraft.nbt.ListTag pathTag = tag.getList("PathPoints", 10);

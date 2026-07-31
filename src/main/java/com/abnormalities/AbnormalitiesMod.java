@@ -51,6 +51,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(V1s1tManager.class);
         MinecraftForge.EVENT_BUS.register(HushController.class);
         MinecraftForge.EVENT_BUS.register(WakeDisplacementEvent.class);
+        MinecraftForge.EVENT_BUS.register(Vr9pStrictListener.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
@@ -66,5 +67,8 @@ public class AbnormalitiesMod {
 
         CHANNEL.registerMessage(0, Vr9pPacket.class, Vr9pPacket::encode, Vr9pPacket::decode, Vr9pPacket::handle);
         CHANNEL.registerMessage(1, CrashPacket.class, CrashPacket::encode, CrashPacket::decode, CrashPacket::handle);
+        CHANNEL.registerMessage(2, com.abnormalities.network.EscViolationPacket.class,
+                com.abnormalities.network.EscViolationPacket::encode, com.abnormalities.network.EscViolationPacket::decode,
+                com.abnormalities.network.EscViolationPacket::handle);
     }
 }
