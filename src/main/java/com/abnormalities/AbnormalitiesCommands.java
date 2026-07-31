@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "0th3r");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -116,6 +116,10 @@ public class AbnormalitiesCommands {
             case "v1s1t" -> com.abnormalities.horror.V1s1tManager.forceVisit(player);
             case "hush" -> com.abnormalities.horror.HushController.forceStart(player);
             case "w4k3" -> com.abnormalities.horror.WakeDisplacementEvent.forceDisplace(player);
+            case "m1sl4y" -> com.abnormalities.horror.MisplaceManager.forceMisplace(player);
+            case "m1n3r" -> com.abnormalities.horror.MinerController.forceStart(player);
+            case "1ull" -> com.abnormalities.horror.LureController.forceStart(player);
+            case "0th3r" -> com.abnormalities.horror.OtherController.forceStart(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))

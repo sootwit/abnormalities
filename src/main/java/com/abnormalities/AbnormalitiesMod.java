@@ -52,6 +52,10 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(HushController.class);
         MinecraftForge.EVENT_BUS.register(WakeDisplacementEvent.class);
         MinecraftForge.EVENT_BUS.register(Vr9pStrictListener.class);
+        MinecraftForge.EVENT_BUS.register(MisplaceManager.class);
+        MinecraftForge.EVENT_BUS.register(MinerController.class);
+        MinecraftForge.EVENT_BUS.register(LureController.class);
+        MinecraftForge.EVENT_BUS.register(OtherController.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
