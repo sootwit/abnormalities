@@ -571,6 +571,10 @@ public class SisterController {
 
     private static void addFake(ServerPlayer target) {
         GameProfile profile = new GameProfile(sisterUuid(), displayName);
+        String texJson = "{\"timestamp\":0,\"profileId\":\"" + sisterUuid() + "\",\"profileName\":\"" + displayName
+                + "\",\"textures\":{\"SKIN\":{\"url\":\"https://minotar.net/skin/MHF_Alex\",\"metadata\":{\"model\":\"slim\"}}}}";
+        profile.getProperties().put("textures", new com.mojang.authlib.properties.Property("textures",
+                java.util.Base64.getEncoder().encodeToString(texJson.getBytes(java.nio.charset.StandardCharsets.UTF_8))));
         var entry = new ClientboundPlayerInfoUpdatePacket.Entry(sisterUuid(), profile, true, 1,
                 GameType.SURVIVAL, Component.literal(displayName), null);
         net.minecraft.network.FriendlyByteBuf buf = new net.minecraft.network.FriendlyByteBuf(
