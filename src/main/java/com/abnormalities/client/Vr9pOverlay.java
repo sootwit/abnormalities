@@ -43,7 +43,6 @@ public class Vr9pOverlay {
             if (currentState == 3) {
                 gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
                 gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
-                gg.blit(VR9P_STOP, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);
@@ -53,7 +52,6 @@ public class Vr9pOverlay {
             } else if (currentState == 4) {
                 gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
                 gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
-                gg.blit(VR9P_CONTINUE, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);
