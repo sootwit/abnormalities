@@ -337,6 +337,7 @@ public class ModEvents {
         for (NurEntity nur : entities) {
             if (nur.currentState == NurEntity.State.CHASING) continue;
             if (nur.currentState == NurEntity.State.DUMMY || nur.currentState == NurEntity.State.STALKING_DUMMY) continue;
+            if (nur.currentTarget != null) continue;
             if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
                 nur.startChasing(player);
                 return;
