@@ -163,6 +163,7 @@ public class ModEvents {
                     do { picked = states[task.level.random.nextInt(states.length)]; } while (picked == NurEntity.State.CHASING);
                     nur.currentState = picked;
                     task.level.addFreshEntity(nur);
+                    com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
                     task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
                             SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
                 }
@@ -177,7 +178,10 @@ public class ModEvents {
                 if (nur == null) continue;
                 nur.moveTo(task.x, task.y, task.z, 0, 0);
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
-                if (target != null) nur.startChasing(target);
+                if (target != null) {
+                    nur.startChasing(target);
+                    com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
+                }
                 task.level.addFreshEntity(nur);
             }
         }

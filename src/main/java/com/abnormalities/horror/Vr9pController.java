@@ -166,6 +166,7 @@ public class Vr9pController {
                 sendState(player, -1, 0);
                 ACTIVE.remove(uuid);
                 COOLDOWNS.put(uuid, AbnormalitiesConfig.VR9P_COOLDOWN_TICKS.get());
+                if (!state.stargazed) ToxicController.onVr9pSuccess(player);
                 LOGGER.info("{} vr9p ended", player.getName().getString());
             }
             return;

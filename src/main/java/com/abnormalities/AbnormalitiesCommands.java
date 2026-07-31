@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "0th3r");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "0th3r", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -120,6 +120,13 @@ public class AbnormalitiesCommands {
             case "m1n3r" -> com.abnormalities.horror.MinerController.forceStart(player);
             case "1ull" -> com.abnormalities.horror.LureController.forceStart(player);
             case "0th3r" -> com.abnormalities.horror.OtherController.forceStart(player);
+            case "s1gn" -> com.abnormalities.horror.SignManager.forceSign(player);
+            case "wr0ng" -> com.abnormalities.horror.WrongCraftManager.forceCurse(player);
+            case "st1ll" -> com.abnormalities.horror.StillWorldManager.forceStart(player);
+            case "br34th" -> com.abnormalities.horror.PhantomDrownManager.forceDrown(player);
+            case "h01d" -> com.abnormalities.horror.StillnessManager.forceTrigger(player);
+            case "c1rcl" -> com.abnormalities.horror.CircleManager.forceRing(player);
+            case "tOXIC" -> com.abnormalities.horror.ToxicController.forceStart(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))

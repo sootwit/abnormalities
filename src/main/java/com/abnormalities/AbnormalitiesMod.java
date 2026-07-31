@@ -56,6 +56,13 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(MinerController.class);
         MinecraftForge.EVENT_BUS.register(LureController.class);
         MinecraftForge.EVENT_BUS.register(OtherController.class);
+        MinecraftForge.EVENT_BUS.register(SignManager.class);
+        MinecraftForge.EVENT_BUS.register(WrongCraftManager.class);
+        MinecraftForge.EVENT_BUS.register(StillnessManager.class);
+        MinecraftForge.EVENT_BUS.register(CircleManager.class);
+        MinecraftForge.EVENT_BUS.register(StillWorldManager.class);
+        MinecraftForge.EVENT_BUS.register(PhantomDrownManager.class);
+        MinecraftForge.EVENT_BUS.register(ToxicController.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
@@ -74,5 +81,11 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(2, com.abnormalities.network.EscViolationPacket.class,
                 com.abnormalities.network.EscViolationPacket::encode, com.abnormalities.network.EscViolationPacket::decode,
                 com.abnormalities.network.EscViolationPacket::handle);
+        CHANNEL.registerMessage(3, com.abnormalities.network.St1llPacket.class,
+                com.abnormalities.network.St1llPacket::encode, com.abnormalities.network.St1llPacket::decode,
+                com.abnormalities.network.St1llPacket::handle);
+        CHANNEL.registerMessage(4, com.abnormalities.network.ToxicPacket.class,
+                com.abnormalities.network.ToxicPacket::encode, com.abnormalities.network.ToxicPacket::decode,
+                com.abnormalities.network.ToxicPacket::handle);
     }
 }
