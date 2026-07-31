@@ -109,7 +109,44 @@ public class XyzEntity extends Mob {
             net.minecraft.world.level.block.Blocks.SPORE_BLOSSOM, net.minecraft.world.level.block.Blocks.HANGING_ROOTS,
             net.minecraft.world.level.block.Blocks.MOSS_BLOCK, net.minecraft.world.level.block.Blocks.MOSS_CARPET,
             net.minecraft.world.level.block.Blocks.AZALEA, net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA,
-            net.minecraft.world.level.block.Blocks.BAMBOO, net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING
+            net.minecraft.world.level.block.Blocks.BAMBOO, net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING,
+            net.minecraft.world.level.block.Blocks.OAK_LEAVES, net.minecraft.world.level.block.Blocks.SPRUCE_LEAVES,
+            net.minecraft.world.level.block.Blocks.BIRCH_LEAVES, net.minecraft.world.level.block.Blocks.JUNGLE_LEAVES,
+            net.minecraft.world.level.block.Blocks.ACACIA_LEAVES, net.minecraft.world.level.block.Blocks.DARK_OAK_LEAVES,
+            net.minecraft.world.level.block.Blocks.MANGROVE_LEAVES, net.minecraft.world.level.block.Blocks.AZALEA_LEAVES,
+            net.minecraft.world.level.block.Blocks.FLOWERING_AZALEA_LEAVES, net.minecraft.world.level.block.Blocks.CHERRY_LEAVES,
+            net.minecraft.world.level.block.Blocks.TUBE_CORAL, net.minecraft.world.level.block.Blocks.BRAIN_CORAL,
+            net.minecraft.world.level.block.Blocks.BUBBLE_CORAL, net.minecraft.world.level.block.Blocks.FIRE_CORAL,
+            net.minecraft.world.level.block.Blocks.HORN_CORAL,
+            net.minecraft.world.level.block.Blocks.TUBE_CORAL_FAN, net.minecraft.world.level.block.Blocks.BRAIN_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.BUBBLE_CORAL_FAN, net.minecraft.world.level.block.Blocks.FIRE_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.HORN_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL, net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL,
+            net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL, net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL,
+            net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL,
+            net.minecraft.world.level.block.Blocks.DEAD_TUBE_CORAL_FAN, net.minecraft.world.level.block.Blocks.DEAD_BRAIN_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.DEAD_BUBBLE_CORAL_FAN, net.minecraft.world.level.block.Blocks.DEAD_FIRE_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.DEAD_HORN_CORAL_FAN,
+            net.minecraft.world.level.block.Blocks.COBWEB, net.minecraft.world.level.block.Blocks.SCULK_VEIN,
+            net.minecraft.world.level.block.Blocks.CONDUIT, net.minecraft.world.level.block.Blocks.POINTED_DRIPSTONE,
+            net.minecraft.world.level.block.Blocks.TURTLE_EGG, net.minecraft.world.level.block.Blocks.FROGSPAWN,
+            net.minecraft.world.level.block.Blocks.GLOW_LICHEN, net.minecraft.world.level.block.Blocks.ICE,
+            net.minecraft.world.level.block.Blocks.PACKED_ICE, net.minecraft.world.level.block.Blocks.BLUE_ICE,
+            net.minecraft.world.level.block.Blocks.SLIME_BLOCK, net.minecraft.world.level.block.Blocks.HONEY_BLOCK
+        );
+        java.util.Set<net.minecraft.world.level.block.Block> unobtainable = java.util.Set.of(
+            net.minecraft.world.level.block.Blocks.BEDROCK, net.minecraft.world.level.block.Blocks.BARRIER,
+            net.minecraft.world.level.block.Blocks.COMMAND_BLOCK, net.minecraft.world.level.block.Blocks.CHAIN_COMMAND_BLOCK,
+            net.minecraft.world.level.block.Blocks.REPEATING_COMMAND_BLOCK, net.minecraft.world.level.block.Blocks.STRUCTURE_BLOCK,
+            net.minecraft.world.level.block.Blocks.JIGSAW, net.minecraft.world.level.block.Blocks.STRUCTURE_VOID,
+            net.minecraft.world.level.block.Blocks.END_PORTAL, net.minecraft.world.level.block.Blocks.END_PORTAL_FRAME,
+            net.minecraft.world.level.block.Blocks.END_GATEWAY, net.minecraft.world.level.block.Blocks.NETHER_PORTAL,
+            net.minecraft.world.level.block.Blocks.AIR, net.minecraft.world.level.block.Blocks.CAVE_AIR,
+            net.minecraft.world.level.block.Blocks.VOID_AIR, net.minecraft.world.level.block.Blocks.WATER,
+            net.minecraft.world.level.block.Blocks.LAVA, net.minecraft.world.level.block.Blocks.MOVING_PISTON,
+            net.minecraft.world.level.block.Blocks.PISTON_HEAD, net.minecraft.world.level.block.Blocks.PISTON,
+            net.minecraft.world.level.block.Blocks.STICKY_PISTON, net.minecraft.world.level.block.Blocks.LIGHT,
+            net.minecraft.world.level.block.Blocks.SPAWNER
         );
         int bx = net.minecraft.util.Mth.floor(cx) >> 4;
         int bz = net.minecraft.util.Mth.floor(cz) >> 4;
@@ -129,6 +166,7 @@ public class XyzEntity extends Mob {
                             var item = state.getBlock().asItem();
                             if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
                             if (silkTouch.contains(state.getBlock())) continue;
+                            if (unobtainable.contains(state.getBlock())) continue;
                             found.add(item);
                             if (found.size() >= 30) break;
                         }
