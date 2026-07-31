@@ -357,6 +357,7 @@ public class SisterController {
     private static boolean joined = false;
     private static long joinedDay = -1;
     private static final List<Warning> PENDING = new ArrayList<>();
+    private static final Map<UUID, String> PENDING_TAUNTS = new HashMap<>();
     private static boolean everJoined = false;
 
     private static class Warning {
@@ -501,7 +502,8 @@ public class SisterController {
     }
 
     public static void onKickWarning(ServerPlayer target) {
-        warnNow(target, KICK_WARNINGS);
+        if (!joined || target == null) return;
+        PENDING_TAUNTS.put(target.getUUID(), pick(KICK_WARNINGS));
     }
 
     public static void join(ServerLevel level) {
@@ -569,8 +571,15 @@ public class SisterController {
 
     @SubscribeEvent
     public static void onPlayerLogin(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
-        if (joined && event.getEntity() instanceof ServerPlayer sp && sp.connection != null) {
+        if (!(event.getEntity() instanceof ServerPlayer sp) || sp.connection == null) return;
+        if (joined) {
             addFake(sp);
+        }
+        String taunt = PENDING_TAUNTS.remove(sp.getUUID());
+        if (taunt != null) {
+            Warning w = new Warning(sp, taunt);
+            w.ticksLeft = 40;
+            PENDING.add(w);
         }
     }
 
