@@ -449,23 +449,23 @@ public class SisterController {
     }
 
     public static void onHushWarning(ServerPlayer target) {
-        warnNow(target, HUSH_WARNINGS);
+        warn(target, HUSH_WARNINGS);
     }
 
     public static void onLureWarning(ServerPlayer target) {
-        warnNow(target, LURE_WARNINGS);
+        warn(target, LURE_WARNINGS);
     }
 
     public static void onToxicWarning(ServerPlayer target) {
-        warnNow(target, TOXIC_WARNINGS);
+        warn(target, TOXIC_WARNINGS);
     }
 
     public static void onStillWarning(ServerPlayer target) {
-        warnNow(target, STILL_WARNINGS);
+        warn(target, STILL_WARNINGS);
     }
 
     public static void onMinerWarning(ServerPlayer target) {
-        warnNow(target, MINER_WARNINGS);
+        warn(target, MINER_WARNINGS);
     }
 
     public static void onWrongWarning(ServerPlayer target) {
@@ -473,19 +473,19 @@ public class SisterController {
     }
 
     public static void onSignWarning(ServerPlayer target) {
-        warnNow(target, SIGN_WARNINGS);
+        warn(target, SIGN_WARNINGS);
     }
 
     public static void onBreathWarning(ServerPlayer target) {
-        warnNow(target, BR34TH_WARNINGS);
+        warn(target, BR34TH_WARNINGS);
     }
 
     public static void onHoldWarning(ServerPlayer target) {
-        warnNow(target, HOLD_WARNINGS);
+        warn(target, HOLD_WARNINGS);
     }
 
     public static void onCircleWarning(ServerPlayer target) {
-        warnNow(target, CIRCLE_WARNINGS);
+        warn(target, CIRCLE_WARNINGS);
     }
 
     public static void onMisplaceWarning(ServerPlayer target) {
@@ -497,7 +497,7 @@ public class SisterController {
     }
 
     public static void onWakeWarning(ServerPlayer target) {
-        warnNow(target, WAKE_WARNINGS);
+        warn(target, WAKE_WARNINGS);
     }
 
     public static void onKickWarning(ServerPlayer target) {
