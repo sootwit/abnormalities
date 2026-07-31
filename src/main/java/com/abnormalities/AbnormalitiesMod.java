@@ -55,7 +55,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(MisplaceManager.class);
         MinecraftForge.EVENT_BUS.register(MinerController.class);
         MinecraftForge.EVENT_BUS.register(LureController.class);
-        MinecraftForge.EVENT_BUS.register(OtherController.class);
+        MinecraftForge.EVENT_BUS.register(SisterController.class);
         MinecraftForge.EVENT_BUS.register(SignManager.class);
         MinecraftForge.EVENT_BUS.register(WrongCraftManager.class);
         MinecraftForge.EVENT_BUS.register(StillnessManager.class);

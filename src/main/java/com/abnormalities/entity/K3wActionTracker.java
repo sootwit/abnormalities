@@ -102,6 +102,7 @@ public class K3wActionTracker {
                 }
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
+                if (player instanceof net.minecraft.server.level.ServerPlayer spt) com.abnormalities.horror.SisterController.onK3wWarning(spt);
                 MESSAGES_SENT.put(uuid, true);
             }
 

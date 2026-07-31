@@ -134,6 +134,7 @@ public class ModEvents {
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 10.0D + level.random.nextDouble() * 15.0D;
         PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
+        com.abnormalities.horror.SisterController.onNurWarning(player);
     }
 
     @SubscribeEvent
@@ -314,6 +315,7 @@ public class ModEvents {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
+            if (player instanceof net.minecraft.server.level.ServerPlayer spt) com.abnormalities.horror.SisterController.onNurWarning(spt);
         }
         tickSkinwalkerChunks(overworld);
     }
