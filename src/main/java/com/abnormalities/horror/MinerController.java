@@ -67,7 +67,7 @@ public class MinerController {
         }
 
         if (overworld.getGameTime() % 100 != 0) return;
-        for (var sp : overworld.getServer().getPlayerList().getPlayers()) {
+        for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (SESSIONS.containsKey(sp.getUUID())) continue;
             if (!sp.level().equals(overworld)) continue;
             if (sp.isSleeping()) continue;

@@ -111,7 +111,7 @@ public class HorrorEventPool {
         if (overworld == null) return;
         long gt = overworld.getGameTime();
 
-        for (ServerPlayer player : overworld.getServer().getPlayerList().getPlayers()) {
+        for (ServerPlayer player : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (player.tickCount % 100 != 0) continue;
             if (overworld.random.nextInt(200) != 0) continue;
 

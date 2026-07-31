@@ -63,7 +63,7 @@ public class OtherController {
 
         if (overworld.getGameTime() % 120 != 0) return;
         if (overworld.random.nextInt(AbnormalitiesConfig.OTHER_SPAWN_WEIGHT.get()) != 0) return;
-        for (var sp : overworld.getServer().getPlayerList().getPlayers()) {
+        for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID())) continue;
             if (overworld.random.nextInt(4) != 0) continue;
             startFake(sp, overworld);

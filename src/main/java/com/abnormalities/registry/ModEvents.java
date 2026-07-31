@@ -123,7 +123,8 @@ public class ModEvents {
         String text = PRE_SPAWN_TEXTS[level.random.nextInt(PRE_SPAWN_TEXTS.length)];
         var srv = level.getServer();
         if (srv != null) {
-            for (var p : srv.getPlayerList().getPlayers()) {
+            var players = new java.util.ArrayList<>(srv.getPlayerList().getPlayers());
+            for (var p : players) {
                 p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                         Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
             }
@@ -300,7 +301,8 @@ public class ModEvents {
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
             var srv2 = overworld.getServer();
             if (srv2 != null) {
-                for (var p : srv2.getPlayerList().getPlayers()) {
+                var srvPlayers = new java.util.ArrayList<>(srv2.getPlayerList().getPlayers());
+                for (var p : srvPlayers) {
                     p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                             Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
                 }

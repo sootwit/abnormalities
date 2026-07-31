@@ -46,7 +46,8 @@ public class Vr9pController {
         var overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
-        for (ServerPlayer p : overworld.getServer().getPlayerList().getPlayers()) {
+        var players = new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers());
+        for (ServerPlayer p : players) {
             tickPlayer(p);
         }
 

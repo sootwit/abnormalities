@@ -27,7 +27,7 @@ public class MisplaceManager {
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         if (overworld.getGameTime() % 200 != 0) return;
 
-        for (var sp : overworld.getServer().getPlayerList().getPlayers()) {
+        for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (overworld.random.nextInt(AbnormalitiesConfig.M1SL4Y_WEIGHT.get()) != 0) continue;
             if (Vr9pController.isActive(sp.getUUID())) continue;
             if (sp.isSleeping()) continue;

@@ -63,7 +63,7 @@ public class V1s1tManager {
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         if (overworld.getGameTime() % AbnormalitiesConfig.V1S1T_INTERVAL.get() != 0) return;
 
-        for (ServerPlayer sp : overworld.getServer().getPlayerList().getPlayers()) {
+        for (ServerPlayer sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             UUID uuid = sp.getUUID();
             var d = DATA.computeIfAbsent(uuid, k -> new V1s1tData());
             if (d.lastVisitDay < 0) {
