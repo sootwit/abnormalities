@@ -92,6 +92,15 @@ public class NurEntity extends Mob {
     protected boolean shouldDespawnInPeaceful() { return false; }
 
     @Override
+    public boolean isPushable() { return false; }
+
+    @Override
+    public boolean isPushedByFluid() { return false; }
+
+    @Override
+    protected boolean canRide(net.minecraft.world.entity.Entity vehicle) { return false; }
+
+    @Override
     public void tick() {
         super.tick();
         if (level().isClientSide) return;

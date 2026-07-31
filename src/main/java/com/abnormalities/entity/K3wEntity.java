@@ -86,6 +86,15 @@ public class K3wEntity extends Mob {
         return false;
     }
 
+    @Override
+    public boolean isPushable() { return false; }
+
+    @Override
+    public boolean isPushedByFluid() { return false; }
+
+    @Override
+    protected boolean canRide(net.minecraft.world.entity.Entity vehicle) { return false; }
+
     public UUID getTargetUUID() {
         Optional<UUID> opt = this.entityData.get(DATA_TARGET_UUID);
         return opt.orElse(targetPlayer != null ? targetPlayer.getUUID() : null);

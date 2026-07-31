@@ -176,6 +176,15 @@ public class XyzEntity extends Mob {
     }
 
     @Override
+    public boolean isPushable() { return false; }
+
+    @Override
+    public boolean isPushedByFluid() { return false; }
+
+    @Override
+    protected boolean canRide(net.minecraft.world.entity.Entity vehicle) { return false; }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide) return false;
         if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
