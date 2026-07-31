@@ -45,6 +45,7 @@ public class K3wEntity extends Mob {
     private boolean isMoving = false;
     private int hitCooldown = 0;
     private int crashTimer = -1;
+    private int lastHurtTick = -100;
 
     public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
         super(type, level);
@@ -78,7 +79,9 @@ public class K3wEntity extends Mob {
         if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return super.hurt(source, amount);
         }
-        return false;
+        if (this.isCrashing()) return false;
+        this.lastHurtTick = this.tickCount;
+        return super.hurt(source, amount);
     }
 
     @Override
@@ -127,6 +130,10 @@ public class K3wEntity extends Mob {
         this.currentPathIndex = 0;
         this.isMoving = false;
         this.crashTimer = -1;
+        if (player != null) {
+            this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(player.getMaxHealth());
+            this.setHealth(player.getHealth());
+        }
     }
 
     public void setInitialPath(List<double[]> path) {
@@ -229,10 +236,12 @@ public class K3wEntity extends Mob {
         }
 
         if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
-            double[] hp = K3wActionTracker.getDelayedHealth(targetPlayer);
-            if (hp != null) {
-                this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(hp[1]);
-                this.setHealth((float) hp[0]);
+            if (this.tickCount - this.lastHurtTick > 40) {
+                double[] hp = K3wActionTracker.getDelayedHealth(targetPlayer);
+                if (hp != null) {
+                    this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(hp[1]);
+                    this.setHealth((float) hp[0]);
+                }
             }
             if (targetPlayer.isSleeping()) waitingForDay = true;
             if (waitingForDay && targetPlayer.level().getDayTime() % 24000L < 2000) { discard(); return; }
