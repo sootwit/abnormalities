@@ -52,6 +52,7 @@ public class Vr9pController {
         long currentDay = overworld.getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
 
+        if (overworld.getGameTime() % 20 != 0) return;
         if (overworld.random.nextInt(AbnormalitiesConfig.VR9P_SPAWN_WEIGHT.get()) != 0) return;
 
         for (var player : overworld.players()) {
