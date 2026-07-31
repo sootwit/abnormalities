@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -129,6 +129,7 @@ public class AbnormalitiesCommands {
             case "h01d" -> com.abnormalities.horror.StillnessManager.forceTrigger(player);
             case "c1rcl" -> com.abnormalities.horror.CircleManager.forceRing(player);
             case "tOXIC" -> com.abnormalities.horror.ToxicController.forceStart(player);
+            case "g0n3" -> com.abnormalities.horror.GoneController.forceSteal(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))

@@ -40,6 +40,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
         MinecraftForge.EVENT_BUS.register(K3wActionTracker.class);
         MinecraftForge.EVENT_BUS.register(AbnormalitiesCommands.class);
+        MinecraftForge.EVENT_BUS.register(ConfigCommand.class);
         MinecraftForge.EVENT_BUS.register(ReputationManager.class);
         MinecraftForge.EVENT_BUS.register(ActionLogger.class);
         MinecraftForge.EVENT_BUS.register(HorrorEventPool.class);
@@ -63,6 +64,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(StillWorldManager.class);
         MinecraftForge.EVENT_BUS.register(PhantomDrownManager.class);
         MinecraftForge.EVENT_BUS.register(ToxicController.class);
+        MinecraftForge.EVENT_BUS.register(GoneController.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());

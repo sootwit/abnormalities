@@ -116,6 +116,9 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TOXIC_COOLDOWN;
     public static final ForgeConfigSpec.IntValue TOXIC_MAX_REP;
     public static final ForgeConfigSpec.IntValue TOXIC_NUR_QUIET;
+    public static final ForgeConfigSpec.BooleanValue GONE_ENABLED;
+    public static final ForgeConfigSpec.IntValue GONE_INTERVAL;
+    public static final ForgeConfigSpec.IntValue GONE_RADIUS;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -273,6 +276,11 @@ public class AbnormalitiesConfig {
         TOXIC_COOLDOWN = b.comment("ticks between toxic events").defineInRange("cooldown", 24000, 1200, 240000);
         TOXIC_MAX_REP = b.comment("players with rep above this never get toxic").defineInRange("maxRep", 700, 0, 2500);
         TOXIC_NUR_QUIET = b.comment("min ticks since a nur spawned for you").defineInRange("nurQuietTicks", 2400, 200, 72000);
+        b.pop();
+        b.push("g0n3");
+        GONE_ENABLED = b.comment("enable the light thief (torches go out behind you, light items vanish)").define("enabled", true);
+        GONE_INTERVAL = b.comment("ticks between light extinguishments (rep-scaled)").defineInRange("interval", 600, 100, 72000);
+        GONE_RADIUS = b.comment("block radius where lights can go out").defineInRange("radius", 24, 8, 64);
         b.pop();
         SPEC = b.build();
     }

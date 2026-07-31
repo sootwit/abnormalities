@@ -307,6 +307,23 @@ public class SisterController {
             "The morning will find you somewhere unexpected. Greet it.",
             "You'll wake up. Not where you lay down. That's the point."
     );
+    private static final List<String> GONE_WARNINGS = List.of(
+            "The lights are going out. The dark is coming for them.",
+            "It takes the light. Every flame you place is a gift to it.",
+            "The torches are dying behind you. Don't turn around.",
+            "It feeds on light. It's been feeding on yours.",
+            "The candles are going out. One by one. Count them.",
+            "Your fire is leaving. So is the warmth.",
+            "It steals the glow. It wants you in the dark.",
+            "The lanterns are failing. You'll see.",
+            "It drinks the light like water. It's thirsty.",
+            "Every torch you light, it remembers. It takes them later.",
+            "The dark is closing in. It has helpers now.",
+            "Your light is a leash to it. It's pulling.",
+            "The flames are listening to something else now.",
+            "Keep your torches close. The dark steals the far ones.",
+            "It's taking the light so it can find you in the dark."
+    );
     private static final List<String> XYZ_WARNINGS = List.of(
             "The Mother wants something from you. You heard her. Bring it.",
             "She asks for what she needs. She always gets what she needs.",
@@ -499,6 +516,10 @@ public class SisterController {
 
     public static void onWakeWarning(ServerPlayer target) {
         warn(target, WAKE_WARNINGS);
+    }
+
+    public static void onGoneWarning(ServerPlayer target) {
+        warn(target, GONE_WARNINGS);
     }
 
     public static void onKickWarning(ServerPlayer target) {
