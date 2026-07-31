@@ -71,9 +71,15 @@ public class ToxicController {
             s.invSnapshots.add(snapshotInv(player));
             s.ticksLeft--;
             if (s.ticksLeft <= 0) {
-                doRewind(player, s);
-                it.remove();
-                COOLDOWNS.put(uuid, AbnormalitiesConfig.TOXIC_COOLDOWN.get().longValue());
+                try {
+                    doRewind(player, s);
+                } catch (Exception ex) {
+                    org.apache.logging.log4j.LogManager.getLogger("toxic").error("rewind failed", ex);
+                    AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ToxicPacket(ToxicPacket.STATE_END));
+                } finally {
+                    it.remove();
+                    COOLDOWNS.put(uuid, AbnormalitiesConfig.TOXIC_COOLDOWN.get().longValue());
+                }
             }
         }
 

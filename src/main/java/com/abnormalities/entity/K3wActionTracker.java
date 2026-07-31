@@ -53,7 +53,7 @@ public class K3wActionTracker {
 
             if (tracked) {
                 Deque<double[]> posBuf = POSITION_BUFFERS.computeIfAbsent(uuid, k -> new ArrayDeque<>());
-                posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0});
+                posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0, player.getHealth(), player.getMaxHealth()});
                 int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
                 if (posBuf.size() > followTicks + 40) {
                     posBuf.removeFirst();
@@ -144,6 +144,18 @@ public class K3wActionTracker {
         int target = Math.max(0, arr.length - followTicks);
         double[] pt = arr[target];
         return new double[]{pt[0], pt[1], pt[2], pt[5]};
+    }
+
+    public static double[] getDelayedHealth(Player player) {
+        UUID uuid = player.getUUID();
+        Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
+        if (buf == null || buf.isEmpty()) return null;
+        int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        if (buf.size() < followTicks) return null;
+        double[][] arr = buf.toArray(new double[0][]);
+        int target = Math.max(0, arr.length - followTicks);
+        double[] pt = arr[target];
+        return new double[]{pt[6], pt[7]};
     }
 
     private static void startSpawnSequence(Player player) {

@@ -229,6 +229,11 @@ public class K3wEntity extends Mob {
         }
 
         if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+            double[] hp = K3wActionTracker.getDelayedHealth(targetPlayer);
+            if (hp != null) {
+                this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(hp[1]);
+                this.setHealth((float) hp[0]);
+            }
             if (targetPlayer.isSleeping()) waitingForDay = true;
             if (waitingForDay && targetPlayer.level().getDayTime() % 24000L < 2000) { discard(); return; }
             if (!targetPlayer.isSleeping() && waitingForDay && level().getDayTime() % 24000L >= 2000) waitingForDay = false;
