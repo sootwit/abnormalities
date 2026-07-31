@@ -50,6 +50,7 @@ public class WakeDisplacementEvent {
     }
 
     private static void doDisplace(ServerPlayer sp, BlockPos bedPos) {
+        SisterController.onWakeWarning(sp);
         if (!sp.isAlive() || sp.connection == null) return;
         int dist = AbnormalitiesConfig.W4K3_DISTANCE.get();
         double angle = RNG.nextDouble() * Math.PI * 2;

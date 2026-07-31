@@ -53,6 +53,7 @@ public class HushController {
     }
 
     private static void startHush(ServerPlayer player, ServerLevel level) {
+        SisterController.onHushWarning(player);
         UUID uuid = player.getUUID();
         var st = new HushState();
         int dur = AbnormalitiesConfig.HUSH_DURATION.get();

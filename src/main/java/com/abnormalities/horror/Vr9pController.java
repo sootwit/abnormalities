@@ -19,7 +19,17 @@ import java.util.*;
 public class Vr9pController {
     private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
+    private static final Map<UUID, PendingStart> PENDING_STARTS = new HashMap<>();
     private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("vr9p");
+
+    private static class PendingStart {
+        int ticksLeft;
+        boolean stargazed;
+        PendingStart(int ticksLeft, boolean stargazed) {
+            this.ticksLeft = ticksLeft;
+            this.stargazed = stargazed;
+        }
+    }
 
     private static class Vr9pState {
         int ticks = 0;
@@ -51,6 +61,21 @@ public class Vr9pController {
             tickPlayer(p);
         }
 
+        Iterator<Map.Entry<UUID, PendingStart>> pit = PENDING_STARTS.entrySet().iterator();
+        while (pit.hasNext()) {
+            var e = pit.next();
+            ServerPlayer sp = overworld.getServer().getPlayerList().getPlayer(e.getKey());
+            if (sp == null || ACTIVE.containsKey(e.getKey())) {
+                pit.remove();
+                continue;
+            }
+            e.getValue().ticksLeft--;
+            if (e.getValue().ticksLeft <= 0) {
+                startVr9p(sp, e.getValue().stargazed);
+                pit.remove();
+            }
+        }
+
         COOLDOWNS.replaceAll((u, cd) -> cd - 1);
         COOLDOWNS.values().removeIf(cd -> cd <= 0);
 
@@ -62,18 +87,20 @@ public class Vr9pController {
             if (AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.get()
                     && overworld.random.nextInt(AbnormalitiesConfig.VR9P_STARGAZED_SPAWN_WEIGHT.get()) == 0) {
                 for (ServerPlayer sp : overworld.players()) {
-                    if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID())) continue;
+                    if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
                     if (overworld.random.nextInt(2) != 0) continue;
-                    startVr9p(sp, true);
+                    SisterController.onVr9pWarning(sp, true);
+                    PENDING_STARTS.put(sp.getUUID(), new PendingStart(100, true));
                     break;
                 }
             }
             return;
         }
         for (ServerPlayer sp : overworld.players()) {
-            if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID())) continue;
+            if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
             if (overworld.random.nextInt(3) != 0) continue;
-            startVr9p(sp);
+            SisterController.onVr9pWarning(sp, false);
+            PENDING_STARTS.put(sp.getUUID(), new PendingStart(200, false));
             break;
         }
     }
@@ -84,6 +111,7 @@ public class Vr9pController {
             UUID uuid = event.getEntity().getUUID();
             ACTIVE.remove(uuid);
             COOLDOWNS.remove(uuid);
+            PENDING_STARTS.remove(uuid);
         }
     }
 

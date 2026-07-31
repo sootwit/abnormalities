@@ -105,6 +105,7 @@ public class ToxicController {
     }
 
     private static void startToxic(ServerPlayer player, ServerLevel level) {
+        SisterController.onToxicWarning(player);
         ToxicState s = new ToxicState();
         s.ticksLeft = 60;
         s.rewindTicks = 100 + level.random.nextInt(400);

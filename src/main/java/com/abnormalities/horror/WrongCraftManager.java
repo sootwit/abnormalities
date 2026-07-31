@@ -30,6 +30,7 @@ public class WrongCraftManager {
 
     @SubscribeEvent
     public static void onCraft(PlayerEvent.ItemCraftedEvent event) {
+        SisterController.onWrongWarning((ServerPlayer) event.getEntity());
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         if (!(player instanceof ServerPlayer sp)) return;

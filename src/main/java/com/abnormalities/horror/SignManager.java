@@ -65,6 +65,7 @@ public class SignManager {
     }
 
     private static boolean placeSign(ServerPlayer player, ServerLevel level) {
+        SisterController.onSignWarning(player);
         BlockPos pos = findWallSpot(level, player.blockPosition(), AbnormalitiesConfig.S1GN_SEARCH_RADIUS.get());
         if (pos == null) return false;
         level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState(), 3);

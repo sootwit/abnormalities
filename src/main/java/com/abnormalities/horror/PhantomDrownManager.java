@@ -48,6 +48,7 @@ public class PhantomDrownManager {
             if (sp.isSleeping()) continue;
             if (sp.isInWater() || sp.isInLava()) continue;
             if (overworld.random.nextInt(AbnormalitiesConfig.BR34TH_CHANCE.get()) != 0) continue;
+            SisterController.onBreathWarning(sp);
             ACTIVE.put(sp.getUUID(), 40);
             sp.setAirSupply(0);
             sp.hurt(sp.damageSources().drown(), 1.0F);

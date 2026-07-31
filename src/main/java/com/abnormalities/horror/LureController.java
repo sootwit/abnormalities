@@ -105,6 +105,7 @@ public class LureController {
     }
 
     private static void startLure(ServerPlayer player, ServerLevel level) {
+        SisterController.onLureWarning(player);
         LureState s = new LureState();
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 40.0D + level.random.nextDouble() * 40.0D;

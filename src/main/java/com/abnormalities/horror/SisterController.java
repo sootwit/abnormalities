@@ -32,6 +32,96 @@ public class SisterController {
             "Whatever you did today, he'll undo it.",
             "He follows your steps. Leave none."
     );
+    private static final List<String> VR9P_WARNINGS = List.of(
+            "He's going to test you. Move when he says CONTINUE, freeze when he says STOP.",
+            "The face is coming. Remember the rules.",
+            "He will ask for stillness. Give him stillness.",
+            "He tests the body. Don't fail."
+    );
+    private static final List<String> STARGAZED_WARNINGS = List.of(
+            "He's watching closely. Do NOTHING when he stops you.",
+            "He will ask for silence. Give him nothing.",
+            "This one is stricter. Don't blink.",
+            "He wants perfection. You will fail."
+    );
+    private static final List<String> HUSH_WARNINGS = List.of(
+            "They're all going to look at you. Don't be scared.",
+            "Everything will stop and stare. It's just a moment.",
+            "The eyes are coming. All of them.",
+            "Don't move when they watch."
+    );
+    private static final List<String> LURE_WARNINGS = List.of(
+            "Something is calling. Don't answer.",
+            "I hear music. You shouldn't follow it.",
+            "The melody is a trap. It always is.",
+            "Don't go toward the sound."
+    );
+    private static final List<String> TOXIC_WARNINGS = List.of(
+            "The world is going to rewind. Hold on.",
+            "Something is pulling time back. Don't fight it.",
+            "Your body will move without you. Let it.",
+            "You're about to lose a minute. Breathe."
+    );
+    private static final List<String> STILL_WARNINGS = List.of(
+            "Everything is going to hold its breath.",
+            "The world will go quiet. Breathe.",
+            "Time stops soon. It's not forever.",
+            "The silence is coming."
+    );
+    private static final List<String> MINER_WARNINGS = List.of(
+            "Something is digging toward you.",
+            "I hear picks below. It's coming up.",
+            "There's a tunnel being made. Not by you.",
+            "Something underground wants to meet you."
+    );
+    private static final List<String> WRONG_WARNINGS = List.of(
+            "Be careful what you craft today.",
+            "Some things come out wrong. Check your hands.",
+            "The recipe looks right. It isn't.",
+            "Don't hold what you make too long."
+    );
+    private static final List<String> SIGN_WARNINGS = List.of(
+            "I left you a message.",
+            "Look at the walls.",
+            "Someone wrote to you. Read it.",
+            "There's a sign near you. Not yours."
+    );
+    private static final List<String> BR34TH_WARNINGS = List.of(
+            "You're going to feel like you're drowning. You're not.",
+            "Take a breath. It's not real.",
+            "Your lungs will lie to you soon.",
+            "Water isn't there. Remember that."
+    );
+    private static final List<String> HOLD_WARNINGS = List.of(
+            "Don't stand still too long.",
+            "Keep moving. It watches the still.",
+            "The still ones are the easy ones.",
+            "Don't give it a moment to notice you."
+    );
+    private static final List<String> CIRCLE_WARNINGS = List.of(
+            "You'll wake in a circle. Don't panic.",
+            "Sleep well. Something will wait.",
+            "The ring is for you. It's a gift.",
+            "Wake gently. The torches are lit."
+    );
+    private static final List<String> MISPLACE_WARNINGS = List.of(
+            "Your things will shift. It's not you.",
+            "Check your pockets. Something moved.",
+            "The inventory lies. I'm sorry.",
+            "Count your items. Then count again."
+    );
+    private static final List<String> VISIT_WARNINGS = List.of(
+            "Someone visited while you were away.",
+            "Check your chests. There's a gift.",
+            "It left something for you. Be careful.",
+            "Your home was touched."
+    );
+    private static final List<String> WAKE_WARNINGS = List.of(
+            "You won't wake where you slept.",
+            "The bed moves you. Go with it.",
+            "You'll be somewhere else when you wake.",
+            "The house rearranges itself."
+    );
     private static final List<String> FAREWELLS = List.of(
             "I must go now. Maybe in another world.",
             "They need me. Farewell."
@@ -41,7 +131,6 @@ public class SisterController {
     private static String displayName = "Sister";
     private static boolean joined = false;
     private static long joinedDay = -1;
-    private static long leftDay = -1;
     private static final List<Warning> PENDING = new ArrayList<>();
     private static boolean everJoined = false;
 
@@ -64,6 +153,10 @@ public class SisterController {
             SISTER_UUID = u;
         }
         return SISTER_UUID;
+    }
+
+    private static String pick(List<String> pool) {
+        return pool.get(new Random().nextInt(pool.size()));
     }
 
     @SubscribeEvent
@@ -101,16 +194,81 @@ public class SisterController {
         }
     }
 
+    public static void warn(ServerPlayer target, List<String> pool) {
+        if (!joined || target == null) return;
+        PENDING.add(new Warning(target, pick(pool)));
+    }
+
+    public static void warnNow(ServerPlayer target, List<String> pool) {
+        if (!joined || target == null) return;
+        if (target.connection != null) {
+            target.connection.send(new ClientboundSystemChatPacket(
+                    Component.literal("<" + displayName + "> " + pick(pool)).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+        }
+    }
+
     public static void onNurWarning(ServerPlayer target) {
-        if (!joined) return;
-        if (target == null) return;
-        PENDING.add(new Warning(target, NUR_WARNINGS.get(new Random().nextInt(NUR_WARNINGS.size()))));
+        warn(target, NUR_WARNINGS);
     }
 
     public static void onK3wWarning(ServerPlayer target) {
-        if (!joined) return;
-        if (target == null) return;
-        PENDING.add(new Warning(target, K3W_WARNINGS.get(new Random().nextInt(K3W_WARNINGS.size()))));
+        warn(target, K3W_WARNINGS);
+    }
+
+    public static void onVr9pWarning(ServerPlayer target, boolean stargazed) {
+        warnNow(target, stargazed ? STARGAZED_WARNINGS : VR9P_WARNINGS);
+    }
+
+    public static void onHushWarning(ServerPlayer target) {
+        warnNow(target, HUSH_WARNINGS);
+    }
+
+    public static void onLureWarning(ServerPlayer target) {
+        warnNow(target, LURE_WARNINGS);
+    }
+
+    public static void onToxicWarning(ServerPlayer target) {
+        warnNow(target, TOXIC_WARNINGS);
+    }
+
+    public static void onStillWarning(ServerPlayer target) {
+        warnNow(target, STILL_WARNINGS);
+    }
+
+    public static void onMinerWarning(ServerPlayer target) {
+        warnNow(target, MINER_WARNINGS);
+    }
+
+    public static void onWrongWarning(ServerPlayer target) {
+        warn(target, WRONG_WARNINGS);
+    }
+
+    public static void onSignWarning(ServerPlayer target) {
+        warnNow(target, SIGN_WARNINGS);
+    }
+
+    public static void onBreathWarning(ServerPlayer target) {
+        warnNow(target, BR34TH_WARNINGS);
+    }
+
+    public static void onHoldWarning(ServerPlayer target) {
+        warnNow(target, HOLD_WARNINGS);
+    }
+
+    public static void onCircleWarning(ServerPlayer target) {
+        warnNow(target, CIRCLE_WARNINGS);
+    }
+
+    public static void onMisplaceWarning(ServerPlayer target) {
+        warn(target, MISPLACE_WARNINGS);
+    }
+
+    public static void onVisitWarning(ServerPlayer target) {
+        warn(target, VISIT_WARNINGS);
+    }
+
+    public static void onWakeWarning(ServerPlayer target) {
+        warnNow(target, WAKE_WARNINGS);
     }
 
     public static void join(ServerLevel level) {
@@ -143,7 +301,7 @@ public class SisterController {
     }
 
     private static void leave(ServerLevel level) {
-        String msg = FAREWELLS.get(new Random().nextInt(FAREWELLS.size()));
+        String msg = pick(FAREWELLS);
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             if (p.connection != null) {
                 p.connection.send(new ClientboundSystemChatPacket(
@@ -152,7 +310,6 @@ public class SisterController {
             removeFake(p);
         }
         joined = false;
-        leftDay = level.getDayTime() / 24000L;
         PENDING.clear();
     }
 

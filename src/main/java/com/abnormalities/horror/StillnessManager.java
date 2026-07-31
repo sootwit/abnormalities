@@ -46,6 +46,7 @@ public class StillnessManager {
     }
 
     private static void triggerStillness(ServerPlayer sp, ServerLevel level) {
+        SisterController.onHoldWarning(sp);
         int roll = level.random.nextInt(4);
         if (roll == 0) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(

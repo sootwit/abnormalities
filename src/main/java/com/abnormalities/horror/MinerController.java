@@ -79,6 +79,7 @@ public class MinerController {
     }
 
     private static void startSession(ServerPlayer player, ServerLevel level) {
+        SisterController.onMinerWarning(player);
         for (int attempt = 0; attempt < 8; attempt++) {
             double angle = level.random.nextDouble() * Math.PI * 2;
             double dist = 30.0D + level.random.nextDouble() * 30.0D;

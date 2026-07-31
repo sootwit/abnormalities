@@ -81,6 +81,7 @@ public class V1s1tManager {
     }
 
     private static void performVisit(ServerPlayer player, ServerLevel level, V1s1tData d) {
+        SisterController.onVisitWarning(player);
         BlockPos anchor = player.getSleepingPos().orElse(player.blockPosition());
         if (!player.level().dimension().equals(Level.OVERWORLD)) return;
 

@@ -74,6 +74,7 @@ public class StillWorldManager {
     }
 
     private static void startStill(ServerPlayer player, ServerLevel level) {
+        SisterController.onStillWarning(player);
         StillState s = new StillState();
         s.ticksLeft = AbnormalitiesConfig.ST1LL_DURATION.get();
         s.frozenDayTime = level.getDayTime();
