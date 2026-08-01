@@ -430,7 +430,7 @@ public class SisterController {
             if (w.ticksLeft <= 0) {
                 if (w.target.connection != null) {
                     w.target.connection.send(new ClientboundSystemChatPacket(
-                            Component.literal("<" + displayName + "> " + w.message).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                            Component.literal("<" + displayName + "> " + w.message).withStyle(ChatFormatting.WHITE), false));
                 }
                 wit.remove();
             }
@@ -446,7 +446,7 @@ public class SisterController {
         if (!joined || target == null) return;
         if (target.connection != null) {
             target.connection.send(new ClientboundSystemChatPacket(
-                    Component.literal("<" + displayName + "> " + pick(pool)).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                    Component.literal("<" + displayName + "> " + pick(pool)).withStyle(ChatFormatting.WHITE), false));
         }
     }
 
@@ -569,7 +569,7 @@ public class SisterController {
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             if (p.connection != null) {
                 p.connection.send(new ClientboundSystemChatPacket(
-                        Component.literal("<" + displayName + "> " + msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                        Component.literal("<" + displayName + "> " + msg).withStyle(ChatFormatting.WHITE), false));
                 p.connection.send(new ClientboundSystemChatPacket(
                         Component.literal(displayName + " left the game").withStyle(ChatFormatting.YELLOW), false));
             }

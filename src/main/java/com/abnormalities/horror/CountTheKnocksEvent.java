@@ -65,6 +65,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             Vec3 startPos = START_POS.get(uuid);
             if (startPos != null && player.position().distanceTo(startPos) > 3.0D) {
                 STATE.put(uuid, S_DONE);
+                WhisperManager.sendWhisper(player, "...you moved. never mind.");
                 cleanup(player);
                 return;
             }
@@ -79,7 +80,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             if (knox >= target) {
                 STATE.put(uuid, S_ANSWERING);
                 TICKS.put(uuid, 0);
-                WhisperManager.sendWhisper(player, "...how many?");
+                askHowMany(player);
             }
         } else if (state == S_ANSWERING) {
             if (tick > ANSWER_WINDOW) {
@@ -90,8 +91,16 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
                 int remaining = (ANSWER_WINDOW - tick) / 20;
                 player.displayClientMessage(
                     Component.literal(remaining + "s").withStyle(ChatFormatting.RED), true);
+                askHowMany(player);
             }
         }
+    }
+
+    private static void askHowMany(ServerPlayer player) {
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+            Component.literal("...how many?").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false));
+        player.displayClientMessage(
+            Component.literal("HOW MANY...?").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), true);
     }
 
     private static void playKnock(ServerPlayer player, int index, int total) {
@@ -131,6 +140,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             STATE.put(uuid, S_DONE);
             player.removeEffect(MobEffects.BLINDNESS);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
+            WhisperManager.sendWhisper(player, "...yes. it stops.");
             HorrorEventPool.clearOngoing(player);
         } else {
             triggerWrongStatic(player, uuid);
