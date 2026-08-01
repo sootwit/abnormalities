@@ -119,6 +119,13 @@ public class NurEntity extends Mob {
             }
             soundLoopTick = 0;
             soundTick = -1;
+            if (currentState == State.CHASING) {
+                this.entityData.set(DATA_CHASING, true);
+                if (chasedPlayerId == null || !chasedPlayerId.equals(currentTarget.getUUID())) {
+                    chasedPlayerId = currentTarget.getUUID();
+                    if (!level().isClientSide) NurHorrorCycle.start(chasedPlayerId, this.getUUID());
+                }
+            }
         }
         if (silenceTimer > 0) silenceTimer--;
         if (attackCooldown > 0) attackCooldown--;
@@ -464,13 +471,16 @@ public class NurEntity extends Mob {
         super.readAdditionalSaveData(tag);
         if (tag.contains("NurState")) { try { currentState = State.valueOf(tag.getString("NurState")); } catch (Exception ignored) {} }
         if (tag.contains("TargetUUID") && level().getServer() != null) currentTarget = level().getServer().getPlayerList().getPlayer(tag.getUUID("TargetUUID"));
-        if (tag.getBoolean("Chasing") && currentState == State.CHASING && currentTarget != null) {
+        if (tag.getBoolean("Chasing")) {
+            currentState = State.CHASING;
             this.entityData.set(DATA_CHASING, true);
-            this.chasedPlayerId = currentTarget.getUUID();
-            this.soundTick = 0;
-            this.hasPlayedSecondSound = false;
-            this.soundLoopTick = 80;
-            if (!level().isClientSide) NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+            if (currentTarget != null) {
+                this.chasedPlayerId = currentTarget.getUUID();
+                this.soundTick = 0;
+                this.hasPlayedSecondSound = false;
+                this.soundLoopTick = 80;
+                if (!level().isClientSide) NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+            }
         }
     }
 }
