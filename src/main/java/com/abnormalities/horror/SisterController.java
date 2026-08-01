@@ -534,6 +534,10 @@ public class SisterController {
         joinedDay = level.getDayTime() / 24000L;
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             addFake(p);
+            if (p.connection != null) {
+                p.connection.send(new ClientboundSystemChatPacket(
+                        Component.literal(displayName + " joined the game").withStyle(ChatFormatting.YELLOW), false));
+            }
         }
         level.playSound(null, 0, 0, 0, net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(),
                 net.minecraft.sounds.SoundSource.MASTER, 6.0f, 0.4f);
@@ -547,6 +551,10 @@ public class SisterController {
         joinedDay = level.getDayTime() / 24000L;
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             addFake(p);
+            if (p.connection != null) {
+                p.connection.send(new ClientboundSystemChatPacket(
+                        Component.literal(displayName + " joined the game").withStyle(ChatFormatting.YELLOW), false));
+            }
         }
     }
 
@@ -562,6 +570,8 @@ public class SisterController {
             if (p.connection != null) {
                 p.connection.send(new ClientboundSystemChatPacket(
                         Component.literal("<" + displayName + "> " + msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
+                p.connection.send(new ClientboundSystemChatPacket(
+                        Component.literal(displayName + " left the game").withStyle(ChatFormatting.YELLOW), false));
             }
             removeFake(p);
         }

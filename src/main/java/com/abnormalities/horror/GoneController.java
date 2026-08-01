@@ -59,7 +59,7 @@ public class GoneController {
 
             long last = LAST_EXTINGUISH.getOrDefault(sp.getUUID(), 0L);
             if (now - last >= interval) {
-                if (extinguishOne(sp, overworld)) {
+                if (extinguishAll(sp, overworld)) {
                     LAST_EXTINGUISH.put(sp.getUUID(), now);
                     if (overworld.random.nextInt(5) == 0) SisterController.onGoneWarning(sp);
                 }
@@ -74,8 +74,8 @@ public class GoneController {
         }
     }
 
-    private static boolean extinguishOne(ServerPlayer player, ServerLevel level) {
-        List<BlockPos> candidates = new ArrayList<>();
+    private static boolean extinguishAll(ServerPlayer player, ServerLevel level) {
+        List<BlockPos> picks = new ArrayList<>();
         int radius = AbnormalitiesConfig.GONE_RADIUS.get();
         Vec3 look = player.getLookAngle();
         BlockPos.betweenClosedStream(player.blockPosition().offset(-radius, -radius, -radius),
@@ -84,18 +84,19 @@ public class GoneController {
             if (!isLight(state)) return;
             Vec3 toBlock = new Vec3(p.getX() + 0.5 - player.getX(), p.getY() + 0.5 - player.getEyeY(), p.getZ() + 0.5 - player.getZ());
             double dot = toBlock.normalize().dot(look);
-            if (dot < 0.1) candidates.add(p.immutable());
+            if (dot < 0.1) picks.add(p.immutable());
         });
-        if (candidates.isEmpty()) return false;
-        BlockPos pick = candidates.get(level.random.nextInt(candidates.size()));
-        BlockState state = level.getBlockState(pick);
-        if (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) {
-            level.setBlock(pick, state.setValue(net.minecraft.world.level.block.CampfireBlock.LIT, false), 3);
-        } else {
-            level.setBlock(pick, Blocks.AIR.defaultBlockState(), 3);
+        if (picks.isEmpty()) return false;
+        for (BlockPos pick : picks) {
+            BlockState state = level.getBlockState(pick);
+            if (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) {
+                level.setBlock(pick, state.setValue(net.minecraft.world.level.block.CampfireBlock.LIT, false), 3);
+            } else {
+                level.setBlock(pick, Blocks.AIR.defaultBlockState(), 3);
+            }
         }
-        level.playSound(null, pick.getX(), pick.getY(), pick.getZ(),
-                SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 0.6f, 1.0f);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.CANDLE_EXTINGUISH, SoundSource.BLOCKS, 1.0f, 0.7f);
         return true;
     }
 
@@ -115,7 +116,7 @@ public class GoneController {
     }
 
     public static void forceSteal(ServerPlayer player) {
-        extinguishOne(player, (ServerLevel) player.level());
+        extinguishAll(player, (ServerLevel) player.level());
         stealLightItem(player);
     }
 }
