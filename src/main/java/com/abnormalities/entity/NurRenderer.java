@@ -49,9 +49,7 @@ public class NurRenderer extends EntityRenderer<NurEntity> {
         poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
         poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
         ResourceLocation tex = getTextureLocation(entity);
-        RenderType renderType = entity.isChasing() ?
-                RenderType.entityTranslucent(tex) :
-                RenderType.entityCutoutNoCull(tex);
+        RenderType renderType = RenderType.entityCutoutNoCull(tex);
         VertexConsumer vc = bufferSource.getBuffer(renderType);
         var m = poseStack.last().pose();
         var n = poseStack.last().normal();

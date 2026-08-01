@@ -268,6 +268,7 @@ public class NurEntity extends Mob {
 
     private void tickChasing() {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) { discard(); return; }
+        if (soundTick < 0) soundTick = 0;
         if (soundTick >= 0 && soundTick < 60) {
             soundTick++;
         } else if (soundTick == 60 && !hasPlayedSecondSound) {
@@ -466,6 +467,9 @@ public class NurEntity extends Mob {
         if (tag.getBoolean("Chasing") && currentState == State.CHASING && currentTarget != null) {
             this.entityData.set(DATA_CHASING, true);
             this.chasedPlayerId = currentTarget.getUUID();
+            this.soundTick = 0;
+            this.hasPlayedSecondSound = false;
+            this.soundLoopTick = 80;
             if (!level().isClientSide) NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
         }
     }
