@@ -97,10 +97,20 @@ public class HimModel extends EntityModel<HimEntity> {
         this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
         this.head.xRot = headPitch * ((float) Math.PI / 180F);
 
+        this.armL.zRot = -0.18F;
+        this.armR.zRot = 0.18F;
+
         this.armL.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
         this.armR.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
         this.legL.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.2F * limbSwingAmount;
         this.legR.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.2F * limbSwingAmount;
+
+        if (entity.isBoss()) {
+            this.armL.xRot += 0.25F;
+            this.armR.xRot += 0.25F;
+            this.armL.zRot += 0.1F;
+            this.armR.zRot -= 0.1F;
+        }
     }
 
     @Override

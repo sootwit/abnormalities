@@ -31,4 +31,12 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "vr9p_continue")));
     public static final RegistryObject<SoundEvent> VR9P_AMBIENCE = SOUNDS.register("vr9p_ambience",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "vr9p_ambience")));
+    public static final RegistryObject<SoundEvent> HIM_BOSS1 = SOUNDS.register("himboss1",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "himboss1")));
+    public static final RegistryObject<SoundEvent> HIM_BOSS2 = SOUNDS.register("himboss2",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "himboss2")));
+    public static final RegistryObject<SoundEvent> HIM_BOSS3 = SOUNDS.register("himboss3",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "himboss3")));
+    public static final RegistryObject<SoundEvent> HIM_BOSS4 = SOUNDS.register("himboss4",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "himboss4")));
 }

@@ -105,5 +105,41 @@
                 "stream": true
             }
         ]
+    },
+    "himboss1": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:himboss1",
+                "stream": true
+            }
+        ]
+    },
+    "himboss2": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:himboss2",
+                "stream": true
+            }
+        ]
+    },
+    "himboss3": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:himboss3",
+                "stream": true
+            }
+        ]
+    },
+    "himboss4": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:himboss4",
+                "stream": true
+            }
+        ]
     }
 }
