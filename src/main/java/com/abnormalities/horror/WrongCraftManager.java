@@ -30,10 +30,10 @@ public class WrongCraftManager {
 
     @SubscribeEvent
     public static void onCraft(PlayerEvent.ItemCraftedEvent event) {
-        SisterController.onWrongWarning((ServerPlayer) event.getEntity());
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         if (!(player instanceof ServerPlayer sp)) return;
+        SisterController.onWrongWarning(sp);
         if (!AbnormalitiesConfig.WR0NG_ENABLED.get()) return;
         if (player.level().getServer() == null) return;
         long currentDay = player.level().getDayTime() / 24000L;
