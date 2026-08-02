@@ -220,13 +220,19 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
             }
             this.bossBar.setProgress(this.getHealth() / this.getMaxHealth());
             this.ambienceTick++;
-            if (this.ambienceTick >= 100) {
+            if (this.ambienceTick >= 200) {
                 this.ambienceTick = 0;
                 var srv2 = this.level().getServer();
                 if (srv2 != null) {
+                    var boss = switch (this.random.nextInt(4)) {
+                        case 0 -> com.abnormalities.registry.ModSounds.HIM_BOSS1.get();
+                        case 1 -> com.abnormalities.registry.ModSounds.HIM_BOSS2.get();
+                        case 2 -> com.abnormalities.registry.ModSounds.HIM_BOSS3.get();
+                        default -> com.abnormalities.registry.ModSounds.HIM_BOSS4.get();
+                    };
                     for (var p : new ArrayList<>(srv2.getPlayerList().getPlayers())) {
                         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.VR9P_AMBIENCE.get()),
+                            net.minecraft.core.Holder.direct(boss),
                             SoundSource.MASTER, this.getX(), this.getY(), this.getZ(), 3.0f, 1.0f, 0));
                     }
                 }
@@ -354,20 +360,28 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
         return super.hurt(source, amount);
     }
 
-    @Override
+@Override
     public void die(DamageSource source) {
         if (this.entityData.get(DATA_COLLAPSE) > 0.0F) return;
+        if (!this.level().isClientSide) {
+            if (isBoss()) {
+                HimTracker.bossKilled(source.getEntity() instanceof ServerPlayer sp ? sp : null);
+                var srv = this.level().getServer();
+                if (srv != null) {
+                    for (var p : new ArrayList<>(srv.getPlayerList().getPlayers())) {
+                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.K3W_CRASH4.get()),
+                            SoundSource.MASTER, this.getX(), this.getY(), this.getZ(), 3.0f, 1.0f, 0));
+                    }
+                }
+            } else {
+                HimTracker.himKilled(source.getEntity() instanceof ServerPlayer sp ? sp : null);
+            }
+        }
         this.setHealth(1.0F);
         this.beginCollapse();
         this.setNoAi(true);
         this.getNavigation().stop();
-        if (!this.level().isClientSide && source.getEntity() instanceof ServerPlayer sp && !this.lineSent) {
-            if (isBoss()) {
-                HimTracker.bossKilled(sp);
-            } else {
-                HimTracker.himKilled(sp);
-            }
-        }
     }
 
     @Override
