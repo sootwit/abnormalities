@@ -180,10 +180,7 @@ public class V1s1tManager {
             NurEntity nur = ModEntities.NUR.get().create(level);
             if (nur != null) {
                 nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
-                var states = NurEntity.State.values();
-                NurEntity.State picked;
-                do { picked = states[level.random.nextInt(states.length)]; } while (picked == NurEntity.State.CHASING);
-                nur.currentState = picked;
+                nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(level.random);
                 level.addFreshEntity(nur);
             }
         }

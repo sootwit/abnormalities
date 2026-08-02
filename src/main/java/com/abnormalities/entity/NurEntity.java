@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -35,6 +36,13 @@ public class NurEntity extends Mob {
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
     public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING }
     public State currentState = State.STALKING;
+
+    public static State rollSpawnState(RandomSource rng) {
+        int roll = rng.nextInt(100);
+        if (roll < 65) return State.STALKING;
+        if (roll < 90) return State.STALKING_DUMMY;
+        return State.DUMMY;
+    }
     public int soundTick = -1;
     public int silenceTimer = 0;
     public Player currentTarget = null;
