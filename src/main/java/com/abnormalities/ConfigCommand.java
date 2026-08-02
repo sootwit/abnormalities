@@ -4,9 +4,11 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -15,22 +17,54 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ConfigCommand {
+    private static final SuggestionProvider<CommandSourceStack> KEY_SUGGESTIONS =
+            (ctx, builder) -> SharedSuggestionProvider.suggest(allKeys(), builder);
+
+    private static final SuggestionProvider<CommandSourceStack> VALUE_SUGGESTIONS =
+            (ctx, builder) -> {
+                String key = StringArgumentType.getString(ctx, "key");
+                List<String> vals = valueSuggestions(key);
+                return SharedSuggestionProvider.suggest(vals.isEmpty() ? List.of() : vals, builder);
+            };
+
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("abnorm_config")
                 .requires(src -> src.hasPermission(0))
                 .executes(ctx -> listAll(ctx.getSource()))
-                .then(Commands.argument("args", StringArgumentType.greedyString())
-                        .executes(ctx -> {
-                            String args = StringArgumentType.getString(ctx, "args").trim();
-                            CommandSourceStack src = ctx.getSource();
-                            int sp = args.indexOf(' ');
-                            if (sp < 0) return showOne(src, args);
-                            return setOne(src, args.substring(0, sp), args.substring(sp + 1).trim());
-                        })));
+                .then(Commands.argument("key", StringArgumentType.word())
+                        .suggests(KEY_SUGGESTIONS)
+                        .executes(ctx -> showOne(ctx.getSource(), StringArgumentType.getString(ctx, "key")))
+                        .then(Commands.argument("value", StringArgumentType.word())
+                                .suggests(VALUE_SUGGESTIONS)
+                                .executes(ctx -> setOne(ctx.getSource(),
+                                        StringArgumentType.getString(ctx, "key"),
+                                        StringArgumentType.getString(ctx, "value"))))));
+    }
+
+    private static List<String> allKeys() {
+        return new ArrayList<>(flatten(AbnormalitiesConfig.SPEC.getValues(), "").keySet());
+    }
+
+    private static List<String> valueSuggestions(String key) {
+        var all = flatten(AbnormalitiesConfig.SPEC.getValues(), "");
+        ForgeConfigSpec.ConfigValue<?> cv = all.get(key);
+        if (cv == null) return List.of();
+        if (cv instanceof ForgeConfigSpec.BooleanValue) return List.of("true", "false");
+        if (cv instanceof ForgeConfigSpec.EnumValue) {
+            ForgeConfigSpec.ValueSpec vs = specFor(key);
+            Class<?> clazz = vs == null ? null : vs.getClazz();
+            if (clazz != null && clazz.isEnum()) {
+                List<String> out = new ArrayList<>();
+                for (Object c : clazz.getEnumConstants()) out.add(((Enum<?>) c).name().toLowerCase());
+                return out;
+            }
+        }
+        return List.of();
     }
 
     private static Map<String, ForgeConfigSpec.ConfigValue<?>> flatten(UnmodifiableConfig cfg, String prefix) {
