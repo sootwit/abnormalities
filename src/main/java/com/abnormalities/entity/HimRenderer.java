@@ -18,4 +18,14 @@ public class HimRenderer extends MobRenderer<HimEntity, HimModel> {
     public ResourceLocation getTextureLocation(HimEntity entity) {
         return entity.isBoss() ? TEX_CHASE : TEX;
     }
+
+    @Override
+    protected void scale(HimEntity entity, PoseStack poseStack, float partialTicks) {
+        float c = entity.collapseProgress();
+        if (c > 0.0F) {
+            float t = Math.min(1.0F, c);
+            poseStack.scale(1.0F - t * 0.4F, 1.0F - t * 0.2F, 1.0F);
+            poseStack.translate(0.0F, t * 0.3F, 0.0F);
+        }
+    }
 }

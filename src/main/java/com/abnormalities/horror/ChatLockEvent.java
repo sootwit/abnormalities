@@ -64,7 +64,7 @@ public class ChatLockEvent extends AbstractHorrorEvent {
     @Override
     public void execute(ServerPlayer player) {
         if (disabled) {
-            setDisabled(player, 300 + RNG.nextInt(601));
+            setDisabled(player, 24000 + RNG.nextInt(48001));
         } else {
             setEnabled(player);
         }
