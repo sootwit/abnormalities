@@ -7,8 +7,8 @@ you will not enjoy your stay.
 *   The mod plays sounds on master volume (you cant escape)
 *   The mod WILL put things on your screen
 *   The mod doesn't mess with your computer
-*   Don't play this mod if you don't have balls
-*   Entities can break and steal things (this can be changed in the config)
+*   Do NOT play this mod if you have a heart condition
+*   Entities can grief things (this can be changed in the config)
 *   This mod WILL make you paranoid
 
 ### WHAT THE MOD ADDS
@@ -17,7 +17,7 @@ you will not enjoy your stay.
 
 Inspired by The Broken Script / wendigodrip.
 
-## FAQ:
+## QUESTIONS NOBODY ASKED:
 Q: What does this mod do?
 A: it adds horror to the game
 
