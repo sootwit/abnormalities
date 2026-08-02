@@ -66,6 +66,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(ToxicController.class);
         MinecraftForge.EVENT_BUS.register(GoneController.class);
         MinecraftForge.EVENT_BUS.register(ChatLockEvent.class);
+        MinecraftForge.EVENT_BUS.register(FakeAchievementManager.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
@@ -92,5 +93,8 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(4, com.abnormalities.network.ToxicPacket.class,
                 com.abnormalities.network.ToxicPacket::encode, com.abnormalities.network.ToxicPacket::decode,
                 com.abnormalities.network.ToxicPacket::handle);
+        CHANNEL.registerMessage(5, com.abnormalities.network.FakeAchievementPacket.class,
+                com.abnormalities.network.FakeAchievementPacket::encode, com.abnormalities.network.FakeAchievementPacket::decode,
+                com.abnormalities.network.FakeAchievementPacket::handle);
     }
 }
