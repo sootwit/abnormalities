@@ -177,7 +177,7 @@ public class ItEntity extends Mob {
                 if (srv != null) {
                     for (var p : new ArrayList<>(srv.getPlayerList().getPlayers())) {
                         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                                Component.literal("<it> you chose to see me.").withStyle(ChatFormatting.GRAY), false));
+                                Component.literal("<it> you chose to see me."), false));
                     }
                 }
             }
