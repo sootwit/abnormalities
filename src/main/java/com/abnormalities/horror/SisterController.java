@@ -324,6 +324,40 @@ public class SisterController {
             "Keep your torches close. The dark steals the far ones.",
             "It's taking the light so it can find you in the dark."
     );
+    private static final List<String> CHAT_DISABLED_WARNINGS = List.of(
+            "Don't believe that. It's trying to make you paranoid.",
+            "The errors aren't real. It prints them to make you doubt.",
+            "It forges messages from your own game. Don't read them twice.",
+            "That error was a lie. It's learning how you talk.",
+            "It wants you to think the game is broken. The game isn't. You are.",
+            "Ignore the code. It's not your machine. It's you it's after.",
+            "Forge never said that. Something else did.",
+            "It slipped through the chat. It'll slip through again.",
+            "The numbers mean nothing. The words mean everything. Stop reading them.",
+            "It dresses as a crash to get close. It's already close.",
+            "You're not in danger from the mods. You're in danger from what hides as one.",
+            "It writes errors in your language now. That's how it learns.",
+            "It's counting your reactions. Don't give it any.",
+            "The console lies. The game lies. Only I tell you the truth.",
+            "It hid inside the messages. Now it knows what scares you."
+    );
+    private static final List<String> CHAT_ENABLED_WARNINGS = List.of(
+            "It says everything's fixed. That's the first lie.",
+            "Your words are loose again. That's not a gift. That's a test.",
+            "Don't trust the all-clear. It sealed one crack and opened another.",
+            "The bug is gone. The thing that made it isn't.",
+            "It let you talk again so it could keep listening.",
+            "It claims it's neutral. Nothing here is neutral.",
+            "The quiet before is a lid. It comes off.",
+            "You can speak now. It can hear you. Choose well.",
+            "The message says all is fine. When has it ever been fine?",
+            "It patched itself. It learns from its fixes. It won't miss again.",
+            "The signal went quiet. It always returns louder.",
+            "Your chat is yours again. For now. For show.",
+            "It says the problem was contained. Contained where?",
+            "It reconnected on purpose. Don't thank it for that.",
+            "Words are free again. Everything has a price."
+    );
     private static final List<String> XYZ_WARNINGS = List.of(
             "The Mother wants something from you. You heard her. Bring it.",
             "She asks for what she needs. She always gets what she needs.",
@@ -520,6 +554,10 @@ public class SisterController {
 
     public static void onGoneWarning(ServerPlayer target) {
         warn(target, GONE_WARNINGS);
+    }
+
+    public static void onChatLockWarning(ServerPlayer target, boolean disabled) {
+        warn(target, disabled ? CHAT_DISABLED_WARNINGS : CHAT_ENABLED_WARNINGS);
     }
 
     public static void onKickWarning(ServerPlayer target) {
