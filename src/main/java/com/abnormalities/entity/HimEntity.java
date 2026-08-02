@@ -109,17 +109,22 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
                 return 4.0D;
             }
         });
-        this.goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0D, 30, 18.0F) {
+        this.goalSelector.addGoal(3, new RangedAttackGoal(this, 1.0D, 30, 18.0F) {
             @Override
             public boolean canUse() {
                 return parentBoss() && super.canUse();
+            }
+
+            @Override
+            public boolean canContinueToUse() {
+                return parentBoss() && super.canContinueToUse();
             }
 
             private boolean parentBoss() {
                 return isBoss();
             }
         });
-        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 24.0F));
+        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 24.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
         this.targetSelector.addGoal(2, new HurtByTargetGoal(this));

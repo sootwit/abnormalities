@@ -350,15 +350,11 @@ public class XyzEntity extends Mob {
                     Component.literal("thank you.").withStyle(ChatFormatting.LIGHT_PURPLE), false));
         }
 
-        int rewardChoice = level().random.nextInt(3);
         int cookieAmt = AbnormalitiesConfig.XYZ_REWARD_COOKIES.get();
         int carrotAmt = AbnormalitiesConfig.XYZ_REWARD_GOLDEN_CARROTS.get();
         int appleAmt = AbnormalitiesConfig.XYZ_REWARD_GOLDEN_APPLES.get();
-        ItemStack reward = switch (rewardChoice) {
-            case 0 -> new ItemStack(Items.COOKIE, cookieAmt);
-            case 1 -> new ItemStack(Items.GOLDEN_CARROT, carrotAmt);
-            default -> new ItemStack(Items.GOLDEN_APPLE, appleAmt);
-        };
+        ItemStack reward = rollGoody(cookieAmt, carrotAmt, appleAmt);
+        ItemStack reward2 = rollExtra();
 
         BlockPos chestPos = this.blockPosition();
         if (!level().getBlockState(chestPos).canBeReplaced()) {
@@ -373,6 +369,7 @@ public class XyzEntity extends Mob {
         level().setBlockAndUpdate(chestPos, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState());
         if (level().getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
             chest.setItem(0, reward);
+            if (!reward2.isEmpty()) chest.setItem(1, reward2);
         }
 
         level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -384,6 +381,32 @@ public class XyzEntity extends Mob {
             sp.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
         }
         discard();
+    }
+
+    private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
+        int roll = level().random.nextInt(1000);
+        if (roll < 120) return new ItemStack(Items.COOKIE, cookieAmt);
+        if (roll < 230) return new ItemStack(Items.GOLDEN_CARROT, carrotAmt);
+        if (roll < 330) return new ItemStack(Items.GOLDEN_APPLE, appleAmt);
+        if (roll < 480) return new ItemStack(Items.IRON_INGOT, 12 + level().random.nextInt(9));
+        if (roll < 610) return new ItemStack(Items.EMERALD, 8 + level().random.nextInt(7));
+        if (roll < 720) return new ItemStack(Items.DIAMOND, 3 + level().random.nextInt(4));
+        if (roll < 800) return new ItemStack(Items.DIAMOND_PICKAXE);
+        if (roll < 860) return new ItemStack(Items.IRON_PICKAXE);
+        if (roll < 920) return new ItemStack(Items.DIAMOND_SWORD);
+        if (roll < 980) return new ItemStack(Items.HEART_OF_THE_SEA);
+        if (level().random.nextInt(2) == 0) return new ItemStack(Items.NETHERITE_INGOT, 2);
+        return new ItemStack(Items.ELYTRA);
+    }
+
+    private ItemStack rollExtra() {
+        int roll = level().random.nextInt(1000);
+        if (roll < 550) return ItemStack.EMPTY;
+        if (roll < 700) return new ItemStack(Items.EMERALD, 4 + level().random.nextInt(4));
+        if (roll < 820) return new ItemStack(Items.IRON_INGOT, 6 + level().random.nextInt(6));
+        if (roll < 910) return new ItemStack(Items.DIAMOND, 1 + level().random.nextInt(3));
+        if (roll < 970) return new ItemStack(Items.NETHERITE_SCRAP, 1 + level().random.nextInt(2));
+        return new ItemStack(Items.ELYTRA);
     }
 
     private void triggerFailure(Player attacker) {

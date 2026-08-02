@@ -69,26 +69,38 @@ public class HimModel extends EntityModel<HimEntity> {
 
     @Override
     public void setupAnim(HimEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.body.y = 12.0F;
+        this.body.xRot = 0.0F;
+        this.body.zRot = 0.0F;
+        this.head.xRot = 0.0F;
+        this.head.yRot = 0.0F;
+        this.armL.xRot = 0.0F;
+        this.armR.xRot = 0.0F;
+        this.legL.xRot = 0.0F;
+        this.legR.xRot = 0.0F;
+
         float coll = entity.collapseProgress();
         if (coll > 0.0F) {
             float t = Math.min(1.0F, coll);
-            body.y = 12.0F + t * 4.0F;
-            body.xRot = t * 1.35F;
-            head.xRot = t * -0.9F;
-            armL.xRot = t * 1.6F;
-            armR.xRot = t * 1.6F;
-            legL.xRot = t * -1.2F;
-            legR.xRot = t * -1.2F;
+            this.body.xRot = t * -1.35F;
+            this.body.y = 12.0F - t * 2.0F;
+            this.head.xRot = t * 0.7F;
+            this.armL.xRot = t * -1.6F;
+            this.armR.xRot = t * -1.6F;
+            this.armL.zRot = t * 0.5F;
+            this.armR.zRot = t * -0.5F;
+            this.legL.xRot = t * 1.2F;
+            this.legR.xRot = t * 1.2F;
             return;
         }
 
-        head.yRot = netHeadYaw * ((float) Math.PI / 180F);
-        head.xRot = headPitch * ((float) Math.PI / 180F);
+        this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
+        this.head.xRot = headPitch * ((float) Math.PI / 180F);
 
-        armL.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
-        armR.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        legL.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.2F * limbSwingAmount;
-        legR.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.2F * limbSwingAmount;
+        this.armL.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
+        this.armR.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
+        this.legL.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.2F * limbSwingAmount;
+        this.legR.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.2F * limbSwingAmount;
     }
 
     @Override
