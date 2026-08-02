@@ -41,7 +41,7 @@ public class WhisperManager {
     public static void sendWhisper(ServerPlayer player, String text) {
         if (player.connection == null) return;
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-            Component.literal(text).withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC), false));
+            Component.literal(text).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), false));
         playWhisperSfx(player);
     }
 
