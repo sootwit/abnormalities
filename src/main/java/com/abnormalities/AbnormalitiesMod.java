@@ -65,6 +65,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(PhantomDrownManager.class);
         MinecraftForge.EVENT_BUS.register(ToxicController.class);
         MinecraftForge.EVENT_BUS.register(GoneController.class);
+        MinecraftForge.EVENT_BUS.register(ChatLockEvent.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
@@ -77,6 +78,8 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new HelpHotbarEvent());
         HorrorEventPool.register(new HighRepGateEvent());
         HorrorEventPool.register(new LowRepGateEvent());
+        HorrorEventPool.register(new ChatLockEvent(true));
+        HorrorEventPool.register(new ChatLockEvent(false));
 
         CHANNEL.registerMessage(0, Vr9pPacket.class, Vr9pPacket::encode, Vr9pPacket::decode, Vr9pPacket::handle);
         CHANNEL.registerMessage(1, CrashPacket.class, CrashPacket::encode, CrashPacket::decode, CrashPacket::handle);
