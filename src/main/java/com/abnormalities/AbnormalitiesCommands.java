@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -110,6 +110,11 @@ public class AbnormalitiesCommands {
             case "nurSpawns" -> ModEvents.forceNurSpawn(player);
             case "k3wSpawns" -> K3wActionTracker.forceK3wSpawn(player);
             case "xyzSpawns" -> forceXyzSpawn(player);
+            case "itSpawns" -> {
+                if (!ModEvents.forceItSpawn(player)) {
+                    player.displayClientMessage(Component.literal("it could not rise here (bad spot)").withStyle(ChatFormatting.GRAY), false);
+                }
+            }
             case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
             case "vr9p" -> com.abnormalities.horror.Vr9pController.forceStart(player);
             case "vr9pStargazed" -> com.abnormalities.horror.Vr9pController.forceStartStargazed(player);
