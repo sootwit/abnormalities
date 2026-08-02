@@ -112,8 +112,9 @@ public class NurSkinwalkerApproachGoal extends Goal {
             if (dist > 50 && mob.getNavigation().isDone()) {
                 Vec3 diff = new Vec3(targetPlayer.getX() - mob.getX(), 0, targetPlayer.getZ() - mob.getZ());
                 double len = diff.length();
+                double fallback = mob.getSpeed() * speed;
                 if (len > 0.01) {
-                    mob.setDeltaMovement(diff.x / len * speed, mob.getDeltaMovement().y, diff.z / len * speed);
+                    mob.setDeltaMovement(diff.x / len * fallback, mob.getDeltaMovement().y, diff.z / len * fallback);
                 }
             }
             if (mob.isInWater()) {
@@ -127,9 +128,9 @@ public class NurSkinwalkerApproachGoal extends Goal {
     private void transformIntoNur() {
         Level level = mob.level();
         if (level.isClientSide) return;
-        if (targetPlayer != null) ReputationManager.addRep(targetPlayer, -75);
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
+        if (targetPlayer != null) ReputationManager.addRep(targetPlayer, -75);
         nur.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         level.addFreshEntity(nur);
         nur.startChasing(targetPlayer);

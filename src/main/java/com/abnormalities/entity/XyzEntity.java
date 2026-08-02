@@ -37,6 +37,7 @@ public class XyzEntity extends Mob {
     private static final EntityDataAccessor<Boolean> DATA_ACTIVE = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_SECONDS_LEFT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_AMOUNT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> DATA_REQUEST_NAME = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.STRING);
 
     public UUID targetUUID;
     public Player targetPlayer;
@@ -193,6 +194,7 @@ public class XyzEntity extends Mob {
         this.entityData.define(DATA_ACTIVE, false);
         this.entityData.define(DATA_SECONDS_LEFT, 0);
         this.entityData.define(DATA_AMOUNT, 1);
+        this.entityData.define(DATA_REQUEST_NAME, "");
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -304,6 +306,7 @@ public class XyzEntity extends Mob {
         this.entityData.set(DATA_AMOUNT, amount);
         this.requestedItem = item;
         this.requestedItemId = BuiltInRegistries.ITEM.getKey(item);
+        this.entityData.set(DATA_REQUEST_NAME, new ItemStack(item).getHoverName().getString());
         this.messageSent = false;
         this.rewardGiven = false;
         this.hasFailed = false;
@@ -487,6 +490,7 @@ public class XyzEntity extends Mob {
         if (tag.contains("RequestedItemId")) {
             this.requestedItemId = new ResourceLocation(tag.getString("RequestedItemId"));
             this.requestedItem = BuiltInRegistries.ITEM.get(this.requestedItemId);
+            this.entityData.set(DATA_REQUEST_NAME, new ItemStack(this.requestedItem).getHoverName().getString());
         }
         this.timerTicks = tag.getInt("TimerTicks");
         this.messageSent = tag.getBoolean("MessageSent");
@@ -515,7 +519,7 @@ public class XyzEntity extends Mob {
     }
 
     public String getRequestedItemName() {
-        if (requestedItem == null) return "something";
+        if (requestedItem == null) return this.entityData.get(DATA_REQUEST_NAME).isEmpty() ? "something" : this.entityData.get(DATA_REQUEST_NAME);
         return new ItemStack(requestedItem).getHoverName().getString();
     }
 

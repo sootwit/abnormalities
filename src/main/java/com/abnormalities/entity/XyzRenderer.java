@@ -65,6 +65,20 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
         vc.vertex(m, hw, hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
         vc.vertex(m, -hw, hh, 0).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0, 0).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(n, 0, 0, 1).endVertex();
 
+        if (entity.isActive()) {
+            var font = Minecraft.getInstance().font;
+            String amountStr = entity.getAmount() + "x " + entity.getRequestedItemName();
+            float textW = font.width(amountStr);
+            float scale = 0.025F;
+            poseStack.pushPose();
+            poseStack.translate(-textW * scale / 2.0F, -hh + 6.0F, 0.05F);
+            poseStack.scale(scale, scale, scale);
+            font.drawInBatch(net.minecraft.network.chat.Component.literal(amountStr).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE),
+                    0, 0, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource,
+                    net.minecraft.client.gui.Font.DisplayMode.NORMAL, 0, 15 << 20 | 15 << 4);
+            poseStack.popPose();
+        }
+
         poseStack.popPose();
     }
 }

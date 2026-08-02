@@ -163,7 +163,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("skinwalker");
         SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 400, 1, 10000);
-        SW_APPROACH_SPEED = b.comment("speed at which skinwalkers approach player").defineInRange("approachSpeed", 0.25, 0.05, 0.5);
+        SW_APPROACH_SPEED = b.comment("speed multiplier at which skinwalkers approach player (1.0 = the disguised animal's own speed)").defineInRange("approachSpeed", 1.0, 0.2, 2.0);
         SW_DETECTION_RANGE = b.comment("range at which skinwalkers detect players").defineInRange("detectionRange", 16.0, 8.0, 32.0);
         SW_TRANSFORM_TIME = b.comment("ticks within 2 blocks before transformation (240 = 12s)").defineInRange("transformTime", 240, 100, 600);
         SW_KILL_SPAWN_CHANCE = b.comment("percent chance to spawn nur on death").defineInRange("killSpawnChance", 75, 0, 100);
@@ -281,8 +281,8 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("g0n3");
         GONE_ENABLED = b.comment("enable the light thief (torches go out behind you, light items vanish)").define("enabled", true);
-        GONE_INTERVAL = b.comment("ticks between light extinguishments (rep-scaled)").defineInRange("interval", 600, 100, 72000);
-        GONE_RADIUS = b.comment("block radius where lights can go out").defineInRange("radius", 24, 8, 64);
+        GONE_INTERVAL = b.comment("ticks between light extinguishments (rep-scaled)").defineInRange("interval", 12000, 1200, 72000);
+        GONE_RADIUS = b.comment("block radius where lights can go out").defineInRange("radius", 12, 8, 64);
         b.pop();
         b.push("fakeAch");
         FAKE_ACH_ENABLED = b.comment("enable fake black achievements (toast only, never in menu)").define("enabled", true);
