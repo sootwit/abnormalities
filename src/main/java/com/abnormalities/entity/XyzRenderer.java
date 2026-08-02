@@ -71,10 +71,10 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
             float textW = font.width(amountStr);
             float scale = 0.025F;
             poseStack.pushPose();
-            poseStack.translate(-textW * scale / 2.0F, -hh + 6.0F, 0.05F);
-            poseStack.scale(scale, scale, scale);
+            poseStack.translate(0.0F, -hh + 6.0F, 0.05F);
+            poseStack.scale(-scale, -scale, scale);
             font.drawInBatch(net.minecraft.network.chat.Component.literal(amountStr).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE),
-                    0, 0, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource,
+                    -textW / 2.0F, 0, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource,
                     net.minecraft.client.gui.Font.DisplayMode.NORMAL, 0, 15 << 20 | 15 << 4);
             poseStack.popPose();
         }
