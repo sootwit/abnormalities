@@ -127,6 +127,10 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue IT_STEAL_COUNT;
     public static final ForgeConfigSpec.IntValue IT_REP_MIN;
     public static final ForgeConfigSpec.EnumValue<PunishMode> IT_PUNISH;
+    public static final ForgeConfigSpec.BooleanValue HIM_ENABLED;
+    public static final ForgeConfigSpec.IntValue HIM_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue HIM_REP_MAX;
+    public static final ForgeConfigSpec.EnumValue<PunishMode> HIM_PUNISH;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -301,6 +305,13 @@ public class AbnormalitiesConfig {
         IT_STEAL_COUNT = b.comment("items it steals each pass (2 if it catches you looking away close)").defineInRange("stealCount", 1, 1, 9);
         IT_REP_MIN = b.comment("minimum rep for it to haunt you (it hunts the sane)").defineInRange("repMin", 1200, 0, 2500);
         IT_PUNISH = b.comment("punishment after it strips you: KICK, CRASH, or NONE").defineEnum("onStoleEverything", PunishMode.KICK);
+        b.pop();
+        b.push("him");
+        HIM_ENABLED = b.comment("enable him, the player-like survivor that bridges and towers").define("enabled", true);
+        HIM_SPAWN_WEIGHT = b.comment("base spawn weight at low nights (rarity rises with every boss kill)").defineInRange("spawnWeight", 800, 1, 10000);
+        HIM_REP_MAX = b.comment("him hunts the dangerous: only spawns if rep is BELOW this (low rep nights)").defineInRange("repMax", 999, 0, 2500);
+        HIM_PUNISH = b.comment("punishment when he catches you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
+        b.pop();
         b.pop();
         SPEC = b.build();
     }

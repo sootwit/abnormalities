@@ -3,6 +3,7 @@ package com.abnormalities.registry;
 import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
+import com.abnormalities.entity.HimEntity;
 import com.abnormalities.entity.ItEntity;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.entity.skinwalker.*;
@@ -153,6 +154,25 @@ public class ModEvents {
         if (it == null) return false;
         it.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(it);
+        return true;
+    }
+
+    public static boolean forceHimSpawn(ServerPlayer player, boolean boss) {
+        ServerLevel overworld = (ServerLevel) player.level();
+        double angle = overworld.random.nextDouble() * Math.PI * 2;
+        double dist = 12.0D + overworld.random.nextDouble() * 14.0D;
+        double sx = player.getX() + Math.cos(angle) * dist;
+        double sz = player.getZ() + Math.sin(angle) * dist;
+        int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) return false;
+        if (!overworld.getBlockState(spawnPos).canBeReplaced()) return false;
+
+        HimEntity him = ModEntities.HIM.get().create(overworld);
+        if (him == null) return false;
+        if (boss) him.markBoss();
+        him.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+        overworld.addFreshEntity(him);
         return true;
     }
 
@@ -337,6 +357,26 @@ public class ModEvents {
 
             if (player instanceof net.minecraft.server.level.ServerPlayer spIt) {
                 forceItSpawn(spIt);
+            }
+        }
+        for (Player player : overworld.players()) {
+            if (!AbnormalitiesConfig.HIM_ENABLED.get()) break;
+            if (player.tickCount % 40 != 0) continue;
+            if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
+            int rarity = AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250;
+            if (overworld.random.nextInt(rarity) != 0) continue;
+            boolean alreadyHasHim = false;
+            for (HimEntity existing : overworld.getEntitiesOfClass(HimEntity.class, player.getBoundingBox().inflate(256.0D))) {
+                alreadyHasHim = true;
+                break;
+            }
+            if (alreadyHasHim) continue;
+
+            if (player instanceof net.minecraft.server.level.ServerPlayer spHim) {
+                boolean asBoss = com.abnormalities.entity.HimTracker.hasPendingBoss();
+                if (forceHimSpawn(spHim, asBoss) && asBoss) {
+                    com.abnormalities.entity.HimTracker.takePendingBoss();
+                }
             }
         }
         for (Player player : overworld.players()) {

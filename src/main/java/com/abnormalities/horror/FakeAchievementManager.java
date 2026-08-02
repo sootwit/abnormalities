@@ -54,4 +54,9 @@ public class FakeAchievementManager {
         String name = NAMES.get(RNG.nextInt(NAMES.size()));
         AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> target), new FakeAchievementPacket(name));
     }
+
+    public static void giveNamed(ServerPlayer target, String name) {
+        if (target.connection == null) return;
+        AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> target), new FakeAchievementPacket(name));
+    }
 }

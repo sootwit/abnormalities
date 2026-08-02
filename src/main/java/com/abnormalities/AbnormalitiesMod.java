@@ -67,6 +67,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(GoneController.class);
         MinecraftForge.EVENT_BUS.register(ChatLockEvent.class);
         MinecraftForge.EVENT_BUS.register(FakeAchievementManager.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.entity.HimTracker.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
