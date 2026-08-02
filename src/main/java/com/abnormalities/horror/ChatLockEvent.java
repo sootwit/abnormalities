@@ -124,6 +124,23 @@ public class ChatLockEvent extends AbstractHorrorEvent {
 
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        LOCK_TICKS.remove(event.getEntity().getUUID());
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        int remaining = LOCK_TICKS.getOrDefault(player.getUUID(), 0);
+        if (remaining != 0) {
+            player.getPersistentData().putInt("abnormalities:chatLockTicks", remaining);
+        } else {
+            player.getPersistentData().remove("abnormalities:chatLockTicks");
+        }
+        LOCK_TICKS.remove(player.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        int saved = player.getPersistentData().getInt("abnormalities:chatLockTicks");
+        if (saved == 0) return;
+        LOCK_TICKS.put(player.getUUID(), saved);
+        player.getPersistentData().remove("abnormalities:chatLockTicks");
+        sendForgeError(player);
     }
 }
