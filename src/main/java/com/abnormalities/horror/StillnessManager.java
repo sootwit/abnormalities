@@ -67,7 +67,7 @@ public class StillnessManager {
             }
         } else {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                net.minecraft.network.chat.Component.literal("...").withStyle(net.minecraft.ChatFormatting.DARK_GRAY), false));
+                net.minecraft.network.chat.Component.literal("...").withStyle(net.minecraft.ChatFormatting.YELLOW, net.minecraft.ChatFormatting.ITALIC), false));
         }
     }
 

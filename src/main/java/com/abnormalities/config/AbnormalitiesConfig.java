@@ -181,7 +181,7 @@ public class AbnormalitiesConfig {
         VR9P_SWITCH_MAX = b.comment("maximum ticks between state switches").defineInRange("switchMax", 80, 10, 400);
         VR9P_DAMAGE = b.comment("damage dealt on punishment").defineInRange("damage", 10.0, 1.0, 40.0);
         VR9P_MOVE_THRESHOLD = b.comment("blocks/tick movement threshold (0.15 = walk speed)").defineInRange("moveThreshold", 0.15, 0.01, 1.0);
-        VR9P_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
+        VR9P_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.NONE);
         b.pop();
         b.push("vr9pStargazed");
         VR9P_STARGAZED_ENABLED = b.comment("enable stargazed variant").define("enabled", true);
@@ -190,7 +190,7 @@ public class AbnormalitiesConfig {
         VR9P_STARGAZED_SWITCH_TICKS = b.comment("ticks between decisions (10 = 0.5s)").defineInRange("switchTicks", 10, 5, 60);
         VR9P_STARGAZED_GRACE_TICKS = b.comment("grace after each switch").defineInRange("graceTicks", 15, 1, 60);
         VR9P_STARGAZED_WRONG_THRESHOLD = b.comment("wrong ticks before punishment").defineInRange("wrongThreshold", 3, 1, 20);
-        VR9P_STARGAZED_PUNISH = b.comment("punishment for stargazed violation: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
+        VR9P_STARGAZED_PUNISH = b.comment("punishment for stargazed violation: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.NONE);
         b.pop();
         b.push("v1s1t");
         V1S1T_ENABLED = b.comment("enable v1s1t home invasion events").define("enabled", true);
