@@ -130,8 +130,6 @@ public class XyzEntity extends Mob {
             net.minecraft.world.level.block.Blocks.COBWEB, net.minecraft.world.level.block.Blocks.SCULK_VEIN,
             net.minecraft.world.level.block.Blocks.CONDUIT, net.minecraft.world.level.block.Blocks.POINTED_DRIPSTONE,
             net.minecraft.world.level.block.Blocks.TURTLE_EGG, net.minecraft.world.level.block.Blocks.FROGSPAWN,
-            net.minecraft.world.level.block.Blocks.GLOW_LICHEN, net.minecraft.world.level.block.Blocks.ICE,
-            net.minecraft.world.level.block.Blocks.PACKED_ICE, net.minecraft.world.level.block.Blocks.BLUE_ICE,
             net.minecraft.world.level.block.Blocks.SLIME_BLOCK, net.minecraft.world.level.block.Blocks.HONEY_BLOCK
         );
         java.util.Set<net.minecraft.world.level.block.Block> unobtainable = java.util.Set.of(
