@@ -312,7 +312,6 @@ public class AbnormalitiesConfig {
         HIM_REP_MAX = b.comment("him hunts the dangerous: only spawns if rep is BELOW this (low rep nights)").defineInRange("repMax", 999, 0, 2500);
         HIM_PUNISH = b.comment("punishment when he catches you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
         b.pop();
-        b.pop();
         SPEC = b.build();
     }
 }
