@@ -63,6 +63,7 @@ public class StillnessManager {
         int range = 40;
         for (Mob mob : level.getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(range))) {
             if (mob.isNoAi()) continue;
+            if (mob.getPersistentData().getBoolean("abnormalities:h01d_ignore")) continue;
             mob.getPersistentData().putBoolean("abnormalities:h01d_was_noai", mob.isNoAi());
             mob.setNoAi(true);
             frozenIds.add(mob.getId());
@@ -85,6 +86,7 @@ public class StillnessManager {
                 nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
                 nur.currentState = com.abnormalities.entity.NurEntity.State.STALKING;
                 nur.currentTarget = sp;
+                nur.getPersistentData().putBoolean("abnormalities:h01d_ignore", true);
                 level.addFreshEntity(nur);
             }
         } else {
@@ -129,6 +131,7 @@ public class StillnessManager {
             }
             int range = 40;
             for (Mob mob : level.getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(range))) {
+                if (mob.getPersistentData().getBoolean("abnormalities:h01d_ignore")) continue;
                 if (!mob.isNoAi()) {
                     mob.getPersistentData().putBoolean("abnormalities:h01d_was_noai", false);
                     mob.setNoAi(true);
