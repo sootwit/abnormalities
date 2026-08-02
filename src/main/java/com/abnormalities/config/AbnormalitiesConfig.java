@@ -121,6 +121,12 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue GONE_RADIUS;
     public static final ForgeConfigSpec.BooleanValue FAKE_ACH_ENABLED;
     public static final ForgeConfigSpec.IntValue FAKE_ACH_COOLDOWN;
+    public static final ForgeConfigSpec.BooleanValue IT_ENABLED;
+    public static final ForgeConfigSpec.IntValue IT_SPAWN_WEIGHT;
+    public static final ForgeConfigSpec.IntValue IT_STARE_SECONDS;
+    public static final ForgeConfigSpec.IntValue IT_STEAL_COUNT;
+    public static final ForgeConfigSpec.IntValue IT_REP_MIN;
+    public static final ForgeConfigSpec.EnumValue<PunishMode> IT_PUNISH;
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -287,6 +293,14 @@ public class AbnormalitiesConfig {
         b.push("fakeAch");
         FAKE_ACH_ENABLED = b.comment("enable fake black achievements (toast only, never in menu)").define("enabled", true);
         FAKE_ACH_COOLDOWN = b.comment("ticks between fake achievements").defineInRange("cooldown", 18000, 600, 240000);
+        b.pop();
+        b.push("it");
+        IT_ENABLED = b.comment("enable it, the flat shadow. stare at it to win").define("enabled", true);
+        IT_SPAWN_WEIGHT = b.comment("higher = rarer it spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
+        IT_STARE_SECONDS = b.comment("seconds of unbroken eye contact within 5.5 blocks to defeat it").defineInRange("stareSeconds", 4, 1, 30);
+        IT_STEAL_COUNT = b.comment("items it steals each pass (2 if it catches you looking away close)").defineInRange("stealCount", 1, 1, 9);
+        IT_REP_MIN = b.comment("minimum rep for it to haunt you (it hunts the sane)").defineInRange("repMin", 1200, 0, 2500);
+        IT_PUNISH = b.comment("punishment after it strips you: KICK, CRASH, or NONE").defineEnum("onStoleEverything", PunishMode.KICK);
         b.pop();
         SPEC = b.build();
     }

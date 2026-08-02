@@ -3,6 +3,7 @@ package com.abnormalities.registry;
 import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
+import com.abnormalities.entity.ItEntity;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.entity.skinwalker.*;
 import net.minecraft.ChatFormatting;
@@ -304,6 +305,33 @@ public class ModEvents {
         }
 
         if (time < 13000L || time > 23000L) return;
+        for (Player player : overworld.players()) {
+            if (!AbnormalitiesConfig.IT_ENABLED.get()) break;
+            if (player.tickCount % 60 != 0) continue;
+            if (ReputationManager.getRep(player) < AbnormalitiesConfig.IT_REP_MIN.get()) continue;
+            if (overworld.random.nextInt(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get()) != 0) continue;
+            boolean alreadyHasIt = false;
+            for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
+                alreadyHasIt = true;
+                break;
+            }
+            if (alreadyHasIt) continue;
+
+            double angle = overworld.random.nextDouble() * Math.PI * 2;
+            double dist = 24.0D + overworld.random.nextDouble() * 16.0D;
+            double sx = player.getX() + Math.cos(angle) * dist;
+            double sz = player.getZ() + Math.sin(angle) * dist;
+            int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+            BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+            if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
+            if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
+
+            ItEntity it = ModEntities.IT.get().create(overworld);
+            if (it != null) {
+                it.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                overworld.addFreshEntity(it);
+            }
+        }
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
             if (overworld.random.nextInt(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get()) != 0) continue;

@@ -3,6 +3,7 @@
   "entity.abnormalities.nur": "nur",
   "entity.abnormalities.k3w": "k3w",
   "entity.abnormalities.xyz": "xYz",
+  "entity.abnormalities.it": "it",
   "entity.abnormalities.villager_nur.none": "Villager",
   "entity.abnormalities.villager_profession.none": "Villager",
   "commands.abnormalities.forcerandomevent": "Forces a random abnormalities event",
@@ -44,5 +45,11 @@
   "abnormalities.config.vr9p.switchMax": "vr9p switch max",
   "abnormalities.config.vr9p.damage": "vr9p damage",
   "abnormalities.config.vr9p.moveThreshold": "vr9p move threshold",
-  "abnormalities.config.vr9p.onPunish": "vr9p onPunish punish mode"
+  "abnormalities.config.vr9p.onPunish": "vr9p onPunish punish mode",
+  "abnormalities.config.it.enabled": "it enabled",
+  "abnormalities.config.it.spawnWeight": "it spawn weight",
+  "abnormalities.config.it.stareSeconds": "it stare seconds",
+  "abnormalities.config.it.stealCount": "it steal count",
+  "abnormalities.config.it.repMin": "it minimum rep",
+  "abnormalities.config.it.onStoleEverything": "it punish after emptying you"
 }

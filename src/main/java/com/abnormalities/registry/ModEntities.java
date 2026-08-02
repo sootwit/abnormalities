@@ -1,6 +1,9 @@
 package com.abnormalities.registry;
 
 import com.abnormalities.AbnormalitiesMod;
+import com.abnormalities.entity.ItEntity;
+import com.abnormalities.entity.ItModel;
+import com.abnormalities.entity.ItRenderer;
 import com.abnormalities.entity.K3wEntity;
 import com.abnormalities.entity.K3wRenderer;
 import com.abnormalities.entity.NurEntity;
@@ -36,20 +39,29 @@ public class ModEntities {
                     .clientTrackingRange(128)
                     .fireImmune()
                     .build("xyz"));
+    public static final RegistryObject<EntityType<ItEntity>> IT = ENTITIES.register("it", () ->
+            EntityType.Builder.of(ItEntity::new, MobCategory.MONSTER)
+                    .sized(2.0f, 5.5f)
+                    .clientTrackingRange(64)
+                    .fireImmune()
+                    .build("it"));
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(NUR.get(), NurEntity.createAttributes().build());
         event.put(K3W.get(), K3wEntity.createAttributes().build());
         event.put(XYZ.get(), XyzEntity.createAttributes().build());
+        event.put(IT.get(), ItEntity.createAttributes().build());
     }
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(NUR.get(), NurRenderer::new);
         event.registerEntityRenderer(K3W.get(), K3wRenderer::new);
         event.registerEntityRenderer(XYZ.get(), XyzRenderer::new);
+        event.registerEntityRenderer(IT.get(), ItRenderer::new);
     }
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(com.abnormalities.entity.K3wModel.LAYER_LOCATION, com.abnormalities.entity.K3wModel::createBodyLayer);
+        event.registerLayerDefinition(ItModel.LAYER_LOCATION, ItModel::createBodyLayer);
     }
 }
