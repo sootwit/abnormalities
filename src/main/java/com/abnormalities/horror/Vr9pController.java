@@ -83,9 +83,9 @@ public class Vr9pController {
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         if (overworld.getGameTime() % 20 != 0) return;
 
-        if (overworld.random.nextInt(AbnormalitiesConfig.VR9P_SPAWN_WEIGHT.get()) != 0) {
+        if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.VR9P_SPAWN_WEIGHT.get())) != 0) {
             if (AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.get()
-                    && overworld.random.nextInt(AbnormalitiesConfig.VR9P_STARGAZED_SPAWN_WEIGHT.get()) == 0) {
+                    && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.VR9P_STARGAZED_SPAWN_WEIGHT.get())) == 0) {
                 for (ServerPlayer sp : overworld.players()) {
                     if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
                     if (overworld.random.nextInt(2) != 0) continue;

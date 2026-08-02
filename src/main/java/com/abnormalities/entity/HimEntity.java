@@ -56,6 +56,8 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
     private java.util.UUID lastVictimHit = null;
     private int lastVictimHitTick = -999;
     private ServerBossEvent bossBar = null;
+    private boolean trackedActive = false;
+    private int ambienceTick = 0;
 
     public HimEntity(EntityType<? extends HimEntity> type, Level level) {
         super(type, level);
@@ -71,12 +73,16 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
     public void markBoss() {
         this.entityData.set(DATA_BOSS, true);
         if (!this.level().isClientSide) {
-            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(60.0D);
-            this.setHealth(60.0F);
+            this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(120.0D);
+            this.setHealth(120.0F);
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(8.0D);
             this.bossBar = new ServerBossEvent(Component.literal("Him"), net.minecraft.world.BossEvent.BossBarColor.WHITE, net.minecraft.world.BossEvent.BossBarOverlay.PROGRESS);
             this.bossBar.setCreateWorldFog(true);
             this.bossBar.setDarkenScreen(true);
+            if (!this.trackedActive) {
+                this.trackedActive = true;
+                HimTracker.incActiveBosses();
+            }
         }
     }
 
@@ -213,6 +219,18 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
                 }
             }
             this.bossBar.setProgress(this.getHealth() / this.getMaxHealth());
+            this.ambienceTick++;
+            if (this.ambienceTick >= 100) {
+                this.ambienceTick = 0;
+                var srv2 = this.level().getServer();
+                if (srv2 != null) {
+                    for (var p : new ArrayList<>(srv2.getPlayerList().getPlayers())) {
+                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.VR9P_AMBIENCE.get()),
+                            SoundSource.MASTER, this.getX(), this.getY(), this.getZ(), 3.0f, 1.0f, 0));
+                    }
+                }
+            }
         }
         LivingEntity tgt = this.getTarget();
         if (tgt instanceof ServerPlayer tv && !tv.isAlive() && !this.punished
@@ -318,6 +336,10 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
     @Override
     public void remove(Entity.RemovalReason reason) {
         this.removeBossBar();
+        if (this.trackedActive) {
+            this.trackedActive = false;
+            HimTracker.decActiveBosses();
+        }
         super.remove(reason);
     }
 

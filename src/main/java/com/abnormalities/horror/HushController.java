@@ -40,7 +40,7 @@ public class HushController {
         tickActive(overworld);
 
         if (overworld.getGameTime() % 80 != 0) return;
-        if (overworld.random.nextInt(AbnormalitiesConfig.HUSH_SPAWN_WEIGHT.get()) != 0) return;
+        if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.HUSH_SPAWN_WEIGHT.get())) != 0) return;
 
         for (ServerPlayer sp : overworld.players()) {
             UUID uuid = sp.getUUID();
