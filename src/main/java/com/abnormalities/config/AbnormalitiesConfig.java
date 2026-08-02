@@ -213,7 +213,7 @@ public class AbnormalitiesConfig {
         b.push("hush");
         HUSH_ENABLED = b.comment("enable hush events (mobs freeze and stare)").define("enabled", true);
         HUSH_SPAWN_WEIGHT = b.comment("higher = rarer hush events").defineInRange("spawnWeight", 400, 1, 10000);
-        HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 60, 20, 400);
+        HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 200, 20, 400);
         HUSH_RANGE = b.comment("how far mobs are affected (blocks)").defineInRange("range", 64, 16, 128);
         HUSH_COOLDOWN = b.comment("ticks between hush events (20 = 1s)").defineInRange("cooldown", 3600, 200, 72000);
         b.pop();
