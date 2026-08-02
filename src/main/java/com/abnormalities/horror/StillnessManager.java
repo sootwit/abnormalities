@@ -31,10 +31,10 @@ public class StillnessManager {
         if (!AbnormalitiesConfig.H01D_ENABLED.get()) return;
         long currentDay = overworld.getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
-        if (overworld.getGameTime() % 20 != 0) return;
 
         tickHolds(overworld);
 
+        if (overworld.getGameTime() % 20 != 0) return;
         for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (sp.isSleeping()) {
                 STILL_TICKS.remove(sp.getUUID());
