@@ -65,7 +65,7 @@ public class LureController {
             }
             s.nextMelodyAt--;
             if (s.nextMelodyAt <= 0) {
-                s.nextMelodyAt = 60;
+                s.nextMelodyAt = 38;
                 playMelody(overworld, s.soundPos);
             }
             double dist = player.distanceToSqr(s.soundPos.getX() + 0.5, s.soundPos.getY() + 0.5, s.soundPos.getZ() + 0.5);
@@ -108,7 +108,7 @@ public class LureController {
         SisterController.onLureWarning(player);
         LureState s = new LureState();
         double angle = level.random.nextDouble() * Math.PI * 2;
-        double dist = 40.0D + level.random.nextDouble() * 40.0D;
+        double dist = 26.0D + level.random.nextDouble() * 34.0D;
         int sx = player.blockPosition().getX() + (int) Math.round(Math.cos(angle) * dist);
         int sz = player.blockPosition().getZ() + (int) Math.round(Math.sin(angle) * dist);
         int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, sx, sz);
@@ -120,7 +120,7 @@ public class LureController {
 
     private static void relocate(ServerLevel level, LureState s, ServerPlayer player) {
         double angle = level.random.nextDouble() * Math.PI * 2;
-        double dist = 50.0D + level.random.nextDouble() * 30.0D;
+        double dist = 35.0D + level.random.nextDouble() * 20.0D;
         int sx = player.blockPosition().getX() + (int) Math.round(Math.cos(angle) * dist);
         int sz = player.blockPosition().getZ() + (int) Math.round(Math.sin(angle) * dist);
         int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, sx, sz);
@@ -129,10 +129,10 @@ public class LureController {
 
     private static void playMelody(ServerLevel level, BlockPos pos) {
         level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
-                SoundEvents.NOTE_BLOCK_BELL.get(), SoundSource.MASTER, 5.0f, 1.4f);
+                SoundEvents.NOTE_BLOCK_BELL.get(), SoundSource.MASTER, 12.0f, 1.4f);
         level.getServer().execute(() -> {
             level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
-                    SoundEvents.NOTE_BLOCK_BELL.get(), SoundSource.MASTER, 5.0f, 1.1f);
+                    SoundEvents.NOTE_BLOCK_BELL.get(), SoundSource.MASTER, 12.0f, 1.1f);
         });
     }
 
