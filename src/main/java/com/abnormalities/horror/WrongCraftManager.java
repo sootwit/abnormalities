@@ -1,5 +1,7 @@
 package com.abnormalities.horror;
 
+import java.util.*;
+
 import com.abnormalities.config.AbnormalitiesConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -15,10 +17,9 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.util.*;
-
 public class WrongCraftManager {
     private static final Map<UUID, Long> CURSED_UNTIL = new HashMap<>();
+    private static final Set<UUID> PENDING_CURSE = new HashSet<>();
     private static final List<String> WHISPERS = List.of(
             "why did you make me.",
             "you should not have.",
@@ -38,10 +39,10 @@ public class WrongCraftManager {
         if (player.level().getServer() == null) return;
         long currentDay = player.level().getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
-        if (player.level().random.nextInt(AbnormalitiesConfig.WR0NG_CHANCE.get()) != 0) return;
         ItemStack result = event.getCrafting();
         if (result.isEmpty()) return;
-        if (result.getCount() != 1) return;
+        boolean forced = PENDING_CURSE.remove(player.getUUID());
+        if (!forced && player.level().random.nextInt(AbnormalitiesConfig.WR0NG_CHANCE.get()) != 0) return;
         CompoundTag tag = result.getOrCreateTag();
         tag.putBoolean("abnormalities:cursed", true);
         result.setTag(tag);
@@ -97,15 +98,7 @@ public class WrongCraftManager {
     }
 
     public static void forceCurse(ServerPlayer player) {
-        var inv = player.getInventory();
-        for (int i = 0; i < inv.getContainerSize(); i++) {
-            ItemStack stack = inv.getItem(i);
-            if (stack.isEmpty()) continue;
-            CompoundTag tag = stack.getOrCreateTag();
-            tag.putBoolean("abnormalities:cursed", true);
-            stack.setTag(tag);
-            CURSED_UNTIL.put(player.getUUID(), player.level().getGameTime() + AbnormalitiesConfig.WR0NG_DURATION.get());
-            return;
-        }
+        PENDING_CURSE.add(player.getUUID());
+        CURSED_UNTIL.put(player.getUUID(), player.level().getGameTime() + AbnormalitiesConfig.WR0NG_DURATION.get());
     }
 }
