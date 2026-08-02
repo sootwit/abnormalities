@@ -93,8 +93,8 @@ public class ChatLockEvent extends AbstractHorrorEvent {
     private static void sendForgeError(ServerPlayer player) {
         String[][] pool = LOCK_TICKS.getOrDefault(player.getUUID(), 0) == 0 ? ENABLED_ERRORS : DISABLED_ERRORS;
         String[] entry = pool[RNG.nextInt(pool.length)];
-        Component text = Component.literal("'Forge Error'").withStyle(ChatFormatting.YELLOW)
-                .append(Component.literal(": " + entry[0] + " (" + entry[1] + ")"));
+        Component text = Component.literal("Forge Error").withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(": " + entry[0] + " (" + entry[1] + ")").withStyle(ChatFormatting.WHITE));
         player.connection.send(new ClientboundSystemChatPacket(text, false));
     }
 
