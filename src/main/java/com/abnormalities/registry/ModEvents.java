@@ -201,10 +201,7 @@ public class ModEvents {
                     NurEntity nur = ModEntities.NUR.get().create(task.level);
                     if (nur == null) continue;
                     nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
-                    var states = NurEntity.State.values();
-                    NurEntity.State picked;
-                    do { picked = states[task.level.random.nextInt(states.length)]; } while (picked == NurEntity.State.CHASING);
-                    nur.currentState = picked;
+                    nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
                     task.level.addFreshEntity(nur);
                     com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
                     task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
