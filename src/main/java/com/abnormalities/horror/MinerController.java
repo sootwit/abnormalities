@@ -73,7 +73,7 @@ public class MinerController {
             if (sp.isSleeping()) continue;
             if (sp.blockPosition().getY() > 0) continue;
             if (overworld.getMaxLocalRawBrightness(sp.blockPosition()) > 7) continue;
-            if (overworld.random.nextInt(AbnormalitiesConfig.M1NER_SPAWN_WEIGHT.get()) != 0) continue;
+            if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.M1NER_SPAWN_WEIGHT.get())) != 0) continue;
             startSession(sp, overworld);
         }
     }

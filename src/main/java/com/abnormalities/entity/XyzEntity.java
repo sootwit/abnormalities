@@ -181,6 +181,33 @@ public class XyzEntity extends Mob {
         return new java.util.ArrayList<>(found).get(level.random.nextInt(found.size()));
     }
 
+    public static int countNearbyBlocks(net.minecraft.server.level.ServerLevel level, double cx, double cz, net.minecraft.world.item.Item item) {
+        if (item == null || item == net.minecraft.world.item.Items.AIR) return 0;
+        int count = 0;
+        int bx = net.minecraft.util.Mth.floor(cx) >> 4;
+        int bz = net.minecraft.util.Mth.floor(cz) >> 4;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                int cx2 = (bx + dx) << 4;
+                int cz2 = (bz + dz) << 4;
+                for (int x = cx2; x < cx2 + 16; x++) {
+                    for (int z = cz2; z < cz2 + 16; z++) {
+                        int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
+                        for (int y = sy - 15; y <= sy + 5; y++) {
+                            if (y < level.getMinBuildHeight() || y > level.getMaxBuildHeight()) continue;
+                            net.minecraft.world.level.block.state.BlockState state = level.getBlockState(new net.minecraft.core.BlockPos(x, y, z));
+                            if (state.isAir()) continue;
+                            net.minecraft.world.item.Item bi = state.getBlock().asItem();
+                            if (bi == null || bi == net.minecraft.world.item.Items.AIR) continue;
+                            if (bi == item) count++;
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
     public XyzEntity(EntityType<? extends XyzEntity> type, Level level) {
         super(type, level);
         this.xpReward = 0;

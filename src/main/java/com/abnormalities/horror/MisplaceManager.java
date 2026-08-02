@@ -28,7 +28,7 @@ public class MisplaceManager {
         if (overworld.getGameTime() % 200 != 0) return;
 
         for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
-            if (overworld.random.nextInt(AbnormalitiesConfig.M1SL4Y_WEIGHT.get()) != 0) continue;
+            if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.M1SL4Y_WEIGHT.get())) != 0) continue;
             if (Vr9pController.isActive(sp.getUUID())) continue;
             if (sp.isSleeping()) continue;
             misplace(sp);

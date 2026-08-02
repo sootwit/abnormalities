@@ -4,6 +4,7 @@ import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.HimEntity;
+import com.abnormalities.entity.HimTracker;
 import com.abnormalities.entity.ItEntity;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.entity.skinwalker.*;
@@ -113,7 +114,9 @@ public class ModEvents {
     }
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
+    private static final Map<UUID, int[]> XYZ_CHUNKS = new HashMap<>();
     private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
+    private static final Map<String, Integer> XYZ_RELEASE_QUEUE = new HashMap<>();
     private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
@@ -232,7 +235,7 @@ public class ModEvents {
         if (time < 13000L && time > 2000L) {
             for (Player player : overworld.players()) {
                 if (player.tickCount % 40 != 0) continue;
-                if (overworld.random.nextInt(AbnormalitiesConfig.XYZ_SPAWN_WEIGHT.get()) != 0) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.XYZ_SPAWN_WEIGHT.get())) != 0) continue;
                 boolean alreadyHasXyz = false;
                 for (XyzEntity existing : overworld.getEntitiesOfClass(XyzEntity.class, player.getBoundingBox().inflate(256.0D))) {
                     if (existing.getTargetPlayer() == player && existing.isActive()) {
@@ -255,10 +258,15 @@ public class ModEvents {
                 if (xyz != null) {
                     xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
                     xyz.setTargetPlayer(player);
+                    int xc = ((int)Math.floor(sx)) >> 4;
+                    int zc = ((int)Math.floor(sz)) >> 4;
+                    overworld.setChunkForced(xc, zc, true);
+                    XYZ_CHUNKS.put(xyz.getUUID(), new int[]{xc, zc});
                     overworld.addFreshEntity(xyz);
 
                     net.minecraft.world.item.Item chosenItem = XyzEntity.pickNearbyItem(overworld, sx, sz);
                     int maxStack = chosenItem.getMaxStackSize();
+                    int envCount = XyzEntity.countNearbyBlocks(overworld, sx, sz, chosenItem);
                     int amount;
                     if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
                         amount = Math.min(maxStack, AbnormalitiesConfig.XYZ_STATIC_ITEM_COUNT.get());
@@ -266,6 +274,9 @@ public class ModEvents {
                         int min = Math.min(maxStack, AbnormalitiesConfig.XYZ_MIN_ITEMS.get());
                         int max = Math.min(maxStack, AbnormalitiesConfig.XYZ_MAX_ITEMS.get());
                         amount = max > min ? min + overworld.random.nextInt(max - min + 1) : min;
+                    }
+                    if (envCount > 0 && amount > envCount) {
+                        amount = Math.max(1, envCount);
                     }
                     int seconds;
                     if (AbnormalitiesConfig.XYZ_STATIC_WAIT.get()) {
@@ -303,7 +314,7 @@ public class ModEvents {
         if (time >= 2000L && time <= 23000L) {
         for (Player player : overworld.players()) {
             if (player.tickCount % 40 != 0) continue;
-            if (overworld.random.nextInt(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get()) != 0) continue;
+            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             double sx = player.getX() + Math.cos(angle) * dist;
@@ -344,10 +355,9 @@ public class ModEvents {
 
         if (time < 13000L || time > 23000L) return;
         for (Player player : overworld.players()) {
-            if (!AbnormalitiesConfig.IT_ENABLED.get()) break;
             if (player.tickCount % 60 != 0) continue;
             if (ReputationManager.getRep(player) < AbnormalitiesConfig.IT_REP_MIN.get()) continue;
-            if (overworld.random.nextInt(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get()) != 0) continue;
+            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get())) != 0) continue;
             boolean alreadyHasIt = false;
             for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
                 alreadyHasIt = true;
@@ -363,7 +373,7 @@ public class ModEvents {
             if (!AbnormalitiesConfig.HIM_ENABLED.get()) break;
             if (player.tickCount % 40 != 0) continue;
             if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
-            int rarity = AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250;
+            int rarity = HimTracker.weighted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250);
             if (overworld.random.nextInt(rarity) != 0) continue;
             boolean alreadyHasHim = false;
             for (HimEntity existing : overworld.getEntitiesOfClass(HimEntity.class, player.getBoundingBox().inflate(256.0D))) {
@@ -381,7 +391,7 @@ public class ModEvents {
         }
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
-            if (overworld.random.nextInt(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get()) != 0) continue;
+            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get())) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
@@ -399,6 +409,7 @@ public class ModEvents {
             if (player instanceof net.minecraft.server.level.ServerPlayer spt) com.abnormalities.horror.SisterController.onNurWarning(spt);
         }
         tickSkinwalkerChunks(overworld);
+        tickXyzChunks(overworld);
     }
 
     @SubscribeEvent
@@ -707,6 +718,44 @@ public class ModEvents {
         }
         SW_RELEASE_QUEUE.keySet().removeAll(active);
         Iterator<Map.Entry<String, Integer>> rit = SW_RELEASE_QUEUE.entrySet().iterator();
+        while (rit.hasNext()) {
+            Map.Entry<String, Integer> r = rit.next();
+            int t = r.getValue() - 1;
+            if (t <= 0) {
+                String[] parts = r.getKey().split(",");
+                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
+                rit.remove();
+            } else {
+                r.setValue(t);
+            }
+        }
+    }
+
+    private static void tickXyzChunks(ServerLevel level) {
+        Set<String> active = new HashSet<>();
+        Iterator<Map.Entry<UUID, int[]>> it = XYZ_CHUNKS.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, int[]> entry = it.next();
+            net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
+            if (e == null || !e.isAlive()) {
+                int[] p = entry.getValue();
+                XYZ_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                it.remove();
+                continue;
+            }
+            int cx = e.blockPosition().getX() >> 4;
+            int cz = e.blockPosition().getZ() >> 4;
+            String key = cx + "," + cz;
+            active.add(key);
+            if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
+                XYZ_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                entry.getValue()[0] = cx;
+                entry.getValue()[1] = cz;
+            }
+            level.setChunkForced(cx, cz, true);
+        }
+        XYZ_RELEASE_QUEUE.keySet().removeAll(active);
+        Iterator<Map.Entry<String, Integer>> rit = XYZ_RELEASE_QUEUE.entrySet().iterator();
         while (rit.hasNext()) {
             Map.Entry<String, Integer> r = rit.next();
             int t = r.getValue() - 1;

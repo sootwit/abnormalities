@@ -91,7 +91,7 @@ public class LureController {
         }
 
         if (overworld.getGameTime() % 80 != 0) return;
-        if (overworld.random.nextInt(AbnormalitiesConfig.LURE_SPAWN_WEIGHT.get()) != 0) return;
+        if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.LURE_SPAWN_WEIGHT.get())) != 0) return;
         for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID())) continue;
             if (!sp.level().equals(overworld)) continue;

@@ -19,6 +19,26 @@ import java.io.IOException;
 public class HimTracker {
     private static final String DATA_NAME = "abnormalities_him.nbt";
 
+    private static int activeBosses = 0;
+
+    public static void incActiveBosses() {
+        activeBosses++;
+    }
+
+    public static void decActiveBosses() {
+        if (activeBosses > 0) activeBosses--;
+    }
+
+    public static boolean isBossActive() {
+        return activeBosses > 0;
+    }
+
+    public static int weighted(int base) {
+        if (activeBosses <= 0) return base;
+        int halved = base / 2;
+        return halved < 1 ? 1 : halved;
+    }
+
     private static int totalKills = 0;
     private static int bossKills = 0;
     private static boolean pendingBoss = false;
