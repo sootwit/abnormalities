@@ -144,6 +144,9 @@ public class ModEvents {
 
     public static boolean forceItSpawn(ServerPlayer player) {
         ServerLevel overworld = (ServerLevel) player.level();
+        for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
+            return false;
+        }
         double angle = overworld.random.nextDouble() * Math.PI * 2;
         double dist = 24.0D + overworld.random.nextDouble() * 16.0D;
         double sx = player.getX() + Math.cos(angle) * dist;
