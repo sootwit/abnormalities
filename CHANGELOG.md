@@ -1,3 +1,13 @@
+# 0.0.8
+
+## new psychological systems (inspired by the horror big leagues)
+- fake chat: random creepy system messages ("null", "null.err", "I am right behind you.") every 30 min to a random player
+- fake join/leave: fake players ("null", "void", "spectator") appear to join/leave the server every 20 min
+- insanity meter: builds at night, in darkness, or underground, fades indoors during the day, whispers escalate as it climbs, actionbar display above 300
+- chat arg: say the wrong thing and something replies in reversed text, insult it and it gets angry for 30 min (hostile replies + cave sounds), apologise and it might forgive
+- bed memory: it remembers every room you sleep in, sleep in the same place twice and it starts whispering, three times and a nur comes to visit
+- 0.0.8 version bump
+
 # 0.0.7
 
 ## # YOU CAN CONFIG ENTITIES' BEHAVIOURS WITH EITHER THE COMMAND /abnorm_config OR WITH A CONFIG MOD!
