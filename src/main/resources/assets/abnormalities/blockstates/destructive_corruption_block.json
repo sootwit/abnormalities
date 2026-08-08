@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "abnormalities:block/destructive_corruption_block" }
+  }
+}

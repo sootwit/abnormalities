@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "abnormalities:block/destructive_corruption_block"
+  }
+}
