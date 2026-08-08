@@ -141,5 +141,15 @@
                 "stream": true
             }
         ]
+    },
+    "pillaralarm": {
+        "category": "master",
+        "range": 128,
+        "sounds": [
+            {
+                "name": "abnormalities:pillaralarm",
+                "stream": true
+            }
+        ]
     }
 }

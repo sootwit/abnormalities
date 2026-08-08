@@ -52,5 +52,9 @@
   "abnormalities.config.it.stareSeconds": "it stare seconds",
   "abnormalities.config.it.stealCount": "it steal count",
   "abnormalities.config.it.repMin": "it minimum rep",
-  "abnormalities.config.it.onStoleEverything": "it punish after emptying you"
+  "abnormalities.config.it.onStoleEverything": "it punish after emptying you",
+  "block.abnormalities.corruption_block": "Corruption",
+  "block.abnormalities.destructive_corruption_block": "Destructive Corruption",
+  "block.abnormalities.wind_pillar_block": "Wind Pillar",
+  "death.attack.wind_pillars": "%s.DEATH.THE_WIND_PILLARS"
 }

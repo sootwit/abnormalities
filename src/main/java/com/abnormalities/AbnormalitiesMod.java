@@ -9,6 +9,8 @@ import com.abnormalities.network.Vr9pPacket;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
 import com.abnormalities.registry.ModSounds;
+import com.abnormalities.registry.ModBlocks;
+import com.abnormalities.registry.ModBlockEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -35,6 +37,8 @@ public class AbnormalitiesMod {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AbnormalitiesConfig.SPEC, "abnormalities.toml");
         ModEntities.ENTITIES.register(modBus);
         ModSounds.SOUNDS.register(modBus);
+        ModBlocks.BLOCKS.register(modBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         modBus.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(ModEvents.class);
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
@@ -72,6 +76,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(ChatArgManager.class);
         MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.entity.HimTracker.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindController.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
