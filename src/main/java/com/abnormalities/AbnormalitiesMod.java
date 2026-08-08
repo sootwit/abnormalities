@@ -77,6 +77,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.entity.HimTracker.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindController.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindMimicryManager.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
         HorrorEventPool.register(new DontOpenYourEyesEvent());
