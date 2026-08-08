@@ -93,6 +93,24 @@ public class InsanityMeter {
         }
     }
 
+    public static void forceSpike(ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        INSANITY.put(uuid, 900.0);
+        NEXT_WHISPER.put(uuid, 0L);
+        NEXT_DISPLAY.put(uuid, 0L);
+        WhisperManager.sendWhisper(player, pickWhisper(900));
+        player.displayClientMessage(Component.literal("insanity: 900").withStyle(ChatFormatting.GOLD), true);
+        save(true);
+    }
+
+    public static void forceReset(ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        INSANITY.put(uuid, START_INSANITY);
+        NEXT_WHISPER.remove(uuid);
+        NEXT_DISPLAY.remove(uuid);
+        save(true);
+    }
+
     private static String pickWhisper(int val) {
         if (val >= 900) return WHISPERS.get(RNG.nextInt(WHISPERS.size()));
         if (val >= 750) return WHISPERS.get(RNG.nextInt(3));

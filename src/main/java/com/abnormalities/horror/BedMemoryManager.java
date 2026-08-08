@@ -167,6 +167,13 @@ public class BedMemoryManager {
         save(true);
     }
 
+    public static void forceHunt(ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        BlockPos bed = findBed(player);
+        HUNTS.put(uuid, new HuntState(bed));
+        WhisperManager.sendWhisper(player, "it knows this room.");
+    }
+
     private static BlockPos findBed(ServerPlayer sp) {
         BlockPos sleeping = sp.getSleepingPos().orElse(null);
         if (sleeping != null) return sleeping;

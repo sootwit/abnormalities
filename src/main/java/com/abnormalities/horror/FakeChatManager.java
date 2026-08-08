@@ -82,6 +82,17 @@ public class FakeChatManager {
         }
     }
 
+    public static void forceChat(ServerPlayer player) {
+        if (player.connection == null) return;
+        sendSystem(player, MESSAGES.get(RNG.nextInt(MESSAGES.size())));
+    }
+
+    public static void forceJoinLeave() {
+        var srv = ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        sendFakeJoinLeave(srv);
+    }
+
     private static void sendSystem(ServerPlayer player, String text) {
         if (player.connection == null) return;
         player.connection.send(new ClientboundSystemChatPacket(Component.literal(text), false));
