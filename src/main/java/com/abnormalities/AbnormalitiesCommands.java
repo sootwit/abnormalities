@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "1ns4n1ty", "c4lm", "ang3r", "b3d", "0th3r");
     private static final Random RNG = new Random();
 
     private static List<String> allEvents() {
@@ -146,6 +146,12 @@ public class AbnormalitiesCommands {
             case "tOXIC" -> com.abnormalities.horror.ToxicController.forceStart(player);
             case "g0n3" -> com.abnormalities.horror.GoneController.forceSteal(player);
             case "fakeAch" -> com.abnormalities.horror.FakeAchievementManager.give(player);
+            case "f4k3" -> com.abnormalities.horror.FakeChatManager.forceChat(player);
+            case "f4k3join" -> com.abnormalities.horror.FakeChatManager.forceJoinLeave();
+            case "1ns4n1ty" -> com.abnormalities.horror.InsanityMeter.forceSpike(player);
+            case "c4lm" -> com.abnormalities.horror.InsanityMeter.forceReset(player);
+            case "ang3r" -> com.abnormalities.horror.ChatArgManager.forceAnger(player);
+            case "b3d" -> com.abnormalities.horror.BedMemoryManager.forceHunt(player);
             case "chatDisabled" -> com.abnormalities.horror.ChatLockEvent.forceDisabled(player);
             case "chatEnabled" -> com.abnormalities.horror.ChatLockEvent.forceEnabled(player);
             default -> {

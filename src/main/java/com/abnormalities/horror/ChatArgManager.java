@@ -97,6 +97,10 @@ public class ChatArgManager {
         if (angryPlayer != null && angryPlayer.equals(player.getUUID())) clearAnger();
     }
 
+    public static void forceAnger(ServerPlayer player) {
+        triggerAnger(player);
+    }
+
     private static boolean matchesInsult(String msg, String insult) {
         return msg.matches(".*\\b" + Pattern.quote(insult) + "\\b.*");
     }
