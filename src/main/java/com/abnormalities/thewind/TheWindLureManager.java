@@ -23,10 +23,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class TheWindLureManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Lure");
     private static final int LURE_X = 100000;
     private static final int LURE_Z = 100000;
     private static final Map<UUID, LureState> ACTIVE_LURES = new HashMap<>();
@@ -85,6 +88,7 @@ public class TheWindLureManager {
 
         LureState state = new LureState(player.blockPosition(), duration);
         ACTIVE_LURES.put(player.getUUID(), state);
+        LOGGER.info("[THE_WIND|Lure] Lure triggered for {} (duration={}s)", player.getName().getString(), duration);
 
         int sx = LURE_X + level.random.nextInt(50) * 16;
         int sz = LURE_Z + level.random.nextInt(50) * 16;
@@ -94,6 +98,7 @@ public class TheWindLureManager {
         buildRoom(level, center, 5, 5, 5, state);
         state.roomCenter = center;
         state.roomsGenerated = 1;
+        LOGGER.info("[THE_WIND|Lure] Initial room generated at {}", center);
 
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
         level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 20, () -> {
@@ -170,6 +175,7 @@ public class TheWindLureManager {
         placeLanterns(level, newCenter, halfW, halfD, height);
         state.roomsGenerated++;
         state.roomCenter = newCenter;
+        LOGGER.info("[THE_WIND|Lure] Room #{} generated at {} (doorways={})", state.roomsGenerated, newCenter, state.doorways.size());
 
         if (level.random.nextInt(5) == 0) {
             spawnAbnormality(level, newCenter);
@@ -214,6 +220,7 @@ public class TheWindLureManager {
         player.teleportTo(level, state.returnPos.getX() + 0.5, state.returnPos.getY() + 1, state.returnPos.getZ() + 0.5, player.getYRot(), player.getXRot());
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
         int elapsed = (AbnormalitiesConfig.TW_LURE_MAX_DURATION.get() * 20 - state.remainingTicks) / 20;
+        LOGGER.info("[THE_WIND|Lure] Returning {} after {}s (rooms generated: {})", player.getName().getString(), elapsed, state.roomsGenerated);
         player.displayClientMessage(Component.literal("you were gone for " + elapsed + " seconds. the chest was never there.").withStyle(ChatFormatting.DARK_GRAY), false);
     }
 

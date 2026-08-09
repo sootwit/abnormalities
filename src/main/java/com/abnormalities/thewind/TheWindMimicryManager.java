@@ -8,10 +8,13 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class TheWindMimicryManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Mimicry");
     private static long lastChat = 0;
     private static long lastMimic = 0;
     private static final java.util.Random RNG = new java.util.Random();
@@ -685,12 +688,15 @@ public class TheWindMimicryManager {
             List<String> friends = getEssentialFriendNames();
             if (!friends.isEmpty()) {
                 sourceName = friends.get(RNG.nextInt(friends.size()));
+                LOGGER.info("[THE_WIND|Mimicry] Using Essential friend name: {}", sourceName);
             } else {
                 sourceName = FAKE_PLAYER_NAMES.get(RNG.nextInt(FAKE_PLAYER_NAMES.size()));
+                LOGGER.info("[THE_WIND|Mimicry] No Essential friends, using fake name: {}", sourceName);
             }
         } else {
             ServerPlayer source = players.get(RNG.nextInt(players.size()));
             sourceName = source.getName().getString();
+            LOGGER.info("[THE_WIND|Mimicry] Using real player name: {}", sourceName);
         }
 
         String sourceLang = "en_us";
@@ -705,6 +711,7 @@ public class TheWindMimicryManager {
 
             String message = pool.get(RNG.nextInt(pool.size()));
         String formatted = "<" + sourceName + "> " + message;
+        LOGGER.info("[THE_WIND|Mimicry] Chat message: {} (pool={}, lureChance={})", formatted, roll < lureChance ? "lure" : "ambient", lureChance);
 
         for (ServerPlayer target : players) {
             String targetLang = getPlayerLanguage(target);
@@ -730,6 +737,7 @@ public class TheWindMimicryManager {
 
         boolean isSister = RNG.nextInt(100) < AbnormalitiesConfig.TW_MIMICRY_SISTER_CHANCE.get();
         boolean isLumi = !isSister && RNG.nextInt(100) < AbnormalitiesConfig.TW_MIMICRY_LUMI_CHANCE.get();
+        LOGGER.info("[THE_WIND|Mimicry] Whisper: sister={}%, lumi={}%, result={}", AbnormalitiesConfig.TW_MIMICRY_SISTER_CHANCE.get(), AbnormalitiesConfig.TW_MIMICRY_LUMI_CHANCE.get(), isSister ? "Sister" : isLumi ? "Lumi" : "none");
 
         String sender;
         String advice;

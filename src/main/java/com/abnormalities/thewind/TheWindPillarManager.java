@@ -18,10 +18,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class TheWindPillarManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Pillar");
     private static final List<Block> HOUSE_BLOCKS = List.of(
             Blocks.OAK_PLANKS, Blocks.SPRUCE_PLANKS, Blocks.BIRCH_PLANKS, Blocks.JUNGLE_PLANKS,
             Blocks.ACACIA_PLANKS, Blocks.DARK_OAK_PLANKS, Blocks.MANGROVE_PLANKS, Blocks.CHERRY_PLANKS,
@@ -127,7 +130,7 @@ public class TheWindPillarManager {
             }
         }
 
-        checkPlayerCollision(level, p.target, p.width, p.depth, p.halfW, p.halfD, p.currentY);
+                LOGGER.debug("[THE_WIND|Pillar] Layer Y={} processed ({} blocks)", p.currentY, p.width * p.depth);
 
         if (hitIndestructible) {
             collapseRemaining(p);
@@ -195,6 +198,7 @@ public class TheWindPillarManager {
         }
 
         ACTIVE_PILLARS.add(new ActivePillar(level, target, width, depth, startY, endY, speed));
+        LOGGER.info("[THE_WIND|Pillar] Spawned pillar at {} ({}x{}, {} layers, speed={}t/layer)", target, width, depth, startY - endY, speed);
     }
 
     private static void checkPlayerCollision(ServerLevel level, BlockPos target, int width, int depth, int halfW, int halfD, int y) {
