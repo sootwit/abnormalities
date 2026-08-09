@@ -668,7 +668,8 @@ public class TheWindMimicryManager {
         if (srv == null) return;
         long now = srv.getTickCount();
 
-        if (now - lastChat >= 6000 && RNG.nextInt(200) == 0) {
+        int chatChance = AbnormalitiesConfig.TW_MIMICRY_CHAT_CHANCE.get();
+        if (now - lastChat >= 6000 && RNG.nextInt(Math.max(1, 100 / Math.max(1, chatChance))) == 0) {
             lastChat = now;
             triggerLanguageChat(srv);
         }

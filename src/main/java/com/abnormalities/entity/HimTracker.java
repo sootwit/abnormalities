@@ -98,10 +98,11 @@ public class HimTracker {
         CompoundTag tag = new CompoundTag();
         tag.putInt("total", totalKills);
         tag.putInt("boss", bossKills);
+        tag.putBoolean("pending", pendingBoss);
         try {
             dataFile.getParentFile().mkdirs();
             NbtIo.write(tag, dataFile);
-            LOGGER.debug("[HimTracker] saved total={} boss={}", totalKills, bossKills);
+            LOGGER.debug("[HimTracker] saved total={} boss={} pending={}", totalKills, bossKills, pendingBoss);
         } catch (IOException ignored) {}
     }
 
@@ -112,7 +113,8 @@ public class HimTracker {
             if (tag == null) return;
             totalKills = tag.getInt("total");
             bossKills = tag.getInt("boss");
-            LOGGER.info("[HimTracker] loaded total={} boss={}", totalKills, bossKills);
+            pendingBoss = tag.getBoolean("pending");
+            LOGGER.info("[HimTracker] loaded total={} boss={} pending={}", totalKills, bossKills, pendingBoss);
         } catch (IOException ignored) {}
     }
 

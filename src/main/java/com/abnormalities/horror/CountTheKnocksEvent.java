@@ -197,5 +197,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         TICKS.remove(uuid);
         KNOX.remove(uuid);
         START_POS.remove(uuid);
+        player.removeEffect(net.minecraft.world.effect.MobEffects.BLINDNESS);
+        player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
     }
 }

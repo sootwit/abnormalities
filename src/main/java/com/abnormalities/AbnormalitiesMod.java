@@ -110,5 +110,8 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(5, com.abnormalities.network.FakeAchievementPacket.class,
                 com.abnormalities.network.FakeAchievementPacket::encode, com.abnormalities.network.FakeAchievementPacket::decode,
                 com.abnormalities.network.FakeAchievementPacket::handle);
+        CHANNEL.registerMessage(6, com.abnormalities.network.TheWindShakePacket.class,
+                com.abnormalities.network.TheWindShakePacket::encode, com.abnormalities.network.TheWindShakePacket::decode,
+                com.abnormalities.network.TheWindShakePacket::handle);
     }
 }
