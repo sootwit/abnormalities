@@ -114,7 +114,6 @@ public class TheWindPillarManager {
                         dumpContainer(level, pos, container);
                     }
                 }
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                 level.setBlock(pos, ModBlocks.WIND_PILLAR_BLOCK.get().defaultBlockState(), 3);
                 if (AbnormalitiesConfig.TW_PILLARS_BREAK_SOUNDS.get() && !state.isAir()) {
                     level.playSound(null, pos, state.getSoundType().getBreakSound(), SoundSource.BLOCKS, 0.3f, 0.5f);
@@ -131,6 +130,8 @@ public class TheWindPillarManager {
         }
 
                 LOGGER.debug("[THE_WIND|Pillar] Layer Y={} processed ({} blocks)", p.currentY, p.width * p.depth);
+
+                checkPlayerCollision(level, p.target, p.width, p.depth, p.halfW, p.halfD, p.currentY);
 
         if (hitIndestructible) {
             collapseRemaining(p);
@@ -187,7 +188,7 @@ public class TheWindPillarManager {
         int endY = Math.max(target.getY() - length, level.getMinBuildHeight());
         int speed = AbnormalitiesConfig.TW_PILLARS_SPEED.get();
 
-        level.playSound(null, target.getX(), startY, target.getZ(),
+        level.playSound(null, target.getX(), target.getY() + 5, target.getZ(),
                 ModSounds.PILLAR_ALARM.get(), SoundSource.AMBIENT, 8.0f, 0.5f);
 
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
