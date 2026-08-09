@@ -17,11 +17,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LureController {
     private static final Map<UUID, LureState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
-    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("1ull");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Lure");
 
     private static class LureState {
         BlockPos soundPos;
@@ -71,6 +73,7 @@ public class LureController {
             double dist = player.distanceToSqr(s.soundPos.getX() + 0.5, s.soundPos.getY() + 0.5, s.soundPos.getZ() + 0.5);
             if (!s.hunting && dist < 144.0D) {
                 s.approaches++;
+                LOGGER.debug("[Lure] {} approach #{}, dist={:.1f}", player.getName().getString(), s.approaches, Math.sqrt(dist));
                 if (s.approaches >= 3) {
                     s.hunting = true;
                     s.soundPos = new BlockPos(player.blockPosition());
@@ -137,6 +140,7 @@ public class LureController {
     }
 
     private static void punish(ServerPlayer player) {
+        LOGGER.info("[Lure] {} punished", player.getName().getString());
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.NUR_SOUND.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 10.0f, 1.0f, 0));

@@ -12,8 +12,11 @@ import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CircleManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Circle");
     private static final Random RNG = new Random();
 
     @SubscribeEvent
@@ -35,6 +38,7 @@ public class CircleManager {
         }
         int radius = 4 + RNG.nextInt(3);
         int count = radius * 6;
+        LOGGER.info("[Circle] ring generated at ({},{},{}) radius={} count={}", center.getX(), center.getY(), center.getZ(), radius, count);
         for (int i = 0; i < count; i++) {
             double angle = (Math.PI * 2 * i) / count;
             int x = center.getX() + (int) Math.round(Math.cos(angle) * radius);

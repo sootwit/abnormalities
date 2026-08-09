@@ -11,8 +11,11 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TheTallyEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheTally");
     private static final Map<UUID, Integer> TALLY = new HashMap<>();
     private static final Map<UUID, String> TARGET_ACTION = new HashMap<>();
     private static final Map<UUID, Double> LAST_Y = new HashMap<>();
@@ -31,6 +34,7 @@ public class TheTallyEvent extends AbstractHorrorEvent {
         TARGET_ACTION.put(player.getUUID(), action);
         TALLY.put(player.getUUID(), 0);
         LAST_Y.put(player.getUUID(), player.getY());
+        LOGGER.info("[TheTally] {} triggered, tracking action={}", player.getName().getString(), action);
         WhisperManager.sendWhisper(player, "...");
     }
 
@@ -61,6 +65,7 @@ public class TheTallyEvent extends AbstractHorrorEvent {
         }
 
         if (count >= 50) {
+            LOGGER.info("[TheTally] {} tally complete (action={}, count=50), spawning nur", player.getName().getString(), action);
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, false, false, false));
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 3, false, false, false));
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),

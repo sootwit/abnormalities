@@ -8,9 +8,13 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class NurHorrorCycle {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|NurHorrorCycle");
     private static final Map<UUID, Set<UUID>> playerNurs = new HashMap<>();
     private static final Map<UUID, Long> chaseStart = new HashMap<>();
     private static final Map<UUID, Long> originalDayTime = new HashMap<>();
@@ -65,6 +69,7 @@ public class NurHorrorCycle {
             originalDayTime.put(playerId, overworld.getDayTime());
             chaseStart.put(playerId, overworld.getGameTime());
             playerNurs.put(playerId, new HashSet<>());
+            LOGGER.info("[NurHorrorCycle] time acceleration started for player {}", playerId);
         }
         playerNurs.get(playerId).add(nurId);
     }
@@ -77,6 +82,7 @@ public class NurHorrorCycle {
             playerNurs.remove(playerId);
             chaseStart.remove(playerId);
             Long orig = originalDayTime.remove(playerId);
+            LOGGER.info("[NurHorrorCycle] time acceleration stopped for player {}", playerId);
             ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
             if (overworld == null) return;
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(playerId);

@@ -14,11 +14,15 @@ import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class ReputationManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ReputationManager");
     private static final int MIN = 0;
     private static final int MAX = 2500;
     private static final int NEUTRAL = 1250;
@@ -37,7 +41,9 @@ public class ReputationManager {
 
     public static void setRep(Player player, int value) {
         int clamped = Math.max(MIN, Math.min(MAX, value));
+        int old = getRep(player);
         REP.put(player.getUUID(), clamped);
+        LOGGER.info("[ReputationManager] setRep {} {} -> {} ({})", player.getName().getString(), old, clamped, getTierLabel(clamped));
         save();
     }
 
@@ -48,6 +54,7 @@ public class ReputationManager {
         int actualDelta = clamped - current;
         if (actualDelta == 0) return;
         REP.put(player.getUUID(), clamped);
+        LOGGER.debug("[ReputationManager] addRep {} {} -> {} (delta {})", player.getName().getString(), current, clamped, actualDelta);
         save();
     }
 
@@ -92,6 +99,7 @@ public class ReputationManager {
         try {
             dataFile.getParentFile().mkdirs();
             NbtIo.write(tag, dataFile);
+            LOGGER.debug("[ReputationManager] saved {} entries", REP.size());
         } catch (IOException ignored) {}
     }
 
@@ -106,6 +114,7 @@ public class ReputationManager {
                 CompoundTag t = list.getCompound(i);
                 REP.put(t.getUUID("u"), t.getInt("v"));
             }
+            LOGGER.info("[ReputationManager] loaded {} entries", REP.size());
         } catch (IOException ignored) {}
     }
 
@@ -117,6 +126,7 @@ public class ReputationManager {
         dataFile = sl.getServer().getWorldPath(LevelResource.ROOT).resolve("data/abnormalities_rep.nbt").toFile();
         load();
         loaded = true;
+        LOGGER.info("[ReputationManager] world loaded, data file: {}", dataFile);
     }
 
     @SubscribeEvent
@@ -131,6 +141,7 @@ public class ReputationManager {
         if (!(event.getLevel() instanceof ServerLevel sl)) return;
         if (sl.dimension() != Level.OVERWORLD) return;
         if (dataFile != null) save();
+        LOGGER.info("[ReputationManager] world unloaded, clearing {} entries", REP.size());
         loaded = false;
         REP.clear();
         dataFile = null;

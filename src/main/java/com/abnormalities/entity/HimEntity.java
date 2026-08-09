@@ -42,8 +42,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HimEntity extends PathfinderMob implements RangedAttackMob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Him");
     private static final EntityDataAccessor<Float> DATA_COLLAPSE = SynchedEntityData.defineId(HimEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_BOSS = SynchedEntityData.defineId(HimEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -72,6 +75,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
 
     public void markBoss() {
         this.entityData.set(DATA_BOSS, true);
+        LOGGER.info("[Him] boss mode activated");
         if (!this.level().isClientSide) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(120.0D);
             this.setHealth(120.0F);
@@ -165,6 +169,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
         LivingEntity target = this.getTarget();
         if (!(target instanceof ServerPlayer sp)) return;
         int roll = this.random.nextInt(5);
+        LOGGER.info("[Him] boss call roll={}", roll);
         switch (roll) {
             case 0 -> com.abnormalities.registry.ModEvents.forceNurSpawn(sp);
             case 1 -> com.abnormalities.registry.ModEvents.forceItSpawn(sp);
@@ -182,6 +187,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
 
     private void punish(ServerPlayer target) {
         if (target.connection == null) return;
+        LOGGER.info("[Him] punishing {}", target.getName().getString());
         var mode = AbnormalitiesConfig.HIM_PUNISH.get();
         if (mode == AbnormalitiesConfig.PunishMode.CRASH) {
             com.abnormalities.AbnormalitiesMod.CHANNEL.send(
@@ -254,6 +260,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
             this.setNoAi(true);
             float p = this.entityData.get(DATA_COLLAPSE) + 0.05F;
             if (p >= 1.0F) {
+                LOGGER.info("[Him] collapse complete, broadcasting line and discarding");
                 if (!this.lineSent) {
                     this.lineSent = true;
                     this.broadcastLine();
@@ -299,6 +306,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
             BlockState above = this.level().getBlockState(pos.above());
             BlockState below = this.level().getBlockState(pos);
             if (above.isAir() && below.canOcclude()) {
+                LOGGER.debug("[Him] tower action: placing cobble at {}", pos);
                 this.jumpFromGround();
                 this.level().setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
                 this.moveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
@@ -319,6 +327,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
                         if (this.level().getBlockState(chk).canOcclude()) {
                             BlockPos placeAt = chk.above();
                             if (this.level().getBlockState(placeAt).isAir()) {
+                                LOGGER.debug("[Him] bridge action: placing cobble at {}", placeAt);
                                 this.level().setBlockAndUpdate(placeAt, Blocks.COBBLESTONE.defaultBlockState());
                                 bridgeCooldown = isBoss() ? 8 : 14;
                             }
@@ -341,6 +350,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
 
     @Override
     public void remove(Entity.RemovalReason reason) {
+        LOGGER.info("[Him] removed, reason={}", reason);
         this.removeBossBar();
         if (this.trackedActive) {
             this.trackedActive = false;
@@ -351,6 +361,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
 
     public void beginCollapse() {
         if (this.entityData.get(DATA_COLLAPSE) > 0.0F) return;
+        LOGGER.info("[Him] beginCollapse");
         this.entityData.set(DATA_COLLAPSE, 0.01F);
     }
 
@@ -363,6 +374,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
 @Override
     public void die(DamageSource source) {
         if (this.entityData.get(DATA_COLLAPSE) > 0.0F) return;
+        LOGGER.info("[Him] die() called, boss={} source={}", isBoss(), source.getEntity() != null ? source.getEntity().getName().getString() : "null");
         if (!this.level().isClientSide) {
             if (isBoss()) {
                 HimTracker.bossKilled(source.getEntity() instanceof ServerPlayer sp ? sp : null);

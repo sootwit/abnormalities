@@ -19,8 +19,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChatArgManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ChatArg");
     private static final Random RNG = new Random();
     private static final int ANGER_DURATION = 36000;
     private static final int HOSTILE_EXTRA_INTERVAL = 600;
@@ -66,7 +69,9 @@ public class ChatArgManager {
             }
         }
         if (REPLIES.containsKey(msg)) {
-            sendReply(player, serverTick() < angryUntil ? hostileReply() : REPLIES.get(msg));
+            String reply = serverTick() < angryUntil ? hostileReply() : REPLIES.get(msg);
+            LOGGER.debug("[ChatArg] {} said '{}', reply: {}", player.getName().getString(), msg, reply);
+            sendReply(player, reply);
         }
     }
 
@@ -109,6 +114,7 @@ public class ChatArgManager {
         angryUntil = serverTick() + ANGER_DURATION;
         angryPlayer = player.getUUID();
         nextExtra = serverTick() + HOSTILE_EXTRA_INTERVAL;
+        LOGGER.info("[ChatArg] {} anger triggered for {}t", player.getName().getString(), ANGER_DURATION);
         sendReply(player, ANGRY_REPLY);
         playCaveSound(player);
     }

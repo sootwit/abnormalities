@@ -18,8 +18,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MinerController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Miner");
     private static final Map<UUID, MinerSession> SESSIONS = new HashMap<>();
 
     private static class MinerSession {
@@ -98,6 +101,7 @@ public class MinerController {
             if (Math.abs(dx) > Math.abs(dz)) s.heading = dx > 0 ? Direction.WEST : Direction.EAST;
             else s.heading = dz > 0 ? Direction.NORTH : Direction.SOUTH;
             SESSIONS.put(player.getUUID(), s);
+            LOGGER.info("[Miner] {} session started, heading={}, start=({},{},{})", player.getName().getString(), s.heading, s.start.getX(), s.start.getY(), s.start.getZ());
             return;
         }
     }
@@ -117,7 +121,10 @@ public class MinerController {
 
     private static boolean digStep(MinerSession s) {
         BlockPos next = s.head.relative(s.heading);
-        if (s.blocksMined >= AbnormalitiesConfig.M1NER_MAX_TUNNEL.get()) return false;
+        if (s.blocksMined >= AbnormalitiesConfig.M1NER_MAX_TUNNEL.get()) {
+            LOGGER.debug("[Miner] max tunnel length reached ({} blocks)", s.blocksMined);
+            return false;
+        }
         if (!s.level.getBlockState(next).isAir()) {
             if (s.level.getBlockState(next).is(Blocks.BEDROCK)) return false;
             if (s.level.getBlockEntity(next) != null) return false;
@@ -152,7 +159,9 @@ public class MinerController {
     }
 
     private static void finishSession(MinerSession s, UUID uuid) {
+        LOGGER.debug("[Miner] session finished for {}, blocksMined={}", uuid, s.blocksMined);
         if (s.level.random.nextInt(100) < AbnormalitiesConfig.M1NER_DUMMY_CHANCE.get()) {
+            LOGGER.debug("[Miner] dummy nur spawned at ({},{},{})", s.head.getX(), s.head.getY(), s.head.getZ());
             ServerPlayer player = s.level.getServer().getPlayerList().getPlayer(uuid);
             if (player != null) {
                 var nur = com.abnormalities.registry.ModEntities.NUR.get().create(s.level);

@@ -1,6 +1,8 @@
 package com.abnormalities.horror;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.abnormalities.config.AbnormalitiesConfig;
 import net.minecraft.ChatFormatting;
@@ -18,6 +20,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public class WrongCraftManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|WrongCraft");
     private static final Map<UUID, Long> CURSED_UNTIL = new HashMap<>();
     private static final Set<UUID> PENDING_CURSE = new HashSet<>();
     private static final List<String> WHISPERS = List.of(
@@ -46,6 +49,7 @@ public class WrongCraftManager {
         CompoundTag tag = result.getOrCreateTag();
         tag.putBoolean("abnormalities:cursed", true);
         result.setTag(tag);
+        LOGGER.info("[WrongCraft] {} cursed item crafted: {}", sp.getName().getString(), result.getDisplayName().getString());
         var lore = result.getOrCreateTagElement("display").getList("Lore", 8);
         lore.add(net.minecraft.nbt.StringTag.valueOf(Component.Serializer.toJson(
                 Component.literal(WHISPERS.get(player.level().random.nextInt(WHISPERS.size()))).withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC))));
@@ -88,6 +92,7 @@ public class WrongCraftManager {
                 ItemStack stack = sp.getInventory().getItem(i);
                 if (stack.getTag() != null && stack.getTag().getBoolean("abnormalities:cursed")) {
                     if (overworld.random.nextInt(30) == 0) {
+                        LOGGER.debug("[WrongCraft] {} whisper from cursed item", sp.getName().getString());
                         sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                             net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.WHISPER_SOUND.get()),
                             net.minecraft.sounds.SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 0.7f, 0));

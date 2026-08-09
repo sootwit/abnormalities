@@ -27,8 +27,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class V1s1tManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|V1s1t");
     private static final Map<UUID, V1s1tData> DATA = new HashMap<>();
     private static final Random RNG = new Random();
     private static final List<Block> FLOWERS = List.of(
@@ -73,6 +76,7 @@ public class V1s1tManager {
             int interval = Math.max(1, AbnormalitiesConfig.V1S1T_VISIT_DAYS.get());
             if (currentDay - d.lastVisitDay < interval) continue;
             performVisit(sp, overworld, d);
+            LOGGER.info("[V1s1t] {} visit #{}, stage={}", sp.getName().getString(), d.totalVisits + 1, Math.min(3, (d.totalVisits + 1) / AbnormalitiesConfig.V1S1T_STAGE_UP.get()));
             d.totalVisits++;
             d.lastVisitDay = currentDay;
             int newStage = Math.min(3, d.totalVisits / AbnormalitiesConfig.V1S1T_STAGE_UP.get());
@@ -94,6 +98,7 @@ public class V1s1tManager {
             case 2 -> doStage2(player, level, anchor, hostile);
             case 3 -> doStage3(player, level, anchor, hostile);
         }
+        LOGGER.debug("[V1s1t] visit complete for {}, stage={}", player.getName().getString(), d.stage);
     }
 
     private static void doStage0(ServerPlayer player, ServerLevel level, BlockPos anchor, boolean hostile) {

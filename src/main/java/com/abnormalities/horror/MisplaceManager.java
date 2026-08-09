@@ -11,8 +11,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MisplaceManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Misplace");
     private static final Random RNG = new Random();
 
     @SubscribeEvent
@@ -46,12 +49,15 @@ public class MisplaceManager {
             ItemStack sb = inv.getItem(b);
             inv.setItem(a, sb);
             inv.setItem(b, sa);
+            LOGGER.info("[Misplace] {} swapped slots {} ({}) and {} ({})", player.getName().getString(), a, sa.getDescriptionId(), b, sb.getDescriptionId());
         } else {
             int slot = 1 + RNG.nextInt(35);
             ItemStack stack = inv.getItem(slot);
             if (!stack.isEmpty() && stack.getCount() > 1) {
+                int before = stack.getCount();
                 stack.shrink(1 + RNG.nextInt(Math.min(2, stack.getCount() - 1)));
                 inv.setItem(slot, stack);
+                LOGGER.info("[Misplace] {} shrunk slot {} from {} to {}", player.getName().getString(), slot, before, stack.getCount());
             }
         }
     }

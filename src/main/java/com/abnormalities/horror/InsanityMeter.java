@@ -22,8 +22,11 @@ import net.minecraftforge.fml.LogicalSide;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InsanityMeter {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|InsanityMeter");
     private static final double START_INSANITY = 100.0;
     private static final double RISE_NIGHT = 0.04;
     private static final double RISE_DARK = 0.04;
@@ -71,6 +74,7 @@ public class InsanityMeter {
         if (delta != 0) {
             raw = Math.max(MIN, Math.min(MAX, raw + delta));
             INSANITY.put(uuid, raw);
+            LOGGER.debug("[InsanityMeter] {} insanity={:.1f} delta={:.2f}", sp.getName().getString(), raw, delta);
         }
         int val = (int) raw;
         long now = sp.server.getTickCount();
@@ -98,6 +102,7 @@ public class InsanityMeter {
         INSANITY.put(uuid, 900.0);
         NEXT_WHISPER.put(uuid, 0L);
         NEXT_DISPLAY.put(uuid, 0L);
+        LOGGER.info("[InsanityMeter] {} force spike to 900", player.getName().getString());
         WhisperManager.sendWhisper(player, pickWhisper(900));
         player.displayClientMessage(Component.literal("insanity: 900").withStyle(ChatFormatting.GOLD), true);
         save(true);

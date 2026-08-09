@@ -19,8 +19,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GoneController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Gone");
     private static final Map<UUID, Long> LAST_EXTINGUISH = new HashMap<>();
     private static final Map<UUID, Long> LAST_ITEM_STEAL = new HashMap<>();
 
@@ -87,6 +90,7 @@ public class GoneController {
             if (dot < 0.1) picks.add(p.immutable());
         });
         if (picks.isEmpty()) return false;
+        LOGGER.info("[Gone] {} extinguishing {} lights", player.getName().getString(), picks.size());
         for (BlockPos pick : picks) {
             BlockState state = level.getBlockState(pick);
             if (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) {
@@ -107,6 +111,7 @@ public class GoneController {
             if (stack.isEmpty() || !isLightItem(stack)) continue;
             stack.shrink(1);
             inv.setItem(i, stack);
+            LOGGER.debug("[Gone] {} stole light item from slot {}", player.getName().getString(), i);
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                 net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.WHISPER_SOUND.get()),
                 SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 1.5f, 0.6f, 0));

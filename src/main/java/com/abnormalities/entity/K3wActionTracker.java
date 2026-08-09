@@ -22,9 +22,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class K3wActionTracker {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|K3wActionTracker");
     private static final int CHAT_DELAY = 600;
     private static final int FORCED_SPAWN_DELAY = 300;
     private static final int SPAWN_DISTANCE = 64;
@@ -123,6 +127,7 @@ public class K3wActionTracker {
         FORCED_SPAWNS.put(uuid, true);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
+        LOGGER.info("[K3wActionTracker] forced spawn for {}", player.getName().getString());
         if (player instanceof ServerPlayer) {
             var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
@@ -143,6 +148,7 @@ public class K3wActionTracker {
         double[][] arr = buf.toArray(new double[0][]);
         int target = Math.max(0, arr.length - followTicks);
         double[] pt = arr[target];
+        LOGGER.debug("[K3wActionTracker] delayed position for {} buffer={}", player.getName().getString(), buf.size());
         return new double[]{pt[0], pt[1], pt[2], pt[5]};
     }
 
@@ -164,6 +170,7 @@ public class K3wActionTracker {
         MESSAGES_SENT.put(uuid, false);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
+        LOGGER.info("[K3wActionTracker] spawn sequence started for {}", player.getName().getString());
     }
 
     private static boolean spawnClone(Player player) {
@@ -200,6 +207,7 @@ public class K3wActionTracker {
         ACTION_LOGS.put(uuid, new ArrayList<>());
         POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
         SPAWN_COOLDOWNS.put(uuid, POST_SPAWN_COOLDOWN);
+        LOGGER.info("[K3wActionTracker] clone spawned for {} at {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 5.0f, 0.3f);
@@ -218,6 +226,7 @@ public class K3wActionTracker {
 
         List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
         log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.BREAK, pos.getX(), pos.getY(), pos.getZ(), state));
+        LOGGER.debug("[K3wActionTracker] recorded break at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
 
         List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         for (K3wEntity clone : clones) {
@@ -239,6 +248,7 @@ public class K3wActionTracker {
 
         List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
         log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.PLACE, pos.getX(), pos.getY(), pos.getZ(), state));
+        LOGGER.debug("[K3wActionTracker] recorded place at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
 
         List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         for (K3wEntity clone : clones) {
@@ -264,6 +274,7 @@ public class K3wActionTracker {
 
         List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
         log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.KILL, dead.getX(), dead.getY(), dead.getZ(), type));
+        LOGGER.debug("[K3wActionTracker] recorded kill {} at {} {} {} for {}", type.getDescriptionId(), (int)dead.getX(), (int)dead.getY(), (int)dead.getZ(), player.getName().getString());
 
         List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         for (K3wEntity clone : clones) {
@@ -274,6 +285,7 @@ public class K3wActionTracker {
     }
 
     private static void cleanup(UUID uuid) {
+        LOGGER.debug("[K3wActionTracker] cleanup for {}", uuid);
         ACTIVE_CLONES.remove(uuid);
         SPAWN_TIMERS.remove(uuid);
         MESSAGES_SENT.remove(uuid);

@@ -23,8 +23,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|It");
     private static final EntityDataAccessor<Boolean> DATA_FROZEN = SynchedEntityData.defineId(ItEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_SWING = SynchedEntityData.defineId(ItEntity.class, EntityDataSerializers.FLOAT);
 
@@ -97,6 +100,7 @@ public class ItEntity extends Mob {
         if (target == null || target.isRemoved() || !target.isAlive()) {
             target = level().getNearestPlayer(this, 64.0D);
             if (target == null) {
+                LOGGER.debug("[It] no target found, discarding if old enough");
                 this.entityData.set(DATA_FROZEN, false);
                 if (tickCount > 200) discard();
                 return;
@@ -126,7 +130,9 @@ public class ItEntity extends Mob {
             lookAwayTicks = 0;
             if (dist <= 5.5D) {
                 stareTicks++;
+                LOGGER.debug("[It] stare progress: {}/{} ticks", stareTicks, stareTargetTicks());
                 if (stareTicks >= stareTargetTicks()) {
+                    LOGGER.info("[It] win stare! player {} stared it down", target.getName().getString());
                     winStare();
                     return;
                 }
@@ -188,6 +194,7 @@ public class ItEntity extends Mob {
     private void stealFrom(Player victim, boolean wasLooking) {
         if (victim == null || level().isClientSide) return;
         int n = wasLooking ? AbnormalitiesConfig.IT_STEAL_COUNT.get() * 2 : AbnormalitiesConfig.IT_STEAL_COUNT.get();
+        LOGGER.info("[It] stealing from {} (wasLooking={}, n={})", victim.getName().getString(), wasLooking, n);
         int took = 0;
         for (int i = 0; i < n; i++) {
             if (takeRandomItem(victim)) took++;
@@ -205,6 +212,7 @@ public class ItEntity extends Mob {
         }
         lookAwayTicks = 0;
         if (steals >= 3) {
+            LOGGER.info("[It] 3 steals reached, punishing {}", victim.getName().getString());
             if (victim instanceof ServerPlayer sp && !level().isClientSide) {
                 var mode = AbnormalitiesConfig.IT_PUNISH.get();
                 if (mode == AbnormalitiesConfig.PunishMode.KICK) {

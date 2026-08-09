@@ -15,8 +15,11 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CountTheKnocksEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|CountTheKnocks");
     private static final Map<UUID, Integer> TARGET = new HashMap<>();
     private static final Map<UUID, Integer> STATE = new HashMap<>();
     private static final Map<UUID, Integer> TICKS = new HashMap<>();
@@ -48,6 +51,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         TICKS.put(uuid, 0);
         KNOX.put(uuid, 0);
         START_POS.put(uuid, player.position());
+        LOGGER.info("[CountTheKnocks] {} triggered, target={} knocks", player.getName().getString(), target);
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 99999, 0, false, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 254, false, false, false));
         WhisperManager.sendWhisper(player, "count the knocks...");
@@ -64,6 +68,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         if (state == S_KNOCKING) {
             Vec3 startPos = START_POS.get(uuid);
             if (startPos != null && player.position().distanceTo(startPos) > 3.0D) {
+                LOGGER.info("[CountTheKnocks] {} moved, triggering wrong", player.getName().getString());
                 STATE.put(uuid, S_DONE);
                 WhisperManager.sendWhisper(player, "...you moved. never mind.");
                 cleanup(player);
@@ -137,6 +142,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
 
         int target = TARGET.getOrDefault(uuid, 0);
         if (guess == target) {
+            LOGGER.info("[CountTheKnocks] {} answered correctly ({})", player.getName().getString(), guess);
             STATE.put(uuid, S_DONE);
             player.removeEffect(MobEffects.BLINDNESS);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);

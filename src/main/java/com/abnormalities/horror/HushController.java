@@ -13,8 +13,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HushController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Hush");
     private static final Map<UUID, HushState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
     private static final Map<UUID, List<Integer>> FROZEN_MOBS = new HashMap<>();
@@ -70,6 +73,7 @@ public class HushController {
             frozenIds.add(mob.getId());
         }
         FROZEN_MOBS.put(uuid, frozenIds);
+        LOGGER.info("[Hush] {} triggered, froze {} mobs, duration={}t", player.getName().getString(), frozenIds.size(), dur);
     }
 
     private static void tickActive(ServerLevel level) {

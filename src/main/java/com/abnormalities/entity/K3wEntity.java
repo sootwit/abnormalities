@@ -27,8 +27,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class K3wEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|K3w");
     private static final int CHAT_DELAY = 600;
     private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.BOOLEAN);
@@ -115,6 +118,7 @@ public class K3wEntity extends Mob {
         if (player != null && this.targetPlayer != null && player.getUUID().equals(this.targetPlayer.getUUID())) {
             return;
         }
+        LOGGER.info("[K3w] target set to {} (was {})", player != null ? player.getName().getString() : "null", this.targetPlayer != null ? this.targetPlayer.getName().getString() : "null");
         this.targetPlayer = player;
         if (player != null) {
             UUID uuid = player.getUUID();
@@ -201,9 +205,11 @@ public class K3wEntity extends Mob {
                     BlockPos p = bp.offset(dx, dy, dz);
                     BlockState s = level().getBlockState(p);
                     if (s.getBlock() instanceof DoorBlock door) {
+                        LOGGER.debug("[K3w] opening door at {}", p);
                         door.setOpen(this, level(), s, p, true);
                     } else if (s.getBlock() instanceof TrapDoorBlock) {
                         if (!s.getValue(TrapDoorBlock.OPEN)) {
+                            LOGGER.debug("[K3w] opening trapdoor at {}", p);
                             level().setBlock(p, s.setValue(TrapDoorBlock.OPEN, true), 2);
                         }
                     }
@@ -254,10 +260,12 @@ public class K3wEntity extends Mob {
             crashTimer++;
             if (targetPlayer instanceof ServerPlayer sp2) {
                 if (crashTimer == 10) {
+                    LOGGER.info("[K3w] crash sequence: nur sound playing");
                     level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                             ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
                 }
                 if (crashTimer >= 16) {
+                    LOGGER.info("[K3w] crash sequence complete: punishing {}", targetPlayer.getName().getString());
                     K3wEntity.this.discard();
                     if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
                         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
@@ -278,6 +286,7 @@ public class K3wEntity extends Mob {
 
         double dist = this.distanceTo(targetPlayer);
         if (dist < 2.0D && hitCooldown <= 0 && !isCrashing() && targetPlayer.isAlive()) {
+            LOGGER.info("[K3w] caught player {} at distance {}", targetPlayer.getName().getString(), String.format("%.1f", dist));
             targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 10.0F);
             hitCooldown = 20;
 
@@ -314,6 +323,7 @@ public class K3wEntity extends Mob {
         if (currentPathIndex >= pathPoints.size()) {
             target = K3wActionTracker.getDelayedPosition(targetPlayer);
             if (target == null) return;
+            LOGGER.debug("[K3w] path complete, following delayed position");
             this.setPos(target[0], target[1], target[2]);
             this.setNoGravity(true);
             this.noPhysics = true;
@@ -352,6 +362,7 @@ public class K3wEntity extends Mob {
 
     private void executeUndo(K3wAction action) {
         BlockPos pos = new BlockPos(action.x, action.y, action.z);
+        LOGGER.info("[K3w] undoing {} at ({}, {}, {})", action.type, action.x, action.y, action.z);
         switch (action.type) {
             case BREAK -> {
                 if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
@@ -399,6 +410,7 @@ public class K3wEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
+        LOGGER.info("[K3w] removed, reason={}", reason);
         super.remove(reason);
         if (level() != null && !level().isClientSide && targetPlayer != null) {
             level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),

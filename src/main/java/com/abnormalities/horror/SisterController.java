@@ -16,8 +16,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SisterController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Sister");
     private static final List<String> NUR_WARNINGS = List.of(
             "The shy one is coming. He always comes.",
             "He's shy. That's why he watches you from the dark.",
@@ -473,7 +476,9 @@ public class SisterController {
 
     public static void warn(ServerPlayer target, List<String> pool) {
         if (!joined || target == null) return;
-        PENDING.add(new Warning(target, pick(pool)));
+        String msg = pick(pool);
+        LOGGER.debug("[Sister] warning to {}: {}", target.getName().getString(), msg);
+        PENDING.add(new Warning(target, msg));
     }
 
     public static void warnNow(ServerPlayer target, List<String> pool) {
@@ -570,6 +575,7 @@ public class SisterController {
         joined = true;
         everJoined = true;
         joinedDay = level.getDayTime() / 24000L;
+        LOGGER.info("[Sister] joined the game on day {}", joinedDay);
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             addFake(p);
             if (p.connection != null) {
@@ -604,6 +610,7 @@ public class SisterController {
 
     private static void leave(ServerLevel level) {
         String msg = pick(FAREWELLS);
+        LOGGER.info("[Sister] leaving: {}", msg);
         for (var p : level.getServer().getPlayerList().getPlayers()) {
             if (p.connection != null) {
                 p.connection.send(new ClientboundSystemChatPacket(

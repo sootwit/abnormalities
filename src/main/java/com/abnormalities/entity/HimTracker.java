@@ -13,20 +13,26 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 
 public class HimTracker {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|HimTracker");
     private static final String DATA_NAME = "abnormalities_him.nbt";
 
     private static int activeBosses = 0;
 
     public static void incActiveBosses() {
         activeBosses++;
+        LOGGER.info("[HimTracker] boss active count: {}", activeBosses);
     }
 
     public static void decActiveBosses() {
         if (activeBosses > 0) activeBosses--;
+        LOGGER.info("[HimTracker] boss active count: {}", activeBosses);
     }
 
     public static boolean isBossActive() {
@@ -59,8 +65,10 @@ public class HimTracker {
 
     public static void himKilled(ServerPlayer killer) {
         totalKills++;
+        LOGGER.info("[HimTracker] him killed by {}, total kills: {}", killer.getName().getString(), totalKills);
         if (totalKills % 10 == 0) {
             pendingBoss = true;
+            LOGGER.info("[HimTracker] pending boss flag set (every 10 kills)");
         }
         save();
     }
@@ -69,6 +77,7 @@ public class HimTracker {
         totalKills++;
         bossKills++;
         pendingBoss = false;
+        LOGGER.info("[HimTracker] boss killed by {}, boss kills: {}", killer.getName().getString(), bossKills);
         save();
     }
 
@@ -79,6 +88,7 @@ public class HimTracker {
     public static boolean takePendingBoss() {
         if (!pendingBoss) return false;
         pendingBoss = false;
+        LOGGER.info("[HimTracker] pending boss consumed");
         save();
         return true;
     }
@@ -91,6 +101,7 @@ public class HimTracker {
         try {
             dataFile.getParentFile().mkdirs();
             NbtIo.write(tag, dataFile);
+            LOGGER.debug("[HimTracker] saved total={} boss={}", totalKills, bossKills);
         } catch (IOException ignored) {}
     }
 
@@ -101,6 +112,7 @@ public class HimTracker {
             if (tag == null) return;
             totalKills = tag.getInt("total");
             bossKills = tag.getInt("boss");
+            LOGGER.info("[HimTracker] loaded total={} boss={}", totalKills, bossKills);
         } catch (IOException ignored) {}
     }
 

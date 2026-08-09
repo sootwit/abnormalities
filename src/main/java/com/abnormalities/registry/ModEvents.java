@@ -41,6 +41,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ModEvents {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Events");
     private static final String[] PRE_SPAWN_TEXTS = {"PRAY.", "HOPE.", "LIFE.", "SOUL."};
     private static final List<SpawnTask> PENDING_SPAWNS = new ArrayList<>();
     private static final Set<Block> SEE_THROUGH = Set.of(
@@ -124,8 +127,10 @@ public class ModEvents {
     }
 
     public static void forceNurSpawn(ServerPlayer player) {
+        LOGGER.info("[Events] forceNurSpawn for {}", player.getName().getString());
         ServerLevel level = (ServerLevel) player.level();
         String text = PRE_SPAWN_TEXTS[level.random.nextInt(PRE_SPAWN_TEXTS.length)];
+        LOGGER.debug("[Events] pre-spawn text: {}", text);
         var srv = level.getServer();
         if (srv != null) {
             var players = new java.util.ArrayList<>(srv.getPlayerList().getPlayers());
@@ -143,8 +148,10 @@ public class ModEvents {
     }
 
     public static boolean forceItSpawn(ServerPlayer player) {
+        LOGGER.info("[Events] forceItSpawn for {}", player.getName().getString());
         ServerLevel overworld = (ServerLevel) player.level();
         for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
+            LOGGER.debug("[Events] forceItSpawn blocked: existing ItEntity nearby");
             return false;
         }
         double angle = overworld.random.nextDouble() * Math.PI * 2;
@@ -153,17 +160,18 @@ public class ModEvents {
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
         BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) return false;
-        if (!overworld.getBlockState(spawnPos).canBeReplaced()) return false;
+        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.debug("[Events] forceItSpawn failed: no ground below"); return false; }
+        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.debug("[Events] forceItSpawn failed: spawn pos blocked"); return false; }
 
         ItEntity it = ModEntities.IT.get().create(overworld);
-        if (it == null) return false;
+        if (it == null) { LOGGER.debug("[Events] forceItSpawn failed: entity create returned null"); return false; }
         it.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(it);
         return true;
     }
 
     public static boolean forceHimSpawn(ServerPlayer player, boolean boss) {
+        LOGGER.info("[Events] forceHimSpawn for {} boss={}", player.getName().getString(), boss);
         ServerLevel overworld = (ServerLevel) player.level();
         double angle = overworld.random.nextDouble() * Math.PI * 2;
         double dist = 12.0D + overworld.random.nextDouble() * 14.0D;
@@ -171,11 +179,11 @@ public class ModEvents {
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
         BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) return false;
-        if (!overworld.getBlockState(spawnPos).canBeReplaced()) return false;
+        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.debug("[Events] forceHimSpawn failed: no ground below"); return false; }
+        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.debug("[Events] forceHimSpawn failed: spawn pos blocked"); return false; }
 
         HimEntity him = ModEntities.HIM.get().create(overworld);
-        if (him == null) return false;
+        if (him == null) { LOGGER.debug("[Events] forceHimSpawn failed: entity create returned null"); return false; }
         if (boss) him.markBoss();
         him.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(him);
@@ -197,7 +205,7 @@ public class ModEvents {
                 if (task.ticksRemaining <= 0) {
                     it.remove();
                     Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
-                    if (target == null) continue;
+                    if (target == null) { LOGGER.debug("[Events] pending nur spawn: target offline, skipping"); continue; }
                     double sx = target.getX() + Math.cos(task.angle) * task.dist;
                     double sz = target.getZ() + Math.sin(task.angle) * task.dist;
                     int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
@@ -205,6 +213,7 @@ public class ModEvents {
                     if (nur == null) continue;
                     nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
                     nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
+                    LOGGER.info("[Events] nur spawned for {} at ({}, {}, {}) state={}", target.getName().getString(), (int)sx, sy, (int)sz, nur.currentState);
                     task.level.addFreshEntity(nur);
                     com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
                     task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
@@ -220,6 +229,7 @@ public class ModEvents {
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
                 nur.moveTo(task.x, task.y, task.z, 0, 0);
+                LOGGER.info("[Events] skinwalker nur spawned at ({}, {}, {})", (int)task.x, (int)task.y, (int)task.z);
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
                 if (target != null) {
                     nur.startChasing(target);
@@ -245,6 +255,7 @@ public class ModEvents {
                 }
                 if (alreadyHasXyz) continue;
 
+                LOGGER.debug("[Events] xyz spawn weight roll passed for {}", player.getName().getString());
                 double angle = overworld.random.nextDouble() * Math.PI * 2;
                 double dist = 45.0D + overworld.random.nextDouble() * 35.0D;
                 double sx = player.getX() + Math.cos(angle) * dist;
@@ -253,6 +264,8 @@ public class ModEvents {
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
                 if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
+
+                LOGGER.debug("[Events] xyz spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
 
                 XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
                 if (xyz != null) {
@@ -287,6 +300,7 @@ public class ModEvents {
                         seconds = min + (max > min ? overworld.random.nextInt(max - min + 1) : 0);
                     }
                     xyz.startRequest(amount, chosenItem, seconds);
+                    LOGGER.info("[Events] xyz spawned for {} requesting {}x {} in {}s", player.getName().getString(), amount, chosenItem, seconds);
 
                     String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
                     String msg;
@@ -327,9 +341,10 @@ public class ModEvents {
             if (disguise == null) continue;
             var nearby = overworld.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
                     e -> e.getPersistentData().getBoolean("abnormalities:skinwalker"));
-            if (nearby.size() >= 3) continue;
+            if (nearby.size() >= 3) { LOGGER.debug("[Events] skinwalker spawn blocked: {} nearby (max 3)", nearby.size()); continue; }
             Entity raw = disguise.create(overworld);
             if (raw instanceof Mob skinwalker) {
+                LOGGER.info("[Events] skinwalker spawned as {} for {} at ({}, {}, {})", disguise, player.getName().getString(), (int)sx, sy, (int)sz);
                 skinwalker.setPersistenceRequired();
                 skinwalker.getPersistentData().putBoolean("abnormalities:skinwalker", true);
                 skinwalker.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(skinwalker));
@@ -358,6 +373,7 @@ public class ModEvents {
             if (player.tickCount % 60 != 0) continue;
             if (ReputationManager.getRep(player) < AbnormalitiesConfig.IT_REP_MIN.get()) continue;
             if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get())) != 0) continue;
+            LOGGER.debug("[Events] it spawn weight roll passed for {}", player.getName().getString());
             boolean alreadyHasIt = false;
             for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
                 alreadyHasIt = true;
@@ -375,6 +391,7 @@ public class ModEvents {
             if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
             int rarity = HimTracker.weighted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250);
             if (overworld.random.nextInt(rarity) != 0) continue;
+            LOGGER.debug("[Events] him spawn weight roll passed for {} rarity={}", player.getName().getString(), rarity);
             boolean alreadyHasHim = false;
             for (HimEntity existing : overworld.getEntitiesOfClass(HimEntity.class, player.getBoundingBox().inflate(256.0D))) {
                 alreadyHasHim = true;
@@ -392,6 +409,7 @@ public class ModEvents {
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
             if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get())) != 0) continue;
+            LOGGER.debug("[Events] nur spawn weight roll passed for {}", player.getName().getString());
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             String text = PRE_SPAWN_TEXTS[overworld.random.nextInt(PRE_SPAWN_TEXTS.length)];
@@ -425,6 +443,7 @@ public class ModEvents {
             if (nur.currentState == NurEntity.State.DUMMY || nur.currentState == NurEntity.State.STALKING_DUMMY) continue;
             if (nur.currentTarget != null) continue;
             if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
+                LOGGER.info("[Events] player {} triggered nur chase by looking at it", player.getName().getString());
                 nur.startChasing(player);
                 return;
             }
@@ -554,6 +573,7 @@ public class ModEvents {
             if (!(event.getSource().getEntity() instanceof NurEntity nur)) return;
             if (player.level().isClientSide) return;
             if (!(player instanceof ServerPlayer sp)) return;
+            LOGGER.info("[Events] player {} killed by nur, punish mode checking", player.getName().getString());
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 0.5F);
             nur.discard();
@@ -572,6 +592,7 @@ public class ModEvents {
         if (!event.getEntity().getPersistentData().getBoolean("abnormalities:skinwalker")) return;
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (event.getEntity().level().random.nextInt(100) >= AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) return;
+        LOGGER.info("[Events] skinwalker killed by {}, scheduling nur spawn", player.getName().getString());
         scheduleSkinwalkerSpawn(40, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),
                 (ServerLevel) event.getEntity().level(), player.getUUID());
     }
@@ -585,6 +606,7 @@ public class ModEvents {
         ItemStack held = player.getItemInHand(event.getHand());
         if (target instanceof Animal animal && animal.isFood(held)) {
             target.getPersistentData().remove("abnormalities:skinwalker");
+            LOGGER.info("[Events] skinwalker cured by {} (food)", player.getName().getString());
             ReputationManager.addRep(player, 15);
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -592,6 +614,7 @@ public class ModEvents {
         }
         if (target instanceof AbstractVillager && held.is(Items.BREAD)) {
             target.getPersistentData().remove("abnormalities:skinwalker");
+            LOGGER.info("[Events] skinwalker cured by {} (bread)", player.getName().getString());
             ReputationManager.addRep(player, 15);
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -604,6 +627,7 @@ public class ModEvents {
     public static void onTradeWithVillager(TradeWithVillagerEvent event) {
         AbstractVillager villager = event.getAbstractVillager();
         if (!villager.getPersistentData().getBoolean("abnormalities:skinwalker")) return;
+        LOGGER.info("[Events] skinwalker cured by {} (trade)", event.getEntity().getName().getString());
         villager.getPersistentData().remove("abnormalities:skinwalker");
         ReputationManager.addRep(event.getEntity(), 15);
         event.getEntity().level().playSound(null, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),

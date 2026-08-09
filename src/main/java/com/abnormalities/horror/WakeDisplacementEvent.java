@@ -12,10 +12,11 @@ import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.Random;
-
-import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WakeDisplacementEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|WakeDisplacement");
     private static final Random RNG = new Random();
 
     @SubscribeEvent
@@ -62,6 +63,8 @@ public class WakeDisplacementEvent {
         int targetY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, targetX, targetZ);
         if (targetY < level.getMinBuildHeight() + 1) return;
         BlockPos tp = new BlockPos(targetX, targetY + 1, targetZ);
+        double distSqr = bedPos.distSqr(tp);
+        LOGGER.info("[WakeDisplacement] {} displaced {:.1f} blocks from bed", sp.getName().getString(), Math.sqrt(distSqr));
         sp.teleportTo(level, tp.getX() + 0.5, tp.getY(), tp.getZ() + 0.5, sp.getYRot(), sp.getXRot());
     }
 }

@@ -6,10 +6,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Random;
 
 public class WhisperManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|WhisperManager");
     private static final Random RNG = new Random();
 
     private static final List<String> FRAGMENTS = List.of(
@@ -40,6 +44,7 @@ public class WhisperManager {
 
     public static void sendWhisper(ServerPlayer player, String text) {
         if (player.connection == null) return;
+        LOGGER.debug("[WhisperManager] whisper to {}: {}", player.getName().getString(), text);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
             Component.literal(text).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), false));
         playWhisperSfx(player);
@@ -64,6 +69,7 @@ public class WhisperManager {
 
     public static void sendPositionedSound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, double x, double y, double z, float vol, float pitch) {
         if (player.connection == null) return;
+        LOGGER.debug("[WhisperManager] positioned sound to {} at {} {} {} vol={} pitch={}", player.getName().getString(), x, y, z, vol, pitch);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(sound), SoundSource.MASTER, x, y, z, vol, pitch, 0));
     }
@@ -96,6 +102,7 @@ public class WhisperManager {
     }
 
     public static void whisperSequence(ServerPlayer player, int rep, int count, int interval) {
+        LOGGER.info("[WhisperManager] starting sequence for {} count={} interval={} rep={}", player.getName().getString(), count, interval, rep);
         player.server.tell(new net.minecraft.server.TickTask(
             player.server.getTickCount() + interval,
             () -> {

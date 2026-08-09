@@ -25,8 +25,11 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BedMemoryManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|BedMemory");
     private static final int MAX_MEMORY = 8;
     private static final int HUNT_DURATION = 600;
     private static final int HUNT_RADIUS = 16;
@@ -82,10 +85,12 @@ public class BedMemoryManager {
         if (repeat) {
             int count = reps.merge(matched, 1, Integer::sum);
             HUNTS.remove(uuid);
+            LOGGER.info("[BedMemory] {} repeat sleep at ({},{},{}) count={}", sp.getName().getString(), matched.getX(), matched.getY(), matched.getZ(), count);
             WhisperManager.sendWhisper(sp, "you should not sleep in the same place twice.");
             sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             if (count >= REPEAT_NUR_THRESHOLD) {
+                LOGGER.info("[BedMemory] {} repeat threshold reached, spawning nur", sp.getName().getString());
                 save();
                 ModEvents.forceNurSpawn(sp);
                 return;
