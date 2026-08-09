@@ -6,18 +6,16 @@ import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,9 +40,12 @@ public class TheWindLureManager {
     private static final BlockState CEIL = Blocks.SMOOTH_STONE.defaultBlockState();
     private static final BlockState LIGHT = Blocks.SEA_LANTERN.defaultBlockState();
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
-    private static final BlockState PRESSURE_PLATE = Blocks.STONE_PRESSURE_PLATE.defaultBlockState();
+    private static final BlockState PLATE = Blocks.STONE_PRESSURE_PLATE.defaultBlockState();
     private static final BlockState CARPET = Blocks.PURPLE_CARPET.defaultBlockState();
-    private static final BlockState FENCE = Blocks.SMOOTH_STONE_SLAB.defaultBlockState();
+    private static final BlockState DOOR_LOWER = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
+    private static final BlockState DOOR_UPPER = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
+    private static final BlockState IRON_DOOR_LOWER = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
+    private static final BlockState IRON_DOOR_UPPER = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
 
     private static class LureState {
         BlockPos returnPos;
@@ -56,6 +57,7 @@ public class TheWindLureManager {
         boolean teleported = false;
         List<BlockPos> doorways = new ArrayList<>();
         Set<Long> generatedChunks = new HashSet<>();
+        Map<BlockPos, Boolean> doorStates = new HashMap<>();
 
         LureState(BlockPos returnPos, int duration) {
             this.returnPos = returnPos;
@@ -77,7 +79,6 @@ public class TheWindLureManager {
             ServerPlayer player = srv.getPlayerList().getPlayer(entry.getKey());
             LureState state = entry.getValue();
             if (player == null || !player.isAlive()) { it.remove(); continue; }
-
             if (!state.teleported) continue;
 
             state.remainingTicks--;
@@ -121,7 +122,6 @@ public class TheWindLureManager {
         LureState state = new LureState(player.blockPosition(), duration);
         state.chestPos = chestPos;
         ACTIVE_LURES.put(player.getUUID(), state);
-
         LOGGER.info("[THE_WIND|Lure] Lure chest placed for {} at {} (duration={}s)", player.getName().getString(), chestPos, duration);
     }
 
@@ -137,7 +137,7 @@ public class TheWindLureManager {
         int sy = 1;
 
         BlockPos center = new BlockPos(sx, sy, sz);
-        generateRoom(level, center, 0, state);
+        buildEntryRoom(level, center, state);
         state.roomCenter = center;
 
         for (int cx = (sx >> 4) - 2; cx <= (sx >> 4) + 2; cx++) {
@@ -153,77 +153,129 @@ public class TheWindLureManager {
             player.displayClientMessage(Component.literal("you open the chest. you are somewhere else now.").withStyle(ChatFormatting.DARK_PURPLE), false);
             level.playSound(null, sx, sy, sz, ModSounds.WHISPER_SOUND.get(), net.minecraft.sounds.SoundSource.AMBIENT, 3.0f, 0.5f);
         }));
-
-        LOGGER.info("[THE_WIND|Lure] Player {} teleported to lure dimension at {}", player.getName().getString(), center);
+        LOGGER.info("[THE_WIND|Lure] Player {} teleported to lure at {}", player.getName().getString(), center);
     }
 
-    private static void generateRoom(ServerLevel level, BlockPos center, int variant, LureState state) {
-        switch (variant % 6) {
-            case 0 -> buildSmallRoom(level, center, state);
-            case 1 -> buildCorridor(level, center, state);
-            case 2 -> buildDeadEnd(level, center, state);
-            case 3 -> buildMazeRoom(level, center, state);
-            case 4 -> buildTrapRoom(level, center, state);
-            case 5 -> buildShrineRoom(level, center, state);
+    private static void buildEntryRoom(ServerLevel level, BlockPos center, LureState state) {
+        fillRoom(level, center, 3, 3, 4);
+        addDoorways(level, center, 3, 3, 4, state, true);
+        placeLights(level, center, 3, 3, 4);
+    }
+
+    private static void generateNextRoom(ServerPlayer player, LureState state) {
+        ServerLevel level = (ServerLevel) player.level();
+        if (state.doorways.isEmpty()) return;
+
+        BlockPos doorway = state.doorways.remove(level.random.nextInt(state.doorways.size()));
+        Direction facing = getFacing(doorway, state.roomCenter);
+
+        int roll = level.random.nextInt(100);
+        if (roll < 15) {
+            buildXyzGatekeeperRoom(level, doorway, facing, state);
+        } else if (roll < 25) {
+            buildNurDarkRoom(level, doorway, facing, state);
+        } else if (roll < 35) {
+            buildK3wCloneRoom(level, doorway, facing, state);
+        } else {
+            int variant = state.roomsGenerated % 6;
+            buildStandardRoom(level, doorway, facing, state, variant);
         }
+
         state.roomsGenerated++;
-        LOGGER.info("[THE_WIND|Lure] Room #{} (variant {}) at {} (doorways={})", state.roomsGenerated, variant % 6, center, state.doorways.size());
+        LOGGER.info("[THE_WIND|Lure] Room #{} at {} (doorways={})", state.roomsGenerated, state.roomCenter, state.doorways.size());
     }
 
-    private static void buildSmallRoom(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 3, 3, 4);
-        addDoorways(level, center, 3, 3, 4, state);
-        placeLights(level, center, 3, 3, 4);
+    private static void buildStandardRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state, int variant) {
+        int halfW = 3 + (variant % 3);
+        int halfD = 3 + ((variant + 1) % 3);
+        int height = 4 + (variant % 2);
+        BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
+
+        fillRoom(level, center, halfW, halfD, height);
+        addDoorways(level, center, halfW, halfD, height, state, true);
+        placeLights(level, center, halfW, halfD, height);
+
+        if (level.random.nextInt(8) == 0) {
+            placeChest(level, center.above());
+        }
+        if (level.random.nextInt(5) == 0) {
+            spawnAbnormality(level, center);
+        }
+        state.roomCenter = center;
     }
 
-    private static void buildCorridor(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 1, 5, 4);
-        addDoorways(level, center, 1, 5, 4, state);
-        placeLights(level, center, 1, 5, 4);
+    private static void buildXyzGatekeeperRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state) {
+        int halfW = 4;
+        int halfD = 4;
+        int height = 10;
+        BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
+
+        fillRoom(level, center, halfW, halfD, height);
+        placeLights(level, center, halfW, halfD, height);
+
+        placeIronDoor(level, doorway, facing);
+
+        Entity xyz = ModEntities.XYZ.get().create(level);
+        if (xyz != null) {
+            xyz.moveTo(center.getX() + 0.5, 1, center.getZ() + 0.5, 0, 0);
+            level.addFreshEntity(xyz);
+        }
+
+        addDoorways(level, center, halfW, halfD, height, state, false);
+        state.roomCenter = center;
+        LOGGER.info("[THE_WIND|Lure] xYz gatekeeper room at {}", center);
     }
 
-    private static void buildDeadEnd(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 3, 3, 4);
-        placeLights(level, center, 3, 3, 4);
-    }
+    private static void buildNurDarkRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state) {
+        int halfW = 5;
+        int halfD = 5;
+        int height = 4;
+        BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
 
-    private static void buildMazeRoom(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 5, 5, 4);
-        Random rng = new Random(level.getSeed() ^ center.asLong());
-        for (int x = -3; x <= 3; x += 2) {
-            for (int z = -3; z <= 3; z += 2) {
-                if (rng.nextInt(3) == 0) {
-                    for (int dy = 1; dy <= 3; dy++) {
-                        level.setBlock(center.offset(x, dy, z), WALL, 2);
-                    }
+        fillRoom(level, center, halfW, halfD, height);
+
+        for (int x = -halfW; x <= halfW; x++) {
+            for (int z = -halfD; z <= halfD; z++) {
+                for (int y = 1; y < height; y++) {
+                    level.setBlock(center.offset(x, y, z), Blocks.BLACK_WOOL.defaultBlockState(), 2);
                 }
             }
         }
-        addDoorways(level, center, 5, 5, 4, state);
-        placeLights(level, center, 5, 5, 4);
+
+        addDoorways(level, center, halfW, halfD, height, state, true);
+
+        Entity nur = ModEntities.NUR.get().create(level);
+        if (nur != null) {
+            nur.moveTo(center.getX() + 0.5, 1, center.getZ() + 0.5, 0, 0);
+            level.addFreshEntity(nur);
+        }
+
+        state.roomCenter = center;
+        LOGGER.info("[THE_WIND|Lure] Nur dark room at {}", center);
     }
 
-    private static void buildTrapRoom(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 3, 3, 4);
-        level.setBlock(center.offset(0, 0, 0), PRESSURE_PLATE, 2);
-        level.setBlock(center.offset(1, 0, 0), PRESSURE_PLATE, 2);
-        level.setBlock(center.offset(-1, 0, 0), PRESSURE_PLATE, 2);
-        level.setBlock(center.offset(0, 0, 1), PRESSURE_PLATE, 2);
-        level.setBlock(center.offset(0, 0, -1), PRESSURE_PLATE, 2);
-        addDoorways(level, center, 3, 3, 4, state);
-        placeLights(level, center, 3, 3, 4);
-    }
+    private static void buildK3wCloneRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state) {
+        int halfW = 3;
+        int halfD = 3;
+        int height = 4;
+        BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
 
-    private static void buildShrineRoom(ServerLevel level, BlockPos center, LureState state) {
-        fillRoom(level, center, 3, 3, 5);
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                level.setBlock(center.offset(dx, 1, dz), CARPET, 2);
+        fillRoom(level, center, halfW, halfD, height);
+        placeLights(level, center, halfW, halfD, height);
+
+        for (int i = 0; i < 3; i++) {
+            Entity k3w = ModEntities.K3W.get().create(level);
+            if (k3w != null) {
+                double ox = (level.random.nextDouble() - 0.5) * 4;
+                double oz = (level.random.nextDouble() - 0.5) * 4;
+                k3w.moveTo(center.getX() + ox, 1, center.getZ() + oz, 0, 0);
+                level.addFreshEntity(k3w);
             }
         }
-        level.setBlock(center.above(1), LIGHT, 2);
-        addDoorways(level, center, 3, 3, 5, state);
-        placeLights(level, center, 3, 3, 5);
+
+        addDoorways(level, center, halfW, halfD, height, state, true);
+        state.roomCenter = center;
+        LOGGER.info("[THE_WIND|Lure] K3W clone room at {}", center);
     }
 
     private static void fillRoom(ServerLevel level, BlockPos center, int halfW, int halfD, int height) {
@@ -240,7 +292,7 @@ public class TheWindLureManager {
         }
     }
 
-    private static void addDoorways(ServerLevel level, BlockPos center, int halfW, int halfD, int height, LureState state) {
+    private static void addDoorways(ServerLevel level, BlockPos center, int halfW, int halfD, int height, LureState state, boolean withDoor) {
         Random rng = new Random(level.getSeed() ^ center.asLong() ^ 0xDEADBEEF);
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             if (rng.nextInt(3) == 0) continue;
@@ -250,8 +302,22 @@ public class TheWindLureManager {
             for (int dy = 1; dy <= 3; dy++) {
                 level.setBlock(door.above(dy), AIR, 2);
             }
+            if (withDoor) {
+                placeDoor(level, door, dir);
+            }
             state.doorways.add(door);
         }
+    }
+
+    private static void placeDoor(ServerLevel level, BlockPos pos, Direction facing) {
+        level.setBlock(pos.above(), DOOR_LOWER.setValue(DoorBlock.FACING, facing), 2);
+        level.setBlock(pos.above(2), DOOR_UPPER.setValue(DoorBlock.FACING, facing), 2);
+        level.setBlock(pos.below().offset(facing.getStepX(), 0, facing.getStepZ()), PLATE, 2);
+    }
+
+    private static void placeIronDoor(ServerLevel level, BlockPos pos, Direction facing) {
+        level.setBlock(pos.above(), IRON_DOOR_LOWER.setValue(DoorBlock.FACING, facing), 2);
+        level.setBlock(pos.above(2), IRON_DOOR_UPPER.setValue(DoorBlock.FACING, facing), 2);
     }
 
     private static void placeLights(ServerLevel level, BlockPos center, int halfW, int halfD, int height) {
@@ -260,32 +326,11 @@ public class TheWindLureManager {
         }
     }
 
-    private static void generateNextRoom(ServerPlayer player, LureState state) {
-        ServerLevel level = (ServerLevel) player.level();
-        if (state.doorways.isEmpty()) return;
-
-        BlockPos doorway = state.doorways.remove(level.random.nextInt(state.doorways.size()));
-        Direction facing = getFacing(doorway, state.roomCenter);
-        int[] sizes = {3, 1, 3, 5, 3, 3};
-        int halfW = sizes[level.random.nextInt(sizes.length)];
-        int halfD = sizes[level.random.nextInt(sizes.length)];
-        int height = 4 + level.random.nextInt(2);
-        BlockPos newCenter = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
-
-        int variant = state.roomsGenerated;
-        generateRoom(level, newCenter, variant, state);
-        state.roomCenter = newCenter;
-
-        if (level.random.nextInt(Math.max(1, (int) (5.0 / AbnormalitiesConfig.TW_LURE_ABNORMAL_MULT.get()))) == 0) {
-            spawnAbnormality(level, newCenter);
-        }
-        if (level.random.nextInt(8) == 0) {
-            BlockPos chestPos = newCenter.above();
-            level.setBlock(chestPos, Blocks.CHEST.defaultBlockState(), 2);
-            BlockEntity be = level.getBlockEntity(chestPos);
-            if (be instanceof ChestBlockEntity chest) {
-                chest.setCustomName(Component.literal("the wind was here").withStyle(ChatFormatting.DARK_PURPLE));
-            }
+    private static void placeChest(ServerLevel level, BlockPos pos) {
+        level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 2);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof ChestBlockEntity chest) {
+            chest.setCustomName(Component.literal("the wind was here").withStyle(ChatFormatting.DARK_PURPLE));
         }
     }
 
