@@ -44,8 +44,6 @@ public class TheWindLureManager {
     private static final BlockState CARPET = Blocks.PURPLE_CARPET.defaultBlockState();
     private static final BlockState DOOR_LOWER = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
     private static final BlockState DOOR_UPPER = Blocks.SPRUCE_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
-    private static final BlockState IRON_DOOR_LOWER = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
-    private static final BlockState IRON_DOOR_UPPER = Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER);
 
     private static class LureState {
         BlockPos returnPos;
@@ -57,7 +55,6 @@ public class TheWindLureManager {
         boolean teleported = false;
         List<BlockPos> doorways = new ArrayList<>();
         Set<Long> generatedChunks = new HashSet<>();
-        Map<BlockPos, Boolean> doorStates = new HashMap<>();
 
         LureState(BlockPos returnPos, int duration) {
             this.returnPos = returnPos;
@@ -213,15 +210,13 @@ public class TheWindLureManager {
         fillRoom(level, center, halfW, halfD, height);
         placeLights(level, center, halfW, halfD, height);
 
-        placeIronDoor(level, doorway, facing);
-
         Entity xyz = ModEntities.XYZ.get().create(level);
         if (xyz != null) {
-            xyz.moveTo(center.getX() + 0.5, 1, center.getZ() + 0.5, 0, 0);
+            xyz.moveTo(doorway.getX() + 0.5, 1, doorway.getZ() + 0.5, 0, 0);
             level.addFreshEntity(xyz);
         }
 
-        addDoorways(level, center, halfW, halfD, height, state, false);
+        addDoorways(level, center, halfW, halfD, height, state, true);
         state.roomCenter = center;
         LOGGER.info("[THE_WIND|Lure] xYz gatekeeper room at {}", center);
     }
@@ -313,11 +308,6 @@ public class TheWindLureManager {
         level.setBlock(pos.above(), DOOR_LOWER.setValue(DoorBlock.FACING, facing), 2);
         level.setBlock(pos.above(2), DOOR_UPPER.setValue(DoorBlock.FACING, facing), 2);
         level.setBlock(pos.below().offset(facing.getStepX(), 0, facing.getStepZ()), PLATE, 2);
-    }
-
-    private static void placeIronDoor(ServerLevel level, BlockPos pos, Direction facing) {
-        level.setBlock(pos.above(), IRON_DOOR_LOWER.setValue(DoorBlock.FACING, facing), 2);
-        level.setBlock(pos.above(2), IRON_DOOR_UPPER.setValue(DoorBlock.FACING, facing), 2);
     }
 
     private static void placeLights(ServerLevel level, BlockPos center, int halfW, int halfD, int height) {
