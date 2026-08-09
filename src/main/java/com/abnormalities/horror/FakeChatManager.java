@@ -78,7 +78,7 @@ public class FakeChatManager {
         String name = FAKE_NAMES.get(RNG.nextInt(FAKE_NAMES.size()));
         String msg = RNG.nextBoolean() ? name + " joined the game" : name + " left the game";
         for (ServerPlayer p : players) {
-            sendSystem(p, msg);
+            sendYellow(p, msg);
         }
     }
 
@@ -96,5 +96,11 @@ public class FakeChatManager {
     private static void sendSystem(ServerPlayer player, String text) {
         if (player.connection == null) return;
         player.connection.send(new ClientboundSystemChatPacket(Component.literal(text), false));
+    }
+
+    private static void sendYellow(ServerPlayer player, String text) {
+        if (player.connection == null) return;
+        player.connection.send(new ClientboundSystemChatPacket(
+                Component.literal(text).withStyle(net.minecraft.ChatFormatting.YELLOW), false));
     }
 }

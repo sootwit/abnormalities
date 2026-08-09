@@ -39,11 +39,11 @@ public class TheWindShakeHandler {
 
         float factor = intensity / Math.max(original, 0.01f);
         java.util.Random rng = new java.util.Random();
-        event.setPitch(event.getPitch() + (rng.nextFloat() - 0.5f) * 2.0f * factor);
-        event.setYaw(event.getYaw() + (rng.nextFloat() - 0.5f) * 2.0f * factor);
-        event.setRoll(event.getRoll() + (rng.nextFloat() - 0.5f) * 1.0f * factor);
+        event.setPitch(event.getPitch() + (rng.nextFloat() - 0.5f) * 6.0f * factor);
+        event.setYaw(event.getYaw() + (rng.nextFloat() - 0.5f) * 6.0f * factor);
+        event.setRoll(event.getRoll() + (rng.nextFloat() - 0.5f) * 3.0f * factor);
 
         shake[1] = remaining - 1;
-        shake[0] = intensity * 0.95f;
+        shake[0] = intensity * 0.98f;
     }
 }
