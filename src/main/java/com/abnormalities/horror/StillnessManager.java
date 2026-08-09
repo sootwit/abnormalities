@@ -11,8 +11,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StillnessManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Stillness");
     private static final Map<UUID, Integer> STILL_TICKS = new HashMap<>();
     private static final Map<UUID, HoldState> ACTIVE = new HashMap<>();
     private static final Map<UUID, List<Integer>> FROZEN = new HashMap<>();
@@ -70,6 +73,7 @@ public class StillnessManager {
             forceFace(mob, sp);
         }
         FROZEN.put(sp.getUUID(), frozenIds);
+        LOGGER.info("[Stillness] {} triggered, froze {} mobs, duration=80t", sp.getName().getString(), frozenIds.size());
         int roll = level.random.nextInt(4);
         if (roll == 0) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(

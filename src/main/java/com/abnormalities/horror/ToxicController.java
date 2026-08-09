@@ -20,8 +20,11 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ToxicController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Toxic");
     private static final Map<UUID, ToxicState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Long> COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Long> LAST_NUR_SPAWN = new HashMap<>();
@@ -116,6 +119,7 @@ public class ToxicController {
         s.ticksLeft = 60;
         s.rewindTicks = 100 + level.random.nextInt(400);
         ACTIVE.put(player.getUUID(), s);
+        LOGGER.info("[Toxic] {} triggered, rewind in {}t, recording {}t", player.getName().getString(), s.rewindTicks, s.ticksLeft);
         AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new ToxicPacket(ToxicPacket.STATE_START));
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.NUR_SOUND.get()),
@@ -148,6 +152,7 @@ public class ToxicController {
     }
 
     private static void doRewind(ServerPlayer player, ToxicState s) {
+        LOGGER.info("[Toxic] {} rewind executing, posHistory={} blocks={} kills={}", player.getName().getString(), s.posHistory.size(), s.changedBlocks.size(), s.kills.size());
         if (!s.posHistory.isEmpty()) {
             double[] p = s.posHistory.get(s.posHistory.size() >= s.rewindTicks ? s.posHistory.size() - s.rewindTicks : 0);
             var level = (ServerLevel) player.level();

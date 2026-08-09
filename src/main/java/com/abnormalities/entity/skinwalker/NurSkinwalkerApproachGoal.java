@@ -13,9 +13,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.EnumSet;
 
 public class NurSkinwalkerApproachGoal extends Goal {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|SkinwalkerApproach");
     private final Mob mob;
     private Player targetPlayer;
     private int proximityTimer;
@@ -35,6 +39,9 @@ public class NurSkinwalkerApproachGoal extends Goal {
         if (mob.level().isClientSide) return false;
         if (!mob.getPersistentData().getBoolean("abnormalities:skinwalker")) return false;
         targetPlayer = mob.level().getNearestPlayer(mob, AbnormalitiesConfig.SW_DETECTION_RANGE.get());
+        if (targetPlayer != null) {
+            LOGGER.debug("[SkinwalkerApproach] detected player {} at distance {}", targetPlayer.getName().getString(), (int)mob.distanceTo(targetPlayer));
+        }
         return targetPlayer != null;
     }
 
@@ -92,6 +99,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
                 int wy = mob.level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
                         (int) wx, (int) wz);
                 wanderTarget = new Vec3(wx, wy + 1, wz);
+                LOGGER.debug("[SkinwalkerApproach] wander target {} {} {} for {}", (int)wx, wy + 1, (int)wz, mob.getType().getDescriptionId());
                 pathRecalcTimer = 0;
             }
             pathRecalcTimer--;
@@ -104,6 +112,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
                         wanderTarget = null;
                         if (!playerMoved) {
                             directPursuit = true;
+                            LOGGER.debug("[SkinwalkerApproach] direct pursuit activated for {} targeting {}", mob.getType().getDescriptionId(), targetPlayer.getName().getString());
                         }
                     }
                 }
@@ -130,6 +139,7 @@ public class NurSkinwalkerApproachGoal extends Goal {
         if (level.isClientSide) return;
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
+        LOGGER.info("[SkinwalkerApproach] transforming {} into nur at {} {} {}, target={}", mob.getType().getDescriptionId(), (int)mob.getX(), (int)mob.getY(), (int)mob.getZ(), targetPlayer != null ? targetPlayer.getName().getString() : "none");
         if (targetPlayer != null) ReputationManager.addRep(targetPlayer, -75);
         nur.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         level.addFreshEntity(nur);

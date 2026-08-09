@@ -19,8 +19,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SignManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Sign");
     private static final Map<UUID, Long> LAST_SIGN = new HashMap<>();
     private static final List<String> MESSAGES = List.of(
             "i saw you here.",
@@ -68,10 +71,12 @@ public class SignManager {
         SisterController.onSignWarning(player);
         BlockPos pos = findWallSpot(level, player.blockPosition(), AbnormalitiesConfig.S1GN_SEARCH_RADIUS.get());
         if (pos == null) return false;
+        LOGGER.info("[Sign] {} placed sign at ({},{},{})", player.getName().getString(), pos.getX(), pos.getY(), pos.getZ());
         level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState(), 3);
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof SignBlockEntity sign)) return false;
         String msg = MESSAGES.get(level.random.nextInt(MESSAGES.size()));
+        LOGGER.debug("[Sign] message: {}", msg);
         int deaths = player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DEATHS));
         int days = (int) (level.getDayTime() / 24000L);
         int steps = player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.WALK_ONE_CM)) / 100;

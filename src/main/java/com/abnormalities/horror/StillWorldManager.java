@@ -14,8 +14,11 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StillWorldManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|StillWorld");
     private static final Map<UUID, StillState> ACTIVE = new HashMap<>();
 
     private static class StillState {
@@ -80,6 +83,7 @@ public class StillWorldManager {
         s.frozenDayTime = level.getDayTime();
         s.playerId = player.getUUID();
         ACTIVE.put(player.getUUID(), s);
+        LOGGER.info("[StillWorld] {} triggered, duration={}t", player.getName().getString(), s.ticksLeft);
         AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new St1llPacket(true));
     }
 

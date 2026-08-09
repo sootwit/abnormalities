@@ -11,8 +11,11 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.List;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FakeAchievementManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|FakeAchievement");
     private static final Random RNG = new Random();
     private static long nextCheck = 0;
 
@@ -52,6 +55,7 @@ public class FakeAchievementManager {
     public static void give(ServerPlayer target) {
         if (target.connection == null) return;
         String name = NAMES.get(RNG.nextInt(NAMES.size()));
+        LOGGER.info("[FakeAchievement] {} -> {}", target.getName().getString(), name);
         AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> target), new FakeAchievementPacket(name));
     }
 

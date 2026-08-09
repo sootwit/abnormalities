@@ -15,12 +15,14 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Vr9pController {
     private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
     private static final Map<UUID, PendingStart> PENDING_STARTS = new HashMap<>();
-    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("vr9p");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Vr9p");
 
     private static class PendingStart {
         int ticksLeft;

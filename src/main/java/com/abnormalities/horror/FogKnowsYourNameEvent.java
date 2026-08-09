@@ -10,8 +10,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|FogKnowsYourName");
     private static final Map<UUID, Integer> STAGE = new HashMap<>();
     private static final Map<UUID, Integer> TIMER = new HashMap<>();
 
@@ -25,6 +28,7 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
     @Override
     public void execute(ServerPlayer player) {
         int rep = ReputationManager.getRep(player);
+        LOGGER.info("[FogKnowsYourName] {} triggered (rep={})", player.getName().getString(), rep);
         WhisperManager.sendWhisper(player, "the fog is coming...");
         STAGE.put(player.getUUID(), 0);
         TIMER.put(player.getUUID(), 0);
@@ -42,10 +46,12 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
             case 0 -> {
                 if (timer % 40 == 0 && timer <= 200) {
                     int amp = Math.min(timer / 40, 3);
+                    LOGGER.debug("[FogKnowsYourName] {} stage 0 blind amp={}", player.getName().getString(), amp);
                     player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, amp, false, false, false));
                     WhisperManager.sendWhisper(player, WhisperManager.randomFragment(rep));
                 }
                 if (timer > 200) {
+                    LOGGER.debug("[FogKnowsYourName] {} stage 0->1", player.getName().getString());
                     STAGE.put(player.getUUID(), 1);
                     TIMER.put(player.getUUID(), 0);
                 }
@@ -73,6 +79,7 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
                         0.5f, 1.0f, 0));
                 }
                 if (timer > 300) {
+                    LOGGER.debug("[FogKnowsYourName] {} stage 1->2", player.getName().getString());
                     STAGE.put(player.getUUID(), 2);
                     TIMER.put(player.getUUID(), 0);
                 }
@@ -83,6 +90,7 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
                     WhisperManager.sendWhisper(player, "...fog lifts...");
                 }
                 if (timer > 100) {
+                    LOGGER.debug("[FogKnowsYourName] {} event complete", player.getName().getString());
                     STAGE.remove(player.getUUID());
                     TIMER.remove(player.getUUID());
                     HorrorEventPool.clearOngoing(player);

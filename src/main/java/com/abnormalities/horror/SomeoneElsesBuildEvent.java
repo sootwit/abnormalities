@@ -15,8 +15,11 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SomeoneElsesBuildEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|SomeoneElsesBuild");
     private static final Map<Block, Block> SUBSTITUTES = new HashMap<>();
     static {
         SUBSTITUTES.put(Blocks.OAK_PLANKS, Blocks.SPRUCE_PLANKS);
@@ -91,6 +94,7 @@ public class SomeoneElsesBuildEvent extends AbstractHorrorEvent {
         if (placed > 0) {
             cx /= placed; cz /= placed;
             MIRROR_CENTER.put(player.getUUID(), new BlockPos(cx, oy, cz));
+            LOGGER.info("[SomeoneElsesBuild] {} mirrored {} blocks at ({}, {}, {})", player.getName().getString(), placed, cx, oy, cz);
             WhisperManager.sendWhisper(player, "someone else built this...");
             double sx = cx + 0.5;
             double sz = cz + 0.5;

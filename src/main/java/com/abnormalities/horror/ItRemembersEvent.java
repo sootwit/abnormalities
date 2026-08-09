@@ -10,8 +10,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ItRemembersEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ItRemembers");
     public ItRemembersEvent() {
         super("it_remembers", 60, 1.1);
     }
@@ -25,10 +28,12 @@ public class ItRemembersEvent extends AbstractHorrorEvent {
     public void execute(ServerPlayer player) {
         ActionEntry old = ActionLogger.getOldestAction(player, 20);
         if (old == null) {
+            LOGGER.info("[ItRemembers] {} triggered, no old action found", player.getName().getString());
             WhisperManager.sendWhisper(player, "it remembers... something...");
             return;
         }
 
+        LOGGER.info("[ItRemembers] {} triggered, old action type={} detail={}", player.getName().getString(), old.type, old.detail);
         WhisperManager.sendWhisper(player, "it remembers...");
         scheduleReference(player, old, 0);
     }

@@ -10,8 +10,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MirrorStageEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|MirrorStage");
     private static final Map<UUID, List<String>> CHAT_LOG = new HashMap<>();
     private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
 
@@ -24,6 +27,7 @@ public class MirrorStageEvent extends AbstractHorrorEvent {
 
     @Override
     public void execute(ServerPlayer player) {
+        LOGGER.info("[MirrorStage] {} triggered, chat log size={}", player.getName().getString(), CHAT_LOG.getOrDefault(player.getUUID(), List.of()).size());
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, false, false, false));
         ACTIVE.put(player.getUUID(), 0);
         List<String> msgs = CHAT_LOG.getOrDefault(player.getUUID(), List.of());
@@ -71,6 +75,7 @@ public class MirrorStageEvent extends AbstractHorrorEvent {
         CHAT_LOG.computeIfAbsent(player.getUUID(), k -> new ArrayList<>()).add(msg);
         List<String> log = CHAT_LOG.get(player.getUUID());
         if (log.size() > 20) log.remove(0);
+        LOGGER.debug("[MirrorStage] chat logged for {}: {}", player.getName().getString(), msg);
         ActionLogger.log(player, "chat", msg);
     }
 

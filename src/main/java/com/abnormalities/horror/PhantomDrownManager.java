@@ -10,8 +10,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PhantomDrownManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|PhantomDrown");
     private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
 
     @SubscribeEvent
@@ -52,6 +55,7 @@ public class PhantomDrownManager {
             ACTIVE.put(sp.getUUID(), 40);
             sp.setAirSupply(0);
             sp.hurt(sp.damageSources().drown(), 1.0F);
+            LOGGER.info("[PhantomDrown] {} triggered, drown damage=1.0", sp.getName().getString());
         }
     }
 

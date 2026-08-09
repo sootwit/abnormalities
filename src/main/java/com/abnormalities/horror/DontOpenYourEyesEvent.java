@@ -7,8 +7,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DontOpenYourEyesEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|DontOpenYourEyes");
     private static final Map<UUID, Vec3> PRESENCE = new HashMap<>();
     private static final Map<UUID, Integer> TICKS = new HashMap<>();
     private static final Map<UUID, Float> LOOK_DURATION = new HashMap<>();
@@ -31,6 +34,7 @@ public class DontOpenYourEyesEvent extends AbstractHorrorEvent {
         PRESENCE.put(player.getUUID(), pos);
         TICKS.put(player.getUUID(), 0);
         LOOK_DURATION.put(player.getUUID(), 0f);
+        LOGGER.info("[DontOpenYourEyes] {} triggered, presence at ({:.1f}, {:.1f}, {:.1f})", player.getName().getString(), pos.x, pos.y, pos.z);
         WhisperManager.sendWhisper(player, "don't open your eyes...");
     }
 
@@ -50,6 +54,7 @@ public class DontOpenYourEyesEvent extends AbstractHorrorEvent {
             float lookTime = LOOK_DURATION.getOrDefault(player.getUUID(), 0f);
             lookTime = Math.min(lookTime + 0.05f, 1.0f);
             LOOK_DURATION.put(player.getUUID(), lookTime);
+            LOGGER.debug("[DontOpenYourEyes] {} looking at presence, dot={:.3f}, lookTime={:.2f}", player.getName().getString(), dot, lookTime);
 
             int amp = Math.min(2 + (int)(lookTime * 3), 5);
             int dur = Math.min(40 + (int)(lookTime * 60), 100);

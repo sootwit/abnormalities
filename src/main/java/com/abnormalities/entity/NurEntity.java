@@ -28,8 +28,11 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NurEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Nur");
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_DUMMY = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
@@ -116,6 +119,7 @@ public class NurEntity extends Mob {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
             currentTarget = findNearestPlayer();
             if (currentTarget == null) {
+                LOGGER.debug("[Nur] no target found, discarding if old enough");
                 this.entityData.set(DATA_CHASING, false);
                 if (currentState == State.CHASING) {
                     if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
@@ -150,6 +154,7 @@ public class NurEntity extends Mob {
         proximityCheckTick++;
         if (proximityCheckTick % 10 == 0 && currentState != State.DUMMY && currentState != State.CHASING) {
             if (distanceTo(currentTarget) < 5.0D) {
+                LOGGER.info("[Nur] proximity trigger: within 5 blocks of target, starting chase");
                 startChasing(currentTarget);
                 return;
             }
@@ -197,7 +202,10 @@ public class NurEntity extends Mob {
         this.getLookControl().setLookAt(currentTarget, 10, 10);
 
         double dist = distanceTo(currentTarget);
-        if (dist < 3.0D) { startChasing(currentTarget); return; }
+        if (dist < 3.0D) {
+            LOGGER.info("[Nur] stalk-to-chase: within 3 blocks of target");
+            startChasing(currentTarget); return;
+        }
 
         if (soundTick == -1) {
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
@@ -232,6 +240,7 @@ public class NurEntity extends Mob {
         if (currentTarget == null) return;
         if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
             dummyTriggered = true;
+            LOGGER.info("[Nur] dummy triggered in DUMMY state");
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 2.0f, 0.1f);
             this.entityData.set(DATA_DUMMY, true);
@@ -263,6 +272,7 @@ public class NurEntity extends Mob {
 
         if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
             dummyTriggered = true;
+            LOGGER.info("[Nur] dummy triggered in STALKING_DUMMY state");
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 2.0f, 0.1f);
             this.entityData.set(DATA_DUMMY, true);
@@ -314,6 +324,7 @@ public class NurEntity extends Mob {
                 net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES));
         }
         if (dist < 3.0D && attackCooldown <= 0) {
+            LOGGER.info("[Nur] kill attempt on {}", currentTarget.getName().getString());
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
             silenceTimer = 40;
@@ -330,6 +341,7 @@ public class NurEntity extends Mob {
         double maxMult = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
         double mult = Math.min(maxMult, 1.0D + horizDist / ramp);
         double speed = 1.8D * mult;
+        LOGGER.debug("[Nur] speed scaling: dist={} mult={} speed={}", String.format("%.1f", horizDist), String.format("%.2f", mult), String.format("%.2f", speed));
         double mx = 0, mz = 0;
         if (horizDist > 0.1) { mx = dx / horizDist * speed; mz = dz / horizDist * speed; }
         double my = this.getDeltaMovement().y;
@@ -343,7 +355,10 @@ public class NurEntity extends Mob {
             if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
                 BlockPos aheadGround = this.blockPosition().offset(sx, 0, sz);
                 BlockState aheadState = level().getBlockState(aheadGround);
-                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK)) level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK)) {
+                    LOGGER.debug("[Nur] breaking block at {} ahead of chase", aheadGround);
+                    level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+                }
                 BlockPos aheadHead = this.blockPosition().offset(sx, 1, sz);
                 BlockState headState = level().getBlockState(aheadHead);
                 if (!headState.isAir() && !headState.is(Blocks.BEDROCK)) level().destroyBlock(aheadHead, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
@@ -377,6 +392,7 @@ public class NurEntity extends Mob {
             if (!aboveState.isAir() && !aboveState.is(Blocks.BEDROCK) && !aboveState.getFluidState().isSource()) {
                 if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) level().destroyBlock(above, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
             } else if (aboveState.isAir()) {
+                LOGGER.debug("[Nur] tower action: placing cobble at {}", nurPos);
                 level().setBlockAndUpdate(nurPos, Blocks.COBBLESTONE.defaultBlockState());
                 this.moveTo(nurPos.getX() + 0.5, nurPos.getY() + 1, nurPos.getZ() + 0.5);
                 nurPos = this.blockPosition();
@@ -398,9 +414,12 @@ public class NurEntity extends Mob {
                     if (level().getBlockState(check).canOcclude()) {
                         if (checkY >= -1) break;
                         BlockPos placeAt = bridgeTarget.offset(0, checkY + 1, 0);
-                        if (level().getBlockState(placeAt).isAir()) level().setBlockAndUpdate(placeAt, Blocks.COBBLESTONE.defaultBlockState());
-                        placed = true;
-                        break;
+                        if (level().getBlockState(placeAt).isAir()) {
+                            LOGGER.debug("[Nur] bridge action: placing cobble at {}", placeAt);
+                            level().setBlockAndUpdate(placeAt, Blocks.COBBLESTONE.defaultBlockState());
+                            placed = true;
+                            break;
+                        }
                     }
                 }
                 if (!placed) level().setBlockAndUpdate(bridgeTarget.below(), Blocks.COBBLESTONE.defaultBlockState());
@@ -436,6 +455,7 @@ public class NurEntity extends Mob {
 
     public void startChasing(Player player) {
         if (currentState == State.CHASING) return;
+        LOGGER.info("[Nur] state transition {}->CHASING, target={}", currentState, player.getName().getString());
         currentState = State.CHASING;
         currentTarget = player;
         soundTick = 0;
@@ -460,6 +480,7 @@ public class NurEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
+        LOGGER.info("[Nur] removed, reason={} state={} chasing={}", reason, currentState, isChasing());
         if (level() != null && !level().isClientSide && currentState == State.CHASING && chasedPlayerId != null)
             NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
         super.remove(reason);

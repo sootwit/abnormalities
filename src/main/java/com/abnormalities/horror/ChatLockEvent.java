@@ -10,8 +10,11 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChatLockEvent extends AbstractHorrorEvent {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ChatLock");
     private static final Map<UUID, Integer> LOCK_TICKS = new HashMap<>();
     private static final Random RNG = new Random();
     private final boolean disabled;
@@ -80,12 +83,14 @@ public class ChatLockEvent extends AbstractHorrorEvent {
 
     private static void setDisabled(ServerPlayer player, int ticks) {
         LOCK_TICKS.put(player.getUUID(), ticks);
+        LOGGER.info("[ChatLock] {} chat disabled for {}t", player.getName().getString(), ticks);
         sendForgeError(player);
         SisterController.onChatLockWarning(player, true);
     }
 
     private static void setEnabled(ServerPlayer player) {
         LOCK_TICKS.put(player.getUUID(), 0);
+        LOGGER.info("[ChatLock] {} chat enabled", player.getName().getString());
         sendForgeError(player);
         SisterController.onChatLockWarning(player, false);
     }

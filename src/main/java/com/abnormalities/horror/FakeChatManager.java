@@ -10,8 +10,11 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.List;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FakeChatManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|FakeChat");
     private static final Random RNG = new Random();
     private static final long FAKE_CHAT_COOLDOWN = 18000;
     private static final long FAKE_JOIN_COOLDOWN = 24000;
@@ -69,6 +72,7 @@ public class FakeChatManager {
         if (players.isEmpty()) return;
         ServerPlayer target = players.get(RNG.nextInt(players.size()));
         String msg = MESSAGES.get(RNG.nextInt(MESSAGES.size()));
+        LOGGER.info("[FakeChat] {} -> {}", target.getName().getString(), msg);
         sendSystem(target, msg);
     }
 
@@ -77,6 +81,7 @@ public class FakeChatManager {
         if (players.isEmpty()) return;
         String name = FAKE_NAMES.get(RNG.nextInt(FAKE_NAMES.size()));
         String msg = RNG.nextBoolean() ? name + " joined the game" : name + " left the game";
+        LOGGER.info("[FakeChat] broadcast: {}", msg);
         for (ServerPlayer p : players) {
             sendYellow(p, msg);
         }

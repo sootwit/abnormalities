@@ -10,10 +10,14 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class ActionLogger {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ActionLogger");
     public static class ActionEntry {
         public final long gameTime;
         public final String type;
@@ -80,6 +84,7 @@ public class ActionLogger {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         var pos = event.getPos();
         log(player, "break", pos.getX() + " " + pos.getY() + " " + pos.getZ() + " " + event.getState().getBlock().getDescriptionId());
+        LOGGER.debug("[ActionLogger] break {} at {} {} {}", event.getState().getBlock().getDescriptionId(), pos.getX(), pos.getY(), pos.getZ());
     }
 
     @SubscribeEvent
@@ -87,6 +92,7 @@ public class ActionLogger {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         var pos = event.getPos();
         log(player, "place", pos.getX() + " " + pos.getY() + " " + pos.getZ() + " " + event.getState().getBlock().getDescriptionId());
+        LOGGER.debug("[ActionLogger] place {} at {} {} {}", event.getState().getBlock().getDescriptionId(), pos.getX(), pos.getY(), pos.getZ());
     }
 
     @SubscribeEvent
@@ -96,6 +102,7 @@ public class ActionLogger {
         if (dead.level().isClientSide) return;
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         log(player, "kill", dead.getType().getDescriptionId() + " at " + (int)dead.getX() + " " + (int)dead.getY() + " " + (int)dead.getZ());
+        LOGGER.debug("[ActionLogger] kill {} at {} {} {}", dead.getType().getDescriptionId(), (int)dead.getX(), (int)dead.getY(), (int)dead.getZ());
     }
 
     @SubscribeEvent
@@ -111,6 +118,7 @@ public class ActionLogger {
         double moved = Math.sqrt(dx * dx + dz * dz);
         if (moved > 0.5) {
             log(player, "move", String.format("%.0f %.0f %.0f", player.getX(), player.getY(), player.getZ()));
+            LOGGER.debug("[ActionLogger] move {} to {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
             LAST_POS.put(player.getUUID(), new long[]{(long)player.getX(), (long)player.getY(), (long)player.getZ()});
         }
     }
@@ -118,8 +126,10 @@ public class ActionLogger {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() != null) {
-            LOGS.remove(event.getEntity().getUUID());
-            LAST_POS.remove(event.getEntity().getUUID());
+            UUID uuid = event.getEntity().getUUID();
+            Deque<ActionEntry> log = LOGS.remove(uuid);
+            LAST_POS.remove(uuid);
+            LOGGER.info("[ActionLogger] cleanup for {}, had {} entries", event.getEntity().getName().getString(), log != null ? log.size() : 0);
         }
     }
 }

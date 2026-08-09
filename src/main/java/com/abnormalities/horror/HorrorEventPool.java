@@ -9,11 +9,14 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class HorrorEventPool {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|EventPool");
     private static final List<AbstractHorrorEvent> EVENTS = new ArrayList<>();
     private static final Map<UUID, Map<String, Long>> COOLDOWNS = new HashMap<>();
     private static final Map<UUID, AbstractHorrorEvent> ONGOING = new HashMap<>();
@@ -90,7 +93,10 @@ public class HorrorEventPool {
         double cumulative = 0;
         for (int i = 0; i < eligible.size(); i++) {
             cumulative += weights[i];
-            if (roll <= cumulative) return eligible.get(i);
+            if (roll <= cumulative) {
+                LOGGER.debug("[EventPool] {} selected for {} (weight={:.2f}, rep={})", eligible.get(i).getName(), player.getName().getString(), weights[i], ReputationManager.getRep(player));
+                return eligible.get(i);
+            }
         }
 
         return eligible.get(eligible.size() - 1);
@@ -98,6 +104,7 @@ public class HorrorEventPool {
 
     public static void fireEvent(ServerPlayer player, AbstractHorrorEvent event) {
         if (event == null) return;
+        LOGGER.info("[EventPool] firing {} for {}", event.getName(), player.getName().getString());
         setCooldown(player, event);
         if (event.allowsOngoing()) setOngoing(player, event);
         event.execute(player);

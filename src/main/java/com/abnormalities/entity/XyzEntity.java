@@ -32,8 +32,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XyzEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Xyz");
     private static final EntityDataAccessor<Boolean> DATA_ACTIVE = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_SECONDS_LEFT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_AMOUNT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
@@ -257,8 +260,10 @@ public class XyzEntity extends Mob {
         }
         if (!hasFailed && !rewardGiven) {
             if (source.getEntity() instanceof Player attacker) {
+                LOGGER.info("[Xyz] hurt by {}, triggering failure", attacker.getName().getString());
                 triggerFailure(attacker);
             } else if (targetPlayer != null) {
+                LOGGER.info("[Xyz] hurt by non-player, triggering failure for target");
                 triggerFailure(targetPlayer);
             }
         }
@@ -311,6 +316,7 @@ public class XyzEntity extends Mob {
             if (isRequestedItem(dropped)) {
                 int amount = this.entityData.get(DATA_AMOUNT);
                 if (dropped.getCount() >= amount) {
+                    LOGGER.info("[Xyz] item dropped by {}: {}x {} (needed {}x)", owner.getName().getString(), dropped.getCount(), dropped.getItem(), amount);
                     if (!level().isClientSide) {
                         deliverItem(targetPlayer);
                         dropped.shrink(amount);
@@ -330,6 +336,7 @@ public class XyzEntity extends Mob {
     }
 
     public void startRequest(int amount, Item item, int seconds) {
+        LOGGER.info("[Xyz] request started: {}x {} in {}s", amount, item, seconds);
         this.entityData.set(DATA_AMOUNT, amount);
         this.requestedItem = item;
         this.requestedItemId = BuiltInRegistries.ITEM.getKey(item);
@@ -367,6 +374,7 @@ public class XyzEntity extends Mob {
 
     private void deliverItem(Player player) {
         if (rewardGiven) return;
+        LOGGER.info("[Xyz] item delivered by {}, reward giving", player.getName().getString());
         rewardGiven = true;
         this.entityData.set(DATA_ACTIVE, false);
 
@@ -438,6 +446,7 @@ public class XyzEntity extends Mob {
 
     private void triggerFailure(Player attacker) {
         if (hasFailed) return;
+        LOGGER.info("[Xyz] triggerFailure for {}", attacker != null ? attacker.getName().getString() : "null");
         hasFailed = true;
         this.entityData.set(DATA_ACTIVE, false);
 
@@ -472,6 +481,7 @@ public class XyzEntity extends Mob {
 
         for (int i = 0; i < 4; i++) {
             String msg = spawnMessages[i];
+            LOGGER.info("[Xyz] spawning nur {}/4 for failure", i + 1);
             var srv = serverLevel.getServer();
             if (srv != null) {
                 for (var p : srv.getPlayerList().getPlayers()) {
