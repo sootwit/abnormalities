@@ -67,12 +67,12 @@ public class TheWindController {
 
     public static void triggerCorruption(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
-        int range = AbnormalitiesConfig.TW_CORRUPTION_RANGE.get();
+        int range = AbnormalitiesConfig.TW_CORRUPTION_RANGE.get() / 2;
         int chance = AbnormalitiesConfig.TW_CORRUPTION_CHANCE.get();
         int airChance = AbnormalitiesConfig.TW_CORRUPTION_AIR_CHANCE.get();
         BlockPos center = player.blockPosition();
         int corrupted = 0;
-        LOGGER.info("[THE_WIND] Corruption scan: center={}, range={}, chance={}%, airChance={}%", center, range, chance, airChance);
+        LOGGER.info("[THE_WIND] Corruption scan: center={}, range={} (diameter {}), chance={}%, airChance={}%", center, range, range * 2, chance, airChance);
 
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
@@ -105,7 +105,7 @@ public class TheWindController {
 
     public static void triggerDestructiveCorruption(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
-        int range = AbnormalitiesConfig.TW_DESTRUCTIVE_RANGE.get();
+        int range = AbnormalitiesConfig.TW_DESTRUCTIVE_RANGE.get() / 2;
         int chance = AbnormalitiesConfig.TW_DESTRUCTIVE_CHANCE.get();
         BlockPos center = player.blockPosition();
         int corrupted = 0;

@@ -26,6 +26,14 @@ public class CorruptionBlock extends BaseEntityBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && player instanceof ServerPlayer sp) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof CorruptionBlockEntity cbe) {
+                BlockState original = cbe.getOriginalState();
+                if (original != null) {
+                    level.setBlock(pos, original, 3);
+                    return InteractionResult.sidedSuccess(false);
+                }
+            }
             sp.displayClientMessage(Component.literal("the corruption flickers..."), true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

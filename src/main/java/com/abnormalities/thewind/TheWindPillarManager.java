@@ -183,7 +183,7 @@ public class TheWindPillarManager {
         }
 
         BlockPos target = findTarget(player, width, depth);
-        int startY = level.getMaxBuildHeight();
+        int startY = Math.min(target.getY() + Math.min(length, 80), level.getMaxBuildHeight());
         int endY = Math.max(target.getY() - length, level.getMinBuildHeight());
         int speed = AbnormalitiesConfig.TW_PILLARS_SPEED.get();
 
