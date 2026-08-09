@@ -903,8 +903,7 @@ public class TheWindMimicryManager {
 
     private static void sendChat(ServerPlayer player, String text) {
         if (player.connection == null) return;
-        player.connection.send(new ClientboundSystemChatPacket(
-                Component.literal(text).withStyle(net.minecraft.ChatFormatting.YELLOW, net.minecraft.ChatFormatting.ITALIC), false));
+        player.connection.send(new ClientboundSystemChatPacket(Component.literal(text), false));
     }
 
     public static void forceMimic(ServerPlayer player) {

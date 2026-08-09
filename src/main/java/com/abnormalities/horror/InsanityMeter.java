@@ -34,8 +34,8 @@ public class InsanityMeter {
     private static final double FALL_SAFE = 0.06;
     private static final double MAX = 1000.0;
     private static final double MIN = 0.0;
-    private static final int WHISPER_INTERVAL = 200;
-    private static final int DISPLAY_INTERVAL = 400;
+    private static final int WHISPER_INTERVAL = 600;
+    private static final int DISPLAY_INTERVAL = 800;
     private static final int DISPLAY_THRESHOLD = 300;
     private static final long SAVE_THROTTLE_MS = 5000;
     private static final Random RNG = new Random();

@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,8 @@ public class TheWindLureManager {
         int remainingTicks;
         int roomsGenerated;
         BlockPos roomCenter;
+        BlockPos chestPos;
+        boolean teleported = false;
         List<BlockPos> doorways = new ArrayList<>();
 
         LureState(BlockPos returnPos, int duration) {
@@ -86,27 +89,51 @@ public class TheWindLureManager {
         int max = AbnormalitiesConfig.TW_LURE_MAX_DURATION.get();
         int duration = min + level.random.nextInt(Math.max(1, max - min + 1));
 
-        LureState state = new LureState(player.blockPosition(), duration);
-        ACTIVE_LURES.put(player.getUUID(), state);
-        LOGGER.info("[THE_WIND|Lure] Lure triggered for {} (duration={}s)", player.getName().getString(), duration);
+        double angle = level.random.nextDouble() * Math.PI * 2;
+        int dist = 8 + level.random.nextInt(15);
+        int cx = (int) (player.getX() + Math.cos(angle) * dist);
+        int cz = (int) (player.getZ() + Math.sin(angle) * dist);
+        int cy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, cx, cz);
+        BlockPos chestPos = new BlockPos(cx, cy, cz);
 
+        level.setBlock(chestPos, Blocks.CHEST.defaultBlockState(), 2);
+        BlockEntity be = level.getBlockEntity(chestPos);
+        if (be instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
+            chest.setCustomName(Component.literal("the wind was here").withStyle(ChatFormatting.DARK_PURPLE));
+        }
+
+        LureState state = new LureState(player.blockPosition(), duration);
+        state.chestPos = chestPos;
+        ACTIVE_LURES.put(player.getUUID(), state);
+
+        LOGGER.info("[THE_WIND|Lure] Lure chest placed for {} at {} (duration={}s)", player.getName().getString(), chestPos, duration);
+    }
+
+    public static void onChestOpen(ServerPlayer player, BlockPos pos) {
+        LureState state = ACTIVE_LURES.get(player.getUUID());
+        if (state == null || state.chestPos == null || !state.chestPos.equals(pos)) return;
+        if (state.teleported) return;
+        state.teleported = true;
+
+        ServerLevel level = (ServerLevel) player.level();
         int sx = LURE_X + level.random.nextInt(50) * 16;
         int sz = LURE_Z + level.random.nextInt(50) * 16;
-        int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, sx, sz);
+        int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, sx, sz);
 
         BlockPos center = new BlockPos(sx, sy, sz);
         buildRoom(level, center, 5, 5, 5, state);
         state.roomCenter = center;
         state.roomsGenerated = 1;
-        LOGGER.info("[THE_WIND|Lure] Initial room generated at {}", center);
 
-        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
+        player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 60, 0, false, false));
         level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 20, () -> {
             player.teleportTo(level, sx + 0.5, sy + 1, sz + 0.5, player.getYRot(), player.getXRot());
-            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0, false, false));
+            player.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.BLINDNESS, 40, 0, false, false));
             player.displayClientMessage(Component.literal("you open the chest. you are somewhere else now.").withStyle(ChatFormatting.DARK_PURPLE), false);
             level.playSound(null, sx, sy, sz, ModSounds.WHISPER_SOUND.get(), SoundSource.AMBIENT, 3.0f, 0.5f);
         }));
+
+        LOGGER.info("[THE_WIND|Lure] Player {} opened lure chest, teleporting to {}", player.getName().getString(), center);
     }
 
     private static void buildRoom(ServerLevel level, BlockPos center, int halfW, int halfD, int height, LureState state) {
@@ -222,6 +249,15 @@ public class TheWindLureManager {
         int elapsed = (AbnormalitiesConfig.TW_LURE_MAX_DURATION.get() * 20 - state.remainingTicks) / 20;
         LOGGER.info("[THE_WIND|Lure] Returning {} after {}s (rooms generated: {})", player.getName().getString(), elapsed, state.roomsGenerated);
         player.displayClientMessage(Component.literal("you were gone for " + elapsed + " seconds. the chest was never there.").withStyle(ChatFormatting.DARK_GRAY), false);
+    }
+
+    @SubscribeEvent
+    public static void onChestInteract(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity().level().isClientSide) return;
+        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+        if (event.getLevel().getBlockState(event.getPos()).getBlock() == Blocks.CHEST) {
+            onChestOpen(sp, event.getPos());
+        }
     }
 
     public static void forceLure(ServerPlayer player) {
