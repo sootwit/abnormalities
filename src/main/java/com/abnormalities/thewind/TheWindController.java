@@ -35,7 +35,7 @@ public class TheWindController {
 
             if (AbnormalitiesConfig.TW_CORRUPTION_ENABLED.get()) {
                 long cooldown = (long) (AbnormalitiesConfig.TW_CORRUPTION_COOLDOWN.get() * graceMult);
-                if (now - lastCorruption >= cooldown && overworld.random.nextInt(500) == 0) {
+                if (now - lastCorruption >= cooldown && overworld.random.nextInt(2000) == 0) {
                     lastCorruption = now;
                     triggerCorruption(player);
                 }
@@ -43,7 +43,7 @@ public class TheWindController {
 
             if (AbnormalitiesConfig.TW_DESTRUCTIVE_ENABLED.get()) {
                 long cooldown = (long) (AbnormalitiesConfig.TW_DESTRUCTIVE_COOLDOWN.get() * graceMult);
-                if (now - lastDestructive >= cooldown && overworld.random.nextInt(1500) == 0) {
+                if (now - lastDestructive >= cooldown && overworld.random.nextInt(6000) == 0) {
                     lastDestructive = now;
                     triggerDestructiveCorruption(player);
                 }
@@ -51,7 +51,7 @@ public class TheWindController {
 
             if (AbnormalitiesConfig.TW_PILLARS_ENABLED.get()) {
                 long cooldown = (long) (AbnormalitiesConfig.TW_PILLARS_COOLDOWN.get() * graceMult);
-                if (now - lastPillar >= cooldown && overworld.random.nextInt(800) == 0) {
+                if (now - lastPillar >= cooldown && overworld.random.nextInt(3000) == 0) {
                     lastPillar = now;
                     TheWindPillarManager.spawnPillar(player);
                 }
