@@ -38,6 +38,7 @@ public class TheWindLureManager {
     private static class LureState {
         BlockPos returnPos;
         int remainingTicks;
+        int totalTicks;
         int roomsGenerated;
         BlockPos roomCenter;
         BlockPos chestPos;
@@ -47,6 +48,7 @@ public class TheWindLureManager {
         LureState(BlockPos returnPos, int duration) {
             this.returnPos = returnPos;
             this.remainingTicks = duration * 20;
+            this.totalTicks = duration * 20;
         }
     }
 
@@ -246,7 +248,7 @@ public class TheWindLureManager {
         ServerLevel level = (ServerLevel) player.level();
         player.teleportTo(level, state.returnPos.getX() + 0.5, state.returnPos.getY() + 1, state.returnPos.getZ() + 0.5, player.getYRot(), player.getXRot());
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
-        int elapsed = (AbnormalitiesConfig.TW_LURE_MAX_DURATION.get() * 20 - state.remainingTicks) / 20;
+        int elapsed = (state.totalTicks - state.remainingTicks) / 20;
         LOGGER.info("[THE_WIND|Lure] Returning {} after {}s (rooms generated: {})", player.getName().getString(), elapsed, state.roomsGenerated);
         player.displayClientMessage(Component.literal("you were gone for " + elapsed + " seconds. the chest was never there.").withStyle(ChatFormatting.DARK_GRAY), false);
     }

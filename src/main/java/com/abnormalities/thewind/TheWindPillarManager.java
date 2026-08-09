@@ -125,7 +125,7 @@ public class TheWindPillarManager {
             double dist = pl.distanceToSqr(p.target.getX(), p.currentY, p.target.getZ());
             if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
                 float intensity = (float) AbnormalitiesConfig.TW_SHAKE_BLOCK.get().doubleValue();
-                com.abnormalities.thewind.TheWindShakeHandler.triggerShake(pl, intensity, 30);
+                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(pl, intensity, 30);
             }
         }
 
@@ -165,7 +165,7 @@ public class TheWindPillarManager {
                 double dist = pl.distanceToSqr(p.target.getX(), p.currentY, p.target.getZ());
                 if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
                     float intensity = (float) AbnormalitiesConfig.TW_SHAKE_GROUND.get().doubleValue();
-                    com.abnormalities.thewind.TheWindShakeHandler.triggerShake(pl, intensity, 100);
+                    if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(pl, intensity, 100);
                 }
             }
         }
@@ -194,7 +194,7 @@ public class TheWindPillarManager {
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(target.getX(), startY, target.getZ());
             if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                com.abnormalities.thewind.TheWindShakeHandler.triggerShake(p, (float) AbnormalitiesConfig.TW_SHAKE_DIRECT.get().doubleValue(), 150);
+                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, (float) AbnormalitiesConfig.TW_SHAKE_DIRECT.get().doubleValue(), 150);
             }
         }
 
@@ -221,7 +221,7 @@ public class TheWindPillarManager {
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                     double dist = p.distanceToSqr(player.getX(), player.getY(), player.getZ());
                     if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                        com.abnormalities.thewind.TheWindShakeHandler.triggerShake(p, (float) AbnormalitiesConfig.TW_SHAKE_CRUSH.get().doubleValue(), 120);
+                        if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, (float) AbnormalitiesConfig.TW_SHAKE_CRUSH.get().doubleValue(), 120);
                     }
                 }
             } else if (near) {
@@ -276,14 +276,14 @@ public class TheWindPillarManager {
 
     private static BlockPos findHouse(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
-        int radius = AbnormalitiesConfig.TW_PILLARS_HOUSE_RADIUS.get();
+        int radius = Math.min(AbnormalitiesConfig.TW_PILLARS_HOUSE_RADIUS.get(), 32);
         int clusterSize = AbnormalitiesConfig.TW_PILLARS_HOUSE_CLUSTER.get();
         BlockPos center = player.blockPosition();
         Map<BlockPos, Integer> scores = new HashMap<>();
 
-        for (int x = -radius; x <= radius; x += 3) {
-            for (int y = -radius; y <= radius; y += 3) {
-                for (int z = -radius; z <= radius; z += 3) {
+        for (int x = -radius; x <= radius; x += 4) {
+            for (int y = -radius; y <= radius; y += 4) {
+                for (int z = -radius; z <= radius; z += 4) {
                     BlockPos check = center.offset(x, y, z);
                     if (!level.isLoaded(check)) continue;
                     int score = 0;
