@@ -11,10 +11,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class TheWindFarlandsManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Farlands");
     private static long lastFarlands = 0;
     private static final Map<Long, Long> GENERATED_CHUNKS = new HashMap<>();
 
@@ -39,6 +42,7 @@ public class TheWindFarlandsManager {
             if (rep > 800) continue;
 
             lastFarlands = now;
+            LOGGER.info("[THE_WIND|Farlands] Farlands triggered for {} (rep={}, range={})", player.getName().getString(), rep, AbnormalitiesConfig.TW_CORRUPTION_RANGE.get());
             generateFarlands(overworld, player);
             player.displayClientMessage(
                     net.minecraft.network.chat.Component.literal("the world is wrong here.").withStyle(net.minecraft.ChatFormatting.DARK_PURPLE), false);
@@ -57,6 +61,7 @@ public class TheWindFarlandsManager {
                 if (GENERATED_CHUNKS.containsKey(key)) continue;
                 if (GENERATED_CHUNKS.size() > 20) GENERATED_CHUNKS.clear();
                 GENERATED_CHUNKS.put(key, level.getGameTime());
+                LOGGER.info("[THE_WIND|Farlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
                 generateFarlandChunk(level, cx, cz);
             }
         }

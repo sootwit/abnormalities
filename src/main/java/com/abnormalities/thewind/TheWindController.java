@@ -8,8 +8,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TheWindController {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind");
     private static long lastCorruption = 0;
     private static long lastDestructive = 0;
     private static long lastPillar = 0;
@@ -37,6 +40,7 @@ public class TheWindController {
                 long cooldown = (long) (AbnormalitiesConfig.TW_CORRUPTION_COOLDOWN.get() * graceMult);
                 if (now - lastCorruption >= cooldown && overworld.random.nextInt(2000) == 0) {
                     lastCorruption = now;
+                    LOGGER.info("[THE_WIND] Corruption triggered for {} (cooldown remaining: {} ticks)", player.getName().getString(), cooldown - (now - lastCorruption));
                     triggerCorruption(player);
                 }
             }
@@ -45,6 +49,7 @@ public class TheWindController {
                 long cooldown = (long) (AbnormalitiesConfig.TW_DESTRUCTIVE_COOLDOWN.get() * graceMult);
                 if (now - lastDestructive >= cooldown && overworld.random.nextInt(6000) == 0) {
                     lastDestructive = now;
+                    LOGGER.info("[THE_WIND] Destructive corruption triggered for {}", player.getName().getString());
                     triggerDestructiveCorruption(player);
                 }
             }
@@ -53,6 +58,7 @@ public class TheWindController {
                 long cooldown = (long) (AbnormalitiesConfig.TW_PILLARS_COOLDOWN.get() * graceMult);
                 if (now - lastPillar >= cooldown && overworld.random.nextInt(3000) == 0) {
                     lastPillar = now;
+                    LOGGER.info("[THE_WIND] Pillar triggered for {}", player.getName().getString());
                     TheWindPillarManager.spawnPillar(player);
                 }
             }
@@ -66,6 +72,7 @@ public class TheWindController {
         int airChance = AbnormalitiesConfig.TW_CORRUPTION_AIR_CHANCE.get();
         BlockPos center = player.blockPosition();
         int corrupted = 0;
+        LOGGER.info("[THE_WIND] Corruption scan: center={}, range={}, chance={}%, airChance={}%", center, range, chance, airChance);
 
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
@@ -91,6 +98,7 @@ public class TheWindController {
             }
         }
         if (corrupted > 0) {
+            LOGGER.info("[THE_WIND] Corruption placed {} blocks", corrupted);
             com.abnormalities.WhisperManager.sendWhisper(player, "the wind is touching your world. you'll see it soon.");
         }
     }
@@ -124,6 +132,7 @@ public class TheWindController {
             }
         }
         if (corrupted > 0) {
+            LOGGER.info("[THE_WIND] Destructive corruption placed {} blocks", corrupted);
             com.abnormalities.WhisperManager.sendWhisper(player, "this one is different. don't break the dark ones. they don't come back.");
         }
     }
