@@ -265,13 +265,17 @@ public class TheWindPillarManager {
         int roll = player.level().random.nextInt(100);
         int houseChance = AbnormalitiesConfig.TW_PILLARS_HOUSE_CHANCE.get();
         int directChance = AbnormalitiesConfig.TW_PILLARS_DIRECT_CHANCE.get();
+        int randomChance = AbnormalitiesConfig.TW_PILLARS_RANDOM_CHANCE.get();
 
         if (roll < directChance) return player.blockPosition();
         if (roll < directChance + houseChance) {
             BlockPos house = findHouse(player);
             if (house != null) return house;
         }
-        return randomRing(player, width, depth);
+        if (roll < directChance + houseChance + randomChance) {
+            return randomRing(player, width, depth);
+        }
+        return player.blockPosition();
     }
 
     private static BlockPos findHouse(ServerPlayer player) {
