@@ -69,9 +69,10 @@ public class ChatArgManager {
             }
         }
         if (REPLIES.containsKey(msg)) {
-            String reply = serverTick() < angryUntil ? hostileReply() : REPLIES.get(msg);
+            boolean angry = serverTick() < angryUntil;
+            String reply = angry ? hostileReply() : REPLIES.get(msg);
             LOGGER.debug("[ChatArg] {} said '{}', reply: {}", player.getName().getString(), msg, reply);
-            sendReply(player, reply);
+            sendReply(player, reply, !angry);
         }
     }
 
@@ -93,7 +94,7 @@ public class ChatArgManager {
             clearAnger();
             return;
         }
-        sendReply(target, hostileReply());
+        sendReply(target, hostileReply(), false);
     }
 
     @SubscribeEvent
@@ -115,7 +116,7 @@ public class ChatArgManager {
         angryPlayer = player.getUUID();
         nextExtra = serverTick() + HOSTILE_EXTRA_INTERVAL;
         LOGGER.info("[ChatArg] {} anger triggered for {}t", player.getName().getString(), ANGER_DURATION);
-        sendReply(player, ANGRY_REPLY);
+        sendReply(player, ANGRY_REPLY, false);
         playCaveSound(player);
     }
 
@@ -144,9 +145,15 @@ public class ChatArgManager {
     }
 
     private static void sendReply(ServerPlayer player, String text) {
+        sendReply(player, text, true);
+    }
+
+    private static void sendReply(ServerPlayer player, String text, boolean styled) {
         if (player.connection == null) return;
-        player.connection.send(new ClientboundSystemChatPacket(
-            Component.literal(text).withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC), false));
+        Component component = styled
+            ? Component.literal(text).withStyle(ChatFormatting.YELLOW, ChatFormatting.ITALIC)
+            : Component.literal(text);
+        player.connection.send(new ClientboundSystemChatPacket(component, false));
     }
 
     private static void playCaveSound(ServerPlayer player) {

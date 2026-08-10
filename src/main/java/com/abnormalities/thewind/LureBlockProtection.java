@@ -18,6 +18,7 @@ public class LureBlockProtection {
         if (event.getPlayer().level().isClientSide) return;
         Player player = event.getPlayer();
         if (player instanceof ServerPlayer sp && TheWindLureManager.isInLure(sp)) {
+            if (event.getState().is(com.abnormalities.registry.ModBlocks.CORRUPTION_BLOCK.get())) return;
             event.setCanceled(true);
         }
     }

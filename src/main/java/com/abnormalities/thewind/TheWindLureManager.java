@@ -189,6 +189,7 @@ public class TheWindLureManager {
         BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
 
         fillRoom(level, center, halfW, halfD, height);
+        clearDoorwayPassage(level, center, doorway, facing, halfW, halfD, height);
         addDoorways(level, center, halfW, halfD, height, state, true);
         placeLights(level, center, halfW, halfD, height);
 
@@ -316,6 +317,26 @@ public class TheWindLureManager {
         }
     }
 
+    private static void clearDoorwayPassage(ServerLevel level, BlockPos roomCenter, BlockPos doorway, Direction facing, int halfW, int halfD, int height) {
+        int dx = -facing.getStepX();
+        int dz = -facing.getStepZ();
+        int wallX = dx * halfW;
+        int wallZ = dz * halfD;
+        for (int dy = 1; dy <= 3; dy++) {
+            for (int a = -1; a <= 1; a++) {
+                int cx, cz;
+                if (facing.getAxis() == Direction.Axis.X) {
+                    cx = roomCenter.getX() + wallX;
+                    cz = roomCenter.getZ() + a;
+                } else {
+                    cx = roomCenter.getX() + a;
+                    cz = roomCenter.getZ() + wallZ;
+                }
+                level.setBlock(new BlockPos(cx, roomCenter.getY() + dy, cz), AIR, 2);
+            }
+        }
+    }
+
     private static void placeChest(ServerLevel level, BlockPos pos) {
         level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 2);
         BlockEntity be = level.getBlockEntity(pos);
@@ -325,12 +346,11 @@ public class TheWindLureManager {
     }
 
     private static void spawnAbnormality(ServerLevel level, BlockPos pos) {
-        int roll = level.random.nextInt(4);
+        int roll = level.random.nextInt(3);
         Entity entity = null;
         if (roll == 0) entity = ModEntities.NUR.get().create(level);
-        else if (roll == 1) entity = ModEntities.K3W.get().create(level);
-        else if (roll == 2) entity = ModEntities.IT.get().create(level);
-        else if (roll == 3) entity = ModEntities.HIM.get().create(level);
+        else if (roll == 1) entity = ModEntities.IT.get().create(level);
+        else if (roll == 2) entity = ModEntities.HIM.get().create(level);
         if (entity != null) {
             entity.moveTo(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
             level.addFreshEntity(entity);
