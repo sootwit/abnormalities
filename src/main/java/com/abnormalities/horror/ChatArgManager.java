@@ -79,6 +79,7 @@ public class ChatArgManager {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.ANG3R_ENABLED.get()) return;
         long now = serverTick();
         if (angryUntil == 0) return;
         if (now >= angryUntil) {

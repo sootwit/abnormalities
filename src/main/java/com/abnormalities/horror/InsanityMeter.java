@@ -57,6 +57,7 @@ public class InsanityMeter {
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (event.side != LogicalSide.SERVER) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.INSANITY_ENABLED.get()) return;
         if (!(event.player instanceof ServerPlayer sp)) return;
         if (sp.level().dimension() != Level.OVERWORLD) return;
         UUID uuid = sp.getUUID();

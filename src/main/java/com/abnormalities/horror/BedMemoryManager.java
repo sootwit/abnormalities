@@ -110,6 +110,7 @@ public class BedMemoryManager {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.B3D_ENABLED.get()) return;
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         for (var it = HUNTS.entrySet().iterator(); it.hasNext();) {
