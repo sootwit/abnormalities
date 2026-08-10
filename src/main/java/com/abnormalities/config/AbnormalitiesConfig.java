@@ -136,6 +136,10 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue B3D_ENABLED;
     public static final ForgeConfigSpec.BooleanValue INSANITY_ENABLED;
     public static final ForgeConfigSpec.BooleanValue TW_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue NUR_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue K3W_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue XYZ_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue SW_ENABLED;
     public static final ForgeConfigSpec.DoubleValue TW_GRACE_MULT;
     public static final ForgeConfigSpec.BooleanValue TW_CORRUPTION_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_CORRUPTION_RANGE;
@@ -192,6 +196,7 @@ public class AbnormalitiesConfig {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
         b.push("nur");
+        NUR_ENABLED = b.comment("enable nur entity (the shy stalker)").define("enabled", true);
         NUR_PUNISH = b.comment("punishment mode when nur kills you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
         NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
@@ -206,6 +211,7 @@ public class AbnormalitiesConfig {
         NUR_MAX_SPEED_MULT = b.comment("max chase speed multiplier at long distance").defineInRange("maxSpeedMult", 10, 1, 50);
         b.pop();
         b.push("k3w");
+        K3W_ENABLED = b.comment("enable k3w entity (the clone that undoes your actions)").define("enabled", true);
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
         K3W_PUNISH = b.comment("punishment when k3w catches you: KICK, CRASH, or NONE").defineEnum("onCatch", PunishMode.KICK);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
@@ -215,6 +221,7 @@ public class AbnormalitiesConfig {
         K3W_FOLLOW_TIME = b.comment("seconds k3w follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
         b.pop();
         b.push("xYz");
+        XYZ_ENABLED = b.comment("enable xYz entity (the supplier that demands items)").define("enabled", true);
         XYZ_SPAWN_WEIGHT = b.comment("higher = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
         XYZ_MIN_WAIT = b.comment("minimum wait time in seconds for xyz item request").defineInRange("minWaitSeconds", 60, 5, 4096);
         XYZ_MAX_WAIT = b.comment("maximum wait time in seconds for xyz item request").defineInRange("maxWaitSeconds", 240, 5, 4096);
@@ -229,6 +236,7 @@ public class AbnormalitiesConfig {
         XYZ_REWARD_GOLDEN_APPLES = b.comment("count of golden apples given as reward").defineInRange("rewardGoldenApples", 2, 1, 64);
         b.pop();
         b.push("skinwalker");
+        SW_ENABLED = b.comment("enable skinwalker disguised mobs").define("enabled", true);
         SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 400, 1, 10000);
         SW_APPROACH_SPEED = b.comment("speed multiplier at which skinwalkers approach player (1.0 = the disguised animal's own speed)").defineInRange("approachSpeed", 1.0, 0.2, 2.0);
         SW_DETECTION_RANGE = b.comment("range at which skinwalkers detect players").defineInRange("detectionRange", 16.0, 8.0, 32.0);
