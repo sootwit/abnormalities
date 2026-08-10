@@ -121,14 +121,6 @@ public class TheWindPillarManager {
             }
         }
 
-        for (ServerPlayer pl : level.getServer().getPlayerList().getPlayers()) {
-            double dist = pl.distanceToSqr(p.target.getX(), p.currentY, p.target.getZ());
-            if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                float intensity = (float) AbnormalitiesConfig.TW_SHAKE_BLOCK.get().doubleValue();
-                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(pl, intensity, 30);
-            }
-        }
-
                 LOGGER.debug("[THE_WIND|Pillar] Layer Y={} processed ({} blocks)", p.currentY, p.width * p.depth);
 
                 checkPlayerCollision(level, p.target, p.width, p.depth, p.halfW, p.halfD, p.currentY);
@@ -160,15 +152,6 @@ public class TheWindPillarManager {
                 }
             }
         }
-        if (collapsed > 0) {
-            for (ServerPlayer pl : level.getServer().getPlayerList().getPlayers()) {
-                double dist = pl.distanceToSqr(p.target.getX(), p.currentY, p.target.getZ());
-                if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                    float intensity = (float) AbnormalitiesConfig.TW_SHAKE_GROUND.get().doubleValue();
-                    if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(pl, intensity, 100);
-                }
-            }
-        }
     }
 
     public static void spawnPillar(ServerPlayer player) {
@@ -194,7 +177,7 @@ public class TheWindPillarManager {
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(target.getX(), startY, target.getZ());
             if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, (float) AbnormalitiesConfig.TW_SHAKE_DIRECT.get().doubleValue(), 150);
+                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, (float) AbnormalitiesConfig.TW_SHAKE_DIRECT.get().doubleValue(), (startY - endY) * speed);
             }
         }
 
