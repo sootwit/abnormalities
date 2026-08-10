@@ -13,6 +13,9 @@ import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.NurRenderer;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.entity.XyzRenderer;
+import com.abnormalities.thewind.TheWindEntity;
+import com.abnormalities.thewind.TheWindModel;
+import com.abnormalities.thewind.TheWindRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -54,6 +57,12 @@ public class ModEntities {
                     .clientTrackingRange(64)
                     .fireImmune()
                     .build("him"));
+    public static final RegistryObject<EntityType<TheWindEntity>> THE_WIND = ENTITIES.register("thewind", () ->
+            EntityType.Builder.of(TheWindEntity::new, MobCategory.MONSTER)
+                    .sized(0.6f, 1.8f)
+                    .clientTrackingRange(128)
+                    .fireImmune()
+                    .build("thewind"));
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(NUR.get(), NurEntity.createAttributes().build());
@@ -61,6 +70,7 @@ public class ModEntities {
         event.put(XYZ.get(), XyzEntity.createAttributes().build());
         event.put(IT.get(), ItEntity.createAttributes().build());
         event.put(HIM.get(), HimEntity.createAttributes().build());
+        event.put(THE_WIND.get(), TheWindEntity.createAttributes().build());
     }
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -69,11 +79,13 @@ public class ModEntities {
         event.registerEntityRenderer(XYZ.get(), XyzRenderer::new);
         event.registerEntityRenderer(IT.get(), ItRenderer::new);
         event.registerEntityRenderer(HIM.get(), HimRenderer::new);
+        event.registerEntityRenderer(THE_WIND.get(), TheWindRenderer::new);
     }
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(com.abnormalities.entity.K3wModel.LAYER_LOCATION, com.abnormalities.entity.K3wModel::createBodyLayer);
         event.registerLayerDefinition(ItModel.LAYER_LOCATION, ItModel::createBodyLayer);
         event.registerLayerDefinition(HimModel.LAYER_LOCATION, HimModel::createBodyLayer);
+        event.registerLayerDefinition(TheWindModel.LAYER_LOCATION, TheWindModel::createBodyLayer);
     }
 }
