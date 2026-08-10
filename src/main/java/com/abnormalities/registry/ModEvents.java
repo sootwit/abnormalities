@@ -245,6 +245,7 @@ public class ModEvents {
         if (time < 13000L && time > 2000L) {
             for (Player player : overworld.players()) {
                 if (player.tickCount % 40 != 0) continue;
+                if (!AbnormalitiesConfig.XYZ_ENABLED.get()) continue;
                 if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.XYZ_SPAWN_WEIGHT.get())) != 0) continue;
                 boolean alreadyHasXyz = false;
                 for (XyzEntity existing : overworld.getEntitiesOfClass(XyzEntity.class, player.getBoundingBox().inflate(256.0D))) {
@@ -328,7 +329,8 @@ public class ModEvents {
         if (time >= 2000L && time <= 23000L) {
         for (Player player : overworld.players()) {
             if (player.tickCount % 40 != 0) continue;
-            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())) != 0) continue;
+                if (!AbnormalitiesConfig.SW_ENABLED.get()) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             double sx = player.getX() + Math.cos(angle) * dist;
@@ -408,7 +410,8 @@ public class ModEvents {
         }
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
-            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get())) != 0) continue;
+                if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get())) != 0) continue;
             LOGGER.debug("[Events] nur spawn weight roll passed for {}", player.getName().getString());
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
