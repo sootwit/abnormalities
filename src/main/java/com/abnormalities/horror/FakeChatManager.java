@@ -49,6 +49,7 @@ public class FakeChatManager {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.F4K3_ENABLED.get()) return;
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         long now = srv.getTickCount();
