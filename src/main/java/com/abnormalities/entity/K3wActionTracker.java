@@ -314,16 +314,10 @@ public class K3wActionTracker {
         var server = player.getServer();
         if (server == null) return;
         int targetTick = server.getTickCount() + delayTicks;
-        server.execute(new Runnable() {
-            public void run() {
-                if (server.getTickCount() < targetTick) {
-                    server.execute(this);
-                    return;
-                }
-                if (player.connection == null) return;
-                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                    Component.literal("<" + player.getName().getString() + "> " + msg), false));
-            }
-        });
+        server.tell(new net.minecraft.server.TickTask(targetTick, () -> {
+            if (player.connection == null) return;
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                Component.literal("<" + player.getName().getString() + "> " + msg), false));
+        }));
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.slf4j.Logger;
@@ -100,6 +101,7 @@ public class TheWindController {
         if (corrupted > 0) {
             LOGGER.info("[THE_WIND] Corruption placed {} blocks", corrupted);
             com.abnormalities.WhisperManager.sendWhisper(player, "the wind is touching your world. you'll see it soon.");
+            scheduleCorruptionDecay(level, center, range, false);
         }
     }
 
@@ -134,6 +136,7 @@ public class TheWindController {
         if (corrupted > 0) {
             LOGGER.info("[THE_WIND] Destructive corruption placed {} blocks", corrupted);
             com.abnormalities.WhisperManager.sendWhisper(player, "this one is different. don't break the dark ones. they don't come back.");
+            scheduleCorruptionDecay(level, center, range, true);
         }
     }
 
@@ -157,5 +160,37 @@ public class TheWindController {
         if (roll == 0) forceCorruption(player);
         else if (roll == 1) forceDestructive(player);
         else forcePillar(player);
+    }
+
+    private static void scheduleCorruptionDecay(ServerLevel level, BlockPos center, int range, boolean isDestructive) {
+        final int decayRange = range;
+        final BlockPos decayCenter = center;
+        final boolean decayDestructive = isDestructive;
+        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 200, () -> {
+            for (int x = -decayRange; x <= decayRange; x++) {
+                for (int y = -decayRange; y <= decayRange; y++) {
+                    for (int z = -decayRange; z <= decayRange; z++) {
+                        BlockPos pos = decayCenter.offset(x, y, z);
+                        if (!level.isLoaded(pos)) continue;
+                        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+                        if (decayDestructive && state.is(com.abnormalities.registry.ModBlocks.DESTRUCTIVE_CORRUPTION_BLOCK.get())) {
+                            level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+                        } else if (!decayDestructive && state.is(com.abnormalities.registry.ModBlocks.CORRUPTION_BLOCK.get())) {
+                            BlockEntity be = level.getBlockEntity(pos);
+                            if (be instanceof CorruptionBlockEntity cbe) {
+                                net.minecraft.world.level.block.state.BlockState original = cbe.getOriginalState();
+                                if (original != null) {
+                                    level.setBlock(pos, original, 3);
+                                } else {
+                                    level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+                                }
+                            } else {
+                                level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+                            }
+                        }
+                    }
+                }
+            }
+        }));
     }
 }

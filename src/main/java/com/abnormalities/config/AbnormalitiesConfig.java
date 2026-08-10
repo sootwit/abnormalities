@@ -370,9 +370,9 @@ public class AbnormalitiesConfig {
         TW_GRACE_MULT = b.comment("THE_WIND events are X times rarer during grace period").defineInRange("gracePeriodMultiplier", 2.0, 1.0, 10.0);
         b.push("corruption");
         TW_CORRUPTION_ENABLED = b.comment("enable corruption block events").define("enabled", true);
-        TW_CORRUPTION_RANGE = b.comment("corruption scan range (blocks, cubic)").defineInRange("range", 32, 8, 128);
-        TW_CORRUPTION_CHANCE = b.comment("percent chance per block to become corrupted").defineInRange("chance", 15, 1, 100);
-        TW_CORRUPTION_AIR_CHANCE = b.comment("percent chance for air blocks to become corrupted").defineInRange("airChance", 5, 0, 50);
+        TW_CORRUPTION_RANGE = b.comment("corruption scan range (blocks, cubic)").defineInRange("range", 16, 8, 128);
+        TW_CORRUPTION_CHANCE = b.comment("percent chance per solid block to become corrupted").defineInRange("chance", 25, 1, 100);
+        TW_CORRUPTION_AIR_CHANCE = b.comment("percent chance for air blocks to become corrupted").defineInRange("airChance", 2, 0, 50);
         TW_CORRUPTION_COOLDOWN = b.comment("ticks between corruption events").defineInRange("cooldown", 72000, 600, 720000);
         b.pop();
         b.push("destructiveCorruption");
