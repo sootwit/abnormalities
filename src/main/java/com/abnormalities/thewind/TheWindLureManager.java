@@ -164,7 +164,7 @@ public class TheWindLureManager {
         if (state.doorways.isEmpty()) return;
 
         BlockPos doorway = state.doorways.remove(level.random.nextInt(state.doorways.size()));
-        Direction facing = getFacing(doorway, state.roomCenter);
+        Direction facing = getFacing(state.roomCenter, doorway);
 
         int roll = level.random.nextInt(100);
         if (roll < 15) {

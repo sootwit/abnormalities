@@ -1,6 +1,7 @@
 package com.abnormalities.thewind;
 
 import com.abnormalities.config.AbnormalitiesConfig;
+import com.abnormalities.registry.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,9 +60,12 @@ public class TheWindController {
                 long cooldown = (long) (AbnormalitiesConfig.TW_PILLARS_COOLDOWN.get() * graceMult);
                 if (now - lastPillar >= cooldown && overworld.random.nextInt(3000) == 0) {
                     lastPillar = now;
-                    LOGGER.info("[THE_WIND] Pillar triggered for {}", player.getName().getString());
                     TheWindPillarManager.spawnPillar(player);
                 }
+            }
+
+            if (AbnormalitiesConfig.TW_THEWIND_ENABLED.get() && overworld.random.nextInt(5000) == 0) {
+                spawnTheWind(player);
             }
         }
     }
@@ -160,6 +164,22 @@ public class TheWindController {
         if (roll == 0) forceCorruption(player);
         else if (roll == 1) forceDestructive(player);
         else forcePillar(player);
+    }
+
+    private static void spawnTheWind(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        for (var existing : level.getEntitiesOfClass(TheWindEntity.class, player.getBoundingBox().inflate(16.0))) {
+            if (existing.getTargetUUID() != null && existing.getTargetUUID().equals(player.getUUID())) return;
+        }
+        TheWindEntity wind = ModEntities.THE_WIND.get().create(level);
+        if (wind != null) {
+            wind.setTarget(player);
+            float yaw = player.getYRot();
+            double bx = player.getX() - Math.sin(Math.toRadians(yaw)) * 3.0;
+            double bz = player.getZ() + Math.cos(Math.toRadians(yaw)) * 3.0;
+            wind.moveTo(bx, player.getY(), bz, yaw, 0);
+            level.addFreshEntity(wind);
+        }
     }
 
     private static void scheduleCorruptionDecay(ServerLevel level, BlockPos center, int range, boolean isDestructive) {
