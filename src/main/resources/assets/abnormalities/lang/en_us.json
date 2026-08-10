@@ -56,5 +56,6 @@
   "block.abnormalities.corruption_block": "Corruption",
   "block.abnormalities.destructive_corruption_block": "Destructive Corruption",
   "block.abnormalities.wind_pillar_block": "Wind Pillar",
+  "entity.abnormalities.thewind": "THE_WIND",
   "death.attack.wind_pillars": "%s.DEATH.THE_WIND_PILLARS"
 }
