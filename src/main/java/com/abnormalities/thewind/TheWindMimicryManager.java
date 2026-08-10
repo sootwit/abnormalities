@@ -711,6 +711,13 @@ public class TheWindMimicryManager {
         }
 
             String message = pool.get(RNG.nextInt(pool.size()));
+        if (message.contains("X Y Z")) {
+            ServerPlayer randomPlayer = players.get(RNG.nextInt(players.size()));
+            int cx = randomPlayer.blockPosition().getX() + RNG.nextInt(100) - 50;
+            int cy = randomPlayer.blockPosition().getY() + RNG.nextInt(20) - 10;
+            int cz = randomPlayer.blockPosition().getZ() + RNG.nextInt(100) - 50;
+            message = message.replace("X Y Z", cx + " " + cy + " " + cz);
+        }
         String formatted = "<" + sourceName + "> " + message;
         LOGGER.info("[THE_WIND|Mimicry] Chat message: {} (pool={}, lureChance={})", formatted, roll < lureChance ? "lure" : "ambient", lureChance);
 
