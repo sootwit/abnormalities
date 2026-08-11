@@ -210,7 +210,7 @@ public class TheWindController {
         final int decayRange = range;
         final BlockPos decayCenter = center;
         final boolean decayDestructive = isDestructive;
-        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 200, () -> {
+        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 400, () -> {
             for (int x = -decayRange; x <= decayRange; x++) {
                 for (int y = -decayRange; y <= decayRange; y++) {
                     for (int z = -decayRange; z <= decayRange; z++) {
