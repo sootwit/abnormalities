@@ -47,11 +47,11 @@ public class TheWindShakeHandler {
         }
 
         float factor = intensity / Math.max(original, 0.01f);
-        event.setPitch(event.getPitch() + (RNG.nextFloat() - 0.5f) * 8.0f * factor);
-        event.setYaw(event.getYaw() + (RNG.nextFloat() - 0.5f) * 8.0f * factor);
-        event.setRoll(event.getRoll() + (RNG.nextFloat() - 0.5f) * 4.0f * factor);
+        event.setPitch(event.getPitch() + (RNG.nextFloat() - 0.5f) * 12.0f * factor);
+        event.setYaw(event.getYaw() + (RNG.nextFloat() - 0.5f) * 12.0f * factor);
+        event.setRoll(event.getRoll() + (RNG.nextFloat() - 0.5f) * 6.0f * factor);
 
         shake[1] = remaining - 1;
-        shake[0] = intensity * 0.995f;
+        shake[0] = intensity * 0.998f;
     }
 }
