@@ -175,8 +175,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TW_PILLARS_DAMAGE_RADIUS;
     public static final ForgeConfigSpec.IntValue TW_PILLARS_DAMAGE_AMOUNT;
     public static final ForgeConfigSpec.BooleanValue TW_SHAKE_ENABLED;
-    public static final ForgeConfigSpec.DoubleValue TW_SHAKE_BLOCK;
-    public static final ForgeConfigSpec.DoubleValue TW_SHAKE_GROUND;
     public static final ForgeConfigSpec.DoubleValue TW_SHAKE_CRUSH;
     public static final ForgeConfigSpec.DoubleValue TW_SHAKE_DIRECT;
     public static final ForgeConfigSpec.IntValue TW_SHAKE_RANGE;
@@ -434,8 +432,6 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("screenShake");
         TW_SHAKE_ENABLED = b.comment("enable screen shake on pillar impact").define("enabled", true);
-        TW_SHAKE_BLOCK = b.comment("shake intensity when pillar breaks a block").defineInRange("blockImpactIntensity", 0.8, 0.0, 5.0);
-        TW_SHAKE_GROUND = b.comment("shake intensity when pillar hits ground").defineInRange("groundImpactIntensity", 2.0, 0.0, 5.0);
         TW_SHAKE_CRUSH = b.comment("shake intensity when pillar crushes player").defineInRange("playerCrushIntensity", 3.0, 0.0, 5.0);
         TW_SHAKE_DIRECT = b.comment("shake intensity for direct strike").defineInRange("directStrikeIntensity", 4.0, 0.0, 5.0);
         TW_SHAKE_RANGE = b.comment("range where screen shake is felt (blocks)").defineInRange("range", 64, 16, 256);
