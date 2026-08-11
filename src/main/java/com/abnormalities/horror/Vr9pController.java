@@ -53,6 +53,7 @@ public class Vr9pController {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.VR9P_ENABLED.get()) return;
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         var overworld = srv.getLevel(Level.OVERWORLD);
