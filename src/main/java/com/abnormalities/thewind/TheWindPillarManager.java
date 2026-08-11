@@ -272,7 +272,7 @@ public class TheWindPillarManager {
         int radius = Math.min(AbnormalitiesConfig.TW_PILLARS_HOUSE_RADIUS.get(), 32);
         int clusterSize = AbnormalitiesConfig.TW_PILLARS_HOUSE_CLUSTER.get();
         BlockPos center = player.blockPosition();
-        Map<BlockPos, Integer> scores = new HashMap<>();
+        Map<BlockPos, Double> scores = new HashMap<>();
 
         for (int x = -radius; x <= radius; x += 4) {
             for (int y = -radius; y <= radius; y += 4) {
@@ -288,7 +288,10 @@ public class TheWindPillarManager {
                             }
                         }
                     }
-                    if (score >= clusterSize) scores.put(check, score);
+                    if (score >= clusterSize) {
+                        double dist = center.distSqr(check);
+                        scores.put(check, score - dist * 0.001);
+                    }
                 }
             }
         }

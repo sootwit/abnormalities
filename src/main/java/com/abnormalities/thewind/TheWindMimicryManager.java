@@ -664,6 +664,7 @@ public class TheWindMimicryManager {
         if (event.phase != TickEvent.Phase.END) return;
         if (!AbnormalitiesConfig.TW_ENABLED.get()) return;
         if (!AbnormalitiesConfig.TW_MIMICRY_ENABLED.get()) return;
+        if (!AbnormalitiesConfig.TW_MIMICRY_LANG_CHAT.get()) return;
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         long now = srv.getTickCount();
