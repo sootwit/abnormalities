@@ -373,6 +373,7 @@ public class ModEvents {
         if (time < 13000L || time > 23000L) return;
         for (Player player : overworld.players()) {
             if (player.tickCount % 60 != 0) continue;
+            if (!AbnormalitiesConfig.IT_ENABLED.get()) continue;
             if (ReputationManager.getRep(player) < AbnormalitiesConfig.IT_REP_MIN.get()) continue;
             if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get())) != 0) continue;
             LOGGER.debug("[Events] it spawn weight roll passed for {}", player.getName().getString());
