@@ -207,6 +207,10 @@ public class TheWindController {
         else forcePillar(player);
     }
 
+    public static void forceTheWind(ServerPlayer player) {
+        spawnTheWind(player);
+    }
+
     private static void spawnTheWind(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
         for (var existing : level.getEntitiesOfClass(TheWindEntity.class, player.getBoundingBox().inflate(16.0))) {

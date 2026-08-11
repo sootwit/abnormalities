@@ -197,7 +197,7 @@ public class AbnormalitiesConfig {
         b.push("nur");
         NUR_ENABLED = b.comment("enable nur entity (the shy stalker)").define("enabled", true);
         NUR_PUNISH = b.comment("punishment mode when nur kills you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
-        NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
+        NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 400, 1, 10000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
         NUR_LAVA = b.comment("nur can walk on lava by replacing it with stone").define("lavaWalk", true);
@@ -211,7 +211,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("k3w");
         K3W_ENABLED = b.comment("enable k3w entity (the clone that undoes your actions)").define("enabled", true);
-        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 200, 1, 100000);
+        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 500, 1, 100000);
         K3W_PUNISH = b.comment("punishment when k3w catches you: KICK, CRASH, or NONE").defineEnum("onCatch", PunishMode.KICK);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
