@@ -85,6 +85,14 @@ public class TheWindController {
         int corrupted = 0;
         LOGGER.info("[THE_WIND] Corruption scan: center={}, range={} (diameter {}), chance={}%, airChance={}%", center, range, range * 2, chance, airChance);
 
+        int cx = center.getX() >> 4;
+        int cz = center.getZ() >> 4;
+        for (int x = cx - 2; x <= cx + 2; x++) {
+            for (int z = cz - 2; z <= cz + 2; z++) {
+                level.setChunkForced(x, z, true);
+            }
+        }
+
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
                 for (int z = -range; z <= range; z++) {
@@ -130,6 +138,15 @@ public class TheWindController {
         int chance = AbnormalitiesConfig.TW_DESTRUCTIVE_CHANCE.get();
         BlockPos center = player.blockPosition();
         int corrupted = 0;
+        LOGGER.info("[THE_WIND] Destructive corruption: center={}, range={} (diameter {}), chance={}%", center, range, range * 2, chance);
+
+        int cx = center.getX() >> 4;
+        int cz = center.getZ() >> 4;
+        for (int x = cx - 3; x <= cx + 3; x++) {
+            for (int z = cz - 3; z <= cz + 3; z++) {
+                level.setChunkForced(x, z, true);
+            }
+        }
 
         for (int x = -range; x <= range; x++) {
             for (int y = -range; y <= range; y++) {
