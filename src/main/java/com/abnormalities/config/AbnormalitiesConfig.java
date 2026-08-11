@@ -418,7 +418,7 @@ public class AbnormalitiesConfig {
         TW_PILLARS_RANDOM_MAX_D = b.comment("random depth maximum").defineInRange("randomMaxDepth", 16, 1, 32);
         TW_PILLARS_RANDOM_MIN_L = b.comment("random length minimum").defineInRange("randomMinLength", 64, 16, 512);
         TW_PILLARS_RANDOM_MAX_L = b.comment("random length maximum").defineInRange("randomMaxLength", 320, 16, 512);
-        TW_PILLARS_SPEED = b.comment("ticks per Y layer descent (1 = 20 blocks/sec, 5 = 4 blocks/sec)").defineInRange("speed", 2, 1, 20);
+        TW_PILLARS_SPEED = b.comment("ticks per Y layer descent (1 = 20 blocks/sec, 5 = 4 blocks/sec)").defineInRange("speed", 1, 1, 20);
         TW_PILLARS_HOUSE_CHANCE = b.comment("percent chance pillar targets a detected house").defineInRange("houseTargetChance", 40, 0, 100);
         TW_PILLARS_RANDOM_CHANCE = b.comment("percent chance pillar spawns randomly around player").defineInRange("randomRingChance", 55, 0, 100);
         TW_PILLARS_DIRECT_CHANCE = b.comment("percent chance pillar spawns directly above player").defineInRange("directStrikeChance", 5, 0, 100);

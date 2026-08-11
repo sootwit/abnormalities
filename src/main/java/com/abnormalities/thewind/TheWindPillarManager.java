@@ -173,6 +173,12 @@ public class TheWindPillarManager {
 
         level.playSound(null, target.getX(), target.getY() + 5, target.getZ(),
                 ModSounds.PILLAR_ALARM.get(), SoundSource.AMBIENT, 8.0f, 0.5f);
+        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 40, () -> {
+            if (level.isLoaded(target)) {
+                level.playSound(null, target.getX(), target.getY() + 5, target.getZ(),
+                        ModSounds.PILLAR_ALARM.get(), SoundSource.AMBIENT, 8.0f, 0.2f);
+            }
+        }));
 
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(target.getX(), startY, target.getZ());
@@ -195,8 +201,8 @@ public class TheWindPillarManager {
             int relZ = playerPos.getZ() - target.getZ();
             int relY = playerPos.getY() - y;
 
-            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && relY >= 0 && relY <= 1;
-            boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -1 && relY <= 2;
+            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && relY >= -2 && relY <= 2;
+            boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -5 && relY <= 5;
 
             if (inside) {
                 player.kill();
