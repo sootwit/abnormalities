@@ -100,6 +100,15 @@ public class TheWindController {
                     int rollChance = isAir ? airChance : chance;
                     if (level.random.nextInt(100) >= rollChance) continue;
 
+                    if (current.hasBlockEntity() && level.getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.BaseContainerBlockEntity container) {
+                        for (int i = 0; i < container.getContainerSize(); i++) {
+                            net.minecraft.world.item.ItemStack stack = container.getItem(i);
+                            if (!stack.isEmpty()) {
+                                level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack.copy()));
+                            }
+                        }
+                    }
+
                     com.abnormalities.thewind.CorruptionBlockEntity cbe = new com.abnormalities.thewind.CorruptionBlockEntity(pos, com.abnormalities.registry.ModBlocks.CORRUPTION_BLOCK.get().defaultBlockState());
                     cbe.setOriginalState(current);
                     level.setBlock(pos, com.abnormalities.registry.ModBlocks.CORRUPTION_BLOCK.get().defaultBlockState(), 3);
@@ -134,6 +143,15 @@ public class TheWindController {
                     if (current.getBlock() == net.minecraft.world.level.block.Blocks.BEDROCK) continue;
 
                     if (level.random.nextInt(100) >= chance) continue;
+
+                    if (current.hasBlockEntity() && level.getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.BaseContainerBlockEntity container) {
+                        for (int i = 0; i < container.getContainerSize(); i++) {
+                            net.minecraft.world.item.ItemStack stack = container.getItem(i);
+                            if (!stack.isEmpty()) {
+                                level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack.copy()));
+                            }
+                        }
+                    }
 
                     com.abnormalities.thewind.CorruptionBlockEntity cbe = new com.abnormalities.thewind.CorruptionBlockEntity(pos, com.abnormalities.registry.ModBlocks.DESTRUCTIVE_CORRUPTION_BLOCK.get().defaultBlockState());
                     cbe.setOriginalState(current);
