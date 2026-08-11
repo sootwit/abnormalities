@@ -158,6 +158,17 @@ public class NurEntity extends Mob {
                 startChasing(currentTarget);
                 return;
             }
+            if (currentTarget != null) {
+                Vec3 eyePos = currentTarget.getEyePosition(1.0F);
+                Vec3 lookVec = currentTarget.getViewVector(1.0F);
+                Vec3 toNur = new Vec3(this.getX() - eyePos.x, this.getY() + this.getBbHeight() / 2 - eyePos.y, this.getZ() - eyePos.z);
+                double dot = lookVec.dot(toNur.normalize());
+                if (dot > 0.95 && distanceTo(currentTarget) < 32.0D) {
+                    LOGGER.info("[Nur] look trigger: target looking at nur (dot={}), starting chase", String.format("%.2f", dot));
+                    startChasing(currentTarget);
+                    return;
+                }
+            }
         }
 
         if ((currentState == State.STALKING || currentState == State.STALKING_DUMMY) && !isChasing()) {
