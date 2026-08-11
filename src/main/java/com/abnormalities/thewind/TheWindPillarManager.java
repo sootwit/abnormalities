@@ -205,8 +205,8 @@ public class TheWindPillarManager {
             boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -5 && relY <= 5;
 
             if (inside) {
-                player.kill();
                 stealItems(player);
+                player.kill();
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                     double dist = p.distanceToSqr(player.getX(), player.getY(), player.getZ());
                     if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {

@@ -10,6 +10,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +22,9 @@ public class TheWindController {
     private static long lastCorruption = 0;
     private static long lastDestructive = 0;
     private static long lastPillar = 0;
+    private static final java.util.Map<UUID, Long> playerCorruption = new java.util.HashMap<>();
+    private static final java.util.Map<UUID, Long> playerDestructive = new java.util.HashMap<>();
+    private static final java.util.Map<UUID, Long> playerPillar = new java.util.HashMap<>();
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -31,7 +38,6 @@ public class TheWindController {
 
         for (ServerPlayer player : new java.util.ArrayList<>(srv.getPlayerList().getPlayers())) {
             if (player.tickCount % 200 != 0) continue;
-            if (overworld.random.nextInt(200) != 0) continue;
 
             long graceTicks = (long) AbnormalitiesConfig.GRACE_PERIOD_DAYS.get() * 24000L;
             if (now < graceTicks) continue;
@@ -145,17 +151,17 @@ public class TheWindController {
     }
 
     public static void forceCorruption(ServerPlayer player) {
-        lastCorruption = player.level().getGameTime();
+        playerCorruption.put(player.getUUID(), player.level().getGameTime());
         triggerCorruption(player);
     }
 
     public static void forceDestructive(ServerPlayer player) {
-        lastDestructive = player.level().getGameTime();
+        playerDestructive.put(player.getUUID(), player.level().getGameTime());
         triggerDestructiveCorruption(player);
     }
 
     public static void forcePillar(ServerPlayer player) {
-        lastPillar = player.level().getGameTime();
+        playerPillar.put(player.getUUID(), player.level().getGameTime());
         TheWindPillarManager.spawnPillar(player);
     }
 
