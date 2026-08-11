@@ -147,7 +147,6 @@ public class TheWindLureManager {
         level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 20, () -> {
             player.teleportTo(level, sx + 0.5, sy + 1, sz + 0.5, player.getYRot(), player.getXRot());
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0, false, false));
-            player.displayClientMessage(Component.literal("you open the chest. you are somewhere else now.").withStyle(ChatFormatting.DARK_PURPLE), false);
             level.playSound(null, sx, sy, sz, ModSounds.WHISPER_SOUND.get(), net.minecraft.sounds.SoundSource.AMBIENT, 3.0f, 0.5f);
         }));
         LOGGER.info("[THE_WIND|Lure] Player {} teleported to lure at {}", player.getName().getString(), center);
@@ -368,7 +367,6 @@ public class TheWindLureManager {
         player.teleportTo(level, state.returnPos.getX() + 0.5, state.returnPos.getY() + 1, state.returnPos.getZ() + 0.5, player.getYRot(), player.getXRot());
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 60, 0, false, false));
         int elapsed = (state.totalTicks - state.remainingTicks) / 20;
-        player.displayClientMessage(Component.literal("you were gone for " + elapsed + " seconds. the chest was never there.").withStyle(ChatFormatting.DARK_GRAY), false);
         LOGGER.info("[THE_WIND|Lure] Returning {} after {}s (rooms: {})", player.getName().getString(), elapsed, state.roomsGenerated);
     }
 
