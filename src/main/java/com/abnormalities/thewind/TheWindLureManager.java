@@ -358,8 +358,8 @@ public class TheWindLureManager {
     }
 
     private static Direction getFacing(BlockPos from, BlockPos to) {
-        int dx = from.getX() - to.getX();
-        int dz = from.getZ() - to.getZ();
+        int dx = to.getX() - from.getX();
+        int dz = to.getZ() - from.getZ();
         return Math.abs(dx) > Math.abs(dz) ? (dx > 0 ? Direction.EAST : Direction.WEST) : (dz > 0 ? Direction.SOUTH : Direction.NORTH);
     }
 
@@ -383,5 +383,23 @@ public class TheWindLureManager {
 
     public static void forceLure(ServerPlayer player) {
         triggerLure(player);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            LureState state = ACTIVE_LURES.remove(player.getUUID());
+            if (state != null && state.teleported) {
+                returnPlayer(player, state);
+            }
+        }
+    }
+
+    private static void unforceChunks(ServerLevel level, int cx, int cz) {
+        for (int x = cx - 2; x <= cx + 2; x++) {
+            for (int z = cz - 2; z <= cz + 2; z++) {
+                level.setChunkForced(x, z, false);
+            }
+        }
     }
 }
