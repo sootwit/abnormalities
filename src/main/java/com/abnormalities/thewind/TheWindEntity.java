@@ -78,15 +78,9 @@ public class TheWindEntity extends Mob {
         this.moveTo(behindX, behindY, behindZ, yaw, 0);
 
         boolean hasSolidBack = hasSolidBlocksBehind(target);
-        boolean isThirdPerson = target instanceof net.minecraft.server.level.ServerPlayer sp &&
-                sp.connection != null;
 
-        if (isThirdPerson) {
-            if (hasSolidBack) {
-                visible = true;
-            } else {
-                visible = false;
-            }
+        if (hasSolidBack) {
+            visible = true;
         } else {
             visible = false;
         }
