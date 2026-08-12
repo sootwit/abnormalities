@@ -190,14 +190,29 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_CHANCE;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_RADIUS;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_MAX_REP;
-    public static final ForgeConfigSpec.BooleanValue TW_WIND_ERROR_ENABLED;
-    public static final ForgeConfigSpec.IntValue TW_WIND_ERROR_COOLDOWN;
+
+    public static final ForgeConfigSpec.BooleanValue TW_CHUNK_ENABLED;
+    public static final ForgeConfigSpec.IntValue TW_CHUNK_RANGE;
+    public static final ForgeConfigSpec.IntValue TW_CHUNK_CHANCE;
+    public static final ForgeConfigSpec.IntValue TW_CHUNK_COOLDOWN;
     public static final ForgeConfigSpec.BooleanValue TW_THEWIND_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_LURE_MIN_DURATION;
     public static final ForgeConfigSpec.IntValue TW_LURE_MAX_DURATION;
     public static final ForgeConfigSpec.DoubleValue TW_LURE_ABNORMAL_MULT;
     public static final ForgeConfigSpec.IntValue TW_LURE_MAX_ROOMS;
     public static final ForgeConfigSpec.IntValue TW_LURE_ROOM_INTERVAL;
+    public static final ForgeConfigSpec.BooleanValue TW_BORDER_ENABLED;
+    public static final ForgeConfigSpec.IntValue TW_BORDER_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue TW_BORDER_CHANCE;
+    public static final ForgeConfigSpec.IntValue TW_BORDER_DISTANCE;
+
+    public static final ForgeConfigSpec.BooleanValue B3DROCK_ENABLED;
+    public static final ForgeConfigSpec.IntValue B3DROCK_CHANCE;
+    public static final ForgeConfigSpec.IntValue B3DROCK_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue B3DROCK_MIN_SIZE;
+    public static final ForgeConfigSpec.IntValue B3DROCK_MAX_SIZE;
+    public static final ForgeConfigSpec.IntValue B3DROCK_MAX_REP;
+
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
         GRACE_PERIOD_DAYS = b.comment("no spawns for this many days after world creation").defineInRange("gracePeriodDays", 3, 0, 100);
@@ -466,13 +481,31 @@ public class AbnormalitiesConfig {
         TW_FURTHERLANDS_RADIUS = b.comment("chunk radius of furtherlands generation").defineInRange("radius", 8, 4, 16);
         TW_FURTHERLANDS_MAX_REP = b.comment("players with rep above this never get furtherlands").defineInRange("maxRep", 800, 0, 2500);
         b.pop();
+        b.push("chunk");
+        TW_CHUNK_ENABLED = b.comment("enable vertical chunk removal (massive terrain gash)").define("enabled", true);
+        TW_CHUNK_RANGE = b.comment("max offset from player (blocks)").defineInRange("range", 64, 16, 256);
+        TW_CHUNK_CHANCE = b.comment("1 in N checks trigger chunk removal (higher = rarer)").defineInRange("chance", 10000, 100, 100000);
+        TW_CHUNK_COOLDOWN = b.comment("ticks between chunk removal events").defineInRange("cooldown", 60000, 600, 600000);
+        b.pop();
         b.push("theWindEntity");
         TW_THEWIND_ENABLED = b.comment("enable THE_WIND entity (black humanoid that follows your back)").define("enabled", true);
         b.pop();
-        b.push("windError");
-        TW_WIND_ERROR_ENABLED = b.comment("enable windError (real OS dialog crash event)").define("enabled", false);
-        TW_WIND_ERROR_COOLDOWN = b.comment("ticks between windError events").defineInRange("cooldown", 36000, 6000, 360000);
+        b.push("windBorder");
+        TW_BORDER_ENABLED = b.comment("enable wind border (void ring around player at distance)").define("enabled", true);
+        TW_BORDER_COOLDOWN = b.comment("ticks between border events (20 = 1s)").defineInRange("cooldown", 180000, 6000, 1800000);
+        TW_BORDER_CHANCE = b.comment("1 in N checks trigger border (higher = rarer)").defineInRange("chance", 40000, 1000, 500000);
+        TW_BORDER_DISTANCE = b.comment("chunk distance from player for the border ring").defineInRange("distance", 8, 4, 32);
         b.pop();
+
+        b.push("b3drock");
+        B3DROCK_ENABLED = b.comment("enable b3drock (giant bedrock cube event)").define("enabled", true);
+        B3DROCK_CHANCE = b.comment("1 in N chance per check (50000 = ultra rare, rarer than all events combined)").defineInRange("chance", 50000, 100, 1000000);
+        B3DROCK_COOLDOWN = b.comment("ticks between b3drock events (72000 = 1 hour)").defineInRange("cooldown", 72000, 600, 720000);
+        B3DROCK_MIN_SIZE = b.comment("minimum width of the bedrock cube").defineInRange("minSize", 32, 8, 128);
+        B3DROCK_MAX_SIZE = b.comment("maximum width of the bedrock cube").defineInRange("maxSize", 64, 8, 128);
+        B3DROCK_MAX_REP = b.comment("players with rep above this never get b3drock").defineInRange("maxRep", 1250, 0, 2500);
+        b.pop();
+
         SPEC = b.build();
     }
 }

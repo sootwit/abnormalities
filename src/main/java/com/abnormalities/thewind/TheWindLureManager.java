@@ -55,6 +55,7 @@ public class TheWindLureManager {
         BlockPos chestPos;
         boolean teleported = false;
         List<BlockPos> doorways = new ArrayList<>();
+        List<int[]> roomBounds = new ArrayList<>();
         Set<Long> generatedChunks = new HashSet<>();
 
         LureState(BlockPos returnPos, int duration) {
@@ -152,6 +153,7 @@ public class TheWindLureManager {
         BlockPos center = new BlockPos(sx, sy, sz);
         buildEntryRoom(level, center, state);
         state.roomCenter = center;
+        state.roomBounds.add(new int[]{center.getX() - 3, center.getZ() - 3, center.getX() + 3, center.getZ() + 3});
 
         for (int cx = (sx >> 4) - 2; cx <= (sx >> 4) + 2; cx++) {
             for (int cz = (sz >> 4) - 2; cz <= (sz >> 4) + 2; cz++) {
@@ -163,7 +165,6 @@ public class TheWindLureManager {
         level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 20, () -> {
             player.teleportTo(level, sx + 0.5, sy + 1, sz + 0.5, player.getYRot(), player.getXRot());
             player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0, false, false));
-            level.playSound(null, sx, sy, sz, ModSounds.WHISPER_SOUND.get(), net.minecraft.sounds.SoundSource.AMBIENT, 3.0f, 0.5f);
         }));
         LOGGER.info("[THE_WIND|Lure] Player {} teleported to lure at {}", player.getName().getString(), center);
     }
@@ -182,26 +183,50 @@ public class TheWindLureManager {
         Direction facing = getFacing(state.roomCenter, doorway);
 
         int roll = level.random.nextInt(100);
-        if (roll < 15) {
-            buildXyzGatekeeperRoom(level, doorway, facing, state);
-        } else if (roll < 25) {
-            buildNurDarkRoom(level, doorway, facing, state);
-        } else if (roll < 35) {
-            buildK3wCloneRoom(level, doorway, facing, state);
+        int halfW, halfD;
+        int variant = state.roomsGenerated % 6;
+        if (roll < 80) {
+            halfW = 3 + (variant % 3);
+            halfD = 3 + ((variant + 1) % 3);
+        } else if (roll < 90) {
+            halfW = 5;
+            halfD = 5;
         } else {
-            int variant = state.roomsGenerated % 6;
-            buildStandardRoom(level, doorway, facing, state, variant);
+            halfW = 3;
+            halfD = 3;
         }
 
+        BlockPos newCenter = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
+        int nMinX = newCenter.getX() - halfW;
+        int nMaxX = newCenter.getX() + halfW;
+        int nMinZ = newCenter.getZ() - halfD;
+        int nMaxZ = newCenter.getZ() + halfD;
+
+        for (int[] b : state.roomBounds) {
+            if (nMinX <= b[2] && nMaxX >= b[0] && nMinZ <= b[3] && nMaxZ >= b[1]) {
+                LOGGER.info("[THE_WIND|Lure] Skipping room at {} - would overlap existing room", newCenter);
+                return;
+            }
+        }
+
+        if (roll < 80) {
+            buildStandardRoom(level, doorway, facing, state, variant);
+        } else if (roll < 90) {
+            buildNurDarkRoom(level, doorway, facing, state);
+        } else {
+            buildK3wCloneRoom(level, doorway, facing, state);
+        }
+
+        state.roomBounds.add(new int[]{nMinX, nMinZ, nMaxX, nMaxZ});
         state.roomsGenerated++;
 
         for (int dy = 1; dy <= 3; dy++) {
             for (int a = -1; a <= 1; a++) {
                 BlockPos clear;
                 if (facing.getAxis() == Direction.Axis.X) {
-                    clear = new BlockPos(doorway.getX(), state.roomCenter.getY() + dy, doorway.getZ() + a);
+                    clear = new BlockPos(doorway.getX(), newCenter.getY() + dy, doorway.getZ() + a);
                 } else {
-                    clear = new BlockPos(doorway.getX() + a, state.roomCenter.getY() + dy, doorway.getZ());
+                    clear = new BlockPos(doorway.getX() + a, newCenter.getY() + dy, doorway.getZ());
                 }
                 level.setBlock(clear, Blocks.AIR.defaultBlockState(), 2);
             }
@@ -228,30 +253,6 @@ public class TheWindLureManager {
             spawnAbnormality(level, center);
         }
         state.roomCenter = center;
-    }
-
-    private static void buildXyzGatekeeperRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state) {
-        int halfW = 4;
-        int halfD = 4;
-        int height = 10;
-        BlockPos center = doorway.offset(facing.getStepX() * (halfW + 1), 0, facing.getStepZ() * (halfD + 1));
-
-        fillRoom(level, center, halfW, halfD, height);
-        placeLights(level, center, halfW, halfD, height);
-
-        Entity xyz = ModEntities.XYZ.get().create(level);
-        if (xyz != null) {
-            xyz.moveTo(center.getX() + 0.5, 1, center.getZ() + 0.5, 0, 0);
-            level.addFreshEntity(xyz);
-            level.playSound(null, center.getX() + 0.5, 1, center.getZ() + 0.5,
-                net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), net.minecraft.sounds.SoundSource.HOSTILE, 3.0f, 0.5f);
-            level.sendParticles(ParticleTypes.AMBIENT_ENTITY_EFFECT, center.getX() + 0.5, 1.5, center.getZ() + 0.5, 15, 1.0, 1.0, 1.0, 0.1);
-        }
-
-        clearDoorwayPassage(level, center, doorway, facing, halfW, halfD, height);
-        addDoorways(level, center, halfW, halfD, height, state, true);
-        state.roomCenter = center;
-        LOGGER.info("[THE_WIND|Lure] xYz gatekeeper room at {}", center);
     }
 
     private static void buildNurDarkRoom(ServerLevel level, BlockPos doorway, Direction facing, LureState state) {

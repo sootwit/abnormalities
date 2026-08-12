@@ -74,6 +74,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(InsanityMeter.class);
         MinecraftForge.EVENT_BUS.register(ChatArgManager.class);
         MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
+        MinecraftForge.EVENT_BUS.register(B3drockManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.entity.HimTracker.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindController.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindPillarManager.class);
@@ -81,7 +82,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindLureManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindFarlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.WindFurtherlandsManager.class);
-        MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.WindErrorHandler.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.LureBlockProtection.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());
@@ -115,11 +115,6 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(6, com.abnormalities.network.TheWindShakePacket.class,
                 com.abnormalities.network.TheWindShakePacket::encode, com.abnormalities.network.TheWindShakePacket::decode,
                 com.abnormalities.network.TheWindShakePacket::handle);
-        CHANNEL.registerMessage(7, com.abnormalities.network.WindErrorPacket.class,
-                com.abnormalities.network.WindErrorPacket::encode, com.abnormalities.network.WindErrorPacket::decode,
-                com.abnormalities.network.WindErrorPacket::handle);
-        CHANNEL.registerMessage(8, com.abnormalities.network.WindErrorDismissPacket.class,
-                com.abnormalities.network.WindErrorDismissPacket::encode, com.abnormalities.network.WindErrorDismissPacket::decode,
-                com.abnormalities.network.WindErrorDismissPacket::handle);
+
     }
 }

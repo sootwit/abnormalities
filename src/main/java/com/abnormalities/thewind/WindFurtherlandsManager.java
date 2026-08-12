@@ -93,27 +93,34 @@ public class WindFurtherlandsManager {
                     BlockPos pos = new BlockPos(wx, y, wz);
                     if (y == topY) {
                         if (topY > baseY + 20 && rng.nextInt(2) == 0) {
-                            level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                            level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 34);
                             if (rng.nextInt(3) == 0) {
-                                level.setBlock(pos.above(), Blocks.TALL_GRASS.defaultBlockState(), 2);
+                                level.setBlock(pos.above(), Blocks.TALL_GRASS.defaultBlockState(), 34);
                             }
                             if (rng.nextInt(5) == 0) {
-                                level.setBlock(pos.above(), Blocks.OAK_LEAVES.defaultBlockState(), 2);
-                                level.setBlock(pos.above(2), Blocks.OAK_LEAVES.defaultBlockState(), 2);
+                                level.setBlock(pos.above(), Blocks.OAK_LEAVES.defaultBlockState(), 34);
+                                level.setBlock(pos.above(2), Blocks.OAK_LEAVES.defaultBlockState(), 34);
                             }
                         } else if (topY > baseY + 25) {
-                            level.setBlock(pos, rng.nextBoolean() ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 2);
+                            level.setBlock(pos, rng.nextBoolean() ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 34);
                         } else {
-                            level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                            level.setBlock(pos, Blocks.STONE.defaultBlockState(), 34);
                         }
                     } else if (y == bottomY) {
-                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 34);
                     } else if (y > topY - 5) {
-                        level.setBlock(pos, rng.nextInt(2) == 0 ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 2);
+                        int midR = rng.nextInt(5);
+                        BlockState midBlock = midR == 0 ? Blocks.NETHERRACK.defaultBlockState()
+                                : midR == 1 ? Blocks.SOUL_SAND.defaultBlockState()
+                                : midR == 2 ? Blocks.END_STONE.defaultBlockState()
+                                : rng.nextInt(2) == 0 ? Blocks.DIRT.defaultBlockState()
+                                : Blocks.STONE.defaultBlockState();
+                        level.setBlock(pos, midBlock, 34);
                     } else if (rng.nextInt(6) == 0) {
-                        level.setBlock(pos, Blocks.OBSIDIAN.defaultBlockState(), 2);
+                        level.setBlock(pos, Blocks.BEDROCK.defaultBlockState(), 34);
                     } else {
-                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                        BlockState[] deep = {Blocks.STONE.defaultBlockState(), Blocks.DEEPSLATE.defaultBlockState(), Blocks.TUFF.defaultBlockState(), Blocks.BLACKSTONE.defaultBlockState(), Blocks.BASALT.defaultBlockState()};
+                        level.setBlock(pos, deep[rng.nextInt(deep.length)], 34);
                     }
                 }
 
@@ -123,10 +130,10 @@ public class WindFurtherlandsManager {
                         for (int dx = -2; dx <= 2; dx++) {
                             for (int dz = -2; dz <= 2; dz++) {
                                 if (rng.nextInt(3) == 0) {
-                                    level.setBlock(cave.offset(dx, 0, dz), Blocks.AIR.defaultBlockState(), 2);
-                                    level.setBlock(cave.offset(dx, 1, dz), Blocks.AIR.defaultBlockState(), 2);
+                                    level.setBlock(cave.offset(dx, 0, dz), Blocks.AIR.defaultBlockState(), 34);
+                                    level.setBlock(cave.offset(dx, 1, dz), Blocks.AIR.defaultBlockState(), 34);
                                     if (rng.nextInt(4) == 0) {
-                                        level.setBlock(cave.offset(dx, 2, dz), Blocks.AIR.defaultBlockState(), 2);
+                                        level.setBlock(cave.offset(dx, 2, dz), Blocks.AIR.defaultBlockState(), 34);
                                     }
                                 }
                             }
@@ -136,26 +143,32 @@ public class WindFurtherlandsManager {
 
                 if (topY > baseY + 30 && rng.nextInt(4) == 0) {
                     for (int dy = 0; dy < 4; dy++) {
-                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.AIR.defaultBlockState(), 2);
+                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.AIR.defaultBlockState(), 34);
                     }
                     for (int dx = -2; dx <= 2; dx++) {
                         for (int dz = -2; dz <= 2; dz++) {
                             if (rng.nextInt(2) == 0) {
-                                level.setBlock(new BlockPos(wx + dx, topY + 1, wz + dz), Blocks.DIRT.defaultBlockState(), 2);
-                                level.setBlock(new BlockPos(wx + dx, topY + 2, wz + dz), Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                                level.setBlock(new BlockPos(wx + dx, topY + 1, wz + dz), Blocks.DIRT.defaultBlockState(), 34);
+                                level.setBlock(new BlockPos(wx + dx, topY + 2, wz + dz), Blocks.GRASS_BLOCK.defaultBlockState(), 34);
                             }
                         }
                     }
                 }
 
                 if (topY > baseY + 40 && rng.nextInt(6) == 0) {
-                    level.setBlock(new BlockPos(wx, topY + 1, wz), Blocks.OAK_LOG.defaultBlockState(), 2);
-                    level.setBlock(new BlockPos(wx, topY + 2, wz), Blocks.OAK_LOG.defaultBlockState(), 2);
-                    level.setBlock(new BlockPos(wx, topY + 3, wz), Blocks.OAK_LOG.defaultBlockState(), 2);
+                    int woodType = rng.nextInt(4);
+                    net.minecraft.world.level.block.Block log, leaves;
+                    if (woodType == 1) { log = Blocks.SPRUCE_LOG; leaves = Blocks.SPRUCE_LEAVES; }
+                    else if (woodType == 2) { log = Blocks.DARK_OAK_LOG; leaves = Blocks.DARK_OAK_LEAVES; }
+                    else if (woodType == 3) { log = Blocks.CHERRY_LOG; leaves = Blocks.CHERRY_LEAVES; }
+                    else { log = Blocks.OAK_LOG; leaves = Blocks.OAK_LEAVES; }
+                    level.setBlock(new BlockPos(wx, topY + 1, wz), log.defaultBlockState(), 34);
+                    level.setBlock(new BlockPos(wx, topY + 2, wz), log.defaultBlockState(), 34);
+                    level.setBlock(new BlockPos(wx, topY + 3, wz), log.defaultBlockState(), 34);
                     for (int dx = -3; dx <= 3; dx++) {
                         for (int dz = -3; dz <= 3; dz++) {
                             if (Math.abs(dx) + Math.abs(dz) <= 4 && rng.nextInt(3) != 0) {
-                                level.setBlock(new BlockPos(wx + dx, topY + 4, wz + dz), Blocks.OAK_LEAVES.defaultBlockState(), 2);
+                                level.setBlock(new BlockPos(wx + dx, topY + 4, wz + dz), leaves.defaultBlockState(), 34);
                             }
                         }
                     }
@@ -164,13 +177,13 @@ public class WindFurtherlandsManager {
                 if (rng.nextInt(12) == 0) {
                     int spireH = 5 + rng.nextInt(10);
                     for (int dy = 0; dy < spireH; dy++) {
-                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.OBSIDIAN.defaultBlockState(), 2);
+                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.BEDROCK.defaultBlockState(), 34);
                     }
                 }
 
                 if (rng.nextInt(8) == 0) {
                     for (int dy = 0; dy < 3; dy++) {
-                        level.setBlock(new BlockPos(wx, bottomY - 1 - dy, wz), Blocks.LAVA.defaultBlockState(), 2);
+                        level.setBlock(new BlockPos(wx, bottomY - 1 - dy, wz), Blocks.LAVA.defaultBlockState(), 34);
                     }
                 }
             }

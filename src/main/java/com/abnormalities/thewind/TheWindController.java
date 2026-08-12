@@ -73,6 +73,9 @@ public class TheWindController {
             if (AbnormalitiesConfig.TW_THEWIND_ENABLED.get() && overworld.random.nextInt(5000) == 0) {
                 spawnTheWind(player);
             }
+
+            TheWindChunkManager.tick(player, now);
+            TheWindBorderManager.tick(player, now);
         }
     }
 
@@ -127,7 +130,6 @@ public class TheWindController {
         }
         if (corrupted > 0) {
             LOGGER.info("[THE_WIND] Corruption placed {} blocks", corrupted);
-            com.abnormalities.WhisperManager.sendWhisper(player, "the wind is touching your world. you'll see it soon.");
             scheduleCorruptionDecay(level, center, range, false);
         }
     }
@@ -180,7 +182,6 @@ public class TheWindController {
         }
         if (corrupted > 0) {
             LOGGER.info("[THE_WIND] Destructive corruption placed {} blocks", corrupted);
-            com.abnormalities.WhisperManager.sendWhisper(player, "this one is different. don't break the dark ones. they don't come back.");
             scheduleCorruptionDecay(level, center, range, true);
         }
     }

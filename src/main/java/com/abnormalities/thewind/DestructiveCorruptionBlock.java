@@ -1,8 +1,6 @@
 package com.abnormalities.thewind;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,20 +18,12 @@ public class DestructiveCorruptionBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (!level.isClientSide && player instanceof ServerPlayer sp) {
-            sp.displayClientMessage(Component.literal("this one doesn't come back."), true);
-        }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            if (!level.isClientSide) {
-                level.setBlock(pos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        level.removeBlock(pos, false);
     }
 
     @Override
