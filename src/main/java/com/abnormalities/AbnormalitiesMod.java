@@ -44,7 +44,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
         MinecraftForge.EVENT_BUS.register(K3wActionTracker.class);
         MinecraftForge.EVENT_BUS.register(AbnormalitiesCommands.class);
-        MinecraftForge.EVENT_BUS.register(ConfigCommand.class);
         MinecraftForge.EVENT_BUS.register(ReputationManager.class);
         MinecraftForge.EVENT_BUS.register(ActionLogger.class);
         MinecraftForge.EVENT_BUS.register(HorrorEventPool.class);
