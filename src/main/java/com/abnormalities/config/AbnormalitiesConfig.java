@@ -190,6 +190,8 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_CHANCE;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_RADIUS;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_MAX_REP;
+    public static final ForgeConfigSpec.BooleanValue TW_WIND_ERROR_ENABLED;
+    public static final ForgeConfigSpec.IntValue TW_WIND_ERROR_COOLDOWN;
     public static final ForgeConfigSpec.BooleanValue TW_THEWIND_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_LURE_MIN_DURATION;
     public static final ForgeConfigSpec.IntValue TW_LURE_MAX_DURATION;
@@ -466,6 +468,10 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("theWindEntity");
         TW_THEWIND_ENABLED = b.comment("enable THE_WIND entity (black humanoid that follows your back)").define("enabled", true);
+        b.pop();
+        b.push("windError");
+        TW_WIND_ERROR_ENABLED = b.comment("enable windError (real OS dialog crash event)").define("enabled", true);
+        TW_WIND_ERROR_COOLDOWN = b.comment("ticks between windError events").defineInRange("cooldown", 36000, 6000, 360000);
         b.pop();
         SPEC = b.build();
     }
