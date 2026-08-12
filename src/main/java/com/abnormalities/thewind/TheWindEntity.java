@@ -110,6 +110,7 @@ public class TheWindEntity extends Mob {
 
     @Override
     protected void defineSynchedData() {
+        super.defineSynchedData();
     }
 
     @Override

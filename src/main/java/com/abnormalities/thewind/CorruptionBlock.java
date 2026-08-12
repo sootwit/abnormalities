@@ -2,7 +2,6 @@ package com.abnormalities.thewind;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -34,9 +33,13 @@ public class CorruptionBlock extends BaseEntityBlock {
                     return InteractionResult.sidedSuccess(false);
                 }
             }
-            sp.displayClientMessage(Component.literal("the corruption flickers..."), true);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        level.removeBlock(pos, false);
     }
 
     @Override
