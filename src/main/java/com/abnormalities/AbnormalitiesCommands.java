@@ -6,13 +6,16 @@ import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.horror.HorrorEventPool;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +23,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -30,6 +34,14 @@ import java.util.stream.Collectors;
 public class AbnormalitiesCommands {
     private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "1ns4n1ty", "c4lm", "ang3r", "b3d", "0th3r", "corruption", "destructiveCorruption", "windPillars", "theWind", "windMimic", "windWhisper", "windLure", "windFarlands", "windFurtherlands", "windEntity");
     private static final Random RNG = new Random();
+    private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
+            (ctx, builder) -> SharedSuggestionProvider.suggest(configAllKeys(), builder);
+    private static final SuggestionProvider<CommandSourceStack> CONFIG_VALUE_SUGGESTIONS =
+            (ctx, builder) -> {
+                String key = StringArgumentType.getString(ctx, "key");
+                List<String> vals = configValueSuggestions(key);
+                return SharedSuggestionProvider.suggest(vals.isEmpty() ? List.of() : vals, builder);
+            };
 
     private static List<String> allEvents() {
         List<String> all = new ArrayList<>(BASE_EVENTS);
@@ -99,7 +111,17 @@ public class AbnormalitiesCommands {
                                                     ctx.getSource().sendSuccess(() ->
                                                         Component.literal("set " + target.getName().getString() + " rep to " + value), true);
                                                     return Command.SINGLE_SUCCESS;
-                                                }))))));
+                                                })))))
+                .then(Commands.literal("config")
+                        .executes(ctx -> configListAll(ctx.getSource()))
+                        .then(Commands.argument("key", StringArgumentType.word())
+                                .suggests(CONFIG_KEY_SUGGESTIONS)
+                                .executes(ctx -> configShowOne(ctx.getSource(), StringArgumentType.getString(ctx, "key")))
+                                .then(Commands.argument("value", StringArgumentType.word())
+                                        .suggests(CONFIG_VALUE_SUGGESTIONS)
+                                        .executes(ctx -> configSetOne(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "key"),
+                                                StringArgumentType.getString(ctx, "value")))))));
     }
 
     private static void fireEvent(ServerPlayer player, String eventName) {
@@ -255,5 +277,151 @@ public class AbnormalitiesCommands {
             level.setChunkForced(cx, cz, true);
             com.abnormalities.registry.ModEvents.registerSkinwalkerChunk(mob.getUUID(), cx, cz);
         }
+    }
+
+    private static List<String> configAllKeys() {
+        return new ArrayList<>(configFlatten(AbnormalitiesConfig.SPEC.getValues(), "").keySet());
+    }
+
+    private static List<String> configValueSuggestions(String key) {
+        var all = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "");
+        ForgeConfigSpec.ConfigValue<?> cv = all.get(key);
+        if (cv == null) return List.of();
+        if (cv instanceof ForgeConfigSpec.BooleanValue) return List.of("true", "false");
+        if (cv instanceof ForgeConfigSpec.EnumValue) {
+            ForgeConfigSpec.ValueSpec vs = configSpecFor(key);
+            Class<?> clazz = vs == null ? null : vs.getClazz();
+            if (clazz != null && clazz.isEnum()) {
+                List<String> out = new ArrayList<>();
+                for (Object c : clazz.getEnumConstants()) out.add(((Enum<?>) c).name().toLowerCase());
+                return out;
+            }
+        }
+        return List.of();
+    }
+
+    private static Map<String, ForgeConfigSpec.ConfigValue<?>> configFlatten(UnmodifiableConfig cfg, String prefix) {
+        Map<String, ForgeConfigSpec.ConfigValue<?>> out = new LinkedHashMap<>();
+        for (var entry : cfg.entrySet()) {
+            String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
+            Object v = entry.getValue();
+            if (v instanceof UnmodifiableConfig nested) {
+                out.putAll(configFlatten(nested, key));
+            } else if (v instanceof ForgeConfigSpec.ConfigValue<?> cv) {
+                out.put(key, cv);
+            }
+        }
+        return out;
+    }
+
+    private static ForgeConfigSpec.ValueSpec configSpecFor(String key) {
+        Object cur = AbnormalitiesConfig.SPEC.getSpec();
+        for (String p : key.split("\\.")) {
+            if (!(cur instanceof UnmodifiableConfig uc)) return null;
+            cur = uc.get(p);
+        }
+        return cur instanceof ForgeConfigSpec.ValueSpec vs ? vs : null;
+    }
+
+    private static int configListAll(CommandSourceStack src) {
+        var all = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "");
+        var keys = new ArrayList<>(all.keySet());
+        keys.sort(Comparator.naturalOrder());
+        if (keys.isEmpty()) {
+            src.sendSuccess(() -> Component.literal("no config values found"), false);
+            return Command.SINGLE_SUCCESS;
+        }
+        src.sendSuccess(() -> Component.literal("abnormalities config (" + keys.size() + " values):")
+                .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        for (String key : keys) {
+            src.sendSuccess(() -> Component.literal(key + " = " + all.get(key).get()).withStyle(ChatFormatting.GRAY), false);
+        }
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int configShowOne(CommandSourceStack src, String key) {
+        ForgeConfigSpec.ConfigValue<?> cv = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "").get(key);
+        if (cv == null) {
+            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities config to list all"));
+            return 0;
+        }
+        src.sendSuccess(() -> Component.literal(key + " = " + cv.get()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int configSetOne(CommandSourceStack src, String key, String raw) {
+        ForgeConfigSpec.ConfigValue<?> cv = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "").get(key);
+        if (cv == null) {
+            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities config to list all"));
+            return 0;
+        }
+        Object parsed = configParseValue(src, cv, key, raw);
+        if (parsed == null) return 0;
+        ((ForgeConfigSpec.ConfigValue<Object>) cv).set(parsed);
+        AbnormalitiesConfig.SPEC.save();
+        src.sendSuccess(() -> Component.literal("set " + key + " = " + parsed + " (saved to disk)").withStyle(ChatFormatting.GREEN), true);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static Object configParseValue(CommandSourceStack src, ForgeConfigSpec.ConfigValue<?> cv, String key, String raw) {
+        ForgeConfigSpec.ValueSpec vs = configSpecFor(key);
+        if (cv instanceof ForgeConfigSpec.BooleanValue) {
+            if (!raw.equalsIgnoreCase("true") && !raw.equalsIgnoreCase("false")) {
+                src.sendFailure(Component.literal("expected true or false for " + key));
+                return null;
+            }
+            return Boolean.parseBoolean(raw);
+        }
+        if (cv instanceof ForgeConfigSpec.IntValue) {
+            try {
+                int i = Integer.parseInt(raw);
+                if (vs != null && !vs.test(i)) {
+                    src.sendFailure(Component.literal(key + " rejected: " + configRangeHint(vs)));
+                    return null;
+                }
+                return i;
+            } catch (NumberFormatException e) {
+                src.sendFailure(Component.literal("expected an integer for " + key));
+                return null;
+            }
+        }
+        if (cv instanceof ForgeConfigSpec.DoubleValue) {
+            try {
+                double d = Double.parseDouble(raw);
+                if (vs != null && !vs.test(d)) {
+                    src.sendFailure(Component.literal(key + " rejected: " + configRangeHint(vs)));
+                    return null;
+                }
+                return d;
+            } catch (NumberFormatException e) {
+                src.sendFailure(Component.literal("expected a number for " + key));
+                return null;
+            }
+        }
+        if (cv instanceof ForgeConfigSpec.EnumValue) {
+            Class<?> clazz = vs != null ? vs.getClazz() : null;
+            if (clazz != null && clazz.isEnum()) {
+                for (Object c : clazz.getEnumConstants()) {
+                    if (((Enum<?>) c).name().equalsIgnoreCase(raw)) return c;
+                }
+                src.sendFailure(Component.literal(key + " must be one of: " + java.util.Arrays.toString(clazz.getEnumConstants())));
+                return null;
+            }
+        }
+        src.sendFailure(Component.literal("unsupported config type for " + key));
+        return null;
+    }
+
+    private static String configRangeHint(ForgeConfigSpec.ValueSpec vs) {
+        try {
+            Object r = vs.getRange();
+            if (r != null) {
+                Object min = r.getClass().getMethod("getMin").invoke(r);
+                Object max = r.getClass().getMethod("getMax").invoke(r);
+                return "must be in [" + min + ", " + max + "]";
+            }
+        } catch (Exception e) {
+        }
+        return "value not accepted by this config";
     }
 }
