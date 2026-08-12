@@ -57,8 +57,8 @@ public class WindFurtherlandsManager {
         int chunkX = (center.getX() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
         int chunkZ = (center.getZ() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
 
-        for (int cx = chunkX - 3; cx <= chunkX + 3; cx++) {
-            for (int cz = chunkZ - 3; cz <= chunkZ + 3; cz++) {
+        for (int cx = chunkX - 4; cx <= chunkX + 3; cx++) {
+            for (int cz = chunkZ - 4; cz <= chunkZ + 3; cz++) {
                 long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
                 if (GENERATED_CHUNKS.containsKey(key)) continue;
                 if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
