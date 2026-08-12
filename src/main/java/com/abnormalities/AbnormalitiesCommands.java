@@ -39,70 +39,67 @@ public class AbnormalitiesCommands {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("abnorm_forcerandomevent")
+        event.getDispatcher().register(Commands.literal("abnormalities")
                 .requires(src -> src.hasPermission(2))
-                .executes(ctx -> {
-                    CommandSourceStack src = ctx.getSource();
-                    if (!(src.getEntity() instanceof ServerPlayer player)) {
-                        src.sendFailure(Component.literal("must be a player"));
-                        return 0;
-                    }
-                    List<String> events = allEvents();
-                    String eventName = events.get(RNG.nextInt(events.size()));
-                    fireEvent(player, eventName);
-                    src.sendSuccess(() -> Component.literal("triggered event: " + eventName).withStyle(ChatFormatting.GREEN), false);
-                    return Command.SINGLE_SUCCESS;
-                }));
-
-        event.getDispatcher().register(Commands.literal("abnorm_callevent")
-                .requires(src -> src.hasPermission(2))
-                .then(Commands.argument("name", StringArgumentType.word())
-                        .suggests((ctx, builder) -> {
-                            for (String s : allEvents()) {
-                                builder.suggest(s);
-                            }
-                            return builder.buildFuture();
-                        })
+                .then(Commands.literal("event")
+                        .then(Commands.argument("name", StringArgumentType.word())
+                                .suggests((ctx, builder) -> {
+                                    for (String s : allEvents()) {
+                                        builder.suggest(s);
+                                    }
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    CommandSourceStack src = ctx.getSource();
+                                    if (!(src.getEntity() instanceof ServerPlayer player)) {
+                                        src.sendFailure(Component.literal("must be a player"));
+                                        return 0;
+                                    }
+                                    String eventName = StringArgumentType.getString(ctx, "name");
+                                    List<String> events = allEvents();
+                                    if (!events.contains(eventName)) {
+                                        src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
+                                        return 0;
+                                    }
+                                    fireEvent(player, eventName);
+                                    src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
+                                    return Command.SINGLE_SUCCESS;
+                                })))
+                .then(Commands.literal("random")
                         .executes(ctx -> {
                             CommandSourceStack src = ctx.getSource();
                             if (!(src.getEntity() instanceof ServerPlayer player)) {
                                 src.sendFailure(Component.literal("must be a player"));
                                 return 0;
                             }
-                            String eventName = StringArgumentType.getString(ctx, "name");
                             List<String> events = allEvents();
-                            if (!events.contains(eventName)) {
-                                src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
-                                return 0;
-                            }
+                            String eventName = events.get(RNG.nextInt(events.size()));
                             fireEvent(player, eventName);
-                            src.sendSuccess(() -> Component.literal("triggered event: " + eventName).withStyle(ChatFormatting.GREEN), false);
+                            src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
                             return Command.SINGLE_SUCCESS;
-                        })));
-
-        event.getDispatcher().register(Commands.literal("abnorm_rep")
-                .then(Commands.literal("get")
-                        .then(Commands.argument("player", EntityArgument.player())
-                                .executes(ctx -> {
-                                    ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
-                                    int rep = ReputationManager.getRep(target);
-                                    String tier = ReputationManager.getTierLabel(rep);
-                                    ctx.getSource().sendSuccess(() ->
-                                        Component.literal(target.getName().getString() + " rep: " + rep + " (" + tier + ")"), false);
-                                    return Command.SINGLE_SUCCESS;
-                                })))
-                .then(Commands.literal("set")
-                        .requires(src -> src.hasPermission(2))
-                        .then(Commands.argument("player", EntityArgument.player())
-                                .then(Commands.argument("value", IntegerArgumentType.integer(0, 2500))
+                        }))
+                .then(Commands.literal("rep")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("player", EntityArgument.player())
                                         .executes(ctx -> {
                                             ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
-                                            int value = IntegerArgumentType.getInteger(ctx, "value");
-                                            ReputationManager.setRep(target, value);
+                                            int rep = ReputationManager.getRep(target);
+                                            String tier = ReputationManager.getTierLabel(rep);
                                             ctx.getSource().sendSuccess(() ->
-                                                Component.literal("set " + target.getName().getString() + " rep to " + value), true);
+                                                Component.literal(target.getName().getString() + " rep: " + rep + " (" + tier + ")"), false);
                                             return Command.SINGLE_SUCCESS;
-                                        })))));
+                                        })))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("player", EntityArgument.player())
+                                        .then(Commands.argument("value", IntegerArgumentType.integer(0, 2500))
+                                                .executes(ctx -> {
+                                                    ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
+                                                    int value = IntegerArgumentType.getInteger(ctx, "value");
+                                                    ReputationManager.setRep(target, value);
+                                                    ctx.getSource().sendSuccess(() ->
+                                                        Component.literal("set " + target.getName().getString() + " rep to " + value), true);
+                                                    return Command.SINGLE_SUCCESS;
+                                                }))))));
     }
 
     private static void fireEvent(ServerPlayer player, String eventName) {
