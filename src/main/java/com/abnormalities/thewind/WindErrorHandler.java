@@ -72,6 +72,7 @@ public class WindErrorHandler {
 
     public static void triggerError(ServerPlayer player) {
         if (!AbnormalitiesConfig.TW_ENABLED.get()) return;
+        if (!AbnormalitiesConfig.TW_WIND_ERROR_ENABLED.get()) return;
         UUID uuid = player.getUUID();
 
         long now = player.level().getGameTime();
