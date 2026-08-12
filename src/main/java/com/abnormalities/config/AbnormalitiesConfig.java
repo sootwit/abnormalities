@@ -185,6 +185,11 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TW_MIMICRY_CHAT_CHANCE;
     public static final ForgeConfigSpec.IntValue TW_MIMICRY_LURE_CHANCE;
     public static final ForgeConfigSpec.BooleanValue TW_LURE_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue TW_FURTHERLANDS_ENABLED;
+    public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_CHANCE;
+    public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_RADIUS;
+    public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_MAX_REP;
     public static final ForgeConfigSpec.BooleanValue TW_THEWIND_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_LURE_MIN_DURATION;
     public static final ForgeConfigSpec.IntValue TW_LURE_MAX_DURATION;
@@ -451,6 +456,13 @@ public class AbnormalitiesConfig {
         TW_LURE_ABNORMAL_MULT = b.comment("abnormality spawn rate multiplier in Lure dimension").defineInRange("abnormalitySpawnMultiplier", 5.0, 1.0, 20.0);
         TW_LURE_MAX_ROOMS = b.comment("maximum rooms generated in Lure dimension").defineInRange("maxRooms", 20, 5, 100);
         TW_LURE_ROOM_INTERVAL = b.comment("ticks between new room generations").defineInRange("roomGenerationInterval", 600, 100, 6000);
+        b.pop();
+        b.push("furtherlands");
+        TW_FURTHERLANDS_ENABLED = b.comment("enable furtherlands (8-chunk radius, denser corruption, rarer than farlands)").define("enabled", true);
+        TW_FURTHERLANDS_COOLDOWN = b.comment("ticks between furtherlands events (20 = 1s)").defineInRange("cooldown", 120000, 6000, 1200000);
+        TW_FURTHERLANDS_CHANCE = b.comment("1 in N checks trigger furtherlands (higher = rarer)").defineInRange("chance", 20000, 1000, 100000);
+        TW_FURTHERLANDS_RADIUS = b.comment("chunk radius of furtherlands generation").defineInRange("radius", 8, 4, 16);
+        TW_FURTHERLANDS_MAX_REP = b.comment("players with rep above this never get furtherlands").defineInRange("maxRep", 800, 0, 2500);
         b.pop();
         b.push("theWindEntity");
         TW_THEWIND_ENABLED = b.comment("enable THE_WIND entity (black humanoid that follows your back)").define("enabled", true);

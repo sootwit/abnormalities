@@ -81,6 +81,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindMimicryManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindLureManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindFarlandsManager.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.WindFurtherlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.LureBlockProtection.class);
 
         HorrorEventPool.register(new FogKnowsYourNameEvent());

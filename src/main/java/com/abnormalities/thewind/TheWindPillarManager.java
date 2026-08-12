@@ -201,8 +201,8 @@ public class TheWindPillarManager {
             int relZ = playerPos.getZ() - target.getZ();
             int relY = playerPos.getY() - y;
 
-            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && relY >= -10 && relY <= 2;
-            boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -10 && relY <= 5;
+            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && relY >= -2 && relY <= 2;
+            boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -2 && relY <= 5;
 
             if (inside) {
                 stealItems(player);
