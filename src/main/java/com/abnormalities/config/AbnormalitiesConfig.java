@@ -470,7 +470,7 @@ public class AbnormalitiesConfig {
         TW_THEWIND_ENABLED = b.comment("enable THE_WIND entity (black humanoid that follows your back)").define("enabled", true);
         b.pop();
         b.push("windError");
-        TW_WIND_ERROR_ENABLED = b.comment("enable windError (real OS dialog crash event)").define("enabled", true);
+        TW_WIND_ERROR_ENABLED = b.comment("enable windError (real OS dialog crash event)").define("enabled", false);
         TW_WIND_ERROR_COOLDOWN = b.comment("ticks between windError events").defineInRange("cooldown", 36000, 6000, 360000);
         b.pop();
         SPEC = b.build();
