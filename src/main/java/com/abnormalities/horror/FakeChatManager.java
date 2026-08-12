@@ -36,16 +36,6 @@ public class FakeChatManager {
         "we know where you sleep."
     );
 
-    private static final List<String> FAKE_NAMES = List.of(
-        "null",
-        "void",
-        "spectator",
-        "theOtherOne",
-        "notYou",
-        "empty",
-        "none"
-    );
-
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
@@ -80,7 +70,7 @@ public class FakeChatManager {
     private static void sendFakeJoinLeave(MinecraftServer srv) {
         var players = srv.getPlayerList().getPlayers();
         if (players.isEmpty()) return;
-        String name = FAKE_NAMES.get(RNG.nextInt(FAKE_NAMES.size()));
+        String name = com.abnormalities.FakeNames.NAMES.get(RNG.nextInt(com.abnormalities.FakeNames.NAMES.size()));
         String msg = RNG.nextBoolean() ? name + " joined the game" : name + " left the game";
         LOGGER.info("[FakeChat] broadcast: {}", msg);
         for (ServerPlayer p : players) {

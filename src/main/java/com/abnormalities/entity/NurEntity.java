@@ -35,6 +35,7 @@ public class NurEntity extends Mob {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Nur");
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_DUMMY = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
+    private static long lastGlobalKillTick = -100;
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
     public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING }
@@ -334,10 +335,11 @@ public class NurEntity extends Mob {
                 net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES, this,
                 net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES));
         }
-        if (dist < 3.0D && attackCooldown <= 0) {
+        if (dist < 3.0D && attackCooldown <= 0 && level().getGameTime() - lastGlobalKillTick >= 20) {
             LOGGER.info("[Nur] kill attempt on {}", currentTarget.getName().getString());
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
+            lastGlobalKillTick = level().getGameTime();
             silenceTimer = 40;
         }
     }

@@ -24,11 +24,6 @@ public class TheWindMimicryManager {
     private static final Map<String, List<String>> THREAT_MESSAGES = new HashMap<>();
     private static final Map<String, List<String>> CONFUSION_MESSAGES = new HashMap<>();
 
-    private static final List<String> FAKE_PLAYER_NAMES = List.of(
-            "null", "void", "spectator", "theOtherOne", "notYou", "empty", "none",
-            "ghost", "shadow", "echo", "whisper", "fragment", "remainder", "trace"
-    );
-
     static {
         LURE_MESSAGES.put("en_us", List.of(
                 "bro i found diamonds at X Y Z come check",
@@ -692,7 +687,7 @@ public class TheWindMimicryManager {
                 sourceName = friends.get(RNG.nextInt(friends.size()));
                 LOGGER.info("[THE_WIND|Mimicry] Using Essential friend name: {}", sourceName);
             } else {
-                sourceName = FAKE_PLAYER_NAMES.get(RNG.nextInt(FAKE_PLAYER_NAMES.size()));
+                sourceName = com.abnormalities.FakeNames.NAMES.get(RNG.nextInt(com.abnormalities.FakeNames.NAMES.size()));
                 LOGGER.info("[THE_WIND|Mimicry] No Essential friends, using fake name: {}", sourceName);
             }
         } else {
@@ -701,7 +696,18 @@ public class TheWindMimicryManager {
             LOGGER.info("[THE_WIND|Mimicry] Using real player name: {}", sourceName);
         }
 
-        String sourceLang = "en_us";
+        String sourceLang;
+        if (srv.isSingleplayer()) {
+            sourceLang = players.isEmpty() ? "en_us" : getPlayerLanguage(players.get(0));
+        } else {
+            sourceLang = "en_us";
+            for (ServerPlayer p : players) {
+                if (p.getName().getString().equals(sourceName)) {
+                    sourceLang = getPlayerLanguage(p);
+                    break;
+                }
+            }
+        }
         int roll = RNG.nextInt(100);
         int lureChance = AbnormalitiesConfig.TW_MIMICRY_LURE_CHANCE.get();
         List<String> pool;
@@ -873,6 +879,12 @@ public class TheWindMimicryManager {
     }
 
     private static String getPlayerLanguage(ServerPlayer player) {
+        try {
+            String lang = player.getLanguage();
+            if (lang != null && !lang.isEmpty()) {
+                return lang.toLowerCase();
+            }
+        } catch (Exception ignored) {}
         return "en_us";
     }
 
@@ -886,27 +898,60 @@ public class TheWindMimicryManager {
             if (friends instanceof Collection<?> friendList) {
                 for (Object friend : friendList) {
                     String name = (String) friend.getClass().getMethod("getName").invoke(friend);
-                    if (name != null && !name.isEmpty()) {
-                        names.add(name);
-                    }
+                    if (name != null && !name.isEmpty()) names.add(name);
                 }
             }
+            if (!names.isEmpty()) return names;
         } catch (Exception ignored) {}
-        if (names.isEmpty()) {
-            try {
-                Class<?> platformClass = Class.forName("team.essential.lib.platform.Platform");
-                Object platform = platformClass.getMethod("getServer").invoke(null);
-                Object users = platform.getClass().getMethod("getOnlineUsers").invoke(platform);
-                if (users instanceof Collection<?> userList) {
-                    for (Object user : userList) {
-                        String name = (String) user.getClass().getMethod("getName").invoke(user);
-                        if (name != null && !name.isEmpty()) {
-                            names.add(name);
-                        }
-                    }
+        try {
+            Class<?> apiClass = Class.forName("team.essential.api.EssentialAPI");
+            Object api = apiClass.getMethod("getApi").invoke(null);
+            Object friends = api.getClass().getMethod("getFriends").invoke(api);
+            if (friends instanceof Collection<?> friendList) {
+                for (Object friend : friendList) {
+                    String name = (String) friend.getClass().getMethod("getName").invoke(friend);
+                    if (name != null && !name.isEmpty()) names.add(name);
                 }
-            } catch (Exception ignored) {}
-        }
+            }
+            if (!names.isEmpty()) return names;
+        } catch (Exception ignored) {}
+        try {
+            Class<?> modClass = Class.forName("team.essential.EssentialMod");
+            Object client = modClass.getMethod("getApiClient").invoke(null);
+            Object friends = client.getClass().getMethod("getFriends").invoke(client);
+            if (friends instanceof Collection<?> friendList) {
+                for (Object friend : friendList) {
+                    String name = (String) friend.getClass().getMethod("getName").invoke(friend);
+                    if (name != null && !name.isEmpty()) names.add(name);
+                }
+            }
+            if (!names.isEmpty()) return names;
+        } catch (Exception ignored) {}
+        try {
+            Class<?> platformClass = Class.forName("team.essential.lib.platform.Platform");
+            Object platform = platformClass.getMethod("getServer").invoke(null);
+            Object users = platform.getClass().getMethod("getOnlineUsers").invoke(platform);
+            if (users instanceof Collection<?> userList) {
+                for (Object user : userList) {
+                    String name = (String) user.getClass().getMethod("getName").invoke(user);
+                    if (name != null && !name.isEmpty()) names.add(name);
+                }
+            }
+            if (!names.isEmpty()) return names;
+        } catch (Exception ignored) {}
+        try {
+            Class<?> platformApiClass = Class.forName("team.essential.api.platform.PlatformAPI");
+            Object platform = platformApiClass.getMethod("getServer").invoke(null);
+            Object users = platform.getClass().getMethod("getOnlineUsers").invoke(platform);
+            if (users instanceof Collection<?> userList) {
+                for (Object user : userList) {
+                    String name = (String) user.getClass().getMethod("getName").invoke(user);
+                    if (name != null && !name.isEmpty()) names.add(name);
+                }
+            }
+            if (!names.isEmpty()) return names;
+        } catch (Exception ignored) {}
+        LOGGER.debug("[THE_WIND|Mimicry] Essential mod loaded but no friend name API path worked, falling back to fake names");
         return names;
     }
 
@@ -924,10 +969,10 @@ public class TheWindMimicryManager {
             if (!friends.isEmpty()) {
                 sourceName = friends.get(RNG.nextInt(friends.size()));
             } else {
-                sourceName = FAKE_PLAYER_NAMES.get(RNG.nextInt(FAKE_PLAYER_NAMES.size()));
+                sourceName = com.abnormalities.FakeNames.NAMES.get(RNG.nextInt(com.abnormalities.FakeNames.NAMES.size()));
             }
         } else {
-            sourceName = FAKE_PLAYER_NAMES.get(RNG.nextInt(FAKE_PLAYER_NAMES.size()));
+            sourceName = com.abnormalities.FakeNames.NAMES.get(RNG.nextInt(com.abnormalities.FakeNames.NAMES.size()));
         }
         List<String> pool = LURE_MESSAGES.getOrDefault(lang, LURE_MESSAGES.get("en_us"));
         String message = pool.get(RNG.nextInt(pool.size()));

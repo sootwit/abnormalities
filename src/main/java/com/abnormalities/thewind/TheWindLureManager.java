@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -75,7 +76,22 @@ public class TheWindLureManager {
             var entry = it.next();
             ServerPlayer player = srv.getPlayerList().getPlayer(entry.getKey());
             LureState state = entry.getValue();
-            if (player == null || !player.isAlive()) { it.remove(); continue; }
+            if (player == null || !player.isAlive()) {
+                if (state.teleported) {
+                    ServerLevel lureLevel = srv.getLevel(net.minecraft.world.level.Level.OVERWORLD);
+                    if (lureLevel != null) {
+                        int cx = state.roomCenter.getX() >> 4;
+                        int cz = state.roomCenter.getZ() >> 4;
+                        for (int x = cx - 2; x <= cx + 2; x++) {
+                            for (int z = cz - 2; z <= cz + 2; z++) {
+                                lureLevel.setChunkForced(x, z, false);
+                            }
+                        }
+                    }
+                }
+                it.remove();
+                continue;
+            }
             if (!state.teleported) continue;
 
             state.remainingTicks--;
@@ -178,6 +194,19 @@ public class TheWindLureManager {
         }
 
         state.roomsGenerated++;
+
+        for (int dy = 1; dy <= 3; dy++) {
+            for (int a = -1; a <= 1; a++) {
+                BlockPos clear;
+                if (facing.getAxis() == Direction.Axis.X) {
+                    clear = new BlockPos(doorway.getX(), state.roomCenter.getY() + dy, doorway.getZ() + a);
+                } else {
+                    clear = new BlockPos(doorway.getX() + a, state.roomCenter.getY() + dy, doorway.getZ());
+                }
+                level.setBlock(clear, Blocks.AIR.defaultBlockState(), 2);
+            }
+        }
+
         LOGGER.info("[THE_WIND|Lure] Room #{} at {} (doorways={})", state.roomsGenerated, state.roomCenter, state.doorways.size());
     }
 
@@ -212,10 +241,14 @@ public class TheWindLureManager {
 
         Entity xyz = ModEntities.XYZ.get().create(level);
         if (xyz != null) {
-            xyz.moveTo(doorway.getX() + 0.5, 1, doorway.getZ() + 0.5, 0, 0);
+            xyz.moveTo(center.getX() + 0.5, 1, center.getZ() + 0.5, 0, 0);
             level.addFreshEntity(xyz);
+            level.playSound(null, center.getX() + 0.5, 1, center.getZ() + 0.5,
+                net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), net.minecraft.sounds.SoundSource.HOSTILE, 3.0f, 0.5f);
+            level.sendParticles(ParticleTypes.AMBIENT_ENTITY_EFFECT, center.getX() + 0.5, 1.5, center.getZ() + 0.5, 15, 1.0, 1.0, 1.0, 0.1);
         }
 
+        clearDoorwayPassage(level, center, doorway, facing, halfW, halfD, height);
         addDoorways(level, center, halfW, halfD, height, state, true);
         state.roomCenter = center;
         LOGGER.info("[THE_WIND|Lure] xYz gatekeeper room at {}", center);
@@ -237,6 +270,7 @@ public class TheWindLureManager {
             }
         }
 
+        clearDoorwayPassage(level, center, doorway, facing, halfW, halfD, height);
         addDoorways(level, center, halfW, halfD, height, state, true);
 
         Entity nur = ModEntities.NUR.get().create(level);
@@ -268,6 +302,7 @@ public class TheWindLureManager {
             }
         }
 
+        clearDoorwayPassage(level, center, doorway, facing, halfW, halfD, height);
         addDoorways(level, center, halfW, halfD, height, state, true);
         state.roomCenter = center;
         LOGGER.info("[THE_WIND|Lure] K3W clone room at {}", center);
