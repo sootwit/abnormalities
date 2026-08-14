@@ -1,6 +1,9 @@
 package com.abnormalities.horror;
 
 import com.abnormalities.WhisperManager;
+import com.abnormalities.entity.NurEntity;
+import com.abnormalities.registry.ModEntities;
+import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -10,8 +13,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -37,11 +46,19 @@ public class InsanityMeter {
     private static final int WHISPER_INTERVAL = 600;
     private static final int DISPLAY_INTERVAL = 800;
     private static final int DISPLAY_THRESHOLD = 300;
+    private static final int BLINDNESS_PULSE_INTERVAL = 100;
+    private static final int BLINDNESS_PULSE_DURATION = 5;
+    private static final int BLINDNESS_CONT_INTERVAL = 50;
+    private static final int BLINDNESS_CONT_DURATION = 10;
+    private static final int NAUSEA_INTERVAL = 400;
+    private static final int NAUSEA_DURATION = 200;
     private static final long SAVE_THROTTLE_MS = 5000;
     private static final Random RNG = new Random();
     private static final Map<UUID, Double> INSANITY = new HashMap<>();
     private static final Map<UUID, Long> NEXT_WHISPER = new HashMap<>();
     private static final Map<UUID, Long> NEXT_DISPLAY = new HashMap<>();
+    private static final Map<UUID, Long> NEXT_BLINDNESS = new HashMap<>();
+    private static final Map<UUID, Long> NEXT_NAUSEA = new HashMap<>();
     private static File dataFile = null;
     private static boolean loaded = false;
     private static long lastSaveTime = 0;
@@ -83,7 +100,14 @@ public class InsanityMeter {
         if (nw == null) {
             NEXT_WHISPER.put(uuid, now + WHISPER_INTERVAL);
         } else if (now >= nw) {
-            if (val > 600) WhisperManager.sendWhisper(sp, pickWhisper(val));
+            if (val > 600) {
+                WhisperManager.sendWhisper(sp, pickWhisper(val));
+                caveSound(sp);
+                placeSculk(sp);
+            }
+            if (val > 900) {
+                spawnFakeNur(sp);
+            }
             NEXT_WHISPER.put(uuid, now + WHISPER_INTERVAL);
         }
         Long nd = NEXT_DISPLAY.get(uuid);
@@ -96,6 +120,32 @@ public class InsanityMeter {
             }
             NEXT_DISPLAY.put(uuid, now + DISPLAY_INTERVAL);
         }
+        if (val > 900) {
+            Long nb = NEXT_BLINDNESS.getOrDefault(uuid, now);
+            if (now >= nb) {
+                sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_CONT_DURATION, 0, false, false, false));
+                sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
+                        ModSounds.HEARTBEAT_SOUND.get(), SoundSource.MASTER, 1.5f, 0.5f);
+                NEXT_BLINDNESS.put(uuid, now + BLINDNESS_CONT_INTERVAL);
+            }
+            Long nn = NEXT_NAUSEA.getOrDefault(uuid, now);
+            if (now >= nn) {
+                sp.addEffect(new MobEffectInstance(MobEffects.CONFUSION, NAUSEA_DURATION, 0, false, false, false));
+                NEXT_NAUSEA.put(uuid, now + NAUSEA_INTERVAL);
+            }
+        } else if (val > 750) {
+            Long nb = NEXT_BLINDNESS.getOrDefault(uuid, now);
+            if (now >= nb) {
+                sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, BLINDNESS_PULSE_DURATION, 0, false, false, false));
+                sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
+                        ModSounds.HEARTBEAT_SOUND.get(), SoundSource.MASTER, 1.5f, 0.5f);
+                NEXT_BLINDNESS.put(uuid, now + BLINDNESS_PULSE_INTERVAL);
+            }
+            NEXT_NAUSEA.remove(uuid);
+        } else {
+            NEXT_BLINDNESS.remove(uuid);
+            NEXT_NAUSEA.remove(uuid);
+        }
     }
 
     public static void forceSpike(ServerPlayer player) {
@@ -103,6 +153,8 @@ public class InsanityMeter {
         INSANITY.put(uuid, 900.0);
         NEXT_WHISPER.put(uuid, 0L);
         NEXT_DISPLAY.put(uuid, 0L);
+        NEXT_BLINDNESS.put(uuid, 0L);
+        NEXT_NAUSEA.put(uuid, 0L);
         LOGGER.info("[InsanityMeter] {} force spike to 900", player.getName().getString());
         WhisperManager.sendWhisper(player, pickWhisper(900));
         player.displayClientMessage(Component.literal("insanity: 900").withStyle(ChatFormatting.GOLD), true);
@@ -114,6 +166,8 @@ public class InsanityMeter {
         INSANITY.put(uuid, START_INSANITY);
         NEXT_WHISPER.remove(uuid);
         NEXT_DISPLAY.remove(uuid);
+        NEXT_BLINDNESS.remove(uuid);
+        NEXT_NAUSEA.remove(uuid);
         save(true);
     }
 
@@ -122,6 +176,46 @@ public class InsanityMeter {
         if (val >= 750) return WHISPERS.get(RNG.nextInt(3));
         if (val >= 600) return WHISPERS.get(RNG.nextInt(2));
         return WHISPERS.get(0);
+    }
+
+    private static void caveSound(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        double x = player.getX() + (RNG.nextDouble() - 0.5) * 16.0;
+        double y = player.getY() + (RNG.nextDouble() - 0.5) * 8.0;
+        double z = player.getZ() + (RNG.nextDouble() - 0.5) * 16.0;
+        level.playSound(null, x, y, z, SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 2.0f, 0.5f + RNG.nextFloat() * 0.4f);
+    }
+
+    private static void placeSculk(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        var sculk = Blocks.SCULK_VEIN.defaultBlockState();
+        for (int i = 0; i < 5; i++) {
+            double ox = (RNG.nextDouble() - 0.5) * 6;
+            double oz = (RNG.nextDouble() - 0.5) * 6;
+            BlockPos pos = BlockPos.containing(player.getX() + ox, player.getY(), player.getZ() + oz);
+            if (level.getBlockState(pos).canBeReplaced() && level.getBlockState(pos.below()).canOcclude()) {
+                level.setBlockAndUpdate(pos, sculk);
+                return;
+            }
+        }
+    }
+
+    private static void spawnFakeNur(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        double angle = RNG.nextDouble() * Math.PI * 2;
+        double dist = 15 + RNG.nextDouble() * 10;
+        double sx = player.getX() + Math.cos(angle) * dist;
+        double sz = player.getZ() + Math.sin(angle) * dist;
+        int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+        if (!level.getBlockState(spawnPos.below()).canOcclude()) return;
+        if (!level.getBlockState(spawnPos).canBeReplaced()) return;
+        NurEntity nur = ModEntities.NUR.get().create(level);
+        if (nur == null) return;
+        nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+        nur.currentState = NurEntity.State.DUMMY;
+        nur.currentTarget = player;
+        level.addFreshEntity(nur);
     }
 
     private static void save() {
@@ -188,6 +282,8 @@ public class InsanityMeter {
         INSANITY.clear();
         NEXT_WHISPER.clear();
         NEXT_DISPLAY.clear();
+        NEXT_BLINDNESS.clear();
+        NEXT_NAUSEA.clear();
         dataFile = null;
     }
 
@@ -197,6 +293,8 @@ public class InsanityMeter {
         UUID uuid = event.getEntity().getUUID();
         NEXT_WHISPER.remove(uuid);
         NEXT_DISPLAY.remove(uuid);
+        NEXT_BLINDNESS.remove(uuid);
+        NEXT_NAUSEA.remove(uuid);
         save(true);
     }
 }

@@ -1,6 +1,8 @@
 package com.abnormalities.horror;
 
 import com.abnormalities.WhisperManager;
+import com.abnormalities.entity.NurEntity;
+import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -11,9 +13,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -53,10 +60,14 @@ public class BedMemoryManager {
         BlockPos bed;
         int remaining;
         int lineIndex;
-        HuntState(BlockPos bed) {
+        int repeatCount;
+        boolean nurSpawned;
+        HuntState(BlockPos bed, int repeatCount) {
             this.bed = bed;
             this.remaining = HUNT_DURATION;
             this.lineIndex = 0;
+            this.repeatCount = repeatCount;
+            this.nurSpawned = false;
         }
     }
 
@@ -89,13 +100,14 @@ public class BedMemoryManager {
             WhisperManager.sendWhisper(sp, "you should not sleep in the same place twice.");
             sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
+            sp.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 5, 0, false, false, false));
             if (count >= REPEAT_NUR_THRESHOLD) {
                 LOGGER.info("[BedMemory] {} repeat threshold reached, spawning nur", sp.getName().getString());
                 save();
                 ModEvents.forceNurSpawn(sp);
                 return;
             }
-            HUNTS.put(uuid, new HuntState(matched));
+            HUNTS.put(uuid, new HuntState(matched, count));
         } else {
             reps.put(bed, 1);
             if (beds.size() >= MAX_MEMORY) {
@@ -132,6 +144,41 @@ public class BedMemoryManager {
                     String line = HUNT_LINES.get(hunt.lineIndex % HUNT_LINES.size());
                     hunt.lineIndex++;
                     WhisperManager.sendWhisper(p, line);
+                    ServerLevel level = (ServerLevel) p.level();
+                    BlockState sculkVein = Blocks.SCULK_VEIN.defaultBlockState();
+                    BlockState soulSand = Blocks.SOUL_SAND.defaultBlockState();
+                    int blocksToPlace = 1 + level.random.nextInt(2);
+                    for (int i = 0; i < blocksToPlace; i++) {
+                        double bx = hunt.bed.getX() + (level.random.nextDouble() - 0.5) * 4;
+                        double bz = hunt.bed.getZ() + (level.random.nextDouble() - 0.5) * 4;
+                        BlockPos placePos = BlockPos.containing(bx, hunt.bed.getY(), bz);
+                        if (level.getBlockState(placePos).canBeReplaced() && level.getBlockState(placePos.below()).canOcclude()) {
+                            level.setBlockAndUpdate(placePos, level.random.nextBoolean() ? sculkVein : soulSand);
+                        }
+                    }
+                    double sdx = (level.random.nextDouble() - 0.5) * 16;
+                    double sdz = (level.random.nextDouble() - 0.5) * 16;
+                    level.playSound(null, p.getX() + sdx, p.getY(), p.getZ() + sdz,
+                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.8f + level.random.nextFloat() * 0.4f);
+                    p.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 10, 0, false, false, false));
+                    if (hunt.repeatCount >= 2 && !hunt.nurSpawned) {
+                        double angle = level.random.nextDouble() * Math.PI * 2;
+                        double dist = 5.0D + level.random.nextDouble() * 5.0D;
+                        double sx = hunt.bed.getX() + Math.cos(angle) * dist;
+                        double sz = hunt.bed.getZ() + Math.sin(angle) * dist;
+                        int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+                        if (level.getBlockState(spawnPos.below()).canOcclude() && level.getBlockState(spawnPos).canBeReplaced()) {
+                            NurEntity nur = ModEntities.NUR.get().create(level);
+                            if (nur != null) {
+                                nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                                nur.currentState = NurEntity.State.STALKING_DUMMY;
+                                nur.currentTarget = p;
+                                level.addFreshEntity(nur);
+                                hunt.nurSpawned = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -176,7 +223,7 @@ public class BedMemoryManager {
     public static void forceHunt(ServerPlayer player) {
         UUID uuid = player.getUUID();
         BlockPos bed = findBed(player);
-        HUNTS.put(uuid, new HuntState(bed));
+        HUNTS.put(uuid, new HuntState(bed, 0));
         WhisperManager.sendWhisper(player, "it knows this room.");
     }
 
