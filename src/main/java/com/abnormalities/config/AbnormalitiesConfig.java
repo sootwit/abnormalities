@@ -184,7 +184,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue TW_MIMICRY_LANG_CHAT;
     public static final ForgeConfigSpec.IntValue TW_MIMICRY_CHAT_CHANCE;
     public static final ForgeConfigSpec.IntValue TW_MIMICRY_LURE_CHANCE;
-    public static final ForgeConfigSpec.BooleanValue TW_LURE_ENABLED;
     public static final ForgeConfigSpec.BooleanValue TW_FURTHERLANDS_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_COOLDOWN;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_CHANCE;
@@ -196,11 +195,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue TW_CHUNK_CHANCE;
     public static final ForgeConfigSpec.IntValue TW_CHUNK_COOLDOWN;
     public static final ForgeConfigSpec.BooleanValue TW_THEWIND_ENABLED;
-    public static final ForgeConfigSpec.IntValue TW_LURE_MIN_DURATION;
-    public static final ForgeConfigSpec.IntValue TW_LURE_MAX_DURATION;
-    public static final ForgeConfigSpec.DoubleValue TW_LURE_ABNORMAL_MULT;
-    public static final ForgeConfigSpec.IntValue TW_LURE_MAX_ROOMS;
-    public static final ForgeConfigSpec.IntValue TW_LURE_ROOM_INTERVAL;
     public static final ForgeConfigSpec.BooleanValue TW_BORDER_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_BORDER_COOLDOWN;
     public static final ForgeConfigSpec.IntValue TW_BORDER_CHANCE;
@@ -465,14 +459,6 @@ public class AbnormalitiesConfig {
         TW_MIMICRY_LANG_CHAT = b.comment("enable language-based fake chat (mimics player language)").define("languageBasedChat", true);
         TW_MIMICRY_CHAT_CHANCE = b.comment("percent chance of fake chat per check").defineInRange("chatMessageChance", 25, 0, 100);
         TW_MIMICRY_LURE_CHANCE = b.comment("percent chance fake chat includes lure coordinates").defineInRange("lureChestChance", 15, 0, 100);
-        b.pop();
-        b.push("lure");
-        TW_LURE_ENABLED = b.comment("enable THE_WIND Lure dimension (fake chest teleports to maze)").define("enabled", true);
-        TW_LURE_MIN_DURATION = b.comment("minimum seconds spent in Lure dimension").defineInRange("minDuration", 120, 10, 600);
-        TW_LURE_MAX_DURATION = b.comment("maximum seconds spent in Lure dimension").defineInRange("maxDuration", 300, 10, 600);
-        TW_LURE_ABNORMAL_MULT = b.comment("abnormality spawn rate multiplier in Lure dimension").defineInRange("abnormalitySpawnMultiplier", 5.0, 1.0, 20.0);
-        TW_LURE_MAX_ROOMS = b.comment("maximum rooms generated in Lure dimension").defineInRange("maxRooms", 20, 5, 100);
-        TW_LURE_ROOM_INTERVAL = b.comment("ticks between new room generations").defineInRange("roomGenerationInterval", 600, 100, 6000);
         b.pop();
         b.push("furtherlands");
         TW_FURTHERLANDS_ENABLED = b.comment("enable furtherlands (8-chunk radius, denser corruption, rarer than farlands)").define("enabled", true);

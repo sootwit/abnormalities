@@ -68,7 +68,7 @@ public class TheWindLureManager {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (!AbnormalitiesConfig.TW_ENABLED.get() || !AbnormalitiesConfig.TW_LURE_ENABLED.get()) return;
+        if (!AbnormalitiesConfig.TW_ENABLED.get()) return;
         var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
 
@@ -102,8 +102,8 @@ public class TheWindLureManager {
                 continue;
             }
 
-            int interval = AbnormalitiesConfig.TW_LURE_ROOM_INTERVAL.get();
-            if (interval > 0 && state.remainingTicks % interval == 0 && state.roomsGenerated < AbnormalitiesConfig.TW_LURE_MAX_ROOMS.get()) {
+            int interval = 600;
+            if (interval > 0 && state.remainingTicks % interval == 0 && state.roomsGenerated < 20) {
                 generateNextRoom(player, state);
             }
         }
@@ -114,10 +114,10 @@ public class TheWindLureManager {
     }
 
     public static void triggerLure(ServerPlayer player) {
-        if (!AbnormalitiesConfig.TW_LURE_ENABLED.get() || ACTIVE_LURES.containsKey(player.getUUID())) return;
+        if (ACTIVE_LURES.containsKey(player.getUUID())) return;
         ServerLevel level = (ServerLevel) player.level();
-        int min = AbnormalitiesConfig.TW_LURE_MIN_DURATION.get();
-        int max = AbnormalitiesConfig.TW_LURE_MAX_DURATION.get();
+        int min = 120;
+        int max = 300;
         int duration = min + level.random.nextInt(Math.max(1, max - min + 1));
 
         double angle = level.random.nextDouble() * Math.PI * 2;

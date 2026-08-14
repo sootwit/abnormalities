@@ -120,7 +120,7 @@ public class HorrorEventPool {
 
         for (ServerPlayer player : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (player.tickCount % 100 != 0) continue;
-            int eventChance = com.abnormalities.thewind.TheWindLureManager.isInLure(player) ? 100 : 200;
+            int eventChance = 200;
             if (overworld.random.nextInt(eventChance) != 0) continue;
 
             AbstractHorrorEvent selected = selectEvent(player, gt);

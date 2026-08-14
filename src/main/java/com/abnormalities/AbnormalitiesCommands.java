@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "1ns4n1ty", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillars", "windChunk", "theWind", "windMimic", "windWhisper", "windLure", "windFarlands", "windFurtherlands", "windEntity", "windBorder");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "1ns4n1ty", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillars", "windChunk", "theWind", "windMimic", "windWhisper", "windFarlands", "windFurtherlands", "windEntity", "windBorder");
     private static final Random RNG = new Random();
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
             (ctx, builder) -> SharedSuggestionProvider.suggest(configAllKeys(), builder);
@@ -179,7 +179,6 @@ public class AbnormalitiesCommands {
             case "theWind" -> com.abnormalities.thewind.TheWindController.forceRandom(player);
             case "windMimic" -> com.abnormalities.thewind.TheWindMimicryManager.forceMimic(player);
             case "windWhisper" -> com.abnormalities.thewind.TheWindMimicryManager.forceWhisper(player);
-            case "windLure" -> com.abnormalities.thewind.TheWindLureManager.forceLure(player);
             case "windFarlands" -> com.abnormalities.thewind.TheWindFarlandsManager.forceFarlands(player);
             case "windFurtherlands" -> com.abnormalities.thewind.WindFurtherlandsManager.forceFurtherlands(player);
             case "windEntity" -> com.abnormalities.thewind.TheWindController.forceTheWind(player);
