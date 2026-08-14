@@ -97,10 +97,7 @@ public class WindFurtherlandsManager {
                             if (rng.nextInt(3) == 0) {
                                 level.setBlock(pos.above(), Blocks.TALL_GRASS.defaultBlockState(), 34);
                             }
-                            if (rng.nextInt(5) == 0) {
-                                level.setBlock(pos.above(), Blocks.OAK_LEAVES.defaultBlockState(), 34);
-                                level.setBlock(pos.above(2), Blocks.OAK_LEAVES.defaultBlockState(), 34);
-                            }
+
                         } else if (topY > baseY + 25) {
                             level.setBlock(pos, rng.nextBoolean() ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 34);
                         } else {

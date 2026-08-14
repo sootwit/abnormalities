@@ -131,5 +131,15 @@ public class TheWindChunkManager {
 
         level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 5.0f, 0.4f);
         level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 3.0f, 0.3f);
+
+        double cx = (x1 + x2) / 2.0;
+        double cz = (z1 + z2) / 2.0;
+        double shakeRangeSq = 128.0 * 128.0;
+        for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
+            double dist = p.distanceToSqr(cx, startY, cz);
+            if (dist < shakeRangeSq) {
+                TheWindShakeHandler.sendShake(p, 2.0f, 200);
+            }
+        }
     }
 }

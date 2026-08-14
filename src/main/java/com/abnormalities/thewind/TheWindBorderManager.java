@@ -14,13 +14,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.UUID;
 
 public class TheWindBorderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Border");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
     private static final int FLAG = 34;
+    private static final int CHUNKS_PER_TICK = 3;
+
+    private static final Map<UUID, Queue<long[]>> pendingChunks = new HashMap<>();
+    private static final Map<UUID, Integer> pendingDestroyed = new HashMap<>();
 
     public static void forceBorder(ServerPlayer player) {
         playerCooldowns.put(player.getUUID(), player.level().getGameTime());
@@ -30,19 +36,26 @@ public class TheWindBorderManager {
     static void tick(ServerPlayer player, long now) {
         if (!AbnormalitiesConfig.TW_ENABLED.get()) return;
         if (!AbnormalitiesConfig.TW_BORDER_ENABLED.get()) return;
+
+        UUID uuid = player.getUUID();
+        if (pendingChunks.containsKey(uuid)) {
+            processPending(player);
+            return;
+        }
+
         if (player.tickCount % 200 != 0) return;
 
         long graceTicks = (long) AbnormalitiesConfig.GRACE_PERIOD_DAYS.get() * 24000L;
         if (now < graceTicks) return;
 
-        Long last = playerCooldowns.get(player.getUUID());
+        Long last = playerCooldowns.get(uuid);
         long cooldown = AbnormalitiesConfig.TW_BORDER_COOLDOWN.get();
         if (last != null && now - last < cooldown) return;
 
         int chance = AbnormalitiesConfig.TW_BORDER_CHANCE.get();
         if (player.level().random.nextInt(chance) != 0) return;
 
-        playerCooldowns.put(player.getUUID(), now);
+        playerCooldowns.put(uuid, now);
         execute(player);
     }
 
@@ -53,35 +66,61 @@ public class TheWindBorderManager {
         int playerChunkX = center.getX() >> 4;
         int playerChunkZ = center.getZ() >> 4;
 
-        for (int cx = playerChunkX - borderDist; cx <= playerChunkX + borderDist; cx++) {
-            level.setChunkForced(cx, playerChunkZ - borderDist, true);
-            level.setChunkForced(cx, playerChunkZ + borderDist, true);
-        }
-        for (int cz = playerChunkZ - borderDist + 1; cz <= playerChunkZ + borderDist - 1; cz++) {
-            level.setChunkForced(playerChunkX - borderDist, cz, true);
-            level.setChunkForced(playerChunkX + borderDist, cz, true);
-        }
-
-        int totalDestroyed = 0;
-
-        for (int cx = playerChunkX - borderDist; cx <= playerChunkX + borderDist; cx++) {
-            totalDestroyed += clearChunkColumn(level, cx, playerChunkZ - borderDist);
-            totalDestroyed += clearChunkColumn(level, cx, playerChunkZ + borderDist);
-        }
-        for (int cz = playerChunkZ - borderDist + 1; cz <= playerChunkZ + borderDist - 1; cz++) {
-            totalDestroyed += clearChunkColumn(level, playerChunkX - borderDist, cz);
-            totalDestroyed += clearChunkColumn(level, playerChunkX + borderDist, cz);
+        Queue<long[]> queue = new LinkedList<>();
+        for (int ring = Math.max(0, borderDist - 1); ring <= borderDist + 1; ring++) {
+            for (int cx = playerChunkX - ring; cx <= playerChunkX + ring; cx++) {
+                queue.add(new long[]{cx, playerChunkZ - ring});
+                if (ring > 0) queue.add(new long[]{cx, playerChunkZ + ring});
+            }
+            for (int cz = playerChunkZ - ring + 1; cz <= playerChunkZ + ring - 1; cz++) {
+                queue.add(new long[]{playerChunkX - ring, cz});
+                if (ring > 0) queue.add(new long[]{playerChunkX + ring, cz});
+            }
         }
 
-        int ringChunks = (borderDist * 2 + 1) * 2 + (borderDist * 2 - 1) * 2;
-        LOGGER.info("[THE_WIND|Border] Cleared {}/{} chunks ({} blocks) around {} at distance {}",
-                ringChunks, ringChunks, totalDestroyed, player.getName().getString(), borderDist);
+        UUID uuid = player.getUUID();
+        pendingChunks.put(uuid, queue);
+        pendingDestroyed.put(uuid, 0);
 
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal("the ground screams beneath you").withStyle(net.minecraft.ChatFormatting.DARK_GRAY, net.minecraft.ChatFormatting.ITALIC), false));
+        int totalChunks = queue.size();
+        LOGGER.info("[THE_WIND|Border] Queued {} chunks (3-wide ring) around {} at distances {}-{}",
+                totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
+
+        if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
+            TheWindShakeHandler.sendShake(player, 1.5f, 200);
+        }
 
         level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
         level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 6.0f, 0.2f);
+
+        processPending(player);
+    }
+
+    private static void processPending(ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        Queue<long[]> queue = pendingChunks.get(uuid);
+        if (queue == null) return;
+
+        ServerLevel level = (ServerLevel) player.level();
+        int processed = 0;
+
+        while (!queue.isEmpty() && processed < CHUNKS_PER_TICK) {
+            long[] chunk = queue.poll();
+            int cx = (int) chunk[0];
+            int cz = (int) chunk[1];
+            level.setChunkForced(cx, cz, true);
+            int destroyed = clearChunkColumn(level, cx, cz);
+            pendingDestroyed.merge(uuid, destroyed, Integer::sum);
+            processed++;
+        }
+
+        if (queue.isEmpty()) {
+            int total = pendingDestroyed.remove(uuid);
+            pendingChunks.remove(uuid);
+            LOGGER.info("[THE_WIND|Border] Cleared {} blocks around {}", total, player.getName().getString());
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                    Component.literal("the ground screams beneath you").withStyle(net.minecraft.ChatFormatting.DARK_GRAY, net.minecraft.ChatFormatting.ITALIC), false));
+        }
     }
 
     private static int clearChunkColumn(ServerLevel level, int chunkX, int chunkZ) {

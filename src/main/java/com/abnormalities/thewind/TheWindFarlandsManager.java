@@ -90,25 +90,22 @@ public class TheWindFarlandsManager {
                     BlockPos pos = new BlockPos(wx, y, wz);
                     if (y == topY) {
                         if (topY > baseY + 15 && rng.nextInt(3) == 0) {
-                            level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                            level.setBlock(pos, Blocks.GRASS_BLOCK.defaultBlockState(), 34);
                             if (rng.nextInt(4) == 0) {
-                                level.setBlock(pos.above(), Blocks.TALL_GRASS.defaultBlockState(), 2);
+                                level.setBlock(pos.above(), Blocks.TALL_GRASS.defaultBlockState(), 34);
                             }
-                            if (rng.nextInt(8) == 0) {
-                                level.setBlock(pos.above(), Blocks.OAK_LEAVES.defaultBlockState(), 2);
-                                level.setBlock(pos.above(2), Blocks.OAK_LEAVES.defaultBlockState(), 2);
-                            }
+
                         } else if (topY > baseY + 20) {
-                            level.setBlock(pos, rng.nextBoolean() ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 2);
+                            level.setBlock(pos, rng.nextBoolean() ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 34);
                         } else {
-                            level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                            level.setBlock(pos, Blocks.STONE.defaultBlockState(), 34);
                         }
                     } else if (y == bottomY) {
-                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 34);
                     } else if (y > topY - 4) {
-                        level.setBlock(pos, rng.nextInt(3) == 0 ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 2);
+                        level.setBlock(pos, rng.nextInt(3) == 0 ? Blocks.DIRT.defaultBlockState() : Blocks.STONE.defaultBlockState(), 34);
                     } else {
-                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 2);
+                        level.setBlock(pos, Blocks.STONE.defaultBlockState(), 34);
                     }
                 }
 
@@ -118,8 +115,8 @@ public class TheWindFarlandsManager {
                         for (int dx = -1; dx <= 1; dx++) {
                             for (int dz = -1; dz <= 1; dz++) {
                                 if (rng.nextInt(3) == 0) {
-                                    level.setBlock(cave.offset(dx, 0, dz), Blocks.AIR.defaultBlockState(), 2);
-                                    level.setBlock(cave.offset(dx, 1, dz), Blocks.AIR.defaultBlockState(), 2);
+                                    level.setBlock(cave.offset(dx, 0, dz), Blocks.AIR.defaultBlockState(), 34);
+                                    level.setBlock(cave.offset(dx, 1, dz), Blocks.AIR.defaultBlockState(), 34);
                                 }
                             }
                         }
@@ -128,25 +125,25 @@ public class TheWindFarlandsManager {
 
                 if (topY > baseY + 25 && rng.nextInt(6) == 0) {
                     for (int dy = 0; dy < 3; dy++) {
-                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.AIR.defaultBlockState(), 2);
+                        level.setBlock(new BlockPos(wx, topY + dy + 1, wz), Blocks.AIR.defaultBlockState(), 34);
                     }
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dz = -1; dz <= 1; dz++) {
                             if (rng.nextInt(2) == 0) {
-                                level.setBlock(new BlockPos(wx + dx, topY + 1, wz + dz), Blocks.DIRT.defaultBlockState(), 2);
-                                level.setBlock(new BlockPos(wx + dx, topY + 2, wz + dz), Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                                level.setBlock(new BlockPos(wx + dx, topY + 1, wz + dz), Blocks.DIRT.defaultBlockState(), 34);
+                                level.setBlock(new BlockPos(wx + dx, topY + 2, wz + dz), Blocks.GRASS_BLOCK.defaultBlockState(), 34);
                             }
                         }
                     }
                 }
 
                 if (topY > baseY + 35 && rng.nextInt(10) == 0) {
-                    level.setBlock(new BlockPos(wx, topY + 1, wz), Blocks.OAK_LOG.defaultBlockState(), 2);
-                    level.setBlock(new BlockPos(wx, topY + 2, wz), Blocks.OAK_LOG.defaultBlockState(), 2);
+                    level.setBlock(new BlockPos(wx, topY + 1, wz), Blocks.OAK_LOG.defaultBlockState(), 34);
+                    level.setBlock(new BlockPos(wx, topY + 2, wz), Blocks.OAK_LOG.defaultBlockState(), 34);
                     for (int dx = -2; dx <= 2; dx++) {
                         for (int dz = -2; dz <= 2; dz++) {
                             if (Math.abs(dx) + Math.abs(dz) <= 3 && rng.nextInt(3) != 0) {
-                                level.setBlock(new BlockPos(wx + dx, topY + 3, wz + dz), Blocks.OAK_LEAVES.defaultBlockState(), 2);
+                                level.setBlock(new BlockPos(wx + dx, topY + 3, wz + dz), Blocks.OAK_LEAVES.defaultBlockState(), 34);
                             }
                         }
                     }
