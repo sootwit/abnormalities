@@ -4,6 +4,7 @@ import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.network.CrashPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -35,6 +36,7 @@ public class ItEntity extends Mob {
     private int lookAwayTicks = 0;
     private int stareTicks = 0;
     private int steals = 0;
+    private int lastStealTick = -1000;
     private float lastSwing = 0.0F;
 
     public ItEntity(EntityType<? extends ItEntity> type, Level level) {
@@ -146,8 +148,11 @@ public class ItEntity extends Mob {
             this.getLookControl().setLookAt(target, 10, 10);
 
             if (collidedWith(target)) {
-                LOGGER.debug("[It] collided with {} at dist {}", target.getName().getString(), dist);
-                stealFrom(target);
+                if (tickCount - lastStealTick >= 10) {
+                    lastStealTick = tickCount;
+                    LOGGER.debug("[It] collided with {} at dist {}", target.getName().getString(), dist);
+                    stealFrom(target);
+                }
             } else {
                 float speed = baseApproachSpeed() + (maxApproachSpeed() - baseApproachSpeed()) * Math.min(1.0F, lookAwayTicks / 120.0F);
                 this.getNavigation().moveTo(target, speed);
@@ -248,7 +253,14 @@ public class ItEntity extends Mob {
         double dist = 16.0D + this.random.nextDouble() * 8.0D;
         double x = victim.getX() + Math.cos(angle) * dist;
         double z = victim.getZ() + Math.sin(angle) * dist;
-        int y = level().getHeight(Heightmap.Types.MOTION_BLOCKING, (int) x, (int) z);
+        BlockPos.MutableBlockPos probe = new BlockPos.MutableBlockPos((int) x, 0, (int) z);
+        if (!level().isLoaded(probe)) return null;
+        if (!level().getWorldBorder().isWithinBounds(probe)) return null;
+        int y = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) x, (int) z);
+        if (y <= 0) return null;
+        BlockPos feet = new BlockPos((int) x, y + 1, (int) z);
+        BlockPos head = feet.above();
+        if (!level().getBlockState(feet).canBeReplaced() || !level().getBlockState(head).canBeReplaced()) return null;
         return new Vec3(x, y + 1, z);
     }
 

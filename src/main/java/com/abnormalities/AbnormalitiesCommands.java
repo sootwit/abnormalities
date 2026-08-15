@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "1ns4n1ty", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windMimic", "windWhisper", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
     private static final Random RNG = new Random();
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
             (ctx, builder) -> SharedSuggestionProvider.suggest(configAllKeys(), builder);
@@ -53,30 +53,30 @@ public class AbnormalitiesCommands {
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("abnormalities")
                 .requires(src -> src.hasPermission(2))
-                .then(Commands.literal("event")
-                        .then(Commands.argument("name", StringArgumentType.word())
-                                .suggests((ctx, builder) -> {
-                                    for (String s : allEvents()) {
-                                        builder.suggest(s);
-                                    }
-                                    return builder.buildFuture();
-                                })
-                                .executes(ctx -> {
-                                    CommandSourceStack src = ctx.getSource();
-                                    if (!(src.getEntity() instanceof ServerPlayer player)) {
-                                        src.sendFailure(Component.literal("must be a player"));
-                                        return 0;
-                                    }
-                                    String eventName = StringArgumentType.getString(ctx, "name");
-                                    List<String> events = allEvents();
-                                    if (!events.contains(eventName)) {
-                                        src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
-                                        return 0;
-                                    }
-                                    fireEvent(player, eventName);
-                                    src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
-                                    return Command.SINGLE_SUCCESS;
-                                })))
+                        .then(Commands.literal("event")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> {
+                                            for (String s : allEvents()) {
+                                                builder.suggest(s);
+                                            }
+                                            return builder.buildFuture();
+                                        })
+                                        .executes(ctx -> {
+                                            CommandSourceStack src = ctx.getSource();
+                                            if (!(src.getEntity() instanceof ServerPlayer player)) {
+                                                src.sendFailure(Component.literal("must be a player"));
+                                                return 0;
+                                            }
+                                            String eventName = StringArgumentType.getString(ctx, "name");
+                                            List<String> events = allEvents();
+                                            if (!events.contains(eventName)) {
+                                                src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
+                                                return 0;
+                                            }
+                                            fireEvent(player, eventName);
+                                            src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
+                                            return Command.SINGLE_SUCCESS;
+                                        })))
                 .then(Commands.literal("random")
                         .executes(ctx -> {
                             CommandSourceStack src = ctx.getSource();

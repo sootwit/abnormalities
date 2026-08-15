@@ -9,13 +9,17 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 
 public class TheWindBorderManager {
@@ -26,6 +30,8 @@ public class TheWindBorderManager {
 
     private static final Map<UUID, Queue<long[]>> pendingChunks = new HashMap<>();
     private static final Map<UUID, Integer> pendingDestroyed = new HashMap<>();
+    private static final Map<UUID, Set<Long>> forcedChunks = new HashMap<>();
+    private static final Map<UUID, ServerLevel> pendingLevel = new HashMap<>();
 
     public static void forceBorder(ServerPlayer player) {
         playerCooldowns.put(player.getUUID(), player.level().getGameTime());
@@ -78,15 +84,41 @@ public class TheWindBorderManager {
         }
 
         UUID uuid = player.getUUID();
+
+        if (pendingChunks.containsKey(uuid)) {
+            Set<Long> oldForced = forcedChunks.remove(uuid);
+            ServerLevel oldLevel = pendingLevel.remove(uuid);
+            pendingDestroyed.remove(uuid);
+            pendingChunks.remove(uuid);
+            if (oldForced != null && oldLevel != null) {
+                for (long key : oldForced) {
+                    int cx = (int) (key >> 32);
+                    int cz = (int) key;
+                    oldLevel.setChunkForced(cx, cz, false);
+                }
+            }
+        }
+
         pendingChunks.put(uuid, queue);
         pendingDestroyed.put(uuid, 0);
+        forcedChunks.put(uuid, new HashSet<>());
+        pendingLevel.put(uuid, level);
 
         int totalChunks = queue.size();
         LOGGER.info("[THE_WIND|Border] Queued {} chunks (3-wide ring) around {} at distances {}-{}",
                 totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
 
-        level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
-        level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 6.0f, 0.2f);
+        try {
+            level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
+            level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 6.0f, 0.2f);
+        } catch (Exception e) {
+            LOGGER.error("[THE_WIND|Border] playSound failed mid-execute, cleaning up event for {}", player.getName().getString(), e);
+            pendingChunks.remove(uuid);
+            pendingDestroyed.remove(uuid);
+            forcedChunks.remove(uuid);
+            pendingLevel.remove(uuid);
+            return;
+        }
 
         processPending(player);
     }
@@ -96,7 +128,9 @@ public class TheWindBorderManager {
         Queue<long[]> queue = pendingChunks.get(uuid);
         if (queue == null) return;
 
-        ServerLevel level = (ServerLevel) player.level();
+        ServerLevel level = pendingLevel.get(uuid);
+        if (level == null) level = (ServerLevel) player.level();
+        Set<Long> forced = forcedChunks.get(uuid);
         int processed = 0;
 
         while (!queue.isEmpty() && processed < CHUNKS_PER_TICK) {
@@ -104,6 +138,7 @@ public class TheWindBorderManager {
             int cx = (int) chunk[0];
             int cz = (int) chunk[1];
             level.setChunkForced(cx, cz, true);
+            if (forced != null) forced.add(chunkKey(cx, cz));
             int destroyed = clearChunkColumn(level, cx, cz);
             pendingDestroyed.merge(uuid, destroyed, Integer::sum);
             processed++;
@@ -112,10 +147,41 @@ public class TheWindBorderManager {
         if (queue.isEmpty()) {
             int total = pendingDestroyed.remove(uuid);
             pendingChunks.remove(uuid);
+            if (forced != null) {
+                for (long key : forced) {
+                    int cx = (int) (key >> 32);
+                    int cz = (int) key;
+                    level.setChunkForced(cx, cz, false);
+                }
+            }
+            forcedChunks.remove(uuid);
             LOGGER.info("[THE_WIND|Border] Cleared {} blocks around {}", total, player.getName().getString());
             if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
                 TheWindShakeHandler.sendShake(player, 2.0f, 200);
             }
+        }
+    }
+
+    private static long chunkKey(int cx, int cz) {
+        return ((long) cx << 32) | (cz & 0xFFFFFFFFL);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        UUID uuid = event.getEntity().getUUID();
+        pendingChunks.remove(uuid);
+        pendingDestroyed.remove(uuid);
+        Set<Long> forced = forcedChunks.remove(uuid);
+        ServerLevel level = pendingLevel.remove(uuid);
+        if (forced == null || forced.isEmpty()) return;
+        if (level == null) {
+            ServerPlayer sp = (ServerPlayer) event.getEntity();
+            level = (ServerLevel) sp.level();
+        }
+        for (long key : forced) {
+            int cx = (int) (key >> 32);
+            int cz = (int) key;
+            level.setChunkForced(cx, cz, false);
         }
     }
 

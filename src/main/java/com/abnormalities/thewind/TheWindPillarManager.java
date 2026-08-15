@@ -83,10 +83,25 @@ public class TheWindPillarManager {
             p.tickCounter++;
             if (p.tickCounter >= p.speed) {
                 p.tickCounter = 0;
-                processLayer(p);
-                p.currentY--;
-                if (p.currentY < p.endY) {
-                    collapseRemaining(p);
+                try {
+                    processLayer(p);
+                    p.currentY--;
+                    if (p.currentY < p.endY) {
+                        try {
+                            collapseRemaining(p);
+                        } catch (Exception e) {
+                            LOGGER.error("[THE_WIND|Pillar] collapseRemaining failed for pillar at {}", p.target, e);
+                        }
+                        p.finished = true;
+                        it.remove();
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("[THE_WIND|Pillar] processLayer failed for pillar at {}", p.target, e);
+                    try {
+                        collapseRemaining(p);
+                    } catch (Exception ce) {
+                        LOGGER.error("[THE_WIND|Pillar] collapseRemaining failed during cleanup for pillar at {}", p.target, ce);
+                    }
                     p.finished = true;
                     it.remove();
                 }
