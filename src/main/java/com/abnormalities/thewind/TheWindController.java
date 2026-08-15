@@ -38,6 +38,7 @@ public class TheWindController {
 
         for (ServerPlayer player : new java.util.ArrayList<>(srv.getPlayerList().getPlayers())) {
             if (player.tickCount % 200 != 0) continue;
+            if (player.level().dimension() != Level.OVERWORLD) continue;
 
             long graceTicks = (long) AbnormalitiesConfig.GRACE_PERIOD_DAYS.get() * 24000L;
             if (now < graceTicks) continue;
@@ -80,6 +81,7 @@ public class TheWindController {
     }
 
     public static void triggerCorruption(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         ServerLevel level = (ServerLevel) player.level();
         int range = AbnormalitiesConfig.TW_CORRUPTION_RANGE.get() / 2;
         int chance = AbnormalitiesConfig.TW_CORRUPTION_CHANCE.get();
@@ -135,6 +137,7 @@ public class TheWindController {
     }
 
     public static void triggerDestructiveCorruption(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         ServerLevel level = (ServerLevel) player.level();
         int range = AbnormalitiesConfig.TW_DESTRUCTIVE_RANGE.get() / 2;
         int chance = AbnormalitiesConfig.TW_DESTRUCTIVE_CHANCE.get();
@@ -187,21 +190,25 @@ public class TheWindController {
     }
 
     public static void forceCorruption(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         playerCorruption.put(player.getUUID(), player.level().getGameTime());
         triggerCorruption(player);
     }
 
     public static void forceDestructive(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         playerDestructive.put(player.getUUID(), player.level().getGameTime());
         triggerDestructiveCorruption(player);
     }
 
     public static void forcePillar(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         playerPillar.put(player.getUUID(), player.level().getGameTime());
         TheWindPillarManager.spawnPillar(player);
     }
 
     public static void forceRandom(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         int roll = player.level().random.nextInt(3);
         if (roll == 0) forceCorruption(player);
         else if (roll == 1) forceDestructive(player);
@@ -209,6 +216,7 @@ public class TheWindController {
     }
 
     public static void forceTheWind(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) return;
         spawnTheWind(player);
     }
 

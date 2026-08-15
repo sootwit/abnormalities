@@ -178,12 +178,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.DoubleValue TW_SHAKE_CRUSH;
     public static final ForgeConfigSpec.DoubleValue TW_SHAKE_DIRECT;
     public static final ForgeConfigSpec.IntValue TW_SHAKE_RANGE;
-    public static final ForgeConfigSpec.BooleanValue TW_MIMICRY_ENABLED;
-    public static final ForgeConfigSpec.IntValue TW_MIMICRY_SISTER_CHANCE;
-    public static final ForgeConfigSpec.IntValue TW_MIMICRY_LUMI_CHANCE;
-    public static final ForgeConfigSpec.BooleanValue TW_MIMICRY_LANG_CHAT;
-    public static final ForgeConfigSpec.IntValue TW_MIMICRY_CHAT_CHANCE;
-    public static final ForgeConfigSpec.IntValue TW_MIMICRY_LURE_CHANCE;
     public static final ForgeConfigSpec.BooleanValue TW_FURTHERLANDS_ENABLED;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_COOLDOWN;
     public static final ForgeConfigSpec.IntValue TW_FURTHERLANDS_CHANCE;
@@ -451,14 +445,6 @@ public class AbnormalitiesConfig {
         TW_SHAKE_CRUSH = b.comment("shake intensity when pillar crushes player").defineInRange("playerCrushIntensity", 3.0, 0.0, 5.0);
         TW_SHAKE_DIRECT = b.comment("shake intensity for direct strike").defineInRange("directStrikeIntensity", 4.0, 0.0, 5.0);
         TW_SHAKE_RANGE = b.comment("range where screen shake is felt (blocks)").defineInRange("range", 64, 16, 256);
-        b.pop();
-        b.push("mimicry");
-        TW_MIMICRY_ENABLED = b.comment("enable THE_WIND mimicry (fake chat, fake Sister/Lumi)").define("enabled", true);
-        TW_MIMICRY_SISTER_CHANCE = b.comment("percent chance fake whispers sound like Sister").defineInRange("fakeSisterChance", 30, 0, 100);
-        TW_MIMICRY_LUMI_CHANCE = b.comment("percent chance fake whispers sound like Lumi").defineInRange("fakeLumiChance", 20, 0, 100);
-        TW_MIMICRY_LANG_CHAT = b.comment("enable language-based fake chat (mimics player language)").define("languageBasedChat", true);
-        TW_MIMICRY_CHAT_CHANCE = b.comment("percent chance of fake chat per check").defineInRange("chatMessageChance", 25, 0, 100);
-        TW_MIMICRY_LURE_CHANCE = b.comment("percent chance fake chat includes lure coordinates").defineInRange("lureChestChance", 15, 0, 100);
         b.pop();
         b.push("furtherlands");
         TW_FURTHERLANDS_ENABLED = b.comment("enable furtherlands (8-chunk radius, denser corruption, rarer than farlands)").define("enabled", true);
