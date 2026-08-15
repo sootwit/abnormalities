@@ -2,6 +2,8 @@ package com.abnormalities.horror;
 
 import com.abnormalities.ActionLogger;
 import com.abnormalities.WhisperManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -77,6 +79,17 @@ public class MirrorStageEvent extends AbstractHorrorEvent {
         if (log.size() > 20) log.remove(0);
         LOGGER.debug("[MirrorStage] chat logged for {}: {}", player.getName().getString(), msg);
         ActionLogger.log(player, "chat", msg);
+
+        if (msg != null && !msg.trim().isEmpty()) {
+            String reversed = new StringBuilder(msg).reverse().toString();
+            String playerName = player.getName().getString();
+            int delay = 20 + player.getRandom().nextInt(21);
+            player.server.tell(new net.minecraft.server.TickTask(player.server.getTickCount() + delay, () -> {
+                if (player.connection == null) return;
+                String formatted = "<" + playerName + "> " + reversed;
+                player.connection.send(new ClientboundSystemChatPacket(Component.literal(formatted), false));
+            }));
+        }
     }
 
     @SubscribeEvent

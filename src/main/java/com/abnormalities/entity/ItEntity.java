@@ -145,10 +145,9 @@ public class ItEntity extends Mob {
             lookAwayTicks++;
             this.getLookControl().setLookAt(target, 10, 10);
 
-            if (dist < 1.5D) {
-                stealFrom(target, true);
-            } else if (dist < 1.6D) {
-                stealFrom(target, false);
+            if (collidedWith(target)) {
+                LOGGER.debug("[It] collided with {} at dist {}", target.getName().getString(), dist);
+                stealFrom(target);
             } else {
                 float speed = baseApproachSpeed() + (maxApproachSpeed() - baseApproachSpeed()) * Math.min(1.0F, lookAwayTicks / 120.0F);
                 this.getNavigation().moveTo(target, speed);
@@ -161,6 +160,10 @@ public class ItEntity extends Mob {
         Vec3 look = player.getViewVector(1.0F).normalize();
         Vec3 to = this.getEyePosition(1.0F).subtract(eye).normalize();
         return look.dot(to) > 0.92D;
+    }
+
+    private boolean collidedWith(Player player) {
+        return this.getBoundingBox().inflate(0.3D).intersects(player.getBoundingBox());
     }
 
     private float baseApproachSpeed() {
@@ -191,10 +194,10 @@ public class ItEntity extends Mob {
         this.discard();
     }
 
-    private void stealFrom(Player victim, boolean wasLooking) {
+    private void stealFrom(Player victim) {
         if (victim == null || level().isClientSide) return;
-        int n = wasLooking ? AbnormalitiesConfig.IT_STEAL_COUNT.get() * 2 : AbnormalitiesConfig.IT_STEAL_COUNT.get();
-        LOGGER.info("[It] stealing from {} (wasLooking={}, n={})", victim.getName().getString(), wasLooking, n);
+        int n = AbnormalitiesConfig.IT_STEAL_COUNT.get();
+        LOGGER.info("[It] stealing from {} on contact (n={})", victim.getName().getString(), n);
         int took = 0;
         for (int i = 0; i < n; i++) {
             if (takeRandomItem(victim)) took++;
@@ -208,6 +211,7 @@ public class ItEntity extends Mob {
 
         Vec3 tp = randomTeleportPos(victim);
         if (tp != null) {
+            this.getNavigation().stop();
             this.moveTo(tp.x, tp.y, tp.z, this.random.nextFloat() * 360.0F, 0);
         }
         lookAwayTicks = 0;
