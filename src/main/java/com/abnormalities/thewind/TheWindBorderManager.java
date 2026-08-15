@@ -3,7 +3,6 @@ package com.abnormalities.thewind;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -23,7 +22,7 @@ public class TheWindBorderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Border");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
     private static final int FLAG = 34;
-    private static final int CHUNKS_PER_TICK = 3;
+    private static final int CHUNKS_PER_TICK = 6;
 
     private static final Map<UUID, Queue<long[]>> pendingChunks = new HashMap<>();
     private static final Map<UUID, Integer> pendingDestroyed = new HashMap<>();
@@ -86,10 +85,6 @@ public class TheWindBorderManager {
         LOGGER.info("[THE_WIND|Border] Queued {} chunks (3-wide ring) around {} at distances {}-{}",
                 totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
 
-        if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
-            TheWindShakeHandler.sendShake(player, 1.5f, 200);
-        }
-
         level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
         level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 6.0f, 0.2f);
 
@@ -118,8 +113,9 @@ public class TheWindBorderManager {
             int total = pendingDestroyed.remove(uuid);
             pendingChunks.remove(uuid);
             LOGGER.info("[THE_WIND|Border] Cleared {} blocks around {}", total, player.getName().getString());
-            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                    Component.literal("the ground screams beneath you").withStyle(net.minecraft.ChatFormatting.DARK_GRAY, net.minecraft.ChatFormatting.ITALIC), false));
+            if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
+                TheWindShakeHandler.sendShake(player, 2.0f, 200);
+            }
         }
     }
 

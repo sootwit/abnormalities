@@ -75,10 +75,11 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(ChatArgManager.class);
         MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
         MinecraftForge.EVENT_BUS.register(B3drockManager.class);
+        MinecraftForge.EVENT_BUS.register(SlowedMusicManager.class);
+        MinecraftForge.EVENT_BUS.register(AnimalNoiseManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.entity.HimTracker.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindController.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindPillarManager.class);
-        MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindMimicryManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.TheWindFarlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.thewind.WindFurtherlandsManager.class);
 

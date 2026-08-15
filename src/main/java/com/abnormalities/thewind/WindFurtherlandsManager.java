@@ -6,6 +6,7 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -57,15 +58,26 @@ public class WindFurtherlandsManager {
         int chunkX = (center.getX() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
         int chunkZ = (center.getZ() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
 
-        for (int cx = chunkX - 4; cx <= chunkX + 3; cx++) {
-            for (int cz = chunkZ - 4; cz <= chunkZ + 3; cz++) {
-                long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
-                if (GENERATED_CHUNKS.containsKey(key)) continue;
-                if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
-                GENERATED_CHUNKS.put(key, level.getGameTime());
-                LOGGER.info("[THE_WIND|Furtherlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
-                generateFurtherlandChunk(level, cx, cz);
+        GameRules rules = level.getGameRules();
+        boolean prevMobSpawning = rules.getBoolean(GameRules.RULE_DOMOBSPAWNING);
+        boolean prevTileDrops = rules.getBoolean(GameRules.RULE_DOBLOCKDROPS);
+        rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, level.getServer());
+        rules.getRule(GameRules.RULE_DOBLOCKDROPS).set(false, level.getServer());
+
+        try {
+            for (int cx = chunkX - 4; cx <= chunkX + 3; cx++) {
+                for (int cz = chunkZ - 4; cz <= chunkZ + 3; cz++) {
+                    long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
+                    if (GENERATED_CHUNKS.containsKey(key)) continue;
+                    if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
+                    GENERATED_CHUNKS.put(key, level.getGameTime());
+                    LOGGER.info("[THE_WIND|Furtherlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
+                    generateFurtherlandChunk(level, cx, cz);
+                }
             }
+        } finally {
+            rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(prevMobSpawning, level.getServer());
+            rules.getRule(GameRules.RULE_DOBLOCKDROPS).set(prevTileDrops, level.getServer());
         }
     }
 

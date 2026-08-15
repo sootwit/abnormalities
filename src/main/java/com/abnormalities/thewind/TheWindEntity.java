@@ -1,7 +1,7 @@
 package com.abnormalities.thewind;
 
 import com.abnormalities.config.AbnormalitiesConfig;
-import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -10,7 +10,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -18,6 +17,8 @@ import java.util.UUID;
 public class TheWindEntity extends Mob {
     private UUID targetUUID;
     private int ticksExisted;
+    private int nextTeleportTick;
+    private boolean currentlyInFront;
     private boolean visible;
 
     public TheWindEntity(EntityType<? extends Mob> type, Level level) {
@@ -29,6 +30,8 @@ public class TheWindEntity extends Mob {
         this.setPersistenceRequired();
         this.ticksExisted = 0;
         this.visible = false;
+        this.nextTeleportTick = 0;
+        this.currentlyInFront = false;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -69,43 +72,35 @@ public class TheWindEntity extends Mob {
             return;
         }
 
-        Vec3 targetPos = target.position();
-        float yaw = target.getYRot();
-        double behindX = targetPos.x - Math.sin(Math.toRadians(yaw)) * 3.0;
-        double behindZ = targetPos.z + Math.cos(Math.toRadians(yaw)) * 3.0;
-        double behindY = targetPos.y;
-
-        this.moveTo(behindX, behindY, behindZ, yaw, 0);
-
-        boolean hasSolidBack = hasSolidBlocksBehind(target);
-
-        if (hasSolidBack) {
-            visible = true;
-        } else {
-            visible = false;
+        if (nextTeleportTick <= 0) {
+            currentlyInFront = level().random.nextBoolean();
+            nextTeleportTick = 100 + level().random.nextInt(101);
         }
+
+        if (ticksExisted >= nextTeleportTick) {
+            currentlyInFront = level().random.nextBoolean();
+            nextTeleportTick = ticksExisted + 100 + level().random.nextInt(101);
+            if (currentlyInFront) {
+                level().playSound(null, target.blockPosition(),
+                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 3.0F, 0.3F);
+            }
+        }
+
+        Vec3 eyePos = target.getEyePosition();
+        Vec3 look = target.getLookAngle();
+        Vec3 direction = currentlyInFront ? look : look.scale(-1.0D);
+        Vec3 pos = eyePos.add(direction.scale(3.0D));
+        this.moveTo(pos.x, pos.y, pos.z, target.getYRot(), 0);
+
+        Vec3 toEntity = this.position().subtract(target.getEyePosition()).normalize();
+        double dot = target.getLookAngle().dot(toEntity);
+        visible = dot > 0.7;
 
         if (ticksExisted > 600 && !visible) {
             if (level().random.nextInt(2000) == 0) {
                 discard();
             }
         }
-    }
-
-    private boolean hasSolidBlocksBehind(Player player) {
-        float yaw = player.getYRot();
-        for (int dist = 1; dist <= 5; dist++) {
-            double checkX = player.getX() - Math.sin(Math.toRadians(yaw)) * dist;
-            double checkZ = player.getZ() + Math.cos(Math.toRadians(yaw)) * dist;
-            BlockPos checkPos = new BlockPos((int) checkX, (int) player.getY(), (int) checkZ);
-            BlockPos checkPos2 = new BlockPos((int) checkX, (int) (player.getY() + 1), (int) checkZ);
-            BlockState state1 = level().getBlockState(checkPos);
-            BlockState state2 = level().getBlockState(checkPos2);
-            if (state1.canOcclude() || state2.canOcclude()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

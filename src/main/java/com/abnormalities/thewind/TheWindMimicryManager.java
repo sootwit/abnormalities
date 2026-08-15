@@ -875,7 +875,7 @@ public class TheWindMimicryManager {
         }
 
         String chosen = localized[RNG.nextInt(localized.length)];
-        com.abnormalities.WhisperManager.sendWhisper(target, "<" + sender + "> " + chosen);
+        sendChat(target, "<" + sender + "> " + chosen);
     }
 
     private static String getPlayerLanguage(ServerPlayer player) {

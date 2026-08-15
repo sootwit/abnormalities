@@ -126,9 +126,6 @@ public class TheWindChunkManager {
         LOGGER.info("[THE_WIND] Chunk removed: {}x{}x{} ({}) at ({},{})-({},{},{}) - {} blocks",
                 width, height, depth, axis, x1, startY, x2, z1, z2, destroyed);
 
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                net.minecraft.network.chat.Component.literal("the ground screams beneath you").withStyle(net.minecraft.ChatFormatting.DARK_GRAY, net.minecraft.ChatFormatting.ITALIC), false));
-
         level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 5.0f, 0.4f);
         level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 3.0f, 0.3f);
 

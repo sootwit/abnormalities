@@ -183,7 +183,7 @@ public class TheWindPillarManager {
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(target.getX(), startY, target.getZ());
             if (dist < AbnormalitiesConfig.TW_SHAKE_RANGE.get() * AbnormalitiesConfig.TW_SHAKE_RANGE.get()) {
-                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, (float) AbnormalitiesConfig.TW_SHAKE_DIRECT.get().doubleValue(), (startY - endY) * speed);
+                if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) com.abnormalities.thewind.TheWindShakeHandler.sendShake(p, 3.0f, 200);
             }
         }
 
@@ -201,7 +201,7 @@ public class TheWindPillarManager {
             int relZ = playerPos.getZ() - target.getZ();
             int relY = playerPos.getY() - y;
 
-            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && relY >= -2 && relY <= 2;
+            boolean inside = relX >= -halfW && relX < halfW && relZ >= -halfD && relZ < halfD && y >= playerPos.getY() - 2 && y <= playerPos.getY() + 2;
             boolean near = !inside && Math.abs(relX) <= halfW + damageRadius && Math.abs(relZ) <= halfD + damageRadius && relY >= -2 && relY <= 5;
 
             if (inside) {
