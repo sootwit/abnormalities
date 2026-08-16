@@ -1,0 +1,16 @@
+build/
+bin/
+.gradle/
+run/
+*.jar
+*.iml
+.idea/
+.classpath
+.project
+.settings/
+*.log
+.DS_Store
+ideas/
+MD_DESC/
+CF_DESC/
+CHANGELOG/
