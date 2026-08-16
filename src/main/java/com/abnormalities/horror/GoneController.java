@@ -3,7 +3,6 @@ package com.abnormalities.horror;
 import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
