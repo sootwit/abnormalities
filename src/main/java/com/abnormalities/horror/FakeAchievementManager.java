@@ -21,20 +21,21 @@ public class FakeAchievementManager {
 
     private static final List<String> NAMES = List.of(
         "nur",
-        "it sees you",
-        "3 a.m.",
-        "one more step",
-        "do not blink",
-        "the silence",
-        "you are alone",
-        "the door",
-        "it remembers",
-        "wrong floor",
-        "stay still",
-        "the watcher",
+        "It sees you",
+        "10",
+        "One more step",
+        "Do not blink",
+        "The silence",
+        "You are not alone",
+        "The door",
+        "It remembers",
+        "Wrong floor",
+        "Stay still",
+        "The watcher",
         "he's behind you",
-        "too late",
-        "don't look"
+        "Too late",
+        "Don't look",
+        "No longer"
     );
 
     @SubscribeEvent

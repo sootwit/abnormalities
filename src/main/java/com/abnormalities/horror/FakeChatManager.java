@@ -41,10 +41,10 @@ public class FakeChatManager {
         "null",
         "null.err",
         "000",
-        "you should not have opened this world.",
-        "it has been watching since the first day.",
-        "do not tell anyone.",
-        "we know where you sleep."
+        "You should not have opened this world.",
+        "It has been watching since the first day.",
+        "Do not tell anyone.",
+        "We know where you sleep."
     );
 
     @SubscribeEvent
