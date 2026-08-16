@@ -35,7 +35,7 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
         int rep = ReputationManager.getRep(player);
         totalFires++;
         LOGGER.info("[FogKnowsYourName] {} triggered (rep={}, totalFires={})", player.getName().getString(), rep, totalFires);
-        WhisperManager.sendWhisper(player, "the fog is coming...");
+        WhisperManager.sendWhisper(player, "The fog is nigh");
         FogState st = new FogState();
         st.stage = 0;
         st.timer = 0;

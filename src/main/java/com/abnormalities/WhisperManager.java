@@ -25,9 +25,9 @@ public class WhisperManager {
 
     private static final List<String> LOW_REP_FRAGMENTS = List.of(
         "you're worthless...", "no one cares...", "why bother...",
-        "they left you...", "you deserve this...", "pathetic...",
+        "...", "you deserve this...", "pathetic...",
         "scream... no one hears...", "give up...", "it's over...",
-        "you failed...", "lost... forgotten...", "nothing matters..."
+        "you failed...", "lost...", "forgotten...", "nothing matters..."
     );
 
     private static final List<String> HIGH_REP_FRAGMENTS = List.of(
@@ -93,7 +93,7 @@ public class WhisperManager {
     }
 
     public static String locationWhisper(double x, double y, double z) {
-        return String.format("you are at %.0f %.0f %.0f... we know...", x, y, z);
+        return String.format("You are at %.0f %.0f %.0f. We know.", x, y, z);
     }
 
     public static String chatEcho(String chatMessage) {

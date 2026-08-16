@@ -70,13 +70,6 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         st.ticks++;
 
         if (st.state == KnockState.S_KNOCKING) {
-            if (st.startPos != null && player.position().distanceTo(st.startPos) > 3.0D) {
-                LOGGER.info("[CountTheKnocks] {} moved, triggering wrong", player.getName().getString());
-                st.state = KnockState.S_DONE;
-                WhisperManager.sendWhisper(player, "...you moved. never mind.");
-                cleanup(player);
-                return;
-            }
             int expectedKnox = st.ticks / TICKS_PER_KNOCK;
             while (expectedKnox > st.knox && st.knox < st.target) {
                 playKnock(player, st.knox, st.target);
