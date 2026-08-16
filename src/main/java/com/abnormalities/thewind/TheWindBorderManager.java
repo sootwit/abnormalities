@@ -24,6 +24,7 @@ public class TheWindBorderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Border");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
     private static final int FLAG = 34;
+    private static final int MAX_CHUNKS = 200;
 
     private static final Map<UUID, Set<Long>> forcedChunks = new HashMap<>();
 
@@ -85,11 +86,14 @@ public class TheWindBorderManager {
         }
 
         Set<Long> forced = new HashSet<>();
+        int count = 0;
         for (long key : chunksToProcess) {
+            if (count >= MAX_CHUNKS) break;
             int cx = (int) (key >> 32);
             int cz = (int) key;
             level.setChunkForced(cx, cz, true);
             forced.add(key);
+            count++;
         }
         forcedChunks.put(uuid, forced);
 

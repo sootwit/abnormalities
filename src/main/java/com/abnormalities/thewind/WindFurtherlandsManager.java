@@ -21,6 +21,7 @@ public class WindFurtherlandsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Furtherlands");
     private static long lastFurtherlands = 0;
     private static final Map<Long, Long> GENERATED_CHUNKS = new HashMap<>();
+    private static int chunksGeneratedThisSession = 0;
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -72,6 +73,7 @@ public class WindFurtherlandsManager {
                     if (GENERATED_CHUNKS.containsKey(key)) continue;
                     if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
                     GENERATED_CHUNKS.put(key, level.getGameTime());
+                    chunksGeneratedThisSession++;
                     LOGGER.info("[THE_WIND|Furtherlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
                     generateFurtherlandChunk(level, cx, cz, generatedLeaves);
                 }
