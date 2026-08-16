@@ -26,8 +26,11 @@ public class FakeChatManager {
     private static final Random RNG = new Random();
     private static final long FAKE_CHAT_COOLDOWN = 18000;
     private static final long FAKE_JOIN_COOLDOWN = 24000;
+    private static final int MAX_EFFECTS_PER_MINUTE = 4;
     private static long nextChat = 0;
     private static long nextJoin = 0;
+    private static int effectsThisMinute = 0;
+    private static long lastMinuteReset = 0;
 
     private static final List<String> MESSAGES = List.of(
         "I see you.",
@@ -102,6 +105,13 @@ public class FakeChatManager {
 
     private static void triggerMechanicalEffect(ServerPlayer target) {
         if (target.level() instanceof ServerLevel level) {
+            long now = level.getGameTime();
+            if (now - lastMinuteReset > 1200) {
+                effectsThisMinute = 0;
+                lastMinuteReset = now;
+            }
+            if (effectsThisMinute >= MAX_EFFECTS_PER_MINUTE) return;
+            effectsThisMinute++;
             switch (RNG.nextInt(4)) {
                 case 0 -> particleBurst(level, target);
                 case 1 -> caveSound(level, target);

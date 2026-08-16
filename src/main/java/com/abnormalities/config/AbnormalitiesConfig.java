@@ -5,6 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class AbnormalitiesConfig {
     public enum PunishMode { KICK, CRASH, NONE }
 
+    private static boolean configLoaded = false;
     public static final ForgeConfigSpec SPEC;
     public static final ForgeConfigSpec.IntValue GRACE_PERIOD_DAYS;
     public static final ForgeConfigSpec.IntValue NUR_SPAWN_WEIGHT;
@@ -220,6 +221,7 @@ public class AbnormalitiesConfig {
         NUR_SPEED_RAMP = b.comment("blocks of distance per +1x chase speed (10 = +1x every 10 blocks)").defineInRange("speedRamp", 10, 1, 100);
         NUR_MAX_SPEED_MULT = b.comment("max chase speed multiplier at long distance").defineInRange("maxSpeedMult", 10, 1, 50);
         b.pop();
+        configLoaded = true;
         b.push("k3w");
         K3W_ENABLED = b.comment("enable k3w entity (the clone that undoes your actions)").define("enabled", true);
         K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 500, 1, 100000);

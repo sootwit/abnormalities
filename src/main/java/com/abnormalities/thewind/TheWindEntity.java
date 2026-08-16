@@ -19,6 +19,7 @@ public class TheWindEntity extends Mob {
     private int nextTeleportTick;
     private boolean currentlyInFront;
     private boolean visible;
+    private int appearCount = 0;
 
     public TheWindEntity(EntityType<? extends Mob> type, Level level) {
         super(type, level);
@@ -79,6 +80,7 @@ public class TheWindEntity extends Mob {
         if (ticksExisted >= nextTeleportTick) {
             currentlyInFront = level().random.nextBoolean();
             nextTeleportTick = ticksExisted + 100 + level().random.nextInt(101);
+            appearCount++;
             if (currentlyInFront) {
                 level().playSound(null, target.blockPosition(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 3.0F, 0.3F);

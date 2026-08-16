@@ -38,6 +38,7 @@ public class ItEntity extends Mob {
     private int steals = 0;
     private int lastStealTick = -1000;
     private float lastSwing = 0.0F;
+    private int despawnTimer = 0;
 
     public ItEntity(EntityType<? extends ItEntity> type, Level level) {
         super(type, level);
@@ -113,8 +114,13 @@ public class ItEntity extends Mob {
 
         long tod = level().getDayTime() % 24000L;
         if (tod >= 2000L && tod < 13000L) {
-            discard();
-            return;
+            despawnTimer++;
+            if (despawnTimer > 60) {
+                discard();
+                return;
+            }
+        } else {
+            despawnTimer = 0;
         }
 
         if (!this.entityData.get(DATA_FROZEN)) {

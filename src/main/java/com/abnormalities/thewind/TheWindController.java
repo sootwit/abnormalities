@@ -19,6 +19,7 @@ public class TheWindController {
     private static long lastCorruption = 0;
     private static long lastDestructive = 0;
     private static long lastPillar = 0;
+    private static int spawned_this_tick = 0;
 
 
     @SubscribeEvent
@@ -31,6 +32,7 @@ public class TheWindController {
         if (overworld == null) return;
         long now = overworld.getGameTime();
 
+        spawned_this_tick = 0;
         for (ServerPlayer player : new java.util.ArrayList<>(srv.getPlayerList().getPlayers())) {
             if (player.tickCount % 200 != 0) continue;
             if (player.level().dimension() != Level.OVERWORLD) continue;
@@ -217,6 +219,7 @@ public class TheWindController {
         for (var existing : level.getEntitiesOfClass(TheWindEntity.class, player.getBoundingBox().inflate(16.0))) {
             if (existing.getTargetUUID() != null && existing.getTargetUUID().equals(player.getUUID())) return;
         }
+        if (spawned_this_tick >= 2) return;
         TheWindEntity wind = ModEntities.THE_WIND.get().create(level);
         if (wind != null) {
             wind.setTarget(player);
@@ -225,6 +228,7 @@ public class TheWindController {
             double bz = player.getZ() + Math.cos(Math.toRadians(yaw)) * 3.0;
             wind.moveTo(bx, player.getY(), bz, yaw, 0);
             level.addFreshEntity(wind);
+            spawned_this_tick++;
         }
     }
 
