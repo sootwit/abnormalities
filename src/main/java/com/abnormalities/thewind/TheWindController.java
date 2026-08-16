@@ -11,9 +11,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +19,7 @@ public class TheWindController {
     private static long lastCorruption = 0;
     private static long lastDestructive = 0;
     private static long lastPillar = 0;
-    private static final java.util.Map<UUID, Long> playerCorruption = new java.util.HashMap<>();
-    private static final java.util.Map<UUID, Long> playerDestructive = new java.util.HashMap<>();
-    private static final java.util.Map<UUID, Long> playerPillar = new java.util.HashMap<>();
+
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -191,19 +186,16 @@ public class TheWindController {
 
     public static void forceCorruption(ServerPlayer player) {
         if (player.level().dimension() != Level.OVERWORLD) return;
-        playerCorruption.put(player.getUUID(), player.level().getGameTime());
         triggerCorruption(player);
     }
 
     public static void forceDestructive(ServerPlayer player) {
         if (player.level().dimension() != Level.OVERWORLD) return;
-        playerDestructive.put(player.getUUID(), player.level().getGameTime());
         triggerDestructiveCorruption(player);
     }
 
     public static void forcePillar(ServerPlayer player) {
         if (player.level().dimension() != Level.OVERWORLD) return;
-        playerPillar.put(player.getUUID(), player.level().getGameTime());
         TheWindPillarManager.spawnPillar(player);
     }
 

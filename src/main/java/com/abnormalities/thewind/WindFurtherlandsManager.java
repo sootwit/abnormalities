@@ -65,6 +65,7 @@ public class WindFurtherlandsManager {
         rules.getRule(GameRules.RULE_DOBLOCKDROPS).set(false, level.getServer());
 
         try {
+            List<BlockPos> generatedLeaves = new ArrayList<>();
             for (int cx = chunkX - 4; cx <= chunkX + 3; cx++) {
                 for (int cz = chunkZ - 4; cz <= chunkZ + 3; cz++) {
                     long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
@@ -72,16 +73,17 @@ public class WindFurtherlandsManager {
                     if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
                     GENERATED_CHUNKS.put(key, level.getGameTime());
                     LOGGER.info("[THE_WIND|Furtherlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
-                    generateFurtherlandChunk(level, cx, cz);
+                    generateFurtherlandChunk(level, cx, cz, generatedLeaves);
                 }
             }
+            removeOrphanLeaves(level, generatedLeaves);
         } finally {
             rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(prevMobSpawning, level.getServer());
             rules.getRule(GameRules.RULE_DOBLOCKDROPS).set(prevTileDrops, level.getServer());
         }
     }
 
-    private static void generateFurtherlandChunk(ServerLevel level, int chunkX, int chunkZ) {
+    private static void generateFurtherlandChunk(ServerLevel level, int chunkX, int chunkZ, List<BlockPos> generatedLeaves) {
         Random rng = new Random(level.getSeed() ^ ((long) chunkX << 32) ^ chunkZ);
         int baseX = chunkX << 4;
         int baseZ = chunkZ << 4;
@@ -177,7 +179,9 @@ public class WindFurtherlandsManager {
                     for (int dx = -3; dx <= 3; dx++) {
                         for (int dz = -3; dz <= 3; dz++) {
                             if (Math.abs(dx) + Math.abs(dz) <= 4 && rng.nextInt(3) != 0) {
-                                level.setBlock(new BlockPos(wx + dx, topY + 4, wz + dz), leaves.defaultBlockState(), 34);
+                                BlockPos leafPos = new BlockPos(wx + dx, topY + 4, wz + dz);
+                                level.setBlock(leafPos, leaves.defaultBlockState(), 34);
+                                generatedLeaves.add(leafPos);
                             }
                         }
                     }
@@ -195,6 +199,36 @@ public class WindFurtherlandsManager {
                         level.setBlock(new BlockPos(wx, bottomY - 1 - dy, wz), Blocks.LAVA.defaultBlockState(), 34);
                     }
                 }
+            }
+        }
+    }
+
+    private static void removeOrphanLeaves(ServerLevel level, List<BlockPos> leaves) {
+        Iterator<BlockPos> it = leaves.iterator();
+        while (it.hasNext()) {
+            BlockPos pos = it.next();
+            BlockState state = level.getBlockState(pos);
+            if (!state.is(Blocks.OAK_LEAVES) && !state.is(Blocks.SPRUCE_LEAVES)
+                    && !state.is(Blocks.DARK_OAK_LEAVES) && !state.is(Blocks.CHERRY_LEAVES)) {
+                it.remove();
+                continue;
+            }
+            boolean nearLog = false;
+            for (int dx = -4; dx <= 4 && !nearLog; dx++) {
+                for (int dy = -4; dy <= 4 && !nearLog; dy++) {
+                    for (int dz = -4; dz <= 4 && !nearLog; dz++) {
+                        if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) <= 4) {
+                            BlockState neighbor = level.getBlockState(pos.offset(dx, dy, dz));
+                            if (neighbor.is(Blocks.OAK_LOG) || neighbor.is(Blocks.SPRUCE_LOG)
+                                    || neighbor.is(Blocks.DARK_OAK_LOG) || neighbor.is(Blocks.CHERRY_LOG)) {
+                                nearLog = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!nearLog) {
+                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 18);
             }
         }
     }

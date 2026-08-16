@@ -71,6 +71,7 @@ public class K3wActionTracker {
             }
             if (SPAWN_COOLDOWNS.containsKey(uuid) && cd == 0) {
                 SPAWN_COOLDOWNS.remove(uuid);
+                FORCED_SPAWNS.remove(uuid);
                 if (SPAWN_TIMERS.containsKey(uuid)) {
                     SPAWN_TIMERS.remove(uuid);
                     MESSAGES_SENT.remove(uuid);
@@ -114,13 +115,18 @@ public class K3wActionTracker {
                 if (spawnClone(player)) {
                     SPAWN_TIMERS.put(uuid, 0);
                     MESSAGES_SENT.put(uuid, false);
+                } else {
+                    SPAWN_COOLDOWNS.put(uuid, 200);
                 }
             }
         }
     }
 
-    public static void forceK3wSpawn(Player player) {
+    public static boolean forceK3wSpawn(Player player) {
         UUID uuid = player.getUUID();
+        if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
+            return false;
+        }
         SPAWN_COOLDOWNS.remove(uuid);
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, true);
@@ -137,6 +143,7 @@ public class K3wActionTracker {
                 }
             }
         }
+        return true;
     }
 
     public static double[] getDelayedPosition(Player player) {

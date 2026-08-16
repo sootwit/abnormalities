@@ -169,6 +169,10 @@ public class XyzEntity extends Mob {
                             if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
                             if (silkTouch.contains(state.getBlock())) continue;
                             if (unobtainable.contains(state.getBlock())) continue;
+                            if (AbnormalitiesConfig.XYZ_ONLY_VANILLA.get()) {
+                                net.minecraft.resources.ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+                                if (key == null || !"minecraft".equals(key.getNamespace())) continue;
+                            }
                             found.add(item);
                             if (found.size() >= 30) break;
                         }
