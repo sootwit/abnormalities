@@ -125,6 +125,9 @@ public class FakeChatManager {
         double x = target.getX();
         double y = target.getY() + target.getBbHeight() / 2.0;
         double z = target.getZ();
+        // tried using different particle types but soul fire looks best
+        // level.sendParticles(ParticleTypes.DRAGON_BREATH, x, y, z, 20, 0.3, 0.3, 0.3, 0.01);
+        // level.sendParticles(ParticleTypes.SOUL, x, y, z, 20, 0.3, 0.3, 0.3, 0.01);
         level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, x, y, z, 20, 0.3, 0.3, 0.3, 0.01);
         LOGGER.info("[FakeChat] soul fire particles at {} ({},{},{})", target.getName().getString(), (int) x, (int) y, (int) z);
     }

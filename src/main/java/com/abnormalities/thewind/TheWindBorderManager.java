@@ -151,6 +151,8 @@ public class TheWindBorderManager {
         int baseX = chunkX << 4;
         int baseZ = chunkZ << 4;
         int destroyed = 0;
+        // old code that used to process chunks one at a time with a queue
+        // too slow, switched to instant clear for the scare factor
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {

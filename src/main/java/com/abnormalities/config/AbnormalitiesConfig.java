@@ -127,6 +127,7 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue IT_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.IntValue IT_STARE_SECONDS;
     public static final ForgeConfigSpec.IntValue IT_STEAL_COUNT;
+    // public static final ForgeConfigSpec.IntValue IT_STEAL_DELAY; // removed, was too complex
     public static final ForgeConfigSpec.IntValue IT_REP_MIN;
     public static final ForgeConfigSpec.EnumValue<PunishMode> IT_PUNISH;
     public static final ForgeConfigSpec.BooleanValue HIM_ENABLED;

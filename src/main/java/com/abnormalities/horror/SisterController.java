@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class SisterController {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Sister");
+    // private static final String TAB_SKIN_URL = "https://minotar.net/skin/MHF_Alex"; // old skin, switched to void
     private static final List<String> NUR_WARNINGS = List.of(
             "The shy one is coming. He always comes.",
             "He's shy. That's why he watches you from the dark.",

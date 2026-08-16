@@ -17,6 +17,7 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|FogKnowsYourName");
     private static final Map<UUID, Integer> STAGE = new HashMap<>();
     private static final Map<UUID, Integer> TIMER = new HashMap<>();
+    private static int totalFires = 0;
 
     public FogKnowsYourNameEvent() {
         super("fog_knows_your_name", 200, 1.2);
@@ -28,7 +29,8 @@ public class FogKnowsYourNameEvent extends AbstractHorrorEvent {
     @Override
     public void execute(ServerPlayer player) {
         int rep = ReputationManager.getRep(player);
-        LOGGER.info("[FogKnowsYourName] {} triggered (rep={})", player.getName().getString(), rep);
+        totalFires++;
+        LOGGER.info("[FogKnowsYourName] {} triggered (rep={}, totalFires={})", player.getName().getString(), rep, totalFires);
         WhisperManager.sendWhisper(player, "the fog is coming...");
         STAGE.put(player.getUUID(), 0);
         TIMER.put(player.getUUID(), 0);

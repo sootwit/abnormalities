@@ -214,6 +214,8 @@ public class ItEntity extends Mob {
             if (takeRandomItem(victim)) took++;
         }
         if (took > 0) steals++;
+        // old code that stole 2x when looking away - removed because collision-based now
+        // if (wasLooking) n *= 2;
 
         if (victim instanceof ServerPlayer sp) {
             level().playSound(null, victim.getX(), victim.getY(), victim.getZ(),
@@ -267,6 +269,8 @@ public class ItEntity extends Mob {
         BlockPos feet = new BlockPos((int) x, y + 1, (int) z);
         BlockPos head = feet.above();
         if (!level().getBlockState(feet).canBeReplaced() || !level().getBlockState(head).canBeReplaced()) return null;
+        // old code that used to return victim.position() on failure - caused re-collision loop
+        // now returns null so stealFrom skips the move
         return new Vec3(x, y + 1, z);
     }
 

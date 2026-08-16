@@ -20,6 +20,7 @@ import java.util.*;
 public class HelpHotbarEvent extends AbstractHorrorEvent {
     private static final Map<UUID, Integer> T = new HashMap<>();
     private static final Map<UUID, Boolean> M = new HashMap<>();
+    private static final Set<UUID> DEBUG_PLAYERS = new HashSet<>();
 
     public HelpHotbarEvent() {
         super("hotbar_help", 60, 0.7);
