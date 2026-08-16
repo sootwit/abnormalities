@@ -244,7 +244,7 @@ public class AbnormalitiesConfig {
         XYZ_MAX_ITEMS = b.comment("maximum item count requested from player").defineInRange("maxItems", 32, 1, 64);
         XYZ_STATIC_AMOUNT = b.comment("use fixed item count instead of random range").define("staticAmount", false);
         XYZ_STATIC_ITEM_COUNT = b.comment("fixed item count when staticAmount is true (1-64)").defineInRange("staticItemCount", 4, 1, 64);
-        XYZ_ONLY_VANILLA = b.comment("if true, xYz only requests vanilla items (no modded items from tag)").define("onlyVanilla", false);
+        XYZ_ONLY_VANILLA = b.comment("if true, xYz only requests vanilla items (no modded items from tag)").define("onlyVanilla", true);
         XYZ_REWARD_COOKIES = b.comment("stack size of cookies given as reward").defineInRange("rewardCookies", 64, 1, 64);
         XYZ_REWARD_GOLDEN_CARROTS = b.comment("stack size of golden carrots given as reward").defineInRange("rewardGoldenCarrots", 32, 1, 64);
         XYZ_REWARD_GOLDEN_APPLES = b.comment("count of golden apples given as reward").defineInRange("rewardGoldenApples", 2, 1, 64);

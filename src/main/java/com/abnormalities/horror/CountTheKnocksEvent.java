@@ -139,7 +139,7 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             st.state = KnockState.S_DONE;
             player.removeEffect(MobEffects.BLINDNESS);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
-            WhisperManager.sendWhisper(player, "...yes. it stops.");
+            WhisperManager.sendWhisper(player, "...correct.");
             HorrorEventPool.clearOngoing(player);
         } else {
             triggerWrongStatic(player, uuid);
