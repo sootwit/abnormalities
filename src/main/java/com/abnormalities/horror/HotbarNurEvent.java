@@ -25,6 +25,7 @@ public class HotbarNurEvent extends AbstractHorrorEvent {
 
     private static final int WARNING_END = 60;
     private static final int EVENT_END = 140;
+    private static boolean debug_mode = false;
 
     public HotbarNurEvent() {
         super("hotbar_nur", 70, 0.6);
@@ -117,6 +118,8 @@ public class HotbarNurEvent extends AbstractHorrorEvent {
         if (!level.getBlockState(spawnPos.below()).canOcclude()) return;
         if (!level.getBlockState(spawnPos).canBeReplaced()) return;
 
+        // TODO: maybe make this configurable? spawn chance, distance, etc.
+        // for now just hardcoded because it works
         NurEntity nur = ModEntities.NUR.get().create(level);
         if (nur == null) return;
         nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);

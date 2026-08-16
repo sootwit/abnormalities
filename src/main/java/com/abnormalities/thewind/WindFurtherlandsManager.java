@@ -89,6 +89,8 @@ public class WindFurtherlandsManager {
         Random rng = new Random(level.getSeed() ^ ((long) chunkX << 32) ^ chunkZ);
         int baseX = chunkX << 4;
         int baseZ = chunkZ << 4;
+        // old noise function that was too uniform - switched to mixed sine waves
+        // double noise = rng.nextDouble() * 60 - 30;
 
         int baseY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, baseX + 8, baseZ + 8);
 

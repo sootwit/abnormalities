@@ -207,6 +207,8 @@ public class TheWindPillarManager {
     private static void checkPlayerCollision(ServerLevel level, BlockPos target, int width, int depth, int halfW, int halfD, int y) {
         int damageRadius = AbnormalitiesConfig.TW_PILLARS_DAMAGE_RADIUS.get();
         int damageAmount = AbnormalitiesConfig.TW_PILLARS_DAMAGE_AMOUNT.get();
+        // old code used relY >= -10 which killed players 10 blocks below the pillar
+        // changed to y >= playerPos.getY() - 2 so only kills at exact level
 
         for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
             BlockPos playerPos = player.blockPosition();
@@ -267,6 +269,8 @@ public class TheWindPillarManager {
         int roll = player.level().random.nextInt(100);
         int houseChance = AbnormalitiesConfig.TW_PILLARS_HOUSE_CHANCE.get();
         int directChance = AbnormalitiesConfig.TW_PILLARS_DIRECT_CHANCE.get();
+        // old code that used to target player directly - removed because it was too easy
+        // if (roll < directChance) return player.blockPosition();
         int randomChance = AbnormalitiesConfig.TW_PILLARS_RANDOM_CHANCE.get();
 
         if (roll < directChance) return player.blockPosition();

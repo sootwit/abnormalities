@@ -207,6 +207,8 @@ public class TheWindController {
         if (roll == 0) forceCorruption(player);
         else if (roll == 1) forceDestructive(player);
         else forcePillar(player);
+        // TODO: maybe add windChunk and windBorder to the random pool too?
+        // for now just the original three
     }
 
     public static void forceTheWind(ServerPlayer player) {
@@ -236,6 +238,7 @@ public class TheWindController {
         final int decayRange = range;
         final BlockPos decayCenter = center;
         final boolean decayDestructive = isDestructive;
+        // 400 ticks = 20 seconds, felt about right for how long corruption should last
         level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 400, () -> {
             for (int x = -decayRange; x <= decayRange; x++) {
                 for (int y = -decayRange; y <= decayRange; y++) {

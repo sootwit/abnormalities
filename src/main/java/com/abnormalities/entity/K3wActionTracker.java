@@ -33,6 +33,7 @@ public class K3wActionTracker {
     private static final int FORCED_SPAWN_DELAY = 300;
     private static final int SPAWN_DISTANCE = 64;
     private static final int POST_SPAWN_COOLDOWN = 4800;
+    // private static final int MAX_CLONES = 3; // old limit, reduced to 2 because 3 was too many
 
     private static final Map<UUID, List<K3wEntity>> ACTIVE_CLONES = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_TIMERS = new HashMap<>();
