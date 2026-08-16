@@ -18,9 +18,12 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 public class HelpHotbarEvent extends AbstractHorrorEvent {
-    private static final Map<UUID, Integer> T = new HashMap<>();
-    private static final Map<UUID, Boolean> M = new HashMap<>();
-    private static final Set<UUID> DEBUG_PLAYERS = new HashSet<>();
+    private static final Map<UUID, HelpState> ACTIVE = new HashMap<>();
+
+    private static class HelpState {
+        int ticks;
+        boolean mobSpawned;
+    }
 
     public HelpHotbarEvent() {
         super("hotbar_help", 60, 0.7);
@@ -32,8 +35,10 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
     @Override
     public void execute(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        T.put(uuid, 0);
-        M.put(uuid, false);
+        HelpState st = new HelpState();
+        st.ticks = 0;
+        st.mobSpawned = false;
+        ACTIVE.put(uuid, st);
         WhisperManager.sendActionBar(player, "HELP");
         player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0, false, false, false));
     }
@@ -41,24 +46,26 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
     @Override
     public void onPlayerTick(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        int t = T.merge(uuid, 1, Integer::sum);
+        HelpState st = ACTIVE.get(uuid);
+        if (st == null) return;
+        st.ticks++;
 
-        if (t > 180) {
+        if (st.ticks > 180) {
             cleanup(player);
             return;
         }
 
-        if (t <= 60) {
-            if (t % 30 == 0) {
+        if (st.ticks <= 60) {
+            if (st.ticks % 30 == 0) {
                 WhisperManager.sendActionBar(player, "HELP");
             }
-            if (t % 20 == 0) {
+            if (st.ticks % 20 == 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 60, 0, false, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 0, false, false, false));
             }
         } else {
-            if (!M.getOrDefault(uuid, false)) {
-                M.put(uuid, true);
+            if (!st.mobSpawned) {
+                st.mobSpawned = true;
                 WhisperManager.sendActionBar(player, "HELP");
                 spawnMobs(player);
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 140, 1, false, false, false));
@@ -66,12 +73,12 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
                 player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 140, 1, false, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 140, 0, false, false, false));
             }
-            if (t % 20 == 0) {
+            if (st.ticks % 20 == 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 1, false, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 1, false, false, false));
             }
-            if (t % 30 == 0) {
-                playEscalatingSound(player, t);
+            if (st.ticks % 30 == 0) {
+                playEscalatingSound(player, st.ticks);
             }
         }
     }
@@ -119,10 +126,9 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
         }
     }
 
-    private void cleanup(ServerPlayer player) {
+    private static void cleanup(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        T.remove(uuid);
-        M.remove(uuid);
+        ACTIVE.remove(uuid);
         player.removeEffect(MobEffects.CONFUSION);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         player.removeEffect(MobEffects.DIG_SLOWDOWN);
@@ -133,8 +139,7 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
     @Override
     public void onCleanup(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        T.remove(uuid);
-        M.remove(uuid);
+        ACTIVE.remove(uuid);
         player.removeEffect(MobEffects.CONFUSION);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         player.removeEffect(MobEffects.DIG_SLOWDOWN);

@@ -20,20 +20,23 @@ import org.slf4j.LoggerFactory;
 
 public class CountTheKnocksEvent extends AbstractHorrorEvent {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|CountTheKnocks");
-    private static final Map<UUID, Integer> TARGET = new HashMap<>();
-    private static final Map<UUID, Integer> STATE = new HashMap<>();
-    private static final Map<UUID, Integer> TICKS = new HashMap<>();
-    private static final Map<UUID, Integer> KNOX = new HashMap<>();
-    private static final Map<UUID, Vec3> START_POS = new HashMap<>();
+    private static final Map<UUID, KnockState> ACTIVE = new HashMap<>();
+
+    private static class KnockState {
+        int target;
+        int state;
+        int ticks;
+        int knox;
+        Vec3 startPos;
+        static final int S_KNOCKING = 0;
+        static final int S_ANSWERING = 1;
+        static final int S_DONE = 2;
+    }
 
     private static final int TICKS_PER_KNOCK = 80;
     private static final int ANSWER_WINDOW = 1200;
     private static final int MIN_KNOX = 4;
     private static final int MAX_KNOX = 10;
-
-    private static final int S_KNOCKING = 0;
-    private static final int S_ANSWERING = 1;
-    private static final int S_DONE = 2;
 
     public CountTheKnocksEvent() {
         super("count_the_knocks", 180, 1.3);
@@ -45,13 +48,14 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     @Override
     public void execute(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        int target = MIN_KNOX + player.getRandom().nextInt(MAX_KNOX - MIN_KNOX + 1);
-        TARGET.put(uuid, target);
-        STATE.put(uuid, S_KNOCKING);
-        TICKS.put(uuid, 0);
-        KNOX.put(uuid, 0);
-        START_POS.put(uuid, player.position());
-        LOGGER.info("[CountTheKnocks] {} triggered, target={} knocks", player.getName().getString(), target);
+        KnockState st = new KnockState();
+        st.target = MIN_KNOX + player.getRandom().nextInt(MAX_KNOX - MIN_KNOX + 1);
+        st.state = KnockState.S_KNOCKING;
+        st.ticks = 0;
+        st.knox = 0;
+        st.startPos = player.position();
+        ACTIVE.put(uuid, st);
+        LOGGER.info("[CountTheKnocks] {} triggered, target={} knocks", player.getName().getString(), st.target);
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 99999, 0, false, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 254, false, false, false));
         WhisperManager.sendWhisper(player, "count the knocks...");
@@ -60,40 +64,36 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     @Override
     public void onPlayerTick(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        int state = STATE.getOrDefault(uuid, -1);
-        if (state < 0) return;
+        KnockState st = ACTIVE.get(uuid);
+        if (st == null) return;
 
-        int tick = TICKS.merge(uuid, 1, Integer::sum);
+        st.ticks++;
 
-        if (state == S_KNOCKING) {
-            Vec3 startPos = START_POS.get(uuid);
-            if (startPos != null && player.position().distanceTo(startPos) > 3.0D) {
+        if (st.state == KnockState.S_KNOCKING) {
+            if (st.startPos != null && player.position().distanceTo(st.startPos) > 3.0D) {
                 LOGGER.info("[CountTheKnocks] {} moved, triggering wrong", player.getName().getString());
-                STATE.put(uuid, S_DONE);
+                st.state = KnockState.S_DONE;
                 WhisperManager.sendWhisper(player, "...you moved. never mind.");
                 cleanup(player);
                 return;
             }
-            int knox = KNOX.getOrDefault(uuid, 0);
-            int target = TARGET.getOrDefault(uuid, 0);
-            int expectedKnox = tick / TICKS_PER_KNOCK;
-            while (expectedKnox > knox && knox < target) {
-                playKnock(player, knox, target);
-                knox++;
-                KNOX.put(uuid, knox);
+            int expectedKnox = st.ticks / TICKS_PER_KNOCK;
+            while (expectedKnox > st.knox && st.knox < st.target) {
+                playKnock(player, st.knox, st.target);
+                st.knox++;
             }
-            if (knox >= target) {
-                STATE.put(uuid, S_ANSWERING);
-                TICKS.put(uuid, 0);
+            if (st.knox >= st.target) {
+                st.state = KnockState.S_ANSWERING;
+                st.ticks = 0;
                 askHowMany(player);
             }
-        } else if (state == S_ANSWERING) {
-            if (tick > ANSWER_WINDOW) {
+        } else if (st.state == KnockState.S_ANSWERING) {
+            if (st.ticks > ANSWER_WINDOW) {
                 triggerWrongStatic(player, uuid);
                 return;
             }
-            if (tick > 0 && tick % 200 == 0) {
-                int remaining = (ANSWER_WINDOW - tick) / 20;
+            if (st.ticks > 0 && st.ticks % 200 == 0) {
+                int remaining = (ANSWER_WINDOW - st.ticks) / 20;
                 player.displayClientMessage(
                     Component.literal(remaining + "s").withStyle(ChatFormatting.RED), true);
                 askHowMany(player);
@@ -128,7 +128,8 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         UUID uuid = player.getUUID();
-        if (STATE.getOrDefault(uuid, -1) != S_ANSWERING) return;
+        KnockState st = ACTIVE.get(uuid);
+        if (st == null || st.state != KnockState.S_ANSWERING) return;
 
         event.setCanceled(true);
         String msg = event.getMessage().getString().strip();
@@ -140,10 +141,9 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
             return;
         }
 
-        int target = TARGET.getOrDefault(uuid, 0);
-        if (guess == target) {
+        if (guess == st.target) {
             LOGGER.info("[CountTheKnocks] {} answered correctly ({})", player.getName().getString(), guess);
-            STATE.put(uuid, S_DONE);
+            st.state = KnockState.S_DONE;
             player.removeEffect(MobEffects.BLINDNESS);
             player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
             WhisperManager.sendWhisper(player, "...yes. it stops.");
@@ -154,12 +154,9 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
     }
 
     private static void triggerWrongStatic(ServerPlayer player, UUID uuid) {
-        if (STATE.put(uuid, S_DONE) == S_DONE) return;
-        TARGET.remove(uuid);
-        STATE.remove(uuid);
-        TICKS.remove(uuid);
-        KNOX.remove(uuid);
-        START_POS.remove(uuid);
+        KnockState st = ACTIVE.get(uuid);
+        if (st != null && st.state == KnockState.S_DONE) return;
+        ACTIVE.remove(uuid);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             SoundEvents.AMBIENT_CAVE, SoundSource.MASTER,
             player.getX(), player.getY() + 1, player.getZ(),
@@ -182,21 +179,13 @@ public class CountTheKnocksEvent extends AbstractHorrorEvent {
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(MobEffects.MOVEMENT_SLOWDOWN);
         HorrorEventPool.clearOngoing(player);
-        TARGET.remove(uuid);
-        STATE.remove(uuid);
-        TICKS.remove(uuid);
-        KNOX.remove(uuid);
-        START_POS.remove(uuid);
+        ACTIVE.remove(uuid);
     }
 
     @Override
     public void onCleanup(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        TARGET.remove(uuid);
-        STATE.remove(uuid);
-        TICKS.remove(uuid);
-        KNOX.remove(uuid);
-        START_POS.remove(uuid);
+        ACTIVE.remove(uuid);
         player.removeEffect(net.minecraft.world.effect.MobEffects.BLINDNESS);
         player.removeEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN);
     }
