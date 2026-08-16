@@ -122,6 +122,12 @@ public class TheWindChunkManager {
             }
         }
 
+        for (int cx = minCX - 1; cx <= maxCX + 1; cx++) {
+            for (int cz = minCZ - 1; cz <= maxCZ + 1; cz++) {
+                level.setChunkForced(cx, cz, false);
+            }
+        }
+
         String axis = alignX ? "X" : "Z";
         LOGGER.info("[THE_WIND] Chunk removed: {}x{}x{} ({}) at ({},{})-({},{},{}) - {} blocks",
                 width, height, depth, axis, x1, startY, x2, z1, z2, destroyed);

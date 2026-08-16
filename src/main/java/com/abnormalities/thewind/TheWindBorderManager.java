@@ -16,9 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,12 +24,8 @@ public class TheWindBorderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheWind|Border");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
     private static final int FLAG = 34;
-    private static final int CHUNKS_PER_TICK = 6;
 
-    private static final Map<UUID, Queue<long[]>> pendingChunks = new HashMap<>();
-    private static final Map<UUID, Integer> pendingDestroyed = new HashMap<>();
     private static final Map<UUID, Set<Long>> forcedChunks = new HashMap<>();
-    private static final Map<UUID, ServerLevel> pendingLevel = new HashMap<>();
 
     public static void forceBorder(ServerPlayer player) {
         playerCooldowns.put(player.getUUID(), player.level().getGameTime());
@@ -43,10 +37,6 @@ public class TheWindBorderManager {
         if (!AbnormalitiesConfig.TW_BORDER_ENABLED.get()) return;
 
         UUID uuid = player.getUUID();
-        if (pendingChunks.containsKey(uuid)) {
-            processPending(player);
-            return;
-        }
 
         if (player.tickCount % 200 != 0) return;
 
@@ -71,94 +61,67 @@ public class TheWindBorderManager {
         int playerChunkX = center.getX() >> 4;
         int playerChunkZ = center.getZ() >> 4;
 
-        Queue<long[]> queue = new LinkedList<>();
-        for (int ring = Math.max(0, borderDist - 1); ring <= borderDist + 1; ring++) {
-            for (int cx = playerChunkX - ring; cx <= playerChunkX + ring; cx++) {
-                queue.add(new long[]{cx, playerChunkZ - ring});
-                if (ring > 0) queue.add(new long[]{cx, playerChunkZ + ring});
-            }
-            for (int cz = playerChunkZ - ring + 1; cz <= playerChunkZ + ring - 1; cz++) {
-                queue.add(new long[]{playerChunkX - ring, cz});
-                if (ring > 0) queue.add(new long[]{playerChunkX + ring, cz});
-            }
-        }
-
         UUID uuid = player.getUUID();
 
-        if (pendingChunks.containsKey(uuid)) {
-            Set<Long> oldForced = forcedChunks.remove(uuid);
-            ServerLevel oldLevel = pendingLevel.remove(uuid);
-            pendingDestroyed.remove(uuid);
-            pendingChunks.remove(uuid);
-            if (oldForced != null && oldLevel != null) {
-                for (long key : oldForced) {
-                    int cx = (int) (key >> 32);
-                    int cz = (int) key;
-                    oldLevel.setChunkForced(cx, cz, false);
-                }
+        Set<Long> oldForced = forcedChunks.remove(uuid);
+        if (oldForced != null) {
+            for (long key : oldForced) {
+                int cx = (int) (key >> 32);
+                int cz = (int) key;
+                level.setChunkForced(cx, cz, false);
             }
         }
 
-        pendingChunks.put(uuid, queue);
-        pendingDestroyed.put(uuid, 0);
-        forcedChunks.put(uuid, new HashSet<>());
-        pendingLevel.put(uuid, level);
+        Set<Long> chunksToProcess = new HashSet<>();
+        for (int ring = Math.max(0, borderDist - 1); ring <= borderDist + 1; ring++) {
+            for (int cx = playerChunkX - ring; cx <= playerChunkX + ring; cx++) {
+                chunksToProcess.add(chunkKey(cx, playerChunkZ - ring));
+                if (ring > 0) chunksToProcess.add(chunkKey(cx, playerChunkZ + ring));
+            }
+            for (int cz = playerChunkZ - ring + 1; cz <= playerChunkZ + ring - 1; cz++) {
+                chunksToProcess.add(chunkKey(playerChunkX - ring, cz));
+                if (ring > 0) chunksToProcess.add(chunkKey(playerChunkX + ring, cz));
+            }
+        }
 
-        int totalChunks = queue.size();
-        LOGGER.info("[THE_WIND|Border] Queued {} chunks (3-wide ring) around {} at distances {}-{}",
+        Set<Long> forced = new HashSet<>();
+        for (long key : chunksToProcess) {
+            int cx = (int) (key >> 32);
+            int cz = (int) key;
+            level.setChunkForced(cx, cz, true);
+            forced.add(key);
+        }
+        forcedChunks.put(uuid, forced);
+
+        int totalChunks = chunksToProcess.size();
+        LOGGER.info("[THE_WIND|Border] Clearing {} chunks INSTANTLY around {} at distances {}-{}",
                 totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
+
+        int totalDestroyed = 0;
+        for (long key : chunksToProcess) {
+            int cx = (int) (key >> 32);
+            int cz = (int) key;
+            totalDestroyed += clearChunkColumn(level, cx, cz);
+        }
+
+        for (long key : forced) {
+            int cx = (int) (key >> 32);
+            int cz = (int) key;
+            level.setChunkForced(cx, cz, false);
+        }
+        forcedChunks.remove(uuid);
+
+        LOGGER.info("[THE_WIND|Border] Cleared {} blocks around {}", totalDestroyed, player.getName().getString());
 
         try {
             level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
             level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 6.0f, 0.2f);
         } catch (Exception e) {
-            LOGGER.error("[THE_WIND|Border] playSound failed mid-execute, cleaning up event for {}", player.getName().getString(), e);
-            pendingChunks.remove(uuid);
-            pendingDestroyed.remove(uuid);
-            forcedChunks.remove(uuid);
-            pendingLevel.remove(uuid);
-            return;
+            LOGGER.error("[THE_WIND|Border] playSound failed for {}", player.getName().getString(), e);
         }
 
-        processPending(player);
-    }
-
-    private static void processPending(ServerPlayer player) {
-        UUID uuid = player.getUUID();
-        Queue<long[]> queue = pendingChunks.get(uuid);
-        if (queue == null) return;
-
-        ServerLevel level = pendingLevel.get(uuid);
-        if (level == null) level = (ServerLevel) player.level();
-        Set<Long> forced = forcedChunks.get(uuid);
-        int processed = 0;
-
-        while (!queue.isEmpty() && processed < CHUNKS_PER_TICK) {
-            long[] chunk = queue.poll();
-            int cx = (int) chunk[0];
-            int cz = (int) chunk[1];
-            level.setChunkForced(cx, cz, true);
-            if (forced != null) forced.add(chunkKey(cx, cz));
-            int destroyed = clearChunkColumn(level, cx, cz);
-            pendingDestroyed.merge(uuid, destroyed, Integer::sum);
-            processed++;
-        }
-
-        if (queue.isEmpty()) {
-            int total = pendingDestroyed.remove(uuid);
-            pendingChunks.remove(uuid);
-            if (forced != null) {
-                for (long key : forced) {
-                    int cx = (int) (key >> 32);
-                    int cz = (int) key;
-                    level.setChunkForced(cx, cz, false);
-                }
-            }
-            forcedChunks.remove(uuid);
-            LOGGER.info("[THE_WIND|Border] Cleared {} blocks around {}", total, player.getName().getString());
-            if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
-                TheWindShakeHandler.sendShake(player, 2.0f, 200);
-            }
+        if (AbnormalitiesConfig.TW_SHAKE_ENABLED.get()) {
+            TheWindShakeHandler.sendShake(player, 2.0f, 200);
         }
     }
 
@@ -169,15 +132,10 @@ public class TheWindBorderManager {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         UUID uuid = event.getEntity().getUUID();
-        pendingChunks.remove(uuid);
-        pendingDestroyed.remove(uuid);
         Set<Long> forced = forcedChunks.remove(uuid);
-        ServerLevel level = pendingLevel.remove(uuid);
         if (forced == null || forced.isEmpty()) return;
-        if (level == null) {
-            ServerPlayer sp = (ServerPlayer) event.getEntity();
-            level = (ServerLevel) sp.level();
-        }
+        ServerPlayer sp = (ServerPlayer) event.getEntity();
+        ServerLevel level = (ServerLevel) sp.level();
         for (long key : forced) {
             int cx = (int) (key >> 32);
             int cz = (int) key;
