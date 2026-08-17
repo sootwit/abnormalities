@@ -23,7 +23,9 @@ public class WarningScreen extends Screen {
             Component.literal(""),
             Component.literal("/abnormalities config"),
             Component.literal(""),
-            Component.literal("You can disable individual events there.")
+            Component.literal("Browse categories:"),
+            Component.literal("  /abnormalities config dangerous"),
+            Component.literal("  /abnormalities config safe"),
     };
 
     public WarningScreen() {
