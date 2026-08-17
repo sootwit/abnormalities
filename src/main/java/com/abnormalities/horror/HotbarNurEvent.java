@@ -4,6 +4,8 @@ import com.abnormalities.WhisperManager;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModSounds;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -39,7 +41,7 @@ public class HotbarNurEvent extends AbstractHorrorEvent {
         UUID uuid = player.getUUID();
         TIMER.put(uuid, 0);
         BLOCKS.put(uuid, new ArrayList<>());
-        WhisperManager.sendActionBar(player, "nur");
+        WhisperManager.sendActionBar(player, "nur", ChatFormatting.RED);
     }
 
     @Override
@@ -62,7 +64,7 @@ public class HotbarNurEvent extends AbstractHorrorEvent {
 
     private void tickWarning(ServerPlayer player, int t) {
         if (t % 20 == 0) {
-            WhisperManager.sendActionBar(player, "nur");
+            WhisperManager.sendActionBar(player, "nur", ChatFormatting.RED);
         }
         float vol = 0.3f + (t / (float) WARNING_END) * 0.5f;
         if (t % 20 == 0) {

@@ -3,6 +3,8 @@ package com.abnormalities.horror;
 import com.abnormalities.WhisperManager;
 import com.abnormalities.registry.ModEvents;
 import com.abnormalities.registry.ModSounds;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -61,7 +63,7 @@ public class TheTallyEvent extends AbstractHorrorEvent {
 
         if (triggered) {
             TALLY.put(player.getUUID(), count);
-            WhisperManager.sendActionBar(player, count + "");
+            WhisperManager.sendActionBar(player, count + "", ChatFormatting.RED);
         }
 
         if (count >= 50) {
@@ -70,7 +72,7 @@ public class TheTallyEvent extends AbstractHorrorEvent {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 3, false, false, false));
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.HEARTBEAT_SOUND.get(), SoundSource.MASTER, 1.5f, 0.5f);
-            WhisperManager.sendWhisper(player, "...enough.");
+            WhisperManager.sendWhisper(player, "enough.");
             ModEvents.forceNurSpawn(player);
             tallyDone(player);
         }
@@ -90,13 +92,13 @@ public class TheTallyEvent extends AbstractHorrorEvent {
         if (!"mine".equals(TARGET_ACTION.get(sp.getUUID()))) return;
         int count = TALLY.getOrDefault(sp.getUUID(), 0) + 1;
         TALLY.put(sp.getUUID(), count);
-        WhisperManager.sendActionBar(sp, count + "");
+        WhisperManager.sendActionBar(sp, count + "", ChatFormatting.RED);
         if (count >= 50) {
             sp.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100, 0, false, false, false));
             sp.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 80, 3, false, false, false));
             sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 ModSounds.HEARTBEAT_SOUND.get(), SoundSource.MASTER, 1.5f, 0.5f);
-            WhisperManager.sendWhisper(sp, "...enough.");
+            WhisperManager.sendWhisper(sp, "enough.");
             ModEvents.forceNurSpawn(sp);
             tallyDone(sp);
         }
