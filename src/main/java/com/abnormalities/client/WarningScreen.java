@@ -35,7 +35,7 @@ public class WarningScreen extends Screen {
     @Override
     protected void init() {
         dontShowAgain = new Checkbox(
-                this.width / 2 - 100, this.height / 2 + 80, 200, 20,
+                this.width / 2 - 100, this.height / 2 + 130, 200, 20,
                 Component.literal("Don't show me again"), false);
         addRenderableWidget(dontShowAgain);
         addRenderableWidget(Button.builder(
@@ -46,7 +46,7 @@ public class WarningScreen extends Screen {
                                 new com.abnormalities.network.WarningAckPacket(true));
                     }
                     Minecraft.getInstance().setScreen(null);
-                }).pos(this.width / 2 - 100, this.height / 2 + 110).size(200, 20).build());
+                }).pos(this.width / 2 - 100, this.height / 2 + 160).size(200, 20).build());
     }
 
     @Override

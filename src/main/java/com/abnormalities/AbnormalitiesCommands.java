@@ -52,12 +52,21 @@ public class AbnormalitiesCommands {
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_CATEGORY_SUGGESTIONS =
             (ctx, builder) -> {
-                String partial = ctx.getArgument("category", String.class);
+                String typed = builder.getRemaining();
                 List<String> matches = new ArrayList<>();
                 for (String cat : CATEGORY_PATHS) {
-                    if (cat.startsWith(partial)) matches.add(cat);
+                    if (cat.startsWith(typed) || typed.isEmpty()) {
+                        matches.add(cat);
+                    }
                 }
-                if (matches.isEmpty()) matches.addAll(CATEGORY_PATHS);
+                for (String cat : CATEGORIES.keySet()) {
+                    for (String sec : CATEGORIES.get(cat)) {
+                        String full = cat + "." + sec;
+                        if (full.startsWith(typed)) {
+                            matches.add(full);
+                        }
+                    }
+                }
                 return SharedSuggestionProvider.suggest(matches, builder);
             };
 
@@ -141,17 +150,9 @@ public class AbnormalitiesCommands {
                                                 })))))
                 .then(Commands.literal("config")
                         .executes(ctx -> configListAll(ctx.getSource()))
-                        .then(Commands.argument("category", StringArgumentType.word())
+                        .then(Commands.argument("category", StringArgumentType.greedyString())
                                 .suggests(CONFIG_CATEGORY_SUGGESTIONS)
-                                .executes(ctx -> configShowCategory(ctx.getSource(), StringArgumentType.getString(ctx, "category")))
-                                .then(Commands.argument("key", StringArgumentType.word())
-                                        .suggests(CONFIG_KEY_SUGGESTIONS)
-                                        .executes(ctx -> configShowOne(ctx.getSource(), StringArgumentType.getString(ctx, "key")))
-                                        .then(Commands.argument("value", StringArgumentType.word())
-                                                .suggests(CONFIG_VALUE_SUGGESTIONS)
-                                                .executes(ctx -> configSetOne(ctx.getSource(),
-                                                        StringArgumentType.getString(ctx, "key"),
-                                                        StringArgumentType.getString(ctx, "value"))))))));
+                                .executes(ctx -> configParseAndRun(ctx.getSource(), StringArgumentType.getString(ctx, "category"))))));
     }
 
     private static void fireEvent(ServerPlayer player, String eventName) {
@@ -373,6 +374,18 @@ public class AbnormalitiesCommands {
             src.sendSuccess(() -> Component.literal(""), false);
         }
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static int configParseAndRun(CommandSourceStack src, String input) {
+        String trimmed = input.trim();
+        String[] parts = trimmed.split("\\s+", 3);
+        if (parts.length == 1) {
+            return configShowCategory(src, parts[0]);
+        } else if (parts.length == 2) {
+            return configShowOne(src, parts[1]);
+        } else {
+            return configSetOne(src, parts[1], parts[2]);
+        }
     }
 
     private static int configShowCategory(CommandSourceStack src, String category) {
