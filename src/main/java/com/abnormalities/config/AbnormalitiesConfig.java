@@ -106,10 +106,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue S1GN_CHANCE;
     public static final ForgeConfigSpec.IntValue S1GN_INTERVAL;
     public static final ForgeConfigSpec.IntValue S1GN_SEARCH_RADIUS;
-    public static final ForgeConfigSpec.BooleanValue ST1LL_ENABLED;
-    public static final ForgeConfigSpec.IntValue ST1LL_CHANCE;
-    public static final ForgeConfigSpec.IntValue ST1LL_DURATION;
-    public static final ForgeConfigSpec.IntValue ST1LL_RADIUS;
     public static final ForgeConfigSpec.BooleanValue BR34TH_ENABLED;
     public static final ForgeConfigSpec.IntValue BR34TH_CHANCE;
     public static final ForgeConfigSpec.BooleanValue H01D_ENABLED;
@@ -118,11 +114,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue C1RCL_CHANCE;
     public static final ForgeConfigSpec.BooleanValue F4DED_ENABLED;
     public static final ForgeConfigSpec.IntValue F4DED_CHANCE;
-    public static final ForgeConfigSpec.BooleanValue TOXIC_ENABLED;
-    public static final ForgeConfigSpec.IntValue TOXIC_CHANCE;
-    public static final ForgeConfigSpec.IntValue TOXIC_COOLDOWN;
-    public static final ForgeConfigSpec.IntValue TOXIC_MAX_REP;
-    public static final ForgeConfigSpec.IntValue TOXIC_NUR_QUIET;
     public static final ForgeConfigSpec.BooleanValue GONE_ENABLED;
     public static final ForgeConfigSpec.IntValue GONE_INTERVAL;
     public static final ForgeConfigSpec.IntValue GONE_RADIUS;
@@ -298,7 +289,7 @@ public class AbnormalitiesConfig {
         b.push("hush");
         HUSH_ENABLED = b.comment("enable hush events (mobs freeze and stare)").define("enabled", true);
         HUSH_SPAWN_WEIGHT = b.comment("higher = rarer hush events").defineInRange("spawnWeight", 400, 1, 10000);
-        HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 200, 20, 400);
+        HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 400, 20, 800);
         HUSH_RANGE = b.comment("how far mobs are affected (blocks)").defineInRange("range", 64, 16, 128);
         HUSH_COOLDOWN = b.comment("ticks between hush events (20 = 1s)").defineInRange("cooldown", 3600, 200, 72000);
         b.pop();
@@ -350,12 +341,6 @@ public class AbnormalitiesConfig {
         S1GN_INTERVAL = b.comment("min ticks between signs per player").defineInRange("interval", 12000, 600, 72000);
         S1GN_SEARCH_RADIUS = b.comment("block radius to search for sign spots").defineInRange("searchRadius", 12, 4, 32);
         b.pop();
-        b.push("st1ll");
-        ST1LL_ENABLED = b.comment("enable world-freeze event (everything stops, silence)").define("enabled", true);
-        ST1LL_CHANCE = b.comment("1 in N checks trigger freeze").defineInRange("chance", 500, 10, 10000);
-        ST1LL_DURATION = b.comment("ticks the world is frozen").defineInRange("duration", 200, 40, 600);
-        ST1LL_RADIUS = b.comment("block radius of frozen mobs").defineInRange("radius", 64, 16, 128);
-        b.pop();
         b.push("br34th");
         BR34TH_ENABLED = b.comment("enable phantom drowning (one tick of drown damage on dry land)").define("enabled", true);
         BR34TH_CHANCE = b.comment("1 in N checks trigger phantom drown").defineInRange("chance", 400, 10, 10000);
@@ -371,13 +356,6 @@ public class AbnormalitiesConfig {
         b.push("f4ded");
         F4DED_ENABLED = b.comment("enable block texture desync flicker (client-side)").define("enabled", true);
         F4DED_CHANCE = b.comment("1 in N checks flicker a block").defineInRange("chance", 60, 5, 1000);
-        b.pop();
-        b.push("tOXIC");
-        TOXIC_ENABLED = b.comment("enable the rewind (inputs locked, world rewinds 5-25s)").define("enabled", true);
-        TOXIC_CHANCE = b.comment("1 in N checks trigger toxic (rarer than everything else)").defineInRange("chance", 3000, 100, 100000);
-        TOXIC_COOLDOWN = b.comment("ticks between toxic events").defineInRange("cooldown", 24000, 1200, 240000);
-        TOXIC_MAX_REP = b.comment("players with rep above this never get toxic").defineInRange("maxRep", 700, 0, 2500);
-        TOXIC_NUR_QUIET = b.comment("min ticks since a nur spawned for you").defineInRange("nurQuietTicks", 2400, 200, 72000);
         b.pop();
         b.push("g0n3");
         GONE_ENABLED = b.comment("enable the light thief (torches go out behind you, light items vanish)").define("enabled", true);

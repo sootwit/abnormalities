@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "st1ll", "br34th", "h01d", "c1rcl", "tOXIC", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "br34th", "h01d", "c1rcl", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
     private static final Random RNG = new Random();
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
             (ctx, builder) -> SharedSuggestionProvider.suggest(configAllKeys(), builder);
@@ -158,11 +158,9 @@ public class AbnormalitiesCommands {
             case "sisterLeaves" -> com.abnormalities.horror.SisterController.forceLeave(player);
             case "s1gn" -> com.abnormalities.horror.SignManager.forceSign(player);
             case "wr0ng" -> com.abnormalities.horror.WrongCraftManager.forceCurse(player);
-            case "st1ll" -> com.abnormalities.horror.StillWorldManager.forceStart(player);
             case "br34th" -> com.abnormalities.horror.PhantomDrownManager.forceDrown(player);
             case "h01d" -> com.abnormalities.horror.StillnessManager.forceTrigger(player);
             case "c1rcl" -> com.abnormalities.horror.CircleManager.forceRing(player);
-            case "tOXIC" -> com.abnormalities.horror.ToxicController.forceStart(player);
             case "g0n3" -> com.abnormalities.horror.GoneController.forceSteal(player);
             case "fakeAch" -> com.abnormalities.horror.FakeAchievementManager.give(player);
             case "f4k3" -> com.abnormalities.horror.FakeChatManager.forceChat(player);

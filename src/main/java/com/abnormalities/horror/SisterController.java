@@ -29,15 +29,15 @@ public class SisterController {
             "He gets faster the further you run. So stop running.",
             "He won't stop until you're gone. He never stops.",
             "He's taller than you think. Taller than your fear of him.",
-            "He's been waiting for you all day. He's patient.",
+            "He's been waiting since sundown. He's patient.",
             "If he catches you, that's the end. He doesn't miss.",
-            "He hears everything you do. Every step. Every breath.",
+            "He sees everything you do. Every step. Every breath.",
             "The shy one is slow only when he wants to be.",
             "He walks through stone like it's air. Walls are nothing to him.",
-            "He knows where you sleep. He's been watching you sleep.",
             "Don't turn around. He's already behind you.",
             "He's not angry. He's hungry. That's worse.",
-            "You can't outrun him. You can only hide. Hide well."
+            "You can't outrun him. You can only hide. Hide well.",
+            "He only comes at night. But night is long."
     );
     private static final List<String> K3W_WARNINGS = List.of(
             "He will try to copy you. Sleep before he finishes.",
@@ -48,26 +48,25 @@ public class SisterController {
             "He's been watching you from inside your own shadow.",
             "If he catches you, you'll trade places. He knows.",
             "He broke what you broke. He'll fix it wrong on purpose.",
-            "He speaks with your voice. Don't answer him.",
             "He's almost perfect now. Almost you.",
             "He practices your breathing when you sleep.",
-            "He remembers every mistake you made. He'll repeat them.",
-            "Don't let him touch you. He'll take what's yours.",
-            "He wants your life. He's taking it piece by piece.",
+            "He reverses everything you build. Block by block.",
+            "Don't let him touch you. He deals damage. Real damage.",
+            "He wants your life. He's taking it one hit at a time.",
             "He's already part of you. The part you don't control."
     );
     private static final List<String> VR9P_WARNINGS = List.of(
             "He'll give you directions. Follow them exactly.",
             "The face is coming. You know the rules. Obey them.",
             "He tests the body. Yours will fail unless you listen.",
-            "STOP means stop. CONTINUE means move. There is nothing else.",
+            "STOP means stop. CONTINUE means you're free. There is nothing else.",
             "He's about to play with you. Don't lose.",
-            "His rules are simple. Breaking them is what he wants.",
+            "His rules are simple. Breaking them is how you lose.",
             "Listen to him. He's the only thing that matters now.",
             "He'll show you a face, then he'll test you. Be ready.",
             "The game is coming. You'll know the words. Say nothing.",
             "He watches your every movement. Make them count.",
-            "When he says STOP, you become stone. When he says CONTINUE, you run.",
+            "When he says STOP, you become stone. When he says CONTINUE, you're safe.",
             "He's cruel but fair. Follow the rules and you survive.",
             "His face will appear. Don't look away. Look and obey.",
             "He's testing if you're worth keeping around. Prove it.",
@@ -78,14 +77,12 @@ public class SisterController {
             "This one is stricter. He sees everything. Everything.",
             "He demands stillness. Give him nothing. Not even breath.",
             "He's faster now. Decide faster or die.",
-            "He counts your mistakes. You've already made three.",
             "He sees your eyes move. He sees your heart beat.",
             "The strict one is here. He doesn't forgive. He doesn't forget.",
             "Every twitch is a confession to him. Don't confess.",
             "He'll punish your smallest sin. His patience is infinite.",
-            "Don't look at him. Don't look away. Don't exist.",
             "He wants perfection. You will fail. He knows you'll fail.",
-            "He's testing your limits. There are none. He'll find them.",
+            "He's testing your limits. He'll find them.",
             "The rules are absolute now. Absolute means death.",
             "He's already decided. Prove him wrong.",
             "His face is the last thing you'll see if you slip."
@@ -96,84 +93,48 @@ public class SisterController {
             "The eyes are coming. All of them. All at once.",
             "Don't move when they watch. They're counting.",
             "Every creature in the world is about to notice you.",
-            "They'll freeze. You won't. That's the point.",
+            "They'll freeze. You should too.",
             "A thousand eyes. One moment. One you.",
-            "The animals know something you don't. They'll show you.",
+            "The animals know something you don't.",
             "When they all turn, don't turn back. Just wait.",
             "They're not looking at you. They're looking through you.",
             "The silence before the stare is the worst. Bear it.",
-            "They've always watched. Now they'll admit it.",
+            "They've always watched.",
             "Hold your breath. They're coming to look.",
             "The world is about to go quiet. Then the eyes.",
             "You'll feel alone in a crowd of watchers. You are."
     );
     private static final List<String> LURE_WARNINGS = List.of(
             "Something is calling. Don't answer it.",
-            "I hear music. It's a trap. It's always a trap.",
-            "The melody wants you to find it. That's the trick.",
+            "I hear music. It's a trap.",
+            "The melody wants you to find it. Don't.",
             "Don't go toward the sound. It knows you're listening.",
-            "The music plays your favorite song. Almost. Wrong enough.",
             "Every step closer is a step into it. Stop stepping.",
-            "It sings for you. It wants you to sing back.",
+            "It sings for you. It wants you to sing back. Don't.",
             "The box plays on. It will keep playing until you come.",
             "Follow it once, it moves. Follow it twice, it waits.",
             "The tune is wrong. You know it's wrong. Don't go anyway.",
             "It's not a lullaby. It's a leash. Don't wear it.",
             "The melody ends when it's closest. That's when you run.",
-            "It hums your name between the notes. Ignore the name.",
-            "Don't chase the music. It chases back. It always does.",
+            "Don't chase the music. It chases back.",
             "The sound is a door. You don't want what's behind it."
     );
-    private static final List<String> TOXIC_WARNINGS = List.of(
-            "The world is going to rewind. Hold on to yourself.",
-            "Time is pulling back. Don't fight it. Let it take you.",
-            "Your body will move without you. Watch. Learn.",
-            "You're about to lose a minute. Breathe through it.",
-            "Time is going to forget you for a moment. Forgive it.",
-            "Everything you did will unhappen. All of it.",
-            "You'll watch yourself from outside. It's brief. It's real.",
-            "The dead will rise. The built will fall. Then nothing.",
-            "Your hands aren't yours for a while. Don't panic.",
-            "The world is rewinding to teach you something. Learn.",
-            "Don't struggle. Struggling makes it worse. Trust me.",
-            "You're about to relive a moment you already forgot.",
-            "The rewind is coming. Hold your place in it.",
-            "Everything is about to be undone. Including you.",
-            "Brace yourself. Time is folding. It always folds."
-    );
-    private static final List<String> STILL_WARNINGS = List.of(
-            "Everything is going to hold its breath. So will you.",
-            "The world will go quiet. Silence is coming. Accept it.",
-            "Time stops soon. It's not forever. It feels like it.",
-            "The silence is coming. You'll hear yourself think.",
-            "The world is about to freeze. You won't. That's the horror.",
-            "Listen. Nothing. That's what's coming.",
-            "The pause is coming. Use it to think clearly.",
-            "Everything will stop. You'll be the only thing moving.",
-            "The quiet before is louder than the quiet itself.",
-            "The world is holding still to watch you. Let it.",
-            "Nothing will move. Nothing but your heart. Keep it beating.",
-            "The freeze is coming. Don't fight it. Don't move.",
-            "You'll hear your own breath for the first time. It's loud.",
-            "The world stops. You continue. That's wrong. It's happening.",
-            "Silence is coming. It's the loudest thing you'll hear."
-    );
     private static final List<String> MINER_WARNINGS = List.of(
-            "Something is digging toward you. It's been digging for hours.",
+            "Something is digging toward you. It won't stop.",
             "I hear picks below. It's coming up. It knows where you are.",
             "There's a tunnel being made. Not by you. Never by you.",
             "Something underground wants to meet you. Don't meet it.",
             "The stone is being carved. You didn't carve it. It carves itself.",
-            "It digs when you're not looking. Then it stops. Then it waits.",
+            "It digs through everything. Stone. Deepslate. Your luck.",
             "There's a miner down there. It's not human. It never was.",
-            "It places torches so it can see you better. It sees you.",
+            "It places torches so it can see the tunnel. The tunnel leads to you.",
             "The digging is getting closer. Leave. Now.",
-            "It carved a tunnel to your exact location. It knows.",
+            "It carved a tunnel in your direction. It knows.",
             "Listen to the stone. It's whispering about the tunnel.",
             "Someone's been mining in your world. You're not alone.",
             "The pickaxe sounds are real. They're not echoes. They're closer.",
-            "It's hollowing out the earth beneath you. You'll fall in.",
-            "If you follow the tunnel, you'll find something. You won't like it."
+            "It's carving through the earth toward you. You'll hear it.",
+            "If you follow the tunnel, you'll find an end. You won't like it."
     );
     private static final List<String> WRONG_WARNINGS = List.of(
             "Be careful what you craft today. It might craft you back.",
@@ -211,20 +172,15 @@ public class SisterController {
     );
     private static final List<String> BR34TH_WARNINGS = List.of(
             "You're going to feel like you're drowning. You're not. Remember.",
-            "Take a breath. The air is there. It's always there.",
             "Your lungs will lie to you soon. Don't believe them.",
-            "Water isn't there. There's no water. It's a memory.",
-            "You'll gasp for air that's all around you. Breathe anyway.",
-            "The drowning is a dream. Keep breathing through it.",
-            "Your body forgets the air for a moment. Remind it.",
-            "You'll feel water that doesn't exist. It feels real. It isn't.",
-            "Breathe in. The air is real. Trust it. Trust me.",
+            "You'll gasp for air that isn't there. Breathe anyway.",
+            "The drowning is a memory. Not yours. Ignore it.",
             "Something will steal your breath for a second. Take it back.",
-            "You're not underwater. You never were. You're fine.",
             "The suffocation is a memory. Not yours. Ignore it.",
             "Hold your breath. No. Don't. That's what it wants.",
             "The water is a lie. The air is true. Choose air.",
-            "You'll almost drown on dry land. Almost. That's the game."
+            "You'll almost drown on dry land. Almost. That's the game.",
+            "Your body forgets the air for a moment. Remind it."
     );
     private static final List<String> HOLD_WARNINGS = List.of(
             "Don't stand still too long. It notices the still.",
@@ -364,19 +320,16 @@ public class SisterController {
     );
     private static final List<String> XYZ_WARNINGS = List.of(
             "The Mother wants something from you. You heard her. Bring it.",
-            "She asks for what she needs. She always gets what she needs.",
+            "She asks for what she needs. She's patient about it.",
             "The Mother is patient. She has time. You have a timer.",
             "Give her what she wants. She rewards obedience. Generously.",
-            "She watches you gather. She's counting. Don't waste time.",
             "The Mother's request is a test. Pass it. She grades fairly.",
             "She's waiting. Don't keep her waiting. She's not patient twice.",
-            "Bring her the tribute. She'll remember kindness. She remembers everything.",
             "The Mother doesn't threaten. That's the threat. Bring the item.",
             "She asked once. She won't ask again. She'll send them instead.",
             "Her gift is worth the trouble. Usually. Sometimes it's worth more.",
-            "The Mother sees everything you carry. She knows what you have.",
-            "She'll be generous if you're quick. Speed is respect.",
-            "Do what the Mother says. Or she'll send the shy ones. All of them.",
+            "She'll be generous if you're quick. Speed helps.",
+            "Do what the Mother says. Or she'll send the shy ones. Four of them.",
             "The Mother is fair. The shy ones aren't. Choose her side."
     );
     private static final List<String> FAREWELLS = List.of(
@@ -542,14 +495,6 @@ public class SisterController {
 
     public static void onLureWarning(ServerPlayer target) {
         warn(target, LURE_WARNINGS);
-    }
-
-    public static void onToxicWarning(ServerPlayer target) {
-        warn(target, TOXIC_WARNINGS);
-    }
-
-    public static void onStillWarning(ServerPlayer target) {
-        warn(target, STILL_WARNINGS);
     }
 
     public static void onMinerWarning(ServerPlayer target) {

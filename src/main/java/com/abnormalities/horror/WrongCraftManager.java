@@ -88,16 +88,28 @@ public class WrongCraftManager {
                 CURSED_UNTIL.remove(sp.getUUID());
                 continue;
             }
+            boolean hasCursed = false;
+            int cursedSlot = -1;
             for (int i = 0; i < sp.getInventory().getContainerSize(); i++) {
                 ItemStack stack = sp.getInventory().getItem(i);
                 if (stack.getTag() != null && stack.getTag().getBoolean("abnormalities:cursed")) {
-                    if (overworld.random.nextInt(30) == 0) {
-                        LOGGER.debug("[WrongCraft] {} whisper from cursed item", sp.getName().getString());
-                        sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.WHISPER_SOUND.get()),
-                            net.minecraft.sounds.SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 0.7f, 0));
-                    }
+                    hasCursed = true;
+                    cursedSlot = i;
+                    break;
                 }
+            }
+            if (!hasCursed) continue;
+            if (overworld.random.nextInt(15) == 0) {
+                sp.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.CONFUSION, 60, 0, false, false, true));
+            }
+            if (overworld.random.nextInt(20) == 0) {
+                String whisper = WHISPERS.get(overworld.random.nextInt(WHISPERS.size()));
+                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                        net.minecraft.network.chat.Component.literal(whisper).withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC), false));
+                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                        net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.WHISPER_SOUND.get()),
+                        net.minecraft.sounds.SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 2.0f, 0.7f, 0));
             }
         }
     }

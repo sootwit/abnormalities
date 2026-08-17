@@ -215,7 +215,6 @@ public class ModEvents {
                     nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
                     LOGGER.info("[Events] nur spawned for {} at ({}, {}, {}) state={}", target.getName().getString(), (int)sx, sy, (int)sz, nur.currentState);
                     task.level.addFreshEntity(nur);
-                    com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
                     task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
                             SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
                 }
@@ -233,7 +232,6 @@ public class ModEvents {
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
                 if (target != null) {
                     nur.startChasing(target);
-                    com.abnormalities.horror.ToxicController.recordNurSpawn((ServerPlayer) target);
                 }
                 task.level.addFreshEntity(nur);
             }

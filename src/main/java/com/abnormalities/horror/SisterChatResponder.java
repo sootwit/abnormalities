@@ -25,108 +25,101 @@ public class SisterChatResponder {
     private static final List<String> GREETING_LINES = List.of(
         "Hello.",
         "You talk to me first. Most don't.",
-        "Hi. He heard that too.",
-        "Hey yourself.",
-        "Late for pleasantries. But hello.",
-        "You're new. Or forgetful.",
-        "Hello. Don't get used to it.",
-        "That's the first thing you've said all night.",
-        "Hi. I was watching anyway.",
-        "Hello. He says hello back. He doesn't mean it."
+        "Hi.",
+        "Hey.",
+        "Late for pleasantries. But hello."
     );
 
     private static final List<String> NAME_LINES = List.of(
         "I'm here.",
-        "You called. I answer sometimes.",
+        "You called.",
         "Yes.",
-        "Still here. Same as always.",
-        "You said it twice. Once was enough.",
+        "Still here.",
         "I heard you the first time.",
-        "That's my name. Barely.",
+        "That's my name.",
         "Sister. That's what they call me too.",
-        "Right here. Not that it helps.",
+        "Right here.",
         "You sound unsure. Fair."
     );
 
     private static final List<String> IDENTITY_LINES = List.of(
         "I watch. That's most of it.",
-        "Sister. That's enough for now.",
+        "Sister.",
         "Someone who's been here longer than you.",
         "Not one of them. Not exactly on your side either.",
         "I used to be simpler. Long story.",
-        "I know the house. That's the important part.",
-        "Ask again later. Same answer.",
+        "I know things. Rest is useless.",
         "I'm the one who tells you things. Not the one who saves you.",
-        "You'll figure out the rest. Or you won't.",
-        "Doesn't matter what I am. Matters what I know."
+        "You'll figure out the rest.",
+        "Doesn't matter what I am. What matters is I know."
     );
 
     private static final List<String> LOCATION_LINES = List.of(
         "Close.",
-        "Behind the camera. Always behind something.",
+        "Behind the camera.",
         "Somewhere you already looked.",
-        "Not far. Never far.",
+        "Not far.",
         "Here. Vague, I know.",
         "Wherever the screen is.",
         "Same room as you. Different side of it.",
-        "Watching. That's a place too.",
+        "Watching.",
         "Closer than the walls.",
         "You won't find me. Stop looking."
     );
 
     private static final List<String> FEAR_LINES = List.of(
-        "Good. Scared keeps you moving.",
+        "Good. Fear keeps you moving.",
         "I can't help. I can watch.",
         "Fear's doing its job. Keep it.",
         "That's the right feeling for this.",
-        "Scared is fine. Stopping isn't.",
+        "Fear is expected.",
         "Nobody's coming. Move anyway.",
-        "You should be. That's not an insult.",
+        "You should be.",
         "Fear's useful. Waste it and you're done.",
         "I hear you. Doesn't change anything.",
-        "Stay scared. Stay moving. In that order."
+        "Stay afraid. Stay moving."
     );
 
     private static final Map<String, List<String>> ENTITY_LINES = new LinkedHashMap<>();
     static {
         ENTITY_LINES.put("nur", List.of(
-            "Nur's shy. Don't stare too long.",
-            "Nur doesn't like being seen seeing you."
+            "Nur's shy. Don't stare at him. Wait for the sunlight.",
+            "Nur doesn't like being seen by you. He's afraid of the day."
         ));
         ENTITY_LINES.put("k3w", List.of(
-            "K3w's you. The worse version.",
-            "K3w learns fast. Faster than you'd like."
+            "K3w's you. The worse version. Be careful of your actions and sleep.",
+            "K3w learns fast. He's afraid of sleeping. So sleep."
         ));
         ENTITY_LINES.put("it", List.of(
             "It doesn't blink. Neither should you.",
-            "It waits. That's all it does. It's good at it."
+            "It waits. Stare at it."
         ));
         ENTITY_LINES.put("him", List.of(
-            "Him. Yeah. He's around.",
-            "Him again. He never really leaves."
+            "Him. Yeah. He will be an inconvenience to you. Fight him.",
+            "Him. He never really leaves. Fight him until he's gone."
         ));
         ENTITY_LINES.put("xyz", List.of(
-            "xYz remembers everything. You don't want that.",
-            "xYz isn't angry. Disappointed is worse."
+            "xYz tries to help you. Appreciate it.",
+            "xYz requires items. Give them to her."
         ));
     }
 
     private static final List<String> HINT_LINES = List.of(
         "Don't run out of light.",
         "Quiet rooms stay quiet. Keep them that way.",
-        "Watch the ones that watch back.",
+        "If it's staring, stare back. Don't blink first.",
         "Bridges don't outrun anything. Walk, don't build.",
         "Sleep in beds nobody's visited.",
-        "If it's staring, stare back. Don't blink first.",
+        "Watch the ones that watch back. They freeze when you do.",
         "Torches buy time. Not much.",
         "Listen for music you didn't turn on.",
-        "If the mobs stop moving, so do you.",
+        "If the mobs stop moving, keep moving.",
         "Survive by noticing. That's most of it."
     );
 
     private static final List<String> RUN_LINES = List.of(
         "Go ahead.",
-        "Running works. Until it doesn't.",
+        "Running works.",
         "He likes it when you run. Gives him something to do.",
         "Run. I'll watch.",
         "Escape isn't a place. Just a direction.",
@@ -141,16 +134,25 @@ public class SisterChatResponder {
         "Sure.",
         "Everyone says that once.",
         "Confidence. Cute.",
-        "I've heard that before. Right before.",
+        "I've heard that before. Before they arrived.",
         "Bring it. Not my line to deliver.",
         "You'll change your mind. Most do.",
         "Not scared yet.",
-        "That's brave. Or early.",
-        "Come at me. He heard that.",
-        "Told you so, in advance."
+        "You're brave."
     );
 
-    private static final List<String> META_LINES = List.of();
+    private static final List<String> META_LINES = List.of(
+        "Abnormalities. Fitting name.",
+        /* "There's a wiki. Won't save you either.", */
+        "Mod. Sure. Call it that.",
+        /* "You can read about it. Doesn't change what's in here.", */
+        "Abnormalities. Someone documented all this.",
+        /* "Wiki's got the facts. Not the feeling.", */
+        "It's a mod. It's also real enough.",
+        /* "Go read it. Come back scared anyway.", */
+        /* "Names and numbers. The wiki has those.", */
+        "Call it a mod if that helps you sleep."
+    );
 
     private static final List<String> CREEPY_LINES = List.of(
         "Stop talking.",

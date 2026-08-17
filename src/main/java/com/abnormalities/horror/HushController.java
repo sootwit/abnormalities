@@ -63,6 +63,11 @@ public class HushController {
         st.ticksLeft = dur;
         ACTIVE.put(uuid, st);
 
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), net.minecraft.sounds.SoundSource.MASTER, 6.0f, 0.4f);
+        level.playSound(null, player.getX(), player.getY() + 16, player.getZ(),
+                net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), net.minecraft.sounds.SoundSource.MASTER, 4.0f, 0.2f);
+
         int range = AbnormalitiesConfig.HUSH_RANGE.get();
         var mobs = level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(range));
         List<Integer> frozenIds = new ArrayList<>();
