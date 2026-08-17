@@ -123,6 +123,10 @@ public class K3wActionTracker {
         }
     }
 
+    public static boolean hasActiveClone(UUID uuid) {
+        return SPAWN_TIMERS.containsKey(uuid) || ACTIVE_CLONES.containsKey(uuid);
+    }
+
     public static boolean forceK3wSpawn(Player player) {
         UUID uuid = player.getUUID();
         if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {

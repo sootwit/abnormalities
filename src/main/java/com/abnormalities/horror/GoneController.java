@@ -119,6 +119,11 @@ public class GoneController {
         return false;
     }
 
+    public static boolean wasRecentlyActive(UUID uuid, long currentTick) {
+        Long last = LAST_EXTINGUISH.get(uuid);
+        return last != null && currentTick - last < 600;
+    }
+
     public static void forceSteal(ServerPlayer player) {
         extinguishAll(player, (ServerLevel) player.level());
         stealLightItem(player);

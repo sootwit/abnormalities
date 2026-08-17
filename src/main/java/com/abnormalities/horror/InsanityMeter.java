@@ -64,10 +64,10 @@ public class InsanityMeter {
     private static long lastSaveTime = 0;
 
     private static final List<String> WHISPERS = List.of(
-        "your eyes are playing tricks on you.",
-        "there is something behind you. do not turn around.",
-        "it is inside your head now.",
-        "you are not yourself anymore."
+        "Your eyes are playing tricks on you.",
+        "Do not turn around.",
+        "It is inside your head now.",
+        "You are not yourself anymore."
     );
 
     @SubscribeEvent

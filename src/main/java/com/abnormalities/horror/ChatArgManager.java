@@ -22,27 +22,30 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.abnormalities.config.AbnormalitiesConfig;
+
 public class ChatArgManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|ChatArg");
     private static final Random RNG = new Random();
-    private static final int ANGER_DURATION = 36000;
+/*     private static final int ANGER_DURATION = 36000; */ // config 
     private static final int HOSTILE_EXTRA_INTERVAL = 600;
 
     private static final Map<String, String> REPLIES = Map.of(
-        "i love you", "< > uoy_evol_i",
+        "i love you", "< > uoy_wonk_i",
         "hi", "< > iH",
-        "what do you want", "< > tnaw_uoY_od_tahtw",
-        "where are you", "< > uoy_gnihctaW",
-        "can you see me", "< > .eS_eS_uoY_naC",
-        "who are you", "< > .uoY_erA_oW",
-        "help", "< > .pleH",
-        "run", "< > .nuR"
+        "what do you want", "< > .evaeL_oT_uoY",
+        "where are you", "< > .uoY_gnihctaW",
+        "can you see me", "< > .uoY_eeS_naC_I",
+        "who are you", "< > ?I_mA_ohW",
+        "help", "< > .oN",
+        "run", "< > .nur",
+        "null", "< > .dneirF_dlO"
     );
 
     private static final String ANGRY_REPLY = "< > .daeD_eB_dluoW_uoY_ekil_htiW_em";
 
     private static final List<String> INSULTS = List.of(
-        "kill yourself", "i hate you", "fuck you", "die", "shut up", "stupid"
+        "kill yourself", "i hate you", "fuck you", "die", "shut up", "stupid", "sybau", "stfu"
     );
 
     private static final List<String> HOSTILE_POOL = List.of(
@@ -113,10 +116,10 @@ public class ChatArgManager {
     }
 
     private static void triggerAnger(ServerPlayer player) {
-        angryUntil = serverTick() + ANGER_DURATION;
+        angryUntil = serverTick() + AbnormalitiesConfig.ANG3R_DURATION.get();
         angryPlayer = player.getUUID();
         nextExtra = serverTick() + HOSTILE_EXTRA_INTERVAL;
-        LOGGER.info("[ChatArg] {} anger triggered for {}t", player.getName().getString(), ANGER_DURATION);
+        LOGGER.info("[ChatArg] {} anger triggered for {}t", player.getName().getString(), AbnormalitiesConfig.ANG3R_DURATION.get());
         sendReply(player, ANGRY_REPLY, false);
         playCaveSound(player);
     }

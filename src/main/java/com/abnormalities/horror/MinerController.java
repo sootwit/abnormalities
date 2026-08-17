@@ -98,8 +98,8 @@ public class MinerController {
             s.head = airSpot;
             double dx = player.getX() - airSpot.getX();
             double dz = player.getZ() - airSpot.getZ();
-            if (Math.abs(dx) > Math.abs(dz)) s.heading = dx > 0 ? Direction.WEST : Direction.EAST;
-            else s.heading = dz > 0 ? Direction.NORTH : Direction.SOUTH;
+            if (Math.abs(dx) > Math.abs(dz)) s.heading = dx > 0 ? Direction.EAST : Direction.WEST;
+            else s.heading = dz > 0 ? Direction.SOUTH : Direction.NORTH;
             SESSIONS.put(player.getUUID(), s);
             LOGGER.info("[Miner] {} session started, heading={}, start=({},{},{})", player.getName().getString(), s.heading, s.start.getX(), s.start.getY(), s.start.getZ());
             return;
@@ -173,6 +173,10 @@ public class MinerController {
                 }
             }
         }
+    }
+
+    public static boolean hasSession(UUID uuid) {
+        return SESSIONS.containsKey(uuid);
     }
 
     public static void forceStart(ServerPlayer player) {

@@ -37,7 +37,6 @@ public class WrongCraftManager {
         Player player = event.getEntity();
         if (player.level().isClientSide) return;
         if (!(player instanceof ServerPlayer sp)) return;
-        SisterController.onWrongWarning(sp);
         if (!AbnormalitiesConfig.WR0NG_ENABLED.get()) return;
         if (player.level().getServer() == null) return;
         long currentDay = player.level().getDayTime() / 24000L;
@@ -46,6 +45,7 @@ public class WrongCraftManager {
         if (result.isEmpty()) return;
         boolean forced = PENDING_CURSE.remove(player.getUUID());
         if (!forced && player.level().random.nextInt(AbnormalitiesConfig.WR0NG_CHANCE.get()) != 0) return;
+        SisterController.onWrongWarning(sp);
         CompoundTag tag = result.getOrCreateTag();
         tag.putBoolean("abnormalities:cursed", true);
         result.setTag(tag);

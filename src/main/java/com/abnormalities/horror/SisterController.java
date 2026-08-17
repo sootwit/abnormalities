@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class SisterController {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Sister");
-    // private static final String TAB_SKIN_URL = "https://minotar.net/skin/MHF_Alex"; // old skin, switched to void
+    /* private static final String TAB_SKIN_URL = "https://minotar.net/skin/MHF_Alex"; */ // old skin
     private static final List<String> NUR_WARNINGS = List.of(
             "The shy one is coming. He always comes.",
             "He's shy. That's why he watches you from the dark.",
@@ -391,7 +391,7 @@ public class SisterController {
             "You didn't listen. I told you. I always tell you.",
             "He got you. Don't worry, he gets everyone eventually.",
             "That's one down. Try again. I'll be watching.",
-            "I said STOP. You moved. That's on you, not me.",
+            "You were supposed to survive. That didn't work out.",
             "Maybe the next world. I'll be there too.",
             "He doesn't forget. Neither do I.",
             "Told you so.",
@@ -475,8 +475,19 @@ public class SisterController {
         }
     }
 
+    private static final Map<UUID, Long> LAST_WARNING = new HashMap<>();
+
     public static void warn(ServerPlayer target, List<String> pool) {
         if (!joined || target == null) return;
+        UUID uuid = target.getUUID();
+        var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (srv != null) {
+            long now = srv.getTickCount();
+            Long last = LAST_WARNING.get(uuid);
+            if (last != null && now - last < 200) return;
+            LAST_WARNING.put(uuid, now);
+        }
+        if (new Random().nextInt(3) != 0) return;
         String msg = pick(pool);
         LOGGER.debug("[Sister] warning to {}: {}", target.getName().getString(), msg);
         PENDING.add(new Warning(target, msg));
@@ -488,6 +499,22 @@ public class SisterController {
             target.connection.send(new ClientboundSystemChatPacket(
                     Component.literal("<" + displayName + "> " + pick(pool)).withStyle(ChatFormatting.WHITE), false));
         }
+    }
+
+    private static void warnRare(ServerPlayer target, List<String> pool) {
+        if (!joined || target == null) return;
+        UUID uuid = target.getUUID();
+        var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (srv != null) {
+            long now = srv.getTickCount();
+            Long last = LAST_WARNING.get(uuid);
+            if (last != null && now - last < 200) return;
+            LAST_WARNING.put(uuid, now);
+        }
+        if (new Random().nextInt(10) != 0) return;
+        String msg = pick(pool);
+        LOGGER.debug("[Sister] rare warning to {}: {}", target.getName().getString(), msg);
+        PENDING.add(new Warning(target, msg));
     }
 
     public static void onNurWarning(ServerPlayer target) {
@@ -527,7 +554,7 @@ public class SisterController {
     }
 
     public static void onWrongWarning(ServerPlayer target) {
-        warn(target, WRONG_WARNINGS);
+        warnRare(target, WRONG_WARNINGS);
     }
 
     public static void onSignWarning(ServerPlayer target) {
