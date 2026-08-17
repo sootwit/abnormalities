@@ -49,6 +49,8 @@ public class K3wEntity extends Mob {
     private int hitCooldown = 0;
     private int crashTimer = -1;
     private int lastHurtTick = -100;
+    private int lifetimeTicks = 0;
+    private static final int LIFETIME_TICKS = 3600;
 
     public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
         super(type, level);
@@ -197,6 +199,13 @@ public class K3wEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+
+        lifetimeTicks++;
+        if (lifetimeTicks >= LIFETIME_TICKS) {
+            LOGGER.info("[K3w] decay: discarding after {} ticks", lifetimeTicks);
+            discard();
+            return;
+        }
 
         BlockPos bp = this.blockPosition();
         for (int dx = -1; dx <= 1; dx++) {
@@ -429,6 +438,7 @@ public class K3wEntity extends Mob {
         tag.putBoolean("IsMoving", isMoving);
         tag.putInt("CurrentPathIndex", currentPathIndex);
         tag.putInt("CrashTimer", crashTimer);
+        tag.putInt("LifetimeTicks", lifetimeTicks);
 
         net.minecraft.nbt.ListTag pathTag = new net.minecraft.nbt.ListTag();
         for (double[] pt : pathPoints) {
@@ -475,6 +485,7 @@ public class K3wEntity extends Mob {
         isMoving = tag.getBoolean("IsMoving");
         currentPathIndex = tag.getInt("CurrentPathIndex");
         crashTimer = tag.getInt("CrashTimer");
+        lifetimeTicks = tag.getInt("LifetimeTicks");
 
         pathPoints.clear();
         net.minecraft.nbt.ListTag pathTag = tag.getList("PathPoints", 10);

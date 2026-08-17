@@ -305,6 +305,7 @@ public class K3wActionTracker {
         ACTION_LOGS.remove(uuid);
         POSITION_BUFFERS.remove(uuid);
         SPAWN_COOLDOWNS.remove(uuid);
+        CHAT_COOLDOWN.remove(uuid);
     }
 
     @SubscribeEvent
@@ -314,6 +315,8 @@ public class K3wActionTracker {
         }
     }
 
+    private static final Set<UUID> CHAT_COOLDOWN = new HashSet<>();
+
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
@@ -321,12 +324,15 @@ public class K3wActionTracker {
         List<K3wEntity> clones = ACTIVE_CLONES.get(uuid);
         if (clones == null || clones.isEmpty()) return;
         if (clones.stream().noneMatch(K3wEntity::isAlive)) return;
+        if (CHAT_COOLDOWN.contains(uuid)) return;
         String msg = event.getMessage().getString();
         int delayTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
         var server = player.getServer();
         if (server == null) return;
+        CHAT_COOLDOWN.add(uuid);
         int targetTick = server.getTickCount() + delayTicks;
         server.tell(new net.minecraft.server.TickTask(targetTick, () -> {
+            CHAT_COOLDOWN.remove(uuid);
             if (player.connection == null) return;
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                 Component.literal("<" + player.getName().getString() + "> " + msg), false));
