@@ -2,6 +2,8 @@ package com.abnormalities.horror;
 
 import com.abnormalities.WhisperManager;
 import com.abnormalities.registry.ModSounds;
+
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -39,7 +41,7 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
         st.ticks = 0;
         st.mobSpawned = false;
         ACTIVE.put(uuid, st);
-        WhisperManager.sendActionBar(player, "HELP");
+        WhisperManager.sendActionBar(player, "HELP", ChatFormatting.RED);
         player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 200, 0, false, false, false));
     }
 
@@ -57,7 +59,7 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
 
         if (st.ticks <= 60) {
             if (st.ticks % 30 == 0) {
-                WhisperManager.sendActionBar(player, "HELP");
+                WhisperManager.sendActionBar(player, "HELP", ChatFormatting.RED);
             }
             if (st.ticks % 20 == 0) {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 60, 0, false, false, false));
@@ -66,7 +68,7 @@ public class HelpHotbarEvent extends AbstractHorrorEvent {
         } else {
             if (!st.mobSpawned) {
                 st.mobSpawned = true;
-                WhisperManager.sendActionBar(player, "HELP");
+                WhisperManager.sendActionBar(player, "HELP", ChatFormatting.RED);
                 spawnMobs(player);
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 140, 1, false, false, false));
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 140, 1, false, false, false));

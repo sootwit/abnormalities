@@ -62,9 +62,9 @@ public class WhisperManager {
             0.4f, pitch, 0));
     }
 
-    public static void sendActionBar(ServerPlayer player, String text) {
+    public static void sendActionBar(ServerPlayer player, String text, ChatFormatting color) {
         if (player.connection == null) return;
-        player.displayClientMessage(Component.literal(text).withStyle(ChatFormatting.RED), true);
+        player.displayClientMessage(Component.literal(text).withStyle(color), true);
     }
 
     public static void sendPositionedSound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, double x, double y, double z, float vol, float pitch) {
