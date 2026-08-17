@@ -21,7 +21,7 @@ public class WarningScreen extends Screen {
             Component.literal("Some events are destructive by design."),
             Component.literal("If you don't want this, use the config command:"),
             Component.literal(""),
-            Component.literal("/abnorm_config"),
+            Component.literal("/abnormalities config"),
             Component.literal(""),
             Component.literal("You can disable individual events there.")
     };

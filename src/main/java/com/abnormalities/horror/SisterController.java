@@ -629,9 +629,16 @@ public class SisterController {
     public static void onPlayerLogin(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer sp) || sp.connection == null) return;
         if (!sp.getPersistentData().getBoolean("abnormalities:seen_warning")) {
-            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
-                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
-                new com.abnormalities.network.WarningShowPacket());
+            var srv = sp.getServer();
+            if (srv != null) {
+                srv.tell(new net.minecraft.server.TickTask(srv.getTickCount() + 20, () -> {
+                    if (sp.connection != null) {
+                        com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                            net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                            new com.abnormalities.network.WarningShowPacket());
+                    }
+                }));
+            }
         }
         if (joined) {
             addFake(sp);
