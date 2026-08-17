@@ -118,6 +118,9 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(8, com.abnormalities.network.WarningAckPacket.class,
                 com.abnormalities.network.WarningAckPacket::encode, com.abnormalities.network.WarningAckPacket::decode,
                 com.abnormalities.network.WarningAckPacket::handle);
+        CHANNEL.registerMessage(9, com.abnormalities.network.ConfigScreenOpenPacket.class,
+                com.abnormalities.network.ConfigScreenOpenPacket::encode, com.abnormalities.network.ConfigScreenOpenPacket::decode,
+                com.abnormalities.network.ConfigScreenOpenPacket::handle);
 
     }
 }

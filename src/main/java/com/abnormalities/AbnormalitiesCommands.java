@@ -149,6 +149,14 @@ public class AbnormalitiesCommands {
                                                     return Command.SINGLE_SUCCESS;
                                                 })))))
                 .then(Commands.literal("config")
+                        .executes(ctx -> {
+                            if (!(ctx.getSource().getEntity() instanceof ServerPlayer sp)) return 0;
+                            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                                new com.abnormalities.network.ConfigScreenOpenPacket());
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                .then(Commands.literal("advancedConfig")
                         .executes(ctx -> configListAll(ctx.getSource()))
                         .then(Commands.argument("category", StringArgumentType.greedyString())
                                 .suggests(CONFIG_CATEGORY_SUGGESTIONS)
@@ -359,7 +367,7 @@ public class AbnormalitiesCommands {
         src.sendSuccess(() -> Component.literal("dangerous.events").withStyle(ChatFormatting.RED)  .append(Component.literal(" - vr9p, hush, lure, miner, wind, etc").withStyle(ChatFormatting.GRAY)), false);
         src.sendSuccess(() -> Component.literal("safe.entities").withStyle(ChatFormatting.GREEN)    .append(Component.literal(" - xyz, sister, 0th3r").withStyle(ChatFormatting.GRAY)), false);
         src.sendSuccess(() -> Component.literal("safe.events").withStyle(ChatFormatting.GREEN)     .append(Component.literal(" - v1s1t, sign, wrong, gone, etc").withStyle(ChatFormatting.GRAY)), false);
-        src.sendSuccess(() -> Component.literal("use /abnormalities config <category> to browse").withStyle(ChatFormatting.DARK_GRAY), false);
+        src.sendSuccess(() -> Component.literal("use /abnormalities advancedConfig <category> to browse").withStyle(ChatFormatting.DARK_GRAY), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -405,7 +413,7 @@ public class AbnormalitiesCommands {
     private static int configShowOne(CommandSourceStack src, String key) {
         ForgeConfigSpec.ConfigValue<?> cv = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "").get(key);
         if (cv == null) {
-            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities config to list all"));
+            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities advancedConfig to list all"));
             return 0;
         }
         src.sendSuccess(() -> Component.literal(key + " = " + cv.get()).withStyle(ChatFormatting.LIGHT_PURPLE), false);
@@ -415,7 +423,7 @@ public class AbnormalitiesCommands {
     private static int configSetOne(CommandSourceStack src, String key, String raw) {
         ForgeConfigSpec.ConfigValue<?> cv = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "").get(key);
         if (cv == null) {
-            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities config to list all"));
+            src.sendFailure(Component.literal("no config key '" + key + "'. use /abnormalities advancedConfig to list all"));
             return 0;
         }
         Object parsed = configParseValue(src, cv, key, raw);
