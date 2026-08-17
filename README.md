@@ -17,36 +17,5 @@ you will not enjoy your stay.
 
 Inspired by The Broken Script / wendigodrip.
 
-## QUESTIONS NOBODY ASKED:
-Q: What does this mod do?
-A: it adds horror to the game
-
-Q: Can I put this in my modpack?
-A: why not. just credit me somewhere
-
-Q: Why did my game crash?
-A: the mod. its a feature.
-
-Q: How do I configure it?
-A: abnormalities.toml in your config folder
-
-Q: I found a bug.
-A: please report your bug to the issues page
-
-Q: Is this finished?
-A: its in beta. core stuff works. more eventually maybe.
-
-Q: Bedrock port?
-A: no.
-
-Q: How do I make the entities less aggressive?
-A: lower spawn weights on config file and/or disable features.
-
-## Credits
-
--   wendigodrip and the broken script - for the idea and inspiration
--   me                                - for coding this entire mod
--   you                               - for reading this far i guess
-
 ## License
 abnormalities is [MIT licensed](./LICENSE).
