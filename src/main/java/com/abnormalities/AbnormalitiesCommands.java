@@ -158,9 +158,14 @@ public class AbnormalitiesCommands {
                         }))
                 .then(Commands.literal("advancedConfig")
                         .executes(ctx -> configListAll(ctx.getSource()))
-                        .then(Commands.argument("category", StringArgumentType.greedyString())
-                                .suggests(CONFIG_CATEGORY_SUGGESTIONS)
-                                .executes(ctx -> configParseAndRun(ctx.getSource(), StringArgumentType.getString(ctx, "category"))))));
+                        .then(Commands.argument("key", StringArgumentType.word())
+                                .suggests(CONFIG_KEY_SUGGESTIONS)
+                                .executes(ctx -> configShowOne(ctx.getSource(), StringArgumentType.getString(ctx, "key")))
+                                .then(Commands.argument("value", StringArgumentType.word())
+                                        .suggests(CONFIG_VALUE_SUGGESTIONS)
+                                        .executes(ctx -> configSetOne(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "key"),
+                                                StringArgumentType.getString(ctx, "value")))))));
     }
 
     private static void fireEvent(ServerPlayer player, String eventName) {
@@ -362,12 +367,18 @@ public class AbnormalitiesCommands {
     }
 
     private static int configListAll(CommandSourceStack src) {
-        src.sendSuccess(() -> Component.literal("--- Abnormalities Config ---").withStyle(ChatFormatting.LIGHT_PURPLE), false);
-        src.sendSuccess(() -> Component.literal("dangerous.entities").withStyle(ChatFormatting.RED) .append(Component.literal(" - nur, k3w, him, it, skinwalker").withStyle(ChatFormatting.GRAY)), false);
-        src.sendSuccess(() -> Component.literal("dangerous.events").withStyle(ChatFormatting.RED)  .append(Component.literal(" - vr9p, hush, lure, miner, wind, etc").withStyle(ChatFormatting.GRAY)), false);
-        src.sendSuccess(() -> Component.literal("safe.entities").withStyle(ChatFormatting.GREEN)    .append(Component.literal(" - xyz, sister, 0th3r").withStyle(ChatFormatting.GRAY)), false);
-        src.sendSuccess(() -> Component.literal("safe.events").withStyle(ChatFormatting.GREEN)     .append(Component.literal(" - v1s1t, sign, wrong, gone, etc").withStyle(ChatFormatting.GRAY)), false);
-        src.sendSuccess(() -> Component.literal("use /abnormalities advancedConfig <category> to browse").withStyle(ChatFormatting.DARK_GRAY), false);
+        var all = configFlatten(AbnormalitiesConfig.SPEC.getValues(), "");
+        var keys = new ArrayList<>(all.keySet());
+        keys.sort(Comparator.naturalOrder());
+        if (keys.isEmpty()) {
+            src.sendSuccess(() -> Component.literal("no config values found"), false);
+            return Command.SINGLE_SUCCESS;
+        }
+        src.sendSuccess(() -> Component.literal("abnormalities config (" + keys.size() + " values):")
+                .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        for (String key : keys) {
+            src.sendSuccess(() -> Component.literal(key + " = " + all.get(key).get()).withStyle(ChatFormatting.GRAY), false);
+        }
         return Command.SINGLE_SUCCESS;
     }
 
