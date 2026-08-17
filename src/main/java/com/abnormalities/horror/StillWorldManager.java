@@ -103,6 +103,10 @@ public class StillWorldManager {
         }
     }
 
+    public static boolean isActive(UUID uuid) {
+        return ACTIVE.containsKey(uuid);
+    }
+
     public static void forceStart(ServerPlayer player) {
         if (ACTIVE.containsKey(player.getUUID())) return;
         startStill(player, (ServerLevel) player.level());

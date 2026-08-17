@@ -38,14 +38,15 @@ public class NurEntity extends Mob {
     private static long lastGlobalKillTick = -100;
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
-    public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING }
+    public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING, SMART }
     public State currentState = State.STALKING;
 
     public static State rollSpawnState(RandomSource rng) {
         int roll = rng.nextInt(100);
-        if (roll < 65) return State.STALKING;
-        if (roll < 90) return State.STALKING_DUMMY;
-        return State.DUMMY;
+        if (roll < 35) return State.STALKING;
+        if (roll < 60) return State.STALKING_DUMMY;
+        if (roll < 75) return State.DUMMY;
+        return State.SMART;
     }
     public int soundTick = -1;
     public int silenceTimer = 0;
@@ -153,7 +154,7 @@ public class NurEntity extends Mob {
         if (isChasing()) replaceFluidsUnderneath();
 
         proximityCheckTick++;
-        if (proximityCheckTick % 10 == 0 && currentState != State.DUMMY && currentState != State.CHASING) {
+        if (proximityCheckTick % 10 == 0 && currentState != State.DUMMY && currentState != State.CHASING && currentState != State.SMART) {
             if (distanceTo(currentTarget) < 5.0D) {
                 LOGGER.info("[Nur] proximity trigger: within 5 blocks of target, starting chase");
                 startChasing(currentTarget);
@@ -185,6 +186,7 @@ public class NurEntity extends Mob {
             case DUMMY -> tickDummy();
             case STALKING_DUMMY -> tickStalkingDummy();
             case CHASING -> tickChasing();
+            case SMART -> tickSmart();
         }
     }
 
@@ -342,6 +344,92 @@ public class NurEntity extends Mob {
             lastGlobalKillTick = level().getGameTime();
             silenceTimer = 40;
         }
+    }
+
+    private void tickSmart() {
+        if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) { discard(); return; }
+        if (soundTick < 0) soundTick = 0;
+        if (soundTick >= 0 && soundTick < 60) {
+            soundTick++;
+        } else if (soundTick == 60 && !hasPlayedSecondSound) {
+            if (currentTarget != null) {
+                level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
+                        ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 0.5f);
+            }
+            hasPlayedSecondSound = true;
+            soundTick = 61;
+            soundLoopTick = 80;
+        }
+        if (soundLoopTick > 0) {
+            soundLoopTick--;
+            if (soundLoopTick <= 0 && currentTarget != null) {
+                level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
+                        ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 0.5f);
+                soundLoopTick = 100;
+            }
+        }
+        this.getNavigation().stop();
+        double dist = this.distanceTo(currentTarget);
+        this.getLookControl().setLookAt(currentTarget, 30, 30);
+        pushSmartTowardTarget(dist);
+        tryReachTarget();
+        if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp && tickCount % 60 == 0) {
+            sp.connection.send(new net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket(
+                net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES, this,
+                net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES));
+        }
+        if (dist < 3.0D && attackCooldown <= 0 && level().getGameTime() - lastGlobalKillTick >= 20) {
+            LOGGER.info("[Nur] smart kill attempt on {}", currentTarget.getName().getString());
+            currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
+            attackCooldown = 20;
+            lastGlobalKillTick = level().getGameTime();
+            silenceTimer = 40;
+        }
+    }
+
+    private void pushSmartTowardTarget(double dist) {
+        if (currentTarget == null) return;
+        double dx = currentTarget.getX() - this.getX();
+        double dz = currentTarget.getZ() - this.getZ();
+        double dy = currentTarget.getY() - this.getY();
+        double horizDist = Math.sqrt(dx * dx + dz * dz);
+        double speed;
+        if (horizDist > 10.0D) {
+            speed = 3.0D + (horizDist - 10.0D) * 0.08D;
+        } else if (horizDist > 5.0D) {
+            speed = 0.5D + (horizDist - 5.0D) * 0.5D;
+        } else if (horizDist > 3.0D) {
+            speed = 0.1D;
+        } else {
+            speed = 0.0D;
+        }
+        boolean playerMoving = currentTarget.getDeltaMovement().horizontalDistanceSqr() > 0.01D;
+        if (horizDist <= 3.0D && playerMoving) {
+            speed = 2.5D;
+        }
+        double mx = 0, mz = 0;
+        if (horizDist > 0.1 && speed > 0) { mx = dx / horizDist * speed; mz = dz / horizDist * speed; }
+        double my = this.getDeltaMovement().y;
+        if (dy < -1) my = -0.8D;
+        if (this.isInWater()) { mx *= 3.0; mz *= 3.0; my = 0.3D; }
+        if (this.onGround() && horizDist > 1.5 && speed > 1.0D) {
+            int sx = (int)Math.signum(dx);
+            int sz = (int)Math.signum(dz);
+            BlockPos ahead = this.blockPosition().offset(sx, 1, sz);
+            if (!level().getBlockState(ahead).isAir()) this.jumpFromGround();
+            if (AbnormalitiesConfig.NUR_BREAK_BLOCKS.get()) {
+                BlockPos aheadGround = this.blockPosition().offset(sx, 0, sz);
+                BlockState aheadState = level().getBlockState(aheadGround);
+                if (!aheadState.isAir() && !aheadState.is(Blocks.BEDROCK)) {
+                    level().destroyBlock(aheadGround, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+                }
+                BlockPos aheadHead = this.blockPosition().offset(sx, 1, sz);
+                BlockState headState = level().getBlockState(aheadHead);
+                if (!headState.isAir() && !headState.is(Blocks.BEDROCK)) level().destroyBlock(aheadHead, AbnormalitiesConfig.NUR_BREAK_DROPS.get());
+            }
+        }
+        this.setDeltaMovement(mx, my, mz);
+        this.hasImpulse = true;
     }
 
     private void pushTowardTarget() {

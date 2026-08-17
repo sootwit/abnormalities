@@ -182,6 +182,11 @@ public class LureController {
         return ACTIVE.containsKey(uuid);
     }
 
+    public static net.minecraft.core.BlockPos getLurePosition(UUID uuid) {
+        LureState s = ACTIVE.get(uuid);
+        return s != null ? s.soundPos : null;
+    }
+
     @SubscribeEvent
     public static void onPlayerLogout(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() != null) {

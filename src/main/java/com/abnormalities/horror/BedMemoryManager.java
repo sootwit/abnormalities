@@ -44,9 +44,9 @@ public class BedMemoryManager {
     private static final int NEAR_BED_DIST = 3;
 
     private static final List<String> HUNT_LINES = List.of(
-        "it knows this room.",
-        "it is watching the door.",
-        "it is closer now."
+        "It knows this room.",
+        "It is watching the door.",
+        "It is closer now."
     );
 
     private static final Map<UUID, List<BlockPos>> BEDS = new HashMap<>();
@@ -218,6 +218,18 @@ public class BedMemoryManager {
         if (event.getEntity() == null) return;
         HUNTS.remove(event.getEntity().getUUID());
         save(true);
+    }
+
+    public static boolean hasVisitedBed(UUID uuid, BlockPos bed) {
+        List<BlockPos> beds = BEDS.getOrDefault(uuid, List.of());
+        for (BlockPos known : beds) {
+            if (known.distSqr(bed) <= NEAR_BED_DIST * NEAR_BED_DIST) return true;
+        }
+        return false;
+    }
+
+    public static boolean isHunting(UUID uuid) {
+        return HUNTS.containsKey(uuid);
     }
 
     public static void forceHunt(ServerPlayer player) {

@@ -160,6 +160,10 @@ public class StillnessManager {
         }
     }
 
+    public static boolean isActive(UUID uuid) {
+        return ACTIVE.containsKey(uuid);
+    }
+
     public static void forceTrigger(ServerPlayer player) {
         triggerStillness(player, (ServerLevel) player.level());
     }

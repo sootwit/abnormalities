@@ -94,6 +94,11 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue SISTER_CHANCE;
     public static final ForgeConfigSpec.IntValue SISTER_STAY_DAYS;
     public static final ForgeConfigSpec.IntValue SISTER_MAX_DAY;
+    public static final ForgeConfigSpec.IntValue SISTER_ACTIVITY_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue SISTER_CHAT_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue SISTER_CHAT_SILENCE_CHANCE;
+    public static final ForgeConfigSpec.IntValue SISTER_CHAT_CREEPY_CHANCE;
+    public static final ForgeConfigSpec.BooleanValue SISTER_CHAT_ENABLED;
     public static final ForgeConfigSpec.BooleanValue WR0NG_ENABLED;
     public static final ForgeConfigSpec.IntValue WR0NG_CHANCE;
     public static final ForgeConfigSpec.IntValue WR0NG_DURATION;
@@ -136,6 +141,7 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.EnumValue<PunishMode> HIM_PUNISH;
     public static final ForgeConfigSpec.BooleanValue F4K3_ENABLED;
     public static final ForgeConfigSpec.BooleanValue ANG3R_ENABLED;
+    public static final ForgeConfigSpec.IntValue ANG3R_DURATION;
     public static final ForgeConfigSpec.BooleanValue B3D_ENABLED;
     public static final ForgeConfigSpec.BooleanValue INSANITY_ENABLED;
     public static final ForgeConfigSpec.BooleanValue TW_ENABLED;
@@ -327,6 +333,11 @@ public class AbnormalitiesConfig {
         SISTER_CHANCE = b.comment("1 in N checks Sister joins (days 0-6 only)").defineInRange("joinChance", 200, 10, 10000);
         SISTER_STAY_DAYS = b.comment("how many in-game days Sister stays before leaving").defineInRange("stayDays", 3, 1, 30);
         SISTER_MAX_DAY = b.comment("latest in-game day Sister can appear (0-6 default)").defineInRange("maxDay", 6, 1, 100);
+        SISTER_ACTIVITY_COOLDOWN = b.comment("ticks between Sister activity comments").defineInRange("activityCooldown", 300, 60, 3600);
+        SISTER_CHAT_COOLDOWN = b.comment("ticks between Sister chat replies").defineInRange("chatCooldown", 150, 20, 1800);
+        SISTER_CHAT_SILENCE_CHANCE = b.comment("percent chance Sister stays silent on unrecognized chat").defineInRange("chatSilenceChance", 25, 0, 100);
+        SISTER_CHAT_CREEPY_CHANCE = b.comment("percent chance of creepy response to repeated unrecognized chat").defineInRange("chatCreepyChance", 20, 0, 100);
+        SISTER_CHAT_ENABLED = b.comment("enable Sister responding to player chat keywords").define("chatEnabled", true);
         b.pop();
         b.push("wr0ng");
         WR0NG_ENABLED = b.comment("enable cursed crafts (item comes out wrong, can't drop, whispers)").define("enabled", true);
@@ -396,6 +407,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("ang3r");
         ANG3R_ENABLED = b.comment("enable chat anger system (insults trigger hostile replies)").define("enabled", true);
+        ANG3R_DURATION = b.comment("duration of anger state in ticks").defineInRange("duration", 36000, 20, 720000);
         b.pop();
         b.push("b3d");
         B3D_ENABLED = b.comment("enable bed memory hunt (repeat sleep triggers nur spawn)").define("enabled", true);
@@ -472,6 +484,7 @@ public class AbnormalitiesConfig {
         TW_BORDER_COOLDOWN = b.comment("ticks between border events (20 = 1s)").defineInRange("cooldown", 180000, 6000, 1800000);
         TW_BORDER_CHANCE = b.comment("1 in N checks trigger border (higher = rarer)").defineInRange("chance", 40000, 1000, 500000);
         TW_BORDER_DISTANCE = b.comment("chunk distance from player for the border ring").defineInRange("distance", 8, 4, 32);
+        b.pop();
         b.pop();
 
         b.push("b3drock");
