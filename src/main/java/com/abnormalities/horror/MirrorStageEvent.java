@@ -80,7 +80,7 @@ public class MirrorStageEvent extends AbstractHorrorEvent {
         LOGGER.debug("[MirrorStage] chat logged for {}: {}", player.getName().getString(), msg);
         ActionLogger.log(player, "chat", msg);
 
-        if (msg != null && !msg.trim().isEmpty()) {
+        if (msg != null && !msg.trim().isEmpty() && ACTIVE.containsKey(player.getUUID())) {
             String reversed = new StringBuilder(msg).reverse().toString();
             String playerName = player.getName().getString();
             int delay = 20 + player.getRandom().nextInt(21);

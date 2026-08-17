@@ -38,7 +38,7 @@ public class ChatArgManager {
         "can you see me", "< > .uoY_eeS_naC_I",
         "who are you", "< > ?I_mA_ohW",
         "help", "< > .oN",
-        "run", "< > .nur",
+        "nur", "< > .ruN",
         "null", "< > .dneirF_dlO"
     );
 
