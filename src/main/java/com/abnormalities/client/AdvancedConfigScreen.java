@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 public class AdvancedConfigScreen extends Screen {
-    private static final int COLS = 2;
+    private static final int COLS = 1;
     private static final int CELL_W = 200;
     private static final int CELL_H = 22;
-    private static final int COL_GAP = 12;
+    private static final int COL_GAP = 0;
     private static final int ROW_H = 28;
     private static final int VISIBLE_ROWS = 12;
 
@@ -193,6 +193,9 @@ public class AdvancedConfigScreen extends Screen {
                     if (entry.config != null) {
                         entry.config.set(!entry.config.get());
                         AbnormalitiesConfig.SPEC.save();
+                        net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
+                            net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                                net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.get(), 1.0f));
                     }
                     return true;
                 }

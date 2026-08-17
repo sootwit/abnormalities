@@ -199,7 +199,6 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.B3D_ENABLED.set(true);
                     AbnormalitiesConfig.TW_ENABLED.set(true);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(true);
-                    AbnormalitiesConfig.INSANITY_ENABLED.set(true);
                     AbnormalitiesConfig.F4K3_ENABLED.set(true);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(true);
                     AbnormalitiesConfig.L3NS_ENABLED.set(true);
@@ -281,6 +280,9 @@ public class ConfigScreen extends Screen {
 
         int row = (int) ((my - startY) / ROW_H) + scrollOffset;
         if (row >= 0 && row < presets.size()) {
+            net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
+                net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                    net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.get(), 1.0f));
             presets.get(row).action.run();
             return true;
         }

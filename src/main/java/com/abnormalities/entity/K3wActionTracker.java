@@ -46,7 +46,9 @@ public class K3wActionTracker {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        var srv = ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
         ACTIVE_CLONES.values().forEach(list -> list.removeIf(e -> !e.isAlive()));

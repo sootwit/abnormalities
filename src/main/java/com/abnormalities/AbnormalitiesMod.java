@@ -70,7 +70,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(CircleManager.class);
         MinecraftForge.EVENT_BUS.register(PhantomDrownManager.class);
         MinecraftForge.EVENT_BUS.register(GoneController.class);
-        MinecraftForge.EVENT_BUS.register(com.abnormalities.client.WarningClientHandler.class);
         MinecraftForge.EVENT_BUS.register(ChatLockEvent.class);
         MinecraftForge.EVENT_BUS.register(FakeAchievementManager.class);
         MinecraftForge.EVENT_BUS.register(FakeChatManager.class);

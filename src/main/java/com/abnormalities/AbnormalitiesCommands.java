@@ -35,41 +35,6 @@ public class AbnormalitiesCommands {
     private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "br34th", "h01d", "c1rcl", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
     private static final Random RNG = new Random();
 
-    private static final Map<String, List<String>> CATEGORIES = new LinkedHashMap<>();
-    static {
-        CATEGORIES.put("dangerous.entities", List.of("nur", "k3w", "him", "it", "skinwalker"));
-        CATEGORIES.put("dangerous.events", List.of("vr9p", "vr9pStargazed", "hush", "1ull", "m1n3r", "br34th", "b3drock", "theWind", "windBorder", "windPillar", "windChunk", "windFarlands", "windFurtherlands", "windEntity", "corruption", "destructiveCorruption"));
-        CATEGORIES.put("safe.entities", List.of("xyz", "sister", "0th3r"));
-        CATEGORIES.put("safe.events", List.of("v1s1t", "w4k3", "m1sl4y", "l3ns", "s1gn", "wr0ng", "h01d", "c1rcl", "f4ded", "g0n3", "b3d", "f4k3", "ang3r", "insanity", "slowedMusic", "animalNoise"));
-    }
-
-    private static final List<String> CATEGORY_PATHS = new ArrayList<>();
-    static {
-        for (String cat : CATEGORIES.keySet()) {
-            CATEGORY_PATHS.add(cat);
-        }
-    }
-
-    private static final SuggestionProvider<CommandSourceStack> CONFIG_CATEGORY_SUGGESTIONS =
-            (ctx, builder) -> {
-                String typed = builder.getRemaining();
-                List<String> matches = new ArrayList<>();
-                for (String cat : CATEGORY_PATHS) {
-                    if (cat.startsWith(typed) || typed.isEmpty()) {
-                        matches.add(cat);
-                    }
-                }
-                for (String cat : CATEGORIES.keySet()) {
-                    for (String sec : CATEGORIES.get(cat)) {
-                        String full = cat + "." + sec;
-                        if (full.startsWith(typed)) {
-                            matches.add(full);
-                        }
-                    }
-                }
-                return SharedSuggestionProvider.suggest(matches, builder);
-            };
-
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
             (ctx, builder) -> SharedSuggestionProvider.suggest(configAllKeys(), builder);
     private static final SuggestionProvider<CommandSourceStack> CONFIG_VALUE_SUGGESTIONS =
@@ -385,45 +350,6 @@ public class AbnormalitiesCommands {
         for (String key : keys) {
             src.sendSuccess(() -> Component.literal(key + " = " + all.get(key).get()).withStyle(ChatFormatting.GRAY), false);
         }
-        return Command.SINGLE_SUCCESS;
-    }
-
-    private static int configParseAndRun(CommandSourceStack src, String input) {
-        String trimmed = input.trim();
-        String[] parts = trimmed.split("\\s+", 3);
-        if (parts.length == 1) {
-            return configShowCategory(src, parts[0]);
-        } else if (parts.length == 2) {
-            return configShowOne(src, parts[1]);
-        } else {
-            return configSetOne(src, parts[1], parts[2]);
-        }
-    }
-
-    private static int configShowCategory(CommandSourceStack src, String category) {
-        List<String> sections = CATEGORIES.get(category);
-        if (sections == null) {
-            src.sendFailure(Component.literal("unknown category '" + category + "'. valid: " + String.join(", ", CATEGORIES.keySet())));
-            return 0;
-        }
-        String[] parts = category.split("\\.");
-        ChatFormatting color = parts[0].equals("dangerous") ? ChatFormatting.RED : ChatFormatting.GREEN;
-        src.sendSuccess(() -> Component.literal("--- " + category + " ---").withStyle(color, ChatFormatting.BOLD), false);
-        for (String sec : sections) {
-            String prefix = sec + ".";
-            var all = configFlatten(AbnormalitiesConfig.SPEC.getValues(), prefix);
-            if (all.isEmpty()) continue;
-            src.sendSuccess(() -> Component.literal("[" + sec + "]").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), false);
-            var keys = new ArrayList<>(all.keySet());
-            keys.sort(Comparator.naturalOrder());
-            for (String key : keys) {
-                String shortKey = key.substring(prefix.length());
-                Object val = all.get(key).get();
-                src.sendSuccess(() -> Component.literal("  " + shortKey + " = " + val).withStyle(ChatFormatting.GRAY), false);
-            }
-        }
-        src.sendSuccess(() -> Component.literal(""), false);
-        src.sendSuccess(() -> Component.literal("set: /abnormalities config " + category + " <key> <value>").withStyle(ChatFormatting.DARK_GRAY), false);
         return Command.SINGLE_SUCCESS;
     }
 

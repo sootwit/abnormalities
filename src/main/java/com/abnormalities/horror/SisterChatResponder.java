@@ -214,13 +214,13 @@ public class SisterChatResponder {
         if (msg.equals("sister") || msg.equals("sister?")) return NAME_LINES;
         if (msg.contains("who are you") || msg.contains("what are you") || msg.contains("what is sister")) return IDENTITY_LINES;
         if (msg.contains("where are you") || msg.contains("where is sister") || msg.equals("where")) return LOCATION_LINES;
+        if (msg.contains("not scared") || msg.contains("not afraid") || msg.equals("come at me") || msg.equals("bring it")) return DEFIANT_LINES;
         if (msg.equals("help") || msg.contains("scared") || msg.contains("afraid") || msg.equals("help me") || msg.equals("i'm scared")) return FEAR_LINES;
         for (var entry : ENTITY_LINES.entrySet()) {
             if (msg.contains(entry.getKey())) return entry.getValue();
         }
         if (msg.equals("hint") || msg.equals("tip") || msg.contains("what should i do") || msg.contains("how do i survive")) return HINT_LINES;
         if (msg.equals("run") || msg.equals("run away") || msg.equals("flee") || msg.equals("escape")) return RUN_LINES;
-        if (msg.contains("not scared") || msg.contains("not afraid") || msg.equals("come at me") || msg.equals("bring it")) return DEFIANT_LINES;
         if (/* msg.contains("wiki") ||  */msg.equals("mod") || msg.contains("abnormalities") || msg.contains("what mod")) return META_LINES;
         return null;
     }
