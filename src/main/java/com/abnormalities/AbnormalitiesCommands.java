@@ -355,24 +355,11 @@ public class AbnormalitiesCommands {
 
     private static int configListAll(CommandSourceStack src) {
         src.sendSuccess(() -> Component.literal("--- Abnormalities Config ---").withStyle(ChatFormatting.LIGHT_PURPLE), false);
-        src.sendSuccess(() -> Component.literal("use /abnormalities config <category> to browse").withStyle(ChatFormatting.GRAY), false);
-        src.sendSuccess(() -> Component.literal(""), false);
-        for (var entry : CATEGORIES.entrySet()) {
-            String cat = entry.getKey();
-            List<String> sections = entry.getValue();
-            String[] parts = cat.split("\\.");
-            String colorName = parts[0].equals("dangerous") ? parts[0] : parts[0];
-            ChatFormatting color = parts[0].equals("dangerous") ? ChatFormatting.RED : ChatFormatting.GREEN;
-            src.sendSuccess(() -> Component.literal(colorName + " > " + parts[1]).withStyle(color, ChatFormatting.BOLD), false);
-            for (String sec : sections) {
-                String prefix = sec + ".";
-                var all = configFlatten(AbnormalitiesConfig.SPEC.getValues(), prefix);
-                int count = all.size();
-                String sectionName = sec;
-                src.sendSuccess(() -> Component.literal("  " + sectionName + " (" + count + " values)").withStyle(ChatFormatting.GRAY), false);
-            }
-            src.sendSuccess(() -> Component.literal(""), false);
-        }
+        src.sendSuccess(() -> Component.literal("dangerous.entities").withStyle(ChatFormatting.RED) .append(Component.literal(" - nur, k3w, him, it, skinwalker").withStyle(ChatFormatting.GRAY)), false);
+        src.sendSuccess(() -> Component.literal("dangerous.events").withStyle(ChatFormatting.RED)  .append(Component.literal(" - vr9p, hush, lure, miner, wind, etc").withStyle(ChatFormatting.GRAY)), false);
+        src.sendSuccess(() -> Component.literal("safe.entities").withStyle(ChatFormatting.GREEN)    .append(Component.literal(" - xyz, sister, 0th3r").withStyle(ChatFormatting.GRAY)), false);
+        src.sendSuccess(() -> Component.literal("safe.events").withStyle(ChatFormatting.GREEN)     .append(Component.literal(" - v1s1t, sign, wrong, gone, etc").withStyle(ChatFormatting.GRAY)), false);
+        src.sendSuccess(() -> Component.literal("use /abnormalities config <category> to browse").withStyle(ChatFormatting.DARK_GRAY), false);
         return Command.SINGLE_SUCCESS;
     }
 
