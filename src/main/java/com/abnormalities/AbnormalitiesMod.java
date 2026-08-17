@@ -70,6 +70,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(CircleManager.class);
         MinecraftForge.EVENT_BUS.register(PhantomDrownManager.class);
         MinecraftForge.EVENT_BUS.register(GoneController.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.client.WarningClientHandler.class);
         MinecraftForge.EVENT_BUS.register(ChatLockEvent.class);
         MinecraftForge.EVENT_BUS.register(FakeAchievementManager.class);
         MinecraftForge.EVENT_BUS.register(FakeChatManager.class);
@@ -111,6 +112,12 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(6, com.abnormalities.network.TheWindShakePacket.class,
                 com.abnormalities.network.TheWindShakePacket::encode, com.abnormalities.network.TheWindShakePacket::decode,
                 com.abnormalities.network.TheWindShakePacket::handle);
+        CHANNEL.registerMessage(7, com.abnormalities.network.WarningShowPacket.class,
+                com.abnormalities.network.WarningShowPacket::encode, com.abnormalities.network.WarningShowPacket::decode,
+                com.abnormalities.network.WarningShowPacket::handle);
+        CHANNEL.registerMessage(8, com.abnormalities.network.WarningAckPacket.class,
+                com.abnormalities.network.WarningAckPacket::encode, com.abnormalities.network.WarningAckPacket::decode,
+                com.abnormalities.network.WarningAckPacket::handle);
 
     }
 }
