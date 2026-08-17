@@ -121,6 +121,9 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(9, com.abnormalities.network.ConfigScreenOpenPacket.class,
                 com.abnormalities.network.ConfigScreenOpenPacket::encode, com.abnormalities.network.ConfigScreenOpenPacket::decode,
                 com.abnormalities.network.ConfigScreenOpenPacket::handle);
+        CHANNEL.registerMessage(10, com.abnormalities.network.AdvancedConfigOpenPacket.class,
+                com.abnormalities.network.AdvancedConfigOpenPacket::encode, com.abnormalities.network.AdvancedConfigOpenPacket::decode,
+                com.abnormalities.network.AdvancedConfigOpenPacket::handle);
 
     }
 }

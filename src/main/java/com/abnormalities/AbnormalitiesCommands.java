@@ -157,7 +157,13 @@ public class AbnormalitiesCommands {
                             return Command.SINGLE_SUCCESS;
                         }))
                 .then(Commands.literal("advancedConfig")
-                        .executes(ctx -> configListAll(ctx.getSource()))
+                        .executes(ctx -> {
+                            if (!(ctx.getSource().getEntity() instanceof ServerPlayer sp)) return 0;
+                            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
+                                new com.abnormalities.network.AdvancedConfigOpenPacket());
+                            return Command.SINGLE_SUCCESS;
+                        })
                         .then(Commands.argument("key", StringArgumentType.word())
                                 .suggests(CONFIG_KEY_SUGGESTIONS)
                                 .executes(ctx -> configShowOne(ctx.getSource(), StringArgumentType.getString(ctx, "key")))
