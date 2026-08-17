@@ -99,15 +99,15 @@ public class SisterChatResponder {
         ));
         ENTITY_LINES.put("it", List.of(
             "It doesn't blink. Neither should you.",
-            "It's patient. That's the whole personality."
+            "It waits. That's all it does. It's good at it."
         ));
         ENTITY_LINES.put("him", List.of(
             "Him. Yeah. He's around.",
             "Him again. He never really leaves."
         ));
         ENTITY_LINES.put("xyz", List.of(
-            "xYz remembers everything. That's the problem.",
-            "xYz isn't angry. Just disappointed. That's worse."
+            "xYz remembers everything. You don't want that.",
+            "xYz isn't angry. Disappointed is worse."
         ));
     }
 
@@ -150,18 +150,7 @@ public class SisterChatResponder {
         "Told you so, in advance."
     );
 
-    private static final List<String> META_LINES = List.of(
-        "Abnormalities. Fitting name.",
-        "There's a wiki. Won't save you either.",
-        "Mod. Sure. Call it that.",
-        "You can read about it. Doesn't change what's in here.",
-        "Abnormalities. Someone documented all this.",
-        "Wiki's got the facts. Not the feeling.",
-        "It's a mod. It's also real enough.",
-        "Go read it. Come back scared anyway.",
-        "Names and numbers. The wiki has those.",
-        "Call it a mod if that helps you sleep."
-    );
+    private static final List<String> META_LINES = List.of();
 
     private static final List<String> CREEPY_LINES = List.of(
         "Stop talking.",
@@ -230,7 +219,7 @@ public class SisterChatResponder {
         if (msg.equals("hint") || msg.equals("tip") || msg.contains("what should i do") || msg.contains("how do i survive")) return HINT_LINES;
         if (msg.equals("run") || msg.equals("run away") || msg.equals("flee") || msg.equals("escape")) return RUN_LINES;
         if (msg.contains("not scared") || msg.contains("not afraid") || msg.equals("come at me") || msg.equals("bring it")) return DEFIANT_LINES;
-        if (msg.contains("wiki") || msg.equals("mod") || msg.contains("abnormalities") || msg.contains("what mod")) return META_LINES;
+        if (/* msg.contains("wiki") ||  */msg.equals("mod") || msg.contains("abnormalities") || msg.contains("what mod")) return META_LINES;
         return null;
     }
 

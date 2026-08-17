@@ -453,7 +453,10 @@ public class SisterController {
 
         if (joined) {
             if (currentDay - joinedDay >= AbnormalitiesConfig.SISTER_STAY_DAYS.get()) {
-                leave(overworld);
+                var players = overworld.getServer().getPlayerList().getPlayers();
+                if (!players.isEmpty()) {
+                    leave(overworld);
+                }
             }
         } else if (!everJoined && currentDay <= AbnormalitiesConfig.SISTER_MAX_DAY.get()) {
             if (overworld.getGameTime() % 400 == 0 && overworld.random.nextInt(AbnormalitiesConfig.SISTER_CHANCE.get()) == 0) {

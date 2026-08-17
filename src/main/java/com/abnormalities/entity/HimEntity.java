@@ -195,7 +195,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
                     new com.abnormalities.network.CrashPacket());
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
             com.abnormalities.horror.SisterController.onKickWarning(target);
-            target.connection.disconnect(Component.literal("him got you."));
+            target.connection.disconnect(Component.literal("KEEP UP"));
         }
     }
 

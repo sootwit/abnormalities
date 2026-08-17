@@ -33,7 +33,7 @@ public class K3wActionTracker {
     private static final int FORCED_SPAWN_DELAY = 300;
     private static final int SPAWN_DISTANCE = 64;
     private static final int POST_SPAWN_COOLDOWN = 4800;
-    // private static final int MAX_CLONES = 3; // old limit, reduced to 2 because 3 was too many
+    /* private static final int MAX_CLONES = 3; */ // old 
 
     private static final Map<UUID, List<K3wEntity>> ACTIVE_CLONES = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_TIMERS = new HashMap<>();
@@ -120,6 +120,29 @@ public class K3wActionTracker {
                     SPAWN_COOLDOWNS.put(uuid, 200);
                 }
             }
+        }
+
+        long now = ServerLifecycleHooks.getCurrentServer().getTickCount();
+        Iterator<Map.Entry<UUID, List<String[]>>> eit = PENDING_ECHOES.entrySet().iterator();
+        while (eit.hasNext()) {
+            var entry = eit.next();
+            UUID euuid = entry.getKey();
+            List<String[]> echoes = entry.getValue();
+            Iterator<String[]> ei = echoes.iterator();
+            while (ei.hasNext()) {
+                String[] echo = ei.next();
+                long targetTick = Long.parseLong(echo[1]);
+                if (now >= targetTick) {
+                    ei.remove();
+                    ServerPlayer esp = ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayer(euuid);
+                    if (esp != null && esp.connection != null) {
+                        esp.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                            Component.literal("<" + esp.getName().getString() + "> " + echo[0]), false));
+                    }
+                    CHAT_COOLDOWN.remove(euuid);
+                }
+            }
+            if (echoes.isEmpty()) eit.remove();
         }
     }
 
@@ -306,6 +329,7 @@ public class K3wActionTracker {
         POSITION_BUFFERS.remove(uuid);
         SPAWN_COOLDOWNS.remove(uuid);
         CHAT_COOLDOWN.remove(uuid);
+        PENDING_ECHOES.remove(uuid);
     }
 
     @SubscribeEvent
@@ -316,6 +340,7 @@ public class K3wActionTracker {
     }
 
     private static final Set<UUID> CHAT_COOLDOWN = new HashSet<>();
+    private static final Map<UUID, List<String[]>> PENDING_ECHOES = new HashMap<>();
 
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
@@ -330,12 +355,6 @@ public class K3wActionTracker {
         var server = player.getServer();
         if (server == null) return;
         CHAT_COOLDOWN.add(uuid);
-        int targetTick = server.getTickCount() + delayTicks;
-        server.tell(new net.minecraft.server.TickTask(targetTick, () -> {
-            CHAT_COOLDOWN.remove(uuid);
-            if (player.connection == null) return;
-            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                Component.literal("<" + player.getName().getString() + "> " + msg), false));
-        }));
+        PENDING_ECHOES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(new String[]{msg, String.valueOf(server.getTickCount() + delayTicks)});
     }
 }
