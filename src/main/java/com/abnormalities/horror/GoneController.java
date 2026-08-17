@@ -121,7 +121,7 @@ public class GoneController {
 
     public static boolean wasRecentlyActive(UUID uuid, long currentTick) {
         Long last = LAST_EXTINGUISH.get(uuid);
-        return last != null && currentTick - last < 600;
+        return last != null && currentTick - last < 200;
     }
 
     public static void forceSteal(ServerPlayer player) {

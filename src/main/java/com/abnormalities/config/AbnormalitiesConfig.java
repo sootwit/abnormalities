@@ -333,7 +333,7 @@ public class AbnormalitiesConfig {
         SISTER_CHANCE = b.comment("1 in N checks Sister joins (days 0-6 only)").defineInRange("joinChance", 200, 10, 10000);
         SISTER_STAY_DAYS = b.comment("how many in-game days Sister stays before leaving").defineInRange("stayDays", 3, 1, 30);
         SISTER_MAX_DAY = b.comment("latest in-game day Sister can appear (0-6 default)").defineInRange("maxDay", 6, 1, 100);
-        SISTER_ACTIVITY_COOLDOWN = b.comment("ticks between Sister activity comments").defineInRange("activityCooldown", 300, 60, 3600);
+        SISTER_ACTIVITY_COOLDOWN = b.comment("ticks between Sister activity comments").defineInRange("activityCooldown", 450, 60, 3600);
         SISTER_CHAT_COOLDOWN = b.comment("ticks between Sister chat replies").defineInRange("chatCooldown", 150, 20, 1800);
         SISTER_CHAT_SILENCE_CHANCE = b.comment("percent chance Sister stays silent on unrecognized chat").defineInRange("chatSilenceChance", 25, 0, 100);
         SISTER_CHAT_CREEPY_CHANCE = b.comment("percent chance of creepy response to repeated unrecognized chat").defineInRange("chatCreepyChance", 20, 0, 100);

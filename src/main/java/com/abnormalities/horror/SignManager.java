@@ -72,7 +72,7 @@ public class SignManager {
         BlockPos pos = findWallSpot(level, player.blockPosition(), AbnormalitiesConfig.S1GN_SEARCH_RADIUS.get());
         if (pos == null) return false;
         LOGGER.info("[Sign] {} placed sign at ({},{},{})", player.getName().getString(), pos.getX(), pos.getY(), pos.getZ());
-        level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState(), 3);
+        level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState().setValue(net.minecraft.world.level.block.WallSignBlock.FACING, lastDir.getOpposite()), 3);
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof SignBlockEntity sign)) return false;
         String msg = MESSAGES.get(level.random.nextInt(MESSAGES.size()));
@@ -94,6 +94,7 @@ public class SignManager {
 
     private static BlockPos findWallSpot(ServerLevel level, BlockPos center, int radius) {
         List<BlockPos> spots = new ArrayList<>();
+        List<Direction> dirs = new ArrayList<>();
         BlockPos.betweenClosedStream(center.offset(-radius, -radius, -radius), center.offset(radius, radius, radius))
                 .forEach(p -> {
                     if (!level.getBlockState(p).isAir()) return;
@@ -103,14 +104,19 @@ public class SignManager {
                             BlockState neighbor = level.getBlockState(p.relative(dir));
                             if (neighbor.canOcclude()) {
                                 spots.add(p.immutable());
+                                dirs.add(dir);
                                 return;
                             }
                         }
                     }
                 });
         if (spots.isEmpty()) return null;
-        return spots.get(level.random.nextInt(spots.size()));
+        int idx = level.random.nextInt(spots.size());
+        lastDir = dirs.get(idx);
+        return spots.get(idx);
     }
+
+    private static Direction lastDir = Direction.SOUTH;
 
     public static void recordMinedBlock(ServerPlayer player, String blockName) {
         player.getPersistentData().putString("abnormalities:last_mined", blockName);
