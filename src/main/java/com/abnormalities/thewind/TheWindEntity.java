@@ -20,6 +20,9 @@ public class TheWindEntity extends Mob {
     private boolean currentlyInFront;
     private boolean visible;
     private int appearCount = 0;
+    private int flickerTimer = 0;
+    private boolean flickerState = false;
+    private static final int LIFETIME_TICKS = 800;
 
     public TheWindEntity(EntityType<? extends Mob> type, Level level) {
         super(type, level);
@@ -59,6 +62,12 @@ public class TheWindEntity extends Mob {
         ticksExisted++;
 
         if (level().isClientSide) return;
+
+        if (ticksExisted >= LIFETIME_TICKS) {
+            discard();
+            return;
+        }
+
         if (ticksExisted < 60) return;
 
         if (targetUUID == null) {
@@ -81,6 +90,8 @@ public class TheWindEntity extends Mob {
             currentlyInFront = level().random.nextBoolean();
             nextTeleportTick = ticksExisted + 100 + level().random.nextInt(101);
             appearCount++;
+            flickerTimer = 10 + level().random.nextInt(20);
+            flickerState = true;
             if (currentlyInFront) {
                 level().playSound(null, target.blockPosition(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 3.0F, 0.3F);
@@ -93,14 +104,17 @@ public class TheWindEntity extends Mob {
         Vec3 pos = eyePos.add(direction.scale(3.0D));
         this.moveTo(pos.x, pos.y, pos.z, target.getYRot(), 0);
 
+        this.getLookControl().setLookAt(target, 30, 30);
+
         Vec3 toEntity = this.position().subtract(target.getEyePosition()).normalize();
         double dot = target.getLookAngle().dot(toEntity);
-        visible = dot > 0.7;
 
-        if (ticksExisted > 600 && !visible) {
-            if (level().random.nextInt(2000) == 0) {
-                discard();
-            }
+        if (flickerTimer > 0) {
+            flickerTimer--;
+            visible = flickerTimer % 4 < 2;
+        } else {
+            visible = dot > 0.4;
+            flickerState = false;
         }
     }
 

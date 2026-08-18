@@ -87,8 +87,13 @@ public class B3drockManager {
             net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.NUR_SOUND.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 10.0f, 0.3f, 0));
 
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-            net.minecraft.network.chat.Component.literal("the earth has spoken."), false));
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.PILLAR_ALARM.get()),
+            SoundSource.AMBIENT, player.getX(), player.getY(), player.getZ(), 8.0f, 1.0f, 0));
+
+        com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+            net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
+            new com.abnormalities.network.TheWindShakePacket(4.0f, 60));
 
         LOGGER.info("[B3drock] {} triggered, placed {} bedrock blocks at ({}, 0, {}) size {}x{}x320",
             player.getName().getString(), placed, centerX, centerZ, sizeX, sizeZ);
