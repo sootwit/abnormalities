@@ -18,7 +18,7 @@ public class ConfigScreen extends Screen {
     private static final int TITLE_H = 14;
     private static final int DESC_H = 12;
     private static final int CELL_H = TITLE_H + DESC_H + CELL_PAD;
-    private static final int ROW_GAP = 4;
+    private static final int ROW_H = CELL_H + 4;
     private static final int VISIBLE_ROWS = 8;
 
     private final List<PresetEntry> presets = new ArrayList<>();
@@ -45,18 +45,22 @@ public class ConfigScreen extends Screen {
         presets.clear();
 
         presets.add(new PresetEntry("Disable ALL block destruction",
-                "Turns off nur block breaking, k3w undo, wind pillars, wind corruption, wind chunks",
+                "Turns off nur block breaking, k3w undo, wind pillars, wind corruption, wind chunks, wind border, miner, him tower/bridge",
                 () -> {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.NUR_TOWER.set(false);
                     AbnormalitiesConfig.NUR_BRIDGE.set(false);
+                    AbnormalitiesConfig.NUR_LIQUID.set(false);
                     AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(false);
                     AbnormalitiesConfig.TW_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.TW_CORRUPTION_ENABLED.set(false);
                     AbnormalitiesConfig.TW_DESTRUCTIVE_ENABLED.set(false);
                     AbnormalitiesConfig.TW_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.TW_BORDER_ENABLED.set(false);
+                    AbnormalitiesConfig.TW_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
+                    AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -208,6 +212,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.NUR_TOWER.set(true);
                     AbnormalitiesConfig.NUR_BRIDGE.set(true);
+                    AbnormalitiesConfig.NUR_LIQUID.set(true);
                     AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(true);
                     AbnormalitiesConfig.TW_CORRUPTION_ENABLED.set(true);
@@ -219,7 +224,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
-        int btnY = Math.min(36 + presets.size() * (CELL_H + ROW_GAP) + 10, this.height - 35);
+        int btnY = Math.min(36 + presets.size() * (CELL_H + ROW_H) + 10, this.height - 35);
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> Minecraft.getInstance().setScreen(null)
@@ -243,14 +248,14 @@ public class ConfigScreen extends Screen {
 
         for (int i = scrollOffset; i < scrollOffset + VISIBLE_ROWS && i < presets.size(); i++) {
             var preset = presets.get(i);
-            int y = startY + (i - scrollOffset) * (CELL_H + ROW_GAP);
+            int y = startY + (i - scrollOffset) * (CELL_H + ROW_H);
 
-            boolean hoverTitle = mx >= startX && mx <= startX + gridW && my >= y && my <= y + TITLE_H;
+            boolean hover = mx >= startX && mx <= startX + gridW && my >= y && my <= y + CELL_H;
 
-            int bgColor = hoverTitle ? 0x80444466 : 0x60222233;
+            int bgColor = hover ? 0x80444466 : 0x60222233;
             gfx.fill(startX, y, startX + gridW, y + CELL_H, bgColor);
 
-            gfx.drawString(font, Component.literal(preset.label).withStyle(ChatFormatting.WHITE), startX + 8, y + 3, hoverTitle ? 0xFFFF55 : 0xFFFFFF);
+            gfx.drawString(font, Component.literal(preset.label).withStyle(ChatFormatting.WHITE), startX + 8, y + 3, hover ? 0xFFFF55 : 0xFFFFFF);
 
             gfx.drawString(font, Component.literal(preset.description).withStyle(ChatFormatting.DARK_GRAY), startX + 8, y + TITLE_H + 2, 0x888888);
         }
@@ -278,9 +283,9 @@ public class ConfigScreen extends Screen {
         int startY = 36;
 
         if (mx < startX || mx > startX + gridW) return super.mouseClicked(mx, my, btn);
-        if (my < startY || my > startY + VISIBLE_ROWS * (CELL_H + ROW_GAP)) return super.mouseClicked(mx, my, btn);
+        if (my < startY || my > startY + VISIBLE_ROWS * (CELL_H + ROW_H)) return super.mouseClicked(mx, my, btn);
 
-        int row = (int) ((my - startY) / (CELL_H + ROW_GAP)) + scrollOffset;
+        int row = (int) ((my - startY) / (CELL_H + ROW_H)) + scrollOffset;
         if (row >= 0 && row < presets.size()) {
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
