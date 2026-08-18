@@ -13,9 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigScreen extends Screen {
-    private static final int CELL_W = 200;
-    private static final int CELL_H = 24;
-    private static final int ROW_H = 30;
+    private static final int MARGIN = 20;
+    private static final int CELL_PAD = 6;
+    private static final int TITLE_H = 14;
+    private static final int DESC_H = 12;
+    private static final int CELL_H = TITLE_H + DESC_H + CELL_PAD;
+    private static final int ROW_GAP = 4;
     private static final int VISIBLE_ROWS = 8;
 
     private final List<PresetEntry> presets = new ArrayList<>();
@@ -216,10 +219,11 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
+        int btnY = Math.min(36 + presets.size() * (CELL_H + ROW_GAP) + 10, this.height - 35);
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> Minecraft.getInstance().setScreen(null)
-        ).pos(this.width / 2 - 100, this.height - 30).size(200, 20).build());
+        ).pos(this.width / 2 - 100, btnY).size(200, 20).build());
     }
 
     @Override
@@ -231,31 +235,29 @@ public class ConfigScreen extends Screen {
         gfx.drawCenteredString(font, Component.literal("Abnormalities Config").withStyle(ChatFormatting.BOLD), cx, 8, 0xFFFFFF);
         gfx.drawCenteredString(font, Component.literal("Click a preset to apply it").withStyle(ChatFormatting.GRAY), cx, 20, 0xAAAAAA);
 
-        int gridW = CELL_W;
-        int startX = (width - gridW) / 2;
+        int gridW = width - MARGIN * 2;
+        int startX = MARGIN;
         int startY = 36;
 
         int maxScroll = Math.max(0, presets.size() - VISIBLE_ROWS);
 
         for (int i = scrollOffset; i < scrollOffset + VISIBLE_ROWS && i < presets.size(); i++) {
             var preset = presets.get(i);
-            int y = startY + (i - scrollOffset) * ROW_H;
+            int y = startY + (i - scrollOffset) * (CELL_H + ROW_GAP);
 
-            boolean hover = mx >= startX && mx <= startX + gridW && my >= y && my <= y + CELL_H;
-            int bgColor = hover ? 0x80444466 : 0x60222233;
+            boolean hoverTitle = mx >= startX && mx <= startX + gridW && my >= y && my <= y + TITLE_H;
+
+            int bgColor = hoverTitle ? 0x80444466 : 0x60222233;
             gfx.fill(startX, y, startX + gridW, y + CELL_H, bgColor);
 
-            gfx.drawString(font, Component.literal(preset.label).withStyle(ChatFormatting.WHITE), startX + 6, y + 4, 0xFFFFFF);
-            gfx.drawString(font, Component.literal(preset.description).withStyle(ChatFormatting.GRAY), startX + 6, y + 14, 0xAAAAAA);
+            gfx.drawString(font, Component.literal(preset.label).withStyle(ChatFormatting.WHITE), startX + 8, y + 3, hoverTitle ? 0xFFFF55 : 0xFFFFFF);
 
-            if (hover) {
-                gfx.drawCenteredString(font, Component.literal("Click to apply").withStyle(ChatFormatting.GREEN), cx, height - 14, 0x55FF55);
-            }
+            gfx.drawString(font, Component.literal(preset.description).withStyle(ChatFormatting.DARK_GRAY), startX + 8, y + TITLE_H + 2, 0x888888);
         }
 
         if (maxScroll > 0) {
             String scrollHint = "\u00a78\u25b2/\u25bc \u00a77scroll";
-            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, height - 10, 0x444444);
+            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, this.height - 12, 0x444444);
         }
     }
 
@@ -271,14 +273,14 @@ public class ConfigScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mx, double my, int btn) {
-        int gridW = CELL_W;
-        int startX = (width - gridW) / 2;
+        int gridW = width - MARGIN * 2;
+        int startX = MARGIN;
         int startY = 36;
 
         if (mx < startX || mx > startX + gridW) return super.mouseClicked(mx, my, btn);
-        if (my < startY || my > startY + VISIBLE_ROWS * ROW_H) return super.mouseClicked(mx, my, btn);
+        if (my < startY || my > startY + VISIBLE_ROWS * (CELL_H + ROW_GAP)) return super.mouseClicked(mx, my, btn);
 
-        int row = (int) ((my - startY) / ROW_H) + scrollOffset;
+        int row = (int) ((my - startY) / (CELL_H + ROW_GAP)) + scrollOffset;
         if (row >= 0 && row < presets.size()) {
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
