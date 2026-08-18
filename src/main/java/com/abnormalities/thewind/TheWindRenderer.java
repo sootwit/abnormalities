@@ -29,7 +29,6 @@ public class TheWindRenderer extends MobRenderer<TheWindEntity, TheWindModel> {
 
     @Override
     public void render(TheWindEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        if (!entity.isVisible()) return;
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 }
