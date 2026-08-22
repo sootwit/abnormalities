@@ -120,7 +120,7 @@ public class HorrorEventPool {
 
         for (ServerPlayer player : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (player.tickCount % 100 != 0) continue;
-            int eventChance = 200;
+            int eventChance = 4000;
             if (overworld.random.nextInt(eventChance) != 0) continue;
 
             AbstractHorrorEvent selected = selectEvent(player, gt);

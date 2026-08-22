@@ -207,7 +207,7 @@ public class AbnormalitiesConfig {
         b.push("nur");
         NUR_ENABLED = b.comment("enable nur entity (the shy stalker)").define("enabled", true);
         NUR_PUNISH = b.comment("punishment mode when nur kills you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
-        NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 400, 1, 10000);
+        NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 8000, 1, 100000);
         NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
         NUR_LAVA = b.comment("nur can walk on lava by replacing it with stone").define("lavaWalk", true);
@@ -222,7 +222,7 @@ public class AbnormalitiesConfig {
         configLoaded = true;
         b.push("k3w");
         K3W_ENABLED = b.comment("enable k3w entity (the clone that undoes your actions)").define("enabled", true);
-        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 500, 1, 100000);
+        K3W_SPAWN_WEIGHT = b.comment("higher = rarer spawns").defineInRange("spawnWeight", 10000, 1, 1000000);
         K3W_PUNISH = b.comment("punishment when k3w catches you: KICK, CRASH, or NONE").defineEnum("onCatch", PunishMode.KICK);
         K3W_BREAK_BLOCKS = b.comment("k3w can undo block breaks").define("breakBlocks", true);
         K3W_PLACE_BLOCKS = b.comment("k3w can undo block placements").define("placeBlocks", true);
@@ -232,7 +232,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("xYz");
         XYZ_ENABLED = b.comment("enable xYz entity (the supplier that demands items)").define("enabled", true);
-        XYZ_SPAWN_WEIGHT = b.comment("higher = rarer xyz spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        XYZ_SPAWN_WEIGHT = b.comment("higher = rarer xyz spawns").defineInRange("spawnWeight", 8000, 1, 100000);
         XYZ_MIN_WAIT = b.comment("minimum wait time in seconds for xyz item request").defineInRange("minWaitSeconds", 60, 5, 4096);
         XYZ_MAX_WAIT = b.comment("maximum wait time in seconds for xyz item request").defineInRange("maxWaitSeconds", 240, 5, 4096);
         XYZ_STATIC_WAIT = b.comment("use fixed wait time instead of random range").define("staticWaitTime", false);
@@ -248,7 +248,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("skinwalker");
         SW_ENABLED = b.comment("enable skinwalker disguised mobs").define("enabled", true);
-        SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 8000, 1, 100000);
         SW_APPROACH_SPEED = b.comment("speed multiplier at which skinwalkers approach player (1.0 = the disguised animal's own speed)").defineInRange("approachSpeed", 1.0, 0.2, 2.0);
         SW_DETECTION_RANGE = b.comment("range at which skinwalkers detect players").defineInRange("detectionRange", 16.0, 8.0, 32.0);
         SW_TRANSFORM_TIME = b.comment("ticks within 2 blocks before transformation (240 = 12s)").defineInRange("transformTime", 240, 100, 600);
@@ -260,7 +260,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("vr9p");
         VR9P_ENABLED = b.comment("enable vr9p overlay events").define("enabled", true);
-        VR9P_SPAWN_WEIGHT = b.comment("higher = rarer natural spawns").defineInRange("spawnWeight", 400, 1, 10000);
+        VR9P_SPAWN_WEIGHT = b.comment("higher = rarer natural spawns").defineInRange("spawnWeight", 8000, 1, 100000);
         VR9P_COOLDOWN_TICKS = b.comment("ticks between vr9p events (20 ticks = 1s)").defineInRange("cooldownTicks", 1200, 100, 72000);
         VR9P_GRACE_TICKS = b.comment("ticks of grace after each state switch").defineInRange("graceTicks", 30, 5, 200);
         VR9P_WRONG_THRESHOLD = b.comment("ticks of wrong behavior before punishment").defineInRange("wrongThreshold", 20, 1, 100);
@@ -273,7 +273,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("vr9pStargazed");
         VR9P_STARGAZED_ENABLED = b.comment("enable stargazed variant").define("enabled", true);
-        VR9P_STARGAZED_SPAWN_WEIGHT = b.comment("higher = rarer stargazed events").defineInRange("spawnWeight", 1200, 1, 10000);
+        VR9P_STARGAZED_SPAWN_WEIGHT = b.comment("higher = rarer stargazed events").defineInRange("spawnWeight", 24000, 1, 100000);
         VR9P_STARGAZED_DURATION = b.comment("max event duration in ticks").defineInRange("duration", 160, 40, 1200);
         VR9P_STARGAZED_SWITCH_TICKS = b.comment("ticks between decisions (10 = 0.5s)").defineInRange("switchTicks", 10, 5, 60);
         VR9P_STARGAZED_GRACE_TICKS = b.comment("grace after each switch").defineInRange("graceTicks", 15, 1, 60);
@@ -288,7 +288,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("hush");
         HUSH_ENABLED = b.comment("enable hush events (mobs freeze and stare)").define("enabled", true);
-        HUSH_SPAWN_WEIGHT = b.comment("higher = rarer hush events").defineInRange("spawnWeight", 400, 1, 10000);
+        HUSH_SPAWN_WEIGHT = b.comment("higher = rarer hush events").defineInRange("spawnWeight", 8000, 1, 100000);
         HUSH_DURATION = b.comment("how long mobs freeze and stare (ticks, 20 = 1s)").defineInRange("duration", 400, 20, 800);
         HUSH_RANGE = b.comment("how far mobs are affected (blocks)").defineInRange("range", 64, 16, 128);
         HUSH_COOLDOWN = b.comment("ticks between hush events (20 = 1s)").defineInRange("cooldown", 3600, 200, 72000);
@@ -300,7 +300,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("m1sl4y");
         M1SL4Y_ENABLED = b.comment("enable inventory misplacement (items shifting slots/stacks)").define("enabled", true);
-        M1SL4Y_WEIGHT = b.comment("higher = rarer misplacement events").defineInRange("spawnWeight", 600, 1, 10000);
+        M1SL4Y_WEIGHT = b.comment("higher = rarer misplacement events").defineInRange("spawnWeight", 12000, 1, 100000);
         b.pop();
         b.push("l3ns");
         L3NS_ENABLED = b.comment("enable screenshot figure (figure appears in F2 screenshots)").define("enabled", true);
@@ -309,13 +309,13 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("m1n3r");
         M1NER_ENABLED = b.comment("enable underground miner (carves tunnels near you)").define("enabled", true);
-        M1NER_SPAWN_WEIGHT = b.comment("higher = rarer miner activity").defineInRange("spawnWeight", 600, 1, 10000);
+        M1NER_SPAWN_WEIGHT = b.comment("higher = rarer miner activity").defineInRange("spawnWeight", 12000, 1, 100000);
         M1NER_MAX_TUNNEL = b.comment("max blocks a tunnel can be carved").defineInRange("maxTunnelLength", 20, 5, 100);
         M1NER_DUMMY_CHANCE = b.comment("percent chance a dummy nur waits at tunnel end").defineInRange("dummyNurChance", 5, 0, 100);
         b.pop();
         b.push("1ull");
         LURE_ENABLED = b.comment("enable the lure (music box that draws you in)").define("enabled", true);
-        LURE_SPAWN_WEIGHT = b.comment("higher = rarer lure appearances").defineInRange("spawnWeight", 500, 1, 10000);
+        LURE_SPAWN_WEIGHT = b.comment("higher = rarer lure appearances").defineInRange("spawnWeight", 10000, 1, 100000);
         LURE_COOLDOWN = b.comment("ticks between lure events (20 = 1s)").defineInRange("cooldown", 7200, 600, 72000);
         LURE_PUNISH = b.comment("punishment when lure catches you: KICK, CRASH, or NONE").defineEnum("onCatch", PunishMode.KICK);
         b.pop();
@@ -332,18 +332,18 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("wr0ng");
         WR0NG_ENABLED = b.comment("enable cursed crafts (item comes out wrong, can't drop, whispers)").define("enabled", true);
-        WR0NG_CHANCE = b.comment("1 in N crafts get cursed").defineInRange("chance", 200, 10, 10000);
+        WR0NG_CHANCE = b.comment("1 in N crafts get cursed").defineInRange("chance", 4000, 10, 100000);
         WR0NG_DURATION = b.comment("ticks the curse lasts").defineInRange("duration", 12000, 600, 72000);
         b.pop();
         b.push("s1gn");
         S1GN_ENABLED = b.comment("enable mysterious signs referencing your stats").define("enabled", true);
-        S1GN_CHANCE = b.comment("1 in N checks place a sign").defineInRange("chance", 200, 10, 10000);
+        S1GN_CHANCE = b.comment("1 in N checks place a sign").defineInRange("chance", 4000, 10, 100000);
         S1GN_INTERVAL = b.comment("min ticks between signs per player").defineInRange("interval", 12000, 600, 72000);
         S1GN_SEARCH_RADIUS = b.comment("block radius to search for sign spots").defineInRange("searchRadius", 12, 4, 32);
         b.pop();
         b.push("br34th");
         BR34TH_ENABLED = b.comment("enable phantom drowning (one tick of drown damage on dry land)").define("enabled", true);
-        BR34TH_CHANCE = b.comment("1 in N checks trigger phantom drown").defineInRange("chance", 400, 10, 10000);
+        BR34TH_CHANCE = b.comment("1 in N checks trigger phantom drown").defineInRange("chance", 8000, 10, 100000);
         b.pop();
         b.push("h01d");
         H01D_ENABLED = b.comment("enable stillness detection (punishes standing still too long)").define("enabled", true);
@@ -368,7 +368,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("it");
         IT_ENABLED = b.comment("enable it, the flat shadow. stare at it to win").define("enabled", true);
-        IT_SPAWN_WEIGHT = b.comment("higher = rarer it spawns at night").defineInRange("spawnWeight", 200, 1, 10000);
+        IT_SPAWN_WEIGHT = b.comment("higher = rarer it spawns at night").defineInRange("spawnWeight", 4000, 1, 100000);
         IT_STARE_SECONDS = b.comment("seconds of unbroken eye contact within 5.5 blocks to defeat it").defineInRange("stareSeconds", 4, 1, 30);
         IT_STEAL_COUNT = b.comment("items it steals each pass (2 if it catches you looking away close)").defineInRange("stealCount", 1, 1, 9);
         IT_REP_MIN = b.comment("minimum rep for it to haunt you (it hunts the sane)").defineInRange("repMin", 1200, 0, 2500);
@@ -376,7 +376,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("him");
         HIM_ENABLED = b.comment("enable him, the player-like survivor that bridges and towers").define("enabled", true);
-        HIM_SPAWN_WEIGHT = b.comment("base spawn weight at low nights (rarity rises with every boss kill)").defineInRange("spawnWeight", 800, 1, 10000);
+        HIM_SPAWN_WEIGHT = b.comment("base spawn weight at low nights (rarity rises with every boss kill)").defineInRange("spawnWeight", 16000, 1, 100000);
         HIM_REP_MAX = b.comment("him hunts the dangerous: only spawns if rep is BELOW this (low rep nights)").defineInRange("repMax", 999, 0, 2500);
         HIM_PUNISH = b.comment("punishment when he catches you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
         b.pop();
@@ -467,7 +467,7 @@ public class AbnormalitiesConfig {
 
         b.push("b3drock");
         B3DROCK_ENABLED = b.comment("enable b3drock (giant bedrock cube event)").define("enabled", true);
-        B3DROCK_CHANCE = b.comment("1 in N chance per check (50000 = ultra rare, rarer than all events combined)").defineInRange("chance", 50000, 100, 1000000);
+        B3DROCK_CHANCE = b.comment("1 in N chance per check (1000000 = ultra rare, rarer than all events combined)").defineInRange("chance", 1000000, 100, 10000000);
         B3DROCK_COOLDOWN = b.comment("ticks between b3drock events (72000 = 1 hour)").defineInRange("cooldown", 72000, 600, 720000);
         B3DROCK_MIN_SIZE = b.comment("minimum width of the bedrock cube").defineInRange("minSize", 32, 8, 128);
         B3DROCK_MAX_SIZE = b.comment("maximum width of the bedrock cube").defineInRange("maxSize", 64, 8, 128);
