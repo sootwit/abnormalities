@@ -40,7 +40,7 @@ public class ParkourTracker {
             s.takeoffZ = player.getZ();
 
             if (s.windowStart == 0) s.windowStart = now;
-            if (now - s.windowStart > 60) {
+            if (now - s.windowStart > 40) {
                 s.jumpCount = 0;
                 s.windowStart = now;
             }
@@ -49,7 +49,7 @@ public class ParkourTracker {
                 s.jumpCount++;
             }
 
-            if (s.jumpCount >= 3) {
+            if (s.jumpCount >= 5) {
                 s.isParkouring = true;
                 s.parkourTicks = 100;
             }
@@ -62,7 +62,7 @@ public class ParkourTracker {
             double dx = player.getX() - s.takeoffX;
             double dz = player.getZ() - s.takeoffZ;
             double horizontalDist = Math.sqrt(dx * dx + dz * dz);
-            if (horizontalDist > 5.0) {
+            if (horizontalDist > 8.0) {
                 s.isParkouring = true;
                 s.parkourTicks = 100;
             }

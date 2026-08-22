@@ -151,5 +151,15 @@
                 "stream": true
             }
         ]
+    },
+    "warning": {
+        "category": "master",
+        "range": 32,
+        "sounds": [
+            {
+                "name": "abnormalities:warning",
+                "stream": true
+            }
+        ]
     }
 }
