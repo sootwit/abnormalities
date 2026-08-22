@@ -88,7 +88,7 @@ public class SisterChatResponder {
         ));
         ENTITY_LINES.put("k3w", List.of(
             "K3w's you. The worse version. Be careful of your actions and sleep.",
-            "K3w learns fast. He's afraid of sleeping. So sleep."
+            "K3w learns fast. He's afraid of you sleeping. So sleep."
         ));
         ENTITY_LINES.put("it", List.of(
             "It doesn't blink. Neither should you.",

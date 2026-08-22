@@ -238,8 +238,8 @@ public class TheWindController {
         final int decayRange = range;
         final BlockPos decayCenter = center;
         final boolean decayDestructive = isDestructive;
-        // 400 ticks = 20 seconds, felt about right for how long corruption should last
-        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 400, () -> {
+        // 2400 ticks = 2 minutes, corruption should last long enough to be noticed
+        level.getServer().tell(new net.minecraft.server.TickTask(level.getServer().getTickCount() + 2400, () -> {
             for (int x = -decayRange; x <= decayRange; x++) {
                 for (int y = -decayRange; y <= decayRange; y++) {
                     for (int z = -decayRange; z <= decayRange; z++) {

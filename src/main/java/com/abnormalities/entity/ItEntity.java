@@ -178,11 +178,11 @@ public class ItEntity extends Mob {
     }
 
     private float baseApproachSpeed() {
-        return 0.12F;
+        return 0.45F;
     }
 
     private float maxApproachSpeed() {
-        return 0.42F;
+        return 1.2F;
     }
 
     private int stareTargetTicks() {

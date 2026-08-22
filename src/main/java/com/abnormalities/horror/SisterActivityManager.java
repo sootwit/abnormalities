@@ -24,7 +24,7 @@ public class SisterActivityManager {
     private static final List<String> PARKOUR_LINES = List.of(
         "He likes it when you jump.",
         "Every gap is a choice. You keep choosing wrong.",
-        "You're fast. Not fast enough. That's the trick.",
+        "You're fast. He's faster. That's the trick.",
         "Careful. The ground remembers you.",
         "Nice jump. He clapped. You didn't hear it.",
         "You're not running from him. You're running toward the next mistake.",
