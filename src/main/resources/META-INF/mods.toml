@@ -8,6 +8,8 @@ displayName="${mod_name}"
 logoFile="abnormalities_icon.png"
 description='''${mod_description}'''
 authors="${mod_authors}"
+[[coremods]]
+    piTransformer = "coremods/pi_transformer.js"
 [[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true
@@ -18,5 +20,11 @@ authors="${mod_authors}"
     modId="minecraft"
     mandatory=true
     versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="geckolib"
+    mandatory=true
+    versionRange="[4.0,)"
     ordering="NONE"
     side="BOTH"

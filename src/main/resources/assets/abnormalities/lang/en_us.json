@@ -5,6 +5,7 @@
   "entity.abnormalities.xyz": "xYz",
   "entity.abnormalities.it": "it",
   "entity.abnormalities.him": "him",
+  "entity.abnormalities.distant": "distant",
   "entity.abnormalities.villager_nur.none": "Villager",
   "entity.abnormalities.villager_profession.none": "Villager",
   "commands.abnormalities.forcerandomevent": "Forces a random abnormalities event",
@@ -53,9 +54,15 @@
   "abnormalities.config.it.stealCount": "it steal count",
   "abnormalities.config.it.repMin": "it minimum rep",
   "abnormalities.config.it.onStoleEverything": "it punish after emptying you",
-  "block.abnormalities.corruption_block": "Corruption",
-  "block.abnormalities.destructive_corruption_block": "Destructive Corruption",
-  "block.abnormalities.wind_pillar_block": "Wind Pillar",
-  "entity.abnormalities.thewind": "THE_WIND",
-  "death.attack.wind_pillars": "%s.DEATH.THE_WIND_PILLARS"
+  "block.abnormalities.0x0000_pillar_block": "0x0000 Pillar",
+  "death.attack.0x0000_pillars": "%s.DEATH.0x0000_PILLARS",
+  "entity.abnormalities.him_sign": "him",
+  "dimension.abnormalities.sign": "Sign",
+  "abnormalities.config.sign.enabled": "sign dimension enabled",
+  "abnormalities.config.sign.timerMinutes": "sign timer (minutes)",
+  "abnormalities.config.sign.teleportChance": "sign teleport chance (1 in N)",
+  "abnormalities.config.sign.wakeChance": "sign wake chance (1 in N)",
+  "abnormalities.config.sign.himSpawnInterval": "sign him spawn interval (ticks)",
+  "abnormalities.config.sign.himBatchSize": "sign him batch size",
+  "abnormalities.config.himSign.spawnWeight": "himSign spawn weight"
 }

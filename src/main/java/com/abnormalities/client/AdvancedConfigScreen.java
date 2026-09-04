@@ -50,32 +50,26 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("Nur", AbnormalitiesConfig.NUR_ENABLED, "The billboard stalker that chases at night");
         addToggle("K3w", AbnormalitiesConfig.K3W_ENABLED, "Player clone that undoes your actions");
         addToggle("xYz", AbnormalitiesConfig.XYZ_ENABLED, "Giant supplier that demands items");
-        addToggle("It", AbnormalitiesConfig.IT_ENABLED, "Flat shadow that steals when you look away");
         addToggle("Him", AbnormalitiesConfig.HIM_ENABLED, "Player-like survivor that bridges at you");
         addToggle("Skinwalkers", AbnormalitiesConfig.SW_ENABLED, "Disguised mobs that transform");
-        addToggle("Sister", AbnormalitiesConfig.SISTER_ENABLED, "The warning spirit in tab list");
-        addToggle("Sister Chat", AbnormalitiesConfig.SISTER_CHAT_ENABLED, "Sister responds to chat keywords");
 
         addSection("Events");
         addToggle("vr9p", AbnormalitiesConfig.VR9P_ENABLED, "STOP/CONTINUE overlay game");
         addToggle("vr9p Stargazed", AbnormalitiesConfig.VR9P_STARGAZED_ENABLED, "Stricter vr9p variant");
         addToggle("h1sh", AbnormalitiesConfig.HUSH_ENABLED, "Mobs freeze and stare at you");
-        addToggle("1ull", AbnormalitiesConfig.LURE_ENABLED, "Music box that lures you in");
         addToggle("m1n3r", AbnormalitiesConfig.M1NER_ENABLED, "Tunnel digger underground");
         addToggle("v1s1t", AbnormalitiesConfig.V1S1T_ENABLED, "Home invasion gift giver");
         addToggle("w4k3", AbnormalitiesConfig.W4K3_ENABLED, "Sleep displacement teleport");
         addToggle("m1sl4y", AbnormalitiesConfig.M1SL4Y_ENABLED, "Inventory gaslighting");
         addToggle("s1gn", AbnormalitiesConfig.S1GN_ENABLED, "Creepy personalized signs");
-        addToggle("wr0ng", AbnormalitiesConfig.WR0NG_ENABLED, "Cursed item crafting");
         addToggle("br34th", AbnormalitiesConfig.BR34TH_ENABLED, "Phantom drowning");
         addToggle("h01d", AbnormalitiesConfig.H01D_ENABLED, "Stillness punishment");
         addToggle("c1rcl", AbnormalitiesConfig.C1RCL_ENABLED, "Torch ring on wake");
-        addToggle("g0n3", AbnormalitiesConfig.GONE_ENABLED, "Light thief");
         addToggle("b3d", AbnormalitiesConfig.B3D_ENABLED, "Bed memory hunt");
         addToggle("f4k3", AbnormalitiesConfig.F4K3_ENABLED, "Fake creepy chat");
         addToggle("ang3r", AbnormalitiesConfig.ANG3R_ENABLED, "Chat anger system");
         addToggle("l3ns", AbnormalitiesConfig.L3NS_ENABLED, "Screenshot figure");
-        addToggle("insanity", AbnormalitiesConfig.INSANITY_ENABLED, "Insanity meter");
+
         addToggle("b3drock", AbnormalitiesConfig.B3DROCK_ENABLED, "Bedrock cube event");
 
         addSection("World");
@@ -86,13 +80,11 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("K3w undo breaks", AbnormalitiesConfig.K3W_BREAK_BLOCKS, "K3w replaces blocks you broke");
         addToggle("K3w undo places", AbnormalitiesConfig.K3W_PLACE_BLOCKS, "K3w breaks blocks you placed");
         addToggle("K3w undo kills", AbnormalitiesConfig.K3W_KILL_MOBS, "K3w revives mobs you killed");
-        addToggle("THE_WIND", AbnormalitiesConfig.TW_ENABLED, "Wind corruption system");
-        addToggle("Wind corruption", AbnormalitiesConfig.TW_CORRUPTION_ENABLED, "Corruption blocks spread");
-        addToggle("Wind pillars", AbnormalitiesConfig.TW_PILLARS_ENABLED, "Pillar terrain destruction");
-        addToggle("Wind farlands", AbnormalitiesConfig.TW_FURTHERLANDS_ENABLED, "Farlands terrain generation");
-        addToggle("Wind chunks", AbnormalitiesConfig.TW_CHUNK_ENABLED, "Vertical terrain removal");
-        addToggle("Wind entity", AbnormalitiesConfig.TW_THEWIND_ENABLED, "Black humanoid figure");
-        addToggle("Wind border", AbnormalitiesConfig.TW_BORDER_ENABLED, "Void ring around player");
+        addToggle("0x0000", AbnormalitiesConfig.HN_ENABLED, "0x0000 corruption system");
+        addToggle("0x0000 pillars", AbnormalitiesConfig.HN_PILLARS_ENABLED, "Pillar terrain destruction");
+        addToggle("0x0000 farlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Farlands terrain generation");
+        addToggle("0x0000 chunks", AbnormalitiesConfig.HN_CHUNK_ENABLED, "Vertical terrain removal");
+        addToggle("0x0000 border", AbnormalitiesConfig.HN_BORDER_ENABLED, "Void ring around player");
     }
 
     private String currentSection = "";
@@ -149,7 +141,7 @@ public class AdvancedConfigScreen extends Screen {
                     gfx.drawString(font, Component.literal(status), startX + gridW - sw - 4, y + 5, 0xFFFFFF);
 
                     if (hover && entry.description != null) {
-                        gfx.drawCenteredString(font, Component.literal(entry.description).withStyle(ChatFormatting.GRAY), cx, height - 14, 0xAAAAAA);
+                        gfx.drawCenteredString(font, Component.literal(entry.description).withStyle(ChatFormatting.GRAY), cx, height - 38, 0xAAAAAA);
                     }
                 }
                 visibleIdx++;
@@ -158,7 +150,7 @@ public class AdvancedConfigScreen extends Screen {
 
         if (maxScroll > 0) {
             String scrollHint = "\u00a78\u25b2/\u25bc \u00a77scroll";
-            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, height - 10, 0x444444);
+            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, height - 24, 0x444444);
         }
     }
 

@@ -4,8 +4,7 @@ import com.abnormalities.entity.NurEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -28,13 +27,11 @@ public class NurFlickerOverlay {
         }
     }
     @SubscribeEvent
-    public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.SUBTITLES.type()) return;
+    public static void onRenderOverlay(RenderGuiEvent.Post event) {
         if (renderedThisFrame) return;
         renderedThisFrame = true;
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.player == null || mc.level == null) return;
-        if (mc.options.hideGui) return;
         boolean chasing = false;
         boolean dummy = false;
         var entities = mc.level.getEntitiesOfClass(NurEntity.class, mc.player.getBoundingBox().inflate(128.0D));

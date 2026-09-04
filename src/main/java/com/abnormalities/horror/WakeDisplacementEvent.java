@@ -51,8 +51,15 @@ public class WakeDisplacementEvent {
     }
 
     private static void doDisplace(ServerPlayer sp, BlockPos bedPos) {
-        SisterController.onWakeWarning(sp);
         if (!sp.isAlive() || sp.connection == null) return;
+        if (com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()
+                && sp.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+            int wakeChance = com.abnormalities.config.AbnormalitiesConfig.SIGN_WAKE_CHANCE.get();
+            if (wakeChance > 0 && RNG.nextInt(wakeChance) == 0) {
+                com.abnormalities.sign.SignDimension.teleportToSign(sp, bedPos);
+                return;
+            }
+        }
         int dist = AbnormalitiesConfig.W4K3_DISTANCE.get();
         double angle = RNG.nextDouble() * Math.PI * 2;
         double dx = Math.cos(angle) * (dist + RNG.nextDouble() * 10.0);

@@ -44,23 +44,32 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class HimEntity extends PathfinderMob implements RangedAttackMob {
+public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Him");
     private static final EntityDataAccessor<Float> DATA_COLLAPSE = SynchedEntityData.defineId(HimEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> DATA_BOSS = SynchedEntityData.defineId(HimEntity.class, EntityDataSerializers.BOOLEAN);
 
-    private int bridgeCooldown = 0;
-    private int towerCooldown = 0;
+    protected int bridgeCooldown = 0;
+    protected int towerCooldown = 0;
     private boolean lineSent = false;
-    private boolean achSent = false;
+    protected boolean achSent = false;
     private boolean punished = false;
     private boolean summoned = false;
-    private java.util.UUID lastVictimHit = null;
-    private int lastVictimHitTick = -999;
+    protected java.util.UUID lastVictimHit = null;
+    protected int lastVictimHitTick = -999;
     private ServerBossEvent bossBar = null;
     private boolean trackedActive = false;
     private int ambienceTick = 0;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public HimEntity(EntityType<? extends HimEntity> type, Level level) {
         super(type, level);
@@ -172,8 +181,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
         LOGGER.info("[Him] boss call roll={}", roll);
         switch (roll) {
             case 0 -> com.abnormalities.registry.ModEvents.forceNurSpawn(sp);
-            case 1 -> com.abnormalities.registry.ModEvents.forceItSpawn(sp);
-            case 2, 3 -> {
+            case 1, 2, 3 -> {
                 for (int i = 0; i < 3; i++) {
                     com.abnormalities.registry.ModEvents.forceHimSpawn(sp, false);
                 }
@@ -194,7 +202,6 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
                     net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> target),
                     new com.abnormalities.network.CrashPacket());
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
-            com.abnormalities.horror.SisterController.onKickWarning(target);
             target.connection.disconnect(Component.literal("KEEP UP"));
         }
     }
@@ -258,7 +265,20 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
         if (this.entityData.get(DATA_COLLAPSE) > 0.0F) {
             this.setDeltaMovement(0, 0, 0);
             this.setNoAi(true);
-            float p = this.entityData.get(DATA_COLLAPSE) + 0.05F;
+            Player lookTarget = this.level().getNearestPlayer(this, 64.0D);
+            if (lookTarget != null) {
+                double ldx = lookTarget.getX() - this.getX();
+                double ldz = lookTarget.getZ() - this.getZ();
+                float lookYaw = (float) (Math.toDegrees(Math.atan2(ldz, ldx)) - 90.0D);
+                double ldy = lookTarget.getEyeY() - this.getEyeY();
+                double ldist = Math.sqrt(ldx * ldx + ldz * ldz);
+                float lookPitch = (float) -Math.toDegrees(Math.atan2(ldy, Math.max(ldist, 0.001D)));
+                this.setYRot(lookYaw);
+                this.yHeadRot = lookYaw;
+                this.yBodyRot = lookYaw;
+                this.setXRot(lookPitch);
+            }
+            float p = this.entityData.get(DATA_COLLAPSE) + (1.0F / 140.0F);
             if (p >= 1.0F) {
                 LOGGER.info("[Him] collapse complete, broadcasting line and discarding");
                 if (!this.lineSent) {
@@ -406,5 +426,25 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob {
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("Boss") && tag.getBoolean("Boss")) this.markBoss();
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "controller", 0, state -> {
+            if (this.entityData.get(DATA_COLLAPSE) > 0.0F) {
+                state.setAnimation(RawAnimation.begin().then("pain_collapse", Animation.LoopType.PLAY_ONCE));
+                return PlayState.CONTINUE;
+            }
+            if (this.getDeltaMovement().horizontalDistanceSqr() > 0.0001) {
+                state.setAnimation(RawAnimation.begin().then("walk", Animation.LoopType.LOOP));
+                return PlayState.CONTINUE;
+            }
+            return PlayState.STOP;
+        }));
     }
 }

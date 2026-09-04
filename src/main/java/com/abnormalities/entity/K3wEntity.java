@@ -50,7 +50,12 @@ public class K3wEntity extends Mob {
     private int crashTimer = -1;
     private int lastHurtTick = -100;
     private int lifetimeTicks = 0;
-    private static final int LIFETIME_TICKS = 3600;
+    private final List<UUID> possessedPlayers = new ArrayList<>();
+    private UUID possessingPlayer = null;
+    private int possessionPhaseTicks = 0;
+    private boolean possessionActive = false;
+    private int mimicSprintTicks = 0;
+    private int mimicJumpTicks = 0;
 
     public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
         super(type, level);
@@ -86,6 +91,9 @@ public class K3wEntity extends Mob {
         }
         if (this.isCrashing()) return false;
         this.lastHurtTick = this.tickCount;
+        if (source.getEntity() instanceof Player p && p == targetPlayer) {
+            p.hurt(p.damageSources().mobAttack(this), amount);
+        }
         return super.hurt(source, amount);
     }
 
@@ -200,12 +208,12 @@ public class K3wEntity extends Mob {
         super.tick();
         if (level().isClientSide) return;
 
-        lifetimeTicks++;
-        if (lifetimeTicks >= LIFETIME_TICKS) {
-            LOGGER.info("[K3w] decay: discarding after {} ticks", lifetimeTicks);
-            discard();
+        if (possessionActive) {
+            tickPossession();
             return;
         }
+
+        lifetimeTicks++;
 
         BlockPos bp = this.blockPosition();
         for (int dx = -1; dx <= 1; dx++) {
@@ -281,7 +289,6 @@ public class K3wEntity extends Mob {
                             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2),
                             new com.abnormalities.network.CrashPacket());
                     } else {
-                        com.abnormalities.horror.SisterController.onKickWarning(sp2);
                         sp2.connection.disconnect(Component.literal("got you!"));
                     }
                 }
@@ -300,6 +307,17 @@ public class K3wEntity extends Mob {
             hitCooldown = 20;
 
             if (!level().isClientSide && targetPlayer instanceof ServerPlayer sp) {
+                if (possessionActive) {
+                    LOGGER.info("[K3w] possession catch on {} - all possessed, punishing everyone", sp.getName().getString());
+                    punishAllPossessed(sp);
+                    return;
+                }
+                int onlinePlayers = level().getServer() != null ? level().getServer().getPlayerList().getPlayers().size() : 1;
+                if (onlinePlayers >= 2) {
+                    LOGGER.info("[K3w] starting possession chain on {} ({} players online)", sp.getName().getString(), onlinePlayers);
+                    startPossession(sp);
+                    return;
+                }
                 RegistryObject<SoundEvent>[] crashSounds = new RegistryObject[]{
                         ModSounds.K3W_CRASH1, ModSounds.K3W_CRASH2, ModSounds.K3W_CRASH3, ModSounds.K3W_CRASH4
                 };
@@ -354,6 +372,8 @@ public class K3wEntity extends Mob {
         this.noPhysics = true;
         this.setYRot((float) target[3]);
         this.setXRot((float) target[4]);
+        this.yHeadRot = this.getYRot();
+        this.yBodyRot = this.getYRot();
         if (currentPathIndex < pathPoints.size()) currentPathIndex++;
 
         BlockPos targetPos = this.blockPosition();
@@ -425,6 +445,14 @@ public class K3wEntity extends Mob {
             level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 3.0f, 1.8f);
         }
+    }
+
+    @Override
+    public void die(net.minecraft.world.damagesource.DamageSource source) {
+        if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide) {
+            targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
+        }
+        super.die(source);
     }
 
     @Override
@@ -509,6 +537,112 @@ public class K3wEntity extends Mob {
                 if (bs != null) pendingActions.add(new K3wAction(type, ax, ay, az, bs));
             }
         }
+    }
+
+    private void tickPossession() {
+        possessionPhaseTicks++;
+        if (possessingPlayer != null) {
+            ServerPlayer possessed = level().getServer() != null ? level().getServer().getPlayerList().getPlayer(possessingPlayer) : null;
+            if (possessed != null) {
+                if (possessionPhaseTicks == 5) {
+                    com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                        net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> possessed),
+                        new com.abnormalities.network.K3wPossessPacket(0, this.getId()));
+                }
+                if (possessionPhaseTicks == 105) {
+                    com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                        net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> possessed),
+                        new com.abnormalities.network.K3wPossessPacket(1, this.getId()));
+                }
+                possessed.setInvisible(true);
+                possessed.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+            }
+        }
+        mimicSprintTicks++;
+        mimicJumpTicks++;
+        if (mimicSprintTicks > 40) {
+            this.setSprinting(true);
+            if (mimicSprintTicks > 60) {
+                this.setSprinting(false);
+                mimicSprintTicks = 0;
+            }
+        }
+        if (mimicJumpTicks > 30 && this.onGround()) {
+            this.jumpFromGround();
+            mimicJumpTicks = 0;
+        }
+        if (targetPlayer == null || !targetPlayer.isAlive() || possessedPlayers.contains(targetPlayer.getUUID())) {
+            ServerPlayer next = findNextPossessionTarget();
+            if (next == null) {
+                punishAllPossessed(null);
+                return;
+            }
+            setTargetPlayer(next);
+        }
+        if (targetPlayer != null && targetPlayer.isAlive()) {
+            this.getNavigation().moveTo(targetPlayer, 1.0D);
+            this.getLookControl().setLookAt(targetPlayer, 30, 30);
+            double d = this.distanceTo(targetPlayer);
+            if (d < 2.0D && targetPlayer instanceof ServerPlayer nextVictim) {
+                LOGGER.info("[K3w] possession caught next player {}", nextVictim.getName().getString());
+                possessedPlayers.add(nextVictim.getUUID());
+                possessingPlayer = nextVictim.getUUID();
+                possessionPhaseTicks = 0;
+                nextVictim.setInvisible(true);
+                com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                    net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> nextVictim),
+                    new com.abnormalities.network.K3wPossessPacket(0, this.getId()));
+                ServerPlayer next = findNextPossessionTarget();
+                if (next == null) {
+                    punishAllPossessed(nextVictim);
+                    return;
+                }
+                setTargetPlayer(next);
+            }
+        }
+    }
+
+    private ServerPlayer findNextPossessionTarget() {
+        if (level().getServer() == null) return null;
+        for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
+            if (p.level().dimension() != this.level().dimension()) continue;
+            if (possessedPlayers.contains(p.getUUID())) continue;
+            if (p.getUUID().equals(possessingPlayer)) continue;
+            return p;
+        }
+        return null;
+    }
+
+    private void punishAllPossessed(ServerPlayer finalVictim) {
+        LOGGER.info("[K3w] possession complete, punishing {} possessed players", possessedPlayers.size());
+        if (level().getServer() == null) return;
+        for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
+            p.setInvisible(false);
+            com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
+                new com.abnormalities.network.K3wPossessPacket(-1, this.getId()));
+            if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
+                com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                    net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
+                    new com.abnormalities.network.CrashPacket());
+            } else if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.KICK) {
+                p.connection.disconnect(Component.literal("k3w got you."));
+            }
+        }
+        this.discard();
+    }
+
+    public void startPossession(ServerPlayer victim) {
+        if (possessionActive) return;
+        possessionActive = true;
+        possessingPlayer = victim.getUUID();
+        possessedPlayers.add(victim.getUUID());
+        possessionPhaseTicks = 0;
+        victim.setInvisible(true);
+        this.setInvisible(true);
+        this.setNoAi(true);
+        this.getNavigation().stop();
+        LOGGER.info("[K3w] possession started on {}", victim.getName().getString());
     }
 
     public static class K3wAction {

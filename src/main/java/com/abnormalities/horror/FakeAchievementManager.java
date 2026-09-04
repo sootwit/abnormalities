@@ -58,6 +58,9 @@ public class FakeAchievementManager {
         String name = NAMES.get(RNG.nextInt(NAMES.size()));
         LOGGER.info("[FakeAchievement] {} -> {}", target.getName().getString(), name);
         AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> target), new FakeAchievementPacket(name));
+        target.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                net.minecraft.network.chat.Component.literal(
+                    target.getName().getString() + " has made the advancement [" + name + "]"), false));
     }
 
     public static void giveNamed(ServerPlayer target, String name) {

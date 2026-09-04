@@ -161,5 +161,25 @@
                 "stream": true
             }
         ]
+    },
+    "thump": {
+        "category": "master",
+        "range": 32,
+        "sounds": [
+            {
+                "name": "abnormalities:thump",
+                "stream": true
+            }
+        ]
+    },
+    "lowfreq": {
+        "category": "master",
+        "range": 32,
+        "sounds": [
+            {
+                "name": "abnormalities:lowfreq",
+                "stream": true
+            }
+        ]
     }
 }

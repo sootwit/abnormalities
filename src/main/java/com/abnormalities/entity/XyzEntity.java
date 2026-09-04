@@ -422,30 +422,28 @@ public class XyzEntity extends Mob {
         discard();
     }
 
+    private static final ItemStack[] FOOD_ITEMS = {
+        new ItemStack(Items.COOKIE, 64), new ItemStack(Items.GOLDEN_CARROT, 32),
+        new ItemStack(Items.GOLDEN_APPLE, 2), new ItemStack(Items.BREAD, 32),
+        new ItemStack(Items.COOKED_BEEF, 16), new ItemStack(Items.COOKED_PORKCHOP, 16),
+        new ItemStack(Items.COOKED_MUTTON, 16), new ItemStack(Items.COOKED_CHICKEN, 16),
+        new ItemStack(Items.PUMPKIN_PIE, 8), new ItemStack(Items.CAKE, 4)
+    };
+    private static final ItemStack[] MISC_ITEMS = {
+        new ItemStack(Items.DIAMOND, 6), new ItemStack(Items.EMERALD, 16),
+        new ItemStack(Items.IRON_INGOT, 24), new ItemStack(Items.GOLD_INGOT, 16),
+        new ItemStack(Items.LAPIS_LAZULI, 16), new ItemStack(Items.REDSTONE, 24),
+        new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Items.DIAMOND_SWORD),
+        new ItemStack(Items.IRON_PICKAXE), new ItemStack(Items.HEART_OF_THE_SEA),
+        new ItemStack(Items.NETHERITE_INGOT, 2), new ItemStack(Items.ELYTRA)
+    };
+
     private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
-        int roll = level().random.nextInt(1000);
-        if (roll < 120) return new ItemStack(Items.COOKIE, cookieAmt);
-        if (roll < 230) return new ItemStack(Items.GOLDEN_CARROT, carrotAmt);
-        if (roll < 330) return new ItemStack(Items.GOLDEN_APPLE, appleAmt);
-        if (roll < 480) return new ItemStack(Items.IRON_INGOT, 12 + level().random.nextInt(9));
-        if (roll < 610) return new ItemStack(Items.EMERALD, 8 + level().random.nextInt(7));
-        if (roll < 720) return new ItemStack(Items.DIAMOND, 3 + level().random.nextInt(4));
-        if (roll < 800) return new ItemStack(Items.DIAMOND_PICKAXE);
-        if (roll < 860) return new ItemStack(Items.IRON_PICKAXE);
-        if (roll < 920) return new ItemStack(Items.DIAMOND_SWORD);
-        if (roll < 980) return new ItemStack(Items.HEART_OF_THE_SEA);
-        if (level().random.nextInt(2) == 0) return new ItemStack(Items.NETHERITE_INGOT, 2);
-        return new ItemStack(Items.ELYTRA);
+        return FOOD_ITEMS[level().random.nextInt(FOOD_ITEMS.length)].copy();
     }
 
     private ItemStack rollExtra() {
-        int roll = level().random.nextInt(1000);
-        if (roll < 550) return ItemStack.EMPTY;
-        if (roll < 700) return new ItemStack(Items.EMERALD, 4 + level().random.nextInt(4));
-        if (roll < 820) return new ItemStack(Items.IRON_INGOT, 6 + level().random.nextInt(6));
-        if (roll < 910) return new ItemStack(Items.DIAMOND, 1 + level().random.nextInt(3));
-        if (roll < 970) return new ItemStack(Items.NETHERITE_SCRAP, 1 + level().random.nextInt(2));
-        return new ItemStack(Items.ELYTRA);
+        return MISC_ITEMS[level().random.nextInt(MISC_ITEMS.length)].copy();
     }
 
     private void triggerFailure(Player attacker) {

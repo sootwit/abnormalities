@@ -83,7 +83,9 @@ public class K3wActionTracker {
             }
 
             if (!SPAWN_TIMERS.containsKey(uuid)) {
-                if (player.tickCount % 40 == 0 && AbnormalitiesConfig.K3W_ENABLED.get() && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get())) == 0 && overworld.isNight()) {
+                int k3wWeight = AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get();
+                if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) k3wWeight = Math.max(1, k3wWeight / 2);
+                if (player.tickCount % 40 == 0 && AbnormalitiesConfig.K3W_ENABLED.get() && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(k3wWeight)) == 0 && overworld.isNight()) {
                     long currentDay = overworld.getDayTime() / 24000L;
                     if (currentDay >= AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) {
                         startSpawnSequence(player);
@@ -110,7 +112,6 @@ public class K3wActionTracker {
                 }
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 4.0f, 0.5f);
-                if (player instanceof net.minecraft.server.level.ServerPlayer spt) com.abnormalities.horror.SisterController.onK3wWarning(spt);
                 MESSAGES_SENT.put(uuid, true);
             }
 
@@ -154,15 +155,17 @@ public class K3wActionTracker {
 
     public static boolean forceK3wSpawn(Player player) {
         UUID uuid = player.getUUID();
-        if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
-            return false;
+        List<K3wEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        if (existing.size() >= 2) {
+            for (K3wEntity old : existing) {
+                if (old.isAlive()) old.discard();
+            }
         }
         SPAWN_COOLDOWNS.remove(uuid);
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, true);
         FORCED_SPAWNS.put(uuid, true);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
         LOGGER.info("[K3wActionTracker] forced spawn for {}", player.getName().getString());
         if (player instanceof ServerPlayer) {
             var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
@@ -206,7 +209,6 @@ public class K3wActionTracker {
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, false);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
         LOGGER.info("[K3wActionTracker] spawn sequence started for {}", player.getName().getString());
     }
 
@@ -220,8 +222,11 @@ public class K3wActionTracker {
             return false;
         }
 
-        if (ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList()).size() >= 2) {
-            return false;
+        List<K3wEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        if (existing.size() >= 2) {
+            for (K3wEntity old : existing) {
+                if (old.isAlive()) old.discard();
+            }
         }
 
         K3wEntity clone = ModEntities.K3W.get().create(level);
@@ -242,7 +247,6 @@ public class K3wActionTracker {
         level.addFreshEntity(clone);
         ACTIVE_CLONES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(clone);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        POSITION_BUFFERS.put(uuid, new ArrayDeque<>());
         SPAWN_COOLDOWNS.put(uuid, POST_SPAWN_COOLDOWN);
         LOGGER.info("[K3wActionTracker] clone spawned for {} at {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
 
@@ -323,7 +327,12 @@ public class K3wActionTracker {
 
     private static void cleanup(UUID uuid) {
         LOGGER.debug("[K3wActionTracker] cleanup for {}", uuid);
-        ACTIVE_CLONES.remove(uuid);
+        List<K3wEntity> clones = ACTIVE_CLONES.remove(uuid);
+        if (clones != null) {
+            for (K3wEntity e : clones) {
+                if (e.isAlive()) e.discard();
+            }
+        }
         SPAWN_TIMERS.remove(uuid);
         MESSAGES_SENT.remove(uuid);
         FORCED_SPAWNS.remove(uuid);

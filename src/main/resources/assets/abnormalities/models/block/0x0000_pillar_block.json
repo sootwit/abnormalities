@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "abnormalities:block/0x0000_pillar_block"
+  }
+}

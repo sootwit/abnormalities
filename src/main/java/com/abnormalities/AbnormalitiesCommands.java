@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "itSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "1ull", "sisterJoins", "sisterLeaves", "s1gn", "wr0ng", "br34th", "h01d", "c1rcl", "g0n3", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "c4lm", "ang3r", "b3d", "b3drock", "0th3r", "corruption", "destructiveCorruption", "windPillar", "windChunk", "theWind", "windFarlands", "windFurtherlands", "windEntity", "windBorder", "slowedMusic", "animalNoise");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "ang3r", "b3d", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -144,19 +144,14 @@ public class AbnormalitiesCommands {
             case "nurSpawns" -> ModEvents.forceNurSpawn(player);
             case "k3wSpawns" -> K3wActionTracker.forceK3wSpawn(player);
             case "xyzSpawns" -> forceXyzSpawn(player);
-            case "itSpawns" -> {
-                if (!ModEvents.forceItSpawn(player)) {
-                    player.displayClientMessage(Component.literal("it could not rise here (bad spot)").withStyle(ChatFormatting.GRAY), false);
-                }
-            }
             case "himSpawns" -> {
                 if (!ModEvents.forceHimSpawn(player, false)) {
-                    player.displayClientMessage(Component.literal("him could not find a foothold here").withStyle(ChatFormatting.GRAY), false);
+                    player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
             case "himBossSpawns" -> {
                 if (!ModEvents.forceHimSpawn(player, true)) {
-                    player.displayClientMessage(Component.literal("he could not step out of the dark here").withStyle(ChatFormatting.GRAY), false);
+                    player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
             case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
@@ -167,36 +162,46 @@ public class AbnormalitiesCommands {
             case "w4k3" -> com.abnormalities.horror.WakeDisplacementEvent.forceDisplace(player);
             case "m1sl4y" -> com.abnormalities.horror.MisplaceManager.forceMisplace(player);
             case "m1n3r" -> com.abnormalities.horror.MinerController.forceStart(player);
-            case "1ull" -> com.abnormalities.horror.LureController.forceStart(player);
-            case "0th3r" -> com.abnormalities.horror.SisterController.forceJoin(player);
-            case "sisterJoins" -> com.abnormalities.horror.SisterController.forceJoin(player);
-            case "sisterLeaves" -> com.abnormalities.horror.SisterController.forceLeave(player);
             case "s1gn" -> com.abnormalities.horror.SignManager.forceSign(player);
-            case "wr0ng" -> com.abnormalities.horror.WrongCraftManager.forceCurse(player);
             case "br34th" -> com.abnormalities.horror.PhantomDrownManager.forceDrown(player);
             case "h01d" -> com.abnormalities.horror.StillnessManager.forceTrigger(player);
             case "c1rcl" -> com.abnormalities.horror.CircleManager.forceRing(player);
-            case "g0n3" -> com.abnormalities.horror.GoneController.forceSteal(player);
             case "fakeAch" -> com.abnormalities.horror.FakeAchievementManager.give(player);
             case "f4k3" -> com.abnormalities.horror.FakeChatManager.forceChat(player);
             case "f4k3join" -> com.abnormalities.horror.FakeChatManager.forceJoinLeave();
-            case "c4lm" -> com.abnormalities.horror.InsanityMeter.forceReset(player);
+
             case "ang3r" -> com.abnormalities.horror.ChatArgManager.forceAnger(player);
             case "b3d" -> com.abnormalities.horror.BedMemoryManager.forceHunt(player);
             case "b3drock" -> com.abnormalities.horror.B3drockManager.forceB3drock(player);
-            case "corruption" -> com.abnormalities.thewind.TheWindController.forceCorruption(player);
-            case "destructiveCorruption" -> com.abnormalities.thewind.TheWindController.forceDestructive(player);
-            case "windPillar" -> com.abnormalities.thewind.TheWindController.forcePillar(player);
-            case "windChunk" -> com.abnormalities.thewind.TheWindChunkManager.forceChunk(player);
-            case "theWind" -> com.abnormalities.thewind.TheWindController.forceRandom(player);
-            case "windFarlands" -> com.abnormalities.thewind.TheWindFarlandsManager.forceFarlands(player);
-            case "windFurtherlands" -> com.abnormalities.thewind.WindFurtherlandsManager.forceFurtherlands(player);
-            case "windEntity" -> com.abnormalities.thewind.TheWindController.forceTheWind(player);
-            case "windBorder" -> com.abnormalities.thewind.TheWindBorderManager.forceBorder(player);
+            case "0x0000Pillar" -> com.abnormalities.hexnil.HexNilController.forcePillar(player);
+            case "0x0000Chunk" -> com.abnormalities.hexnil.HexNilChunkManager.forceChunk(player);
+            case "0x0000" -> com.abnormalities.hexnil.HexNilController.forceRandom(player);
+            case "0x0000Farlands" -> com.abnormalities.hexnil.HexNilFarlandsManager.forceFarlands(player);
+            case "0x0000Furtherlands" -> com.abnormalities.hexnil.HexNilFurtherlandsManager.forceFurtherlands(player);
+            case "0x0000Border" -> com.abnormalities.hexnil.HexNilBorderManager.forceBorder(player);
             case "slowedMusic" -> com.abnormalities.horror.SlowedMusicManager.forcePlay();
             case "animalNoise" -> com.abnormalities.horror.AnimalNoiseManager.forcePlay(player);
             case "chatDisabled" -> com.abnormalities.horror.ChatLockEvent.forceDisabled(player);
             case "chatEnabled" -> com.abnormalities.horror.ChatLockEvent.forceEnabled(player);
+            case "peakBad" -> com.abnormalities.horror.PeakDayManager.forceBad(player);
+            case "peakGood" -> com.abnormalities.horror.PeakDayManager.forceGood(player);
+            case "0x0000CurseHouse" -> {
+                if (!com.abnormalities.horror.CursedHouseManager.forceCurse(player)) {
+                    player.displayClientMessage(Component.literal("couldn't find a house").withStyle(ChatFormatting.GRAY), false);
+                }
+            }
+            case "0x0000CurseBiome" -> {
+                if (!com.abnormalities.horror.CursedBiomeManager.forceCursed(player)) {
+                    player.displayClientMessage(Component.literal("couldn't determine biome").withStyle(ChatFormatting.GRAY), false);
+                }
+            }
+            case "0x0000Apparation" -> com.abnormalities.horror.ApparitionManager.forceSpawn(player);
+            case "signEnter" -> com.abnormalities.sign.SignDimension.teleportToSign(player, player.blockPosition());
+            case "signExit" -> com.abnormalities.sign.SignDimension.returnFromSign(player);
+            case "depths" -> com.abnormalities.horror.DepthsManager.forceDepths(player);
+            case "darkAreaEvent" -> com.abnormalities.horror.DarkAreaSoundManager.forceDarkArea(player);
+            case "distant" -> com.abnormalities.horror.DistantManager.forceSpawn(player);
+            case "distantCircle" -> com.abnormalities.horror.DistantManager.forceCircle(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
@@ -252,7 +257,6 @@ public class AbnormalitiesCommands {
             }
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                     Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
-            com.abnormalities.horror.SisterController.onXyzWarning(player);
             xyz.setMessageSent(true);
         }
     }

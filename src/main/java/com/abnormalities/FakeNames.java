@@ -7,6 +7,7 @@ public class FakeNames {
             "null", "void", "entity",
             "Alex", "Steve", "Herobrine", "Notch", "Dinnerbone", "jeb_", "Entity303",
             "mining_dude", "cave_explorer", "torch_placer",
-            "shadow", "echo", "trace", "it", " "
+            "shadow", "echo", "trace", "it", " ",
+            "CoolBoy99", "TheSkyBlocker64"
     );
 }

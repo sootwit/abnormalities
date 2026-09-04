@@ -75,7 +75,7 @@ public class XyzRenderer extends EntityRenderer<XyzEntity> {
             poseStack.scale(-scale, -scale, scale);
             font.drawInBatch(net.minecraft.network.chat.Component.literal(amountStr).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE),
                     -textW / 2.0F, 0, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource,
-                    net.minecraft.client.gui.Font.DisplayMode.NORMAL, 0, 15 << 20 | 15 << 4);
+                    net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH, 0, 15 << 20 | 15 << 4);
             poseStack.popPose();
         }
 

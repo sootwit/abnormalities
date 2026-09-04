@@ -65,7 +65,7 @@ public class HimTracker {
 
     public static void himKilled(ServerPlayer killer) {
         totalKills++;
-        LOGGER.info("[HimTracker] him killed by {}, total kills: {}", killer.getName().getString(), totalKills);
+        LOGGER.info("[HimTracker] him killed by {}, total kills: {}", killer != null ? killer.getName().getString() : "unknown", totalKills);
         if (totalKills % 10 == 0) {
             pendingBoss = true;
             LOGGER.info("[HimTracker] pending boss flag set (every 10 kills)");
@@ -77,7 +77,7 @@ public class HimTracker {
         totalKills++;
         bossKills++;
         pendingBoss = false;
-        LOGGER.info("[HimTracker] boss killed by {}, boss kills: {}", killer.getName().getString(), bossKills);
+        LOGGER.info("[HimTracker] boss killed by {}, boss kills: {}", killer != null ? killer.getName().getString() : "unknown", bossKills);
         save();
     }
 

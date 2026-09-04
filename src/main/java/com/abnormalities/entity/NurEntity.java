@@ -27,6 +27,8 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,7 @@ public class NurEntity extends Mob {
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_DUMMY = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static long lastGlobalKillTick = -100;
+    private static final Set<UUID> CORRUPTING_NURS = new HashSet<>();
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
     public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING, SMART }
@@ -43,9 +46,9 @@ public class NurEntity extends Mob {
 
     public static State rollSpawnState(RandomSource rng) {
         int roll = rng.nextInt(100);
-        if (roll < 35) return State.STALKING;
-        if (roll < 60) return State.STALKING_DUMMY;
-        if (roll < 75) return State.DUMMY;
+        if (roll < 15) return State.STALKING;
+        if (roll < 25) return State.STALKING_DUMMY;
+        if (roll < 30) return State.DUMMY;
         return State.SMART;
     }
     public int soundTick = -1;
@@ -123,7 +126,9 @@ public class NurEntity extends Mob {
             if (currentTarget == null) {
                 LOGGER.debug("[Nur] no target found, discarding if old enough");
                 this.entityData.set(DATA_CHASING, false);
-                if (currentState == State.CHASING) {
+                if (isChasing() || currentState == State.CHASING) {
+                    CORRUPTING_NURS.remove(this.getUUID());
+                    if (CORRUPTING_NURS.isEmpty()) com.abnormalities.pi.PiHooks.setAll(Math.PI);
                     if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
                     chasedPlayerId = null;
                 }
@@ -133,7 +138,7 @@ public class NurEntity extends Mob {
             }
             soundLoopTick = 0;
             soundTick = -1;
-            if (currentState == State.CHASING) {
+            if (isChasing() || currentState == State.CHASING) {
                 this.entityData.set(DATA_CHASING, true);
                 if (chasedPlayerId == null || !chasedPlayerId.equals(currentTarget.getUUID())) {
                     chasedPlayerId = currentTarget.getUUID();
@@ -173,7 +178,7 @@ public class NurEntity extends Mob {
             }
         }
 
-        if ((currentState == State.STALKING || currentState == State.STALKING_DUMMY) && !isChasing()) {
+        if ((currentState == State.STALKING || currentState == State.STALKING_DUMMY || currentState == State.SMART) && !isChasing()) {
             long tod = level().getDayTime() % 24000L;
             if (tod >= 2000L && tod < 13000L) {
                 discard();
@@ -339,6 +344,16 @@ public class NurEntity extends Mob {
         }
         if (dist < 3.0D && attackCooldown <= 0 && level().getGameTime() - lastGlobalKillTick >= 20) {
             LOGGER.info("[Nur] kill attempt on {}", currentTarget.getName().getString());
+            if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp
+                    && com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()
+                    && sp.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+                int signChance = com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
+                if (signChance > 0 && level().random.nextInt(signChance) == 0) {
+                    com.abnormalities.sign.SignDimension.teleportToSign(sp, sp.blockPosition());
+                    this.discard();
+                    return;
+                }
+            }
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
             lastGlobalKillTick = level().getGameTime();
@@ -348,6 +363,29 @@ public class NurEntity extends Mob {
 
     private void tickSmart() {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) { discard(); return; }
+        double dist = this.distanceTo(currentTarget);
+        boolean looking = false;
+        Vec3 eyePos = currentTarget.getEyePosition(1.0F);
+        Vec3 lookVec = currentTarget.getViewVector(1.0F);
+        Vec3 toNur = new Vec3(this.getX() - eyePos.x, this.getY() + this.getBbHeight() / 2 - eyePos.y, this.getZ() - eyePos.z);
+        double len = toNur.length();
+        if (len > 0.001) {
+            looking = lookVec.dot(toNur.normalize()) > 0.95;
+        }
+        if (!this.entityData.get(DATA_CHASING)) {
+            if (!looking && dist > 5.0D) {
+                this.getNavigation().moveTo(currentTarget, 0.06D);
+                this.getLookControl().setLookAt(currentTarget, 10, 10);
+                return;
+            }
+            this.entityData.set(DATA_CHASING, true);
+            this.chasedPlayerId = currentTarget.getUUID();
+            if (!level().isClientSide) {
+                level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
+                        ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
+                NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+            }
+        }
         if (soundTick < 0) soundTick = 0;
         if (soundTick >= 0 && soundTick < 60) {
             soundTick++;
@@ -369,7 +407,6 @@ public class NurEntity extends Mob {
             }
         }
         this.getNavigation().stop();
-        double dist = this.distanceTo(currentTarget);
         this.getLookControl().setLookAt(currentTarget, 30, 30);
         pushSmartTowardTarget(dist);
         tryReachTarget();
@@ -380,6 +417,16 @@ public class NurEntity extends Mob {
         }
         if (dist < 3.0D && attackCooldown <= 0 && level().getGameTime() - lastGlobalKillTick >= 20) {
             LOGGER.info("[Nur] smart kill attempt on {}", currentTarget.getName().getString());
+            if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp
+                    && com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()
+                    && sp.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+                int signChance = com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
+                if (signChance > 0 && level().random.nextInt(signChance) == 0) {
+                    com.abnormalities.sign.SignDimension.teleportToSign(sp, sp.blockPosition());
+                    this.discard();
+                    return;
+                }
+            }
             currentTarget.hurt(this.damageSources().mobAttack(this), Float.MAX_VALUE);
             attackCooldown = 20;
             lastGlobalKillTick = level().getGameTime();
@@ -412,7 +459,7 @@ public class NurEntity extends Mob {
         double my = this.getDeltaMovement().y;
         if (dy < -1) my = -0.8D;
         if (this.isInWater()) { mx *= 3.0; mz *= 3.0; my = 0.3D; }
-        if (this.onGround() && horizDist > 1.5 && speed > 1.0D) {
+        if (this.onGround() && horizDist > 1.5) {
             int sx = (int)Math.signum(dx);
             int sz = (int)Math.signum(dz);
             BlockPos ahead = this.blockPosition().offset(sx, 1, sz);
@@ -556,6 +603,7 @@ public class NurEntity extends Mob {
 
     public void startChasing(Player player) {
         if (currentState == State.CHASING) return;
+        boolean corruptPi = (currentState != State.SMART);
         LOGGER.info("[Nur] state transition {}->CHASING, target={}", currentState, player.getName().getString());
         currentState = State.CHASING;
         currentTarget = player;
@@ -568,6 +616,10 @@ public class NurEntity extends Mob {
             level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
             this.chasedPlayerId = player.getUUID();
             NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+            if (corruptPi) {
+                CORRUPTING_NURS.add(this.getUUID());
+                com.abnormalities.pi.PiHooks.setAll(-1.0);
+            }
         }
     }
 
@@ -582,7 +634,9 @@ public class NurEntity extends Mob {
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
         LOGGER.info("[Nur] removed, reason={} state={} chasing={}", reason, currentState, isChasing());
-        if (level() != null && !level().isClientSide && currentState == State.CHASING && chasedPlayerId != null)
+        CORRUPTING_NURS.remove(this.getUUID());
+        if (CORRUPTING_NURS.isEmpty()) com.abnormalities.pi.PiHooks.setAll(Math.PI);
+        if (level() != null && !level().isClientSide && (isChasing() || currentState == State.CHASING) && chasedPlayerId != null)
             NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
         super.remove(reason);
         if (level() != null && !level().isClientSide) this.entityData.set(DATA_CHASING, false);

@@ -1,6 +1,5 @@
 package com.abnormalities;
 
-import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +25,7 @@ public class WhisperManager {
     private static final List<String> LOW_REP_FRAGMENTS = List.of(
         "you're worthless...", "no one cares...", "why bother...",
         "...", "you deserve this...", "pathetic...",
-        "scream... no one hears...", "give up...", "it's over...",
+        "no one will hear...", "give up...", "it's over...",
         "you failed...", "lost...", "forgotten...", "nothing matters..."
     );
 
@@ -47,19 +46,6 @@ public class WhisperManager {
         LOGGER.debug("[WhisperManager] whisper to {}: {}", player.getName().getString(), text);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
             Component.literal(text).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), false));
-        playWhisperSfx(player);
-    }
-
-    private static void playWhisperSfx(ServerPlayer player) {
-        if (player.connection == null) return;
-        double ox = RNG.nextGaussian() * 2;
-        double oy = RNG.nextGaussian();
-        double oz = RNG.nextGaussian() * 2;
-        float pitch = 0.8f + RNG.nextFloat() * 0.4f;
-        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(ModSounds.WHISPER_SOUND.get()), SoundSource.MASTER,
-            player.getX() + ox, player.getY() + oy + 1, player.getZ() + oz,
-            0.4f, pitch, 0));
     }
 
     public static void sendActionBar(ServerPlayer player, String text, ChatFormatting color) {

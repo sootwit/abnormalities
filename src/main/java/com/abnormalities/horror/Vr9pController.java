@@ -53,7 +53,6 @@ public class Vr9pController {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (!com.abnormalities.config.AbnormalitiesConfig.VR9P_ENABLED.get()) return;
         var srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         var overworld = srv.getLevel(Level.OVERWORLD);
@@ -82,6 +81,8 @@ public class Vr9pController {
         COOLDOWNS.replaceAll((u, cd) -> cd - 1);
         COOLDOWNS.values().removeIf(cd -> cd <= 0);
 
+        if (!com.abnormalities.config.AbnormalitiesConfig.VR9P_ENABLED.get()) return;
+
         long currentDay = overworld.getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         if (overworld.getGameTime() % 20 != 0) return;
@@ -92,7 +93,6 @@ public class Vr9pController {
                 for (ServerPlayer sp : overworld.players()) {
                     if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
                     if (overworld.random.nextInt(2) != 0) continue;
-                    SisterController.onVr9pWarning(sp, true);
                     PENDING_STARTS.put(sp.getUUID(), new PendingStart(100, true));
                     break;
                 }
@@ -102,7 +102,6 @@ public class Vr9pController {
         for (ServerPlayer sp : overworld.players()) {
             if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
             if (overworld.random.nextInt(3) != 0) continue;
-            SisterController.onVr9pWarning(sp, false);
             PENDING_STARTS.put(sp.getUUID(), new PendingStart(200, false));
             break;
         }
@@ -180,6 +179,7 @@ public class Vr9pController {
             sendState(player, state.stargazed ? Vr9pPacket.STATE_STARGAZED_CONTINUE : Vr9pPacket.STATE_CONTINUE, 0);
             playContinue(player);
         }
+        com.abnormalities.hexnil.HexNilShakeHandler.sendShake(player, 0.8f, 15);
     }
 
     private static int getDuration(Vr9pState state) {
@@ -319,7 +319,6 @@ public class Vr9pController {
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
             if (player.connection != null) {
                 sendState(player, -1, 0);
-                SisterController.onKickWarning(player);
                 player.connection.disconnect(Component.literal("STARGAZED"));
             }
         } else {

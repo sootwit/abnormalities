@@ -5,7 +5,6 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.HimEntity;
 import com.abnormalities.entity.HimTracker;
-import com.abnormalities.entity.ItEntity;
 import com.abnormalities.entity.XyzEntity;
 import com.abnormalities.entity.skinwalker.*;
 import net.minecraft.ChatFormatting;
@@ -54,7 +53,7 @@ import java.util.UUID;
 
 public class ModEvents {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Events");
-    private static final String[] PRE_SPAWN_TEXTS = {"PRAY.", "HOPE.", "LIFE.", "SOUL."};
+    private static final String[] PRE_SPAWN_TEXTS = {"PRAY.", "HOPE.", "LIFE.", "SOUL.", "LUCK.", "SPEED."};
     private static final List<SpawnTask> PENDING_SPAWNS = new ArrayList<>();
     private static final Set<Block> SEE_THROUGH = Set.of(
             Blocks.AIR, Blocks.CAVE_AIR, Blocks.VOID_AIR,
@@ -127,6 +126,10 @@ public class ModEvents {
     }
 
     public static void forceNurSpawn(ServerPlayer player) {
+        if (!AbnormalitiesConfig.NUR_ENABLED.get()) {
+            LOGGER.info("[Events] forceNurSpawn skipped for {}, nur disabled", player.getName().getString());
+            return;
+        }
         LOGGER.info("[Events] forceNurSpawn for {}", player.getName().getString());
         ServerLevel level = (ServerLevel) player.level();
         String text = PRE_SPAWN_TEXTS[level.random.nextInt(PRE_SPAWN_TEXTS.length)];
@@ -139,35 +142,14 @@ public class ModEvents {
                         Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
             }
         }
-        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 10.0D + level.random.nextDouble() * 15.0D;
+        double preSx = player.getX() + Math.cos(angle) * dist;
+        double preSz = player.getZ() + Math.sin(angle) * dist;
+        int preSy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) preSx, (int) preSz);
+        player.level().playSound(null, preSx, preSy, preSz,
+                SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
         PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
-        com.abnormalities.horror.SisterController.onNurWarning(player);
-    }
-
-    public static boolean forceItSpawn(ServerPlayer player) {
-        LOGGER.info("[Events] forceItSpawn for {}", player.getName().getString());
-        ServerLevel overworld = (ServerLevel) player.level();
-        for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
-            LOGGER.debug("[Events] forceItSpawn blocked: existing ItEntity nearby");
-            return false;
-        }
-        double angle = overworld.random.nextDouble() * Math.PI * 2;
-        double dist = 24.0D + overworld.random.nextDouble() * 16.0D;
-        double sx = player.getX() + Math.cos(angle) * dist;
-        double sz = player.getZ() + Math.sin(angle) * dist;
-        int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.debug("[Events] forceItSpawn failed: no ground below"); return false; }
-        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.debug("[Events] forceItSpawn failed: spawn pos blocked"); return false; }
-
-        ItEntity it = ModEntities.IT.get().create(overworld);
-        if (it == null) { LOGGER.debug("[Events] forceItSpawn failed: entity create returned null"); return false; }
-        it.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
-        overworld.addFreshEntity(it);
-        return true;
     }
 
     public static boolean forceHimSpawn(ServerPlayer player, boolean boss) {
@@ -215,7 +197,7 @@ public class ModEvents {
                     nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
                     LOGGER.info("[Events] nur spawned for {} at ({}, {}, {}) state={}", target.getName().getString(), (int)sx, sy, (int)sz, nur.currentState);
                     task.level.addFreshEntity(nur);
-                    task.level.playSound(null, target.getX(), target.getY(), target.getZ(),
+                    task.level.playSound(null, sx, sy, sz,
                             SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
                 }
             }
@@ -317,7 +299,6 @@ public class ModEvents {
                                         Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
                             }
                         }
-                        com.abnormalities.horror.SisterController.onXyzWarning(sp);
                         xyz.setMessageSent(true);
                     }
                 }
@@ -368,26 +349,9 @@ public class ModEvents {
         }
         }
 
-        if (time < 13000L || time > 23000L) return;
+        if (time >= 13000L && time <= 23000L) {
         for (Player player : overworld.players()) {
-            if (player.tickCount % 60 != 0) continue;
-            if (!AbnormalitiesConfig.IT_ENABLED.get()) continue;
-            if (ReputationManager.getRep(player) < AbnormalitiesConfig.IT_REP_MIN.get()) continue;
-            if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.IT_SPAWN_WEIGHT.get())) != 0) continue;
-            LOGGER.debug("[Events] it spawn weight roll passed for {}", player.getName().getString());
-            boolean alreadyHasIt = false;
-            for (ItEntity existing : overworld.getEntitiesOfClass(ItEntity.class, player.getBoundingBox().inflate(256.0D))) {
-                alreadyHasIt = true;
-                break;
-            }
-            if (alreadyHasIt) continue;
-
-            if (player instanceof net.minecraft.server.level.ServerPlayer spIt) {
-                forceItSpawn(spIt);
-            }
-        }
-        for (Player player : overworld.players()) {
-            if (!AbnormalitiesConfig.HIM_ENABLED.get()) break;
+            if (!AbnormalitiesConfig.HIM_ENABLED.get()) continue;
             if (player.tickCount % 40 != 0) continue;
             if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
             int rarity = HimTracker.weighted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250);
@@ -407,10 +371,14 @@ public class ModEvents {
                 }
             }
         }
+        }
+
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
                 if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get())) != 0) continue;
+                int nurWeight = AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get();
+                if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) nurWeight = Math.max(1, nurWeight / 2);
+                if (overworld.random.nextInt(HimTracker.weighted(nurWeight)) != 0) continue;
             LOGGER.debug("[Events] nur spawn weight roll passed for {}", player.getName().getString());
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
@@ -426,7 +394,6 @@ public class ModEvents {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
-            if (player instanceof net.minecraft.server.level.ServerPlayer spt) com.abnormalities.horror.SisterController.onNurWarning(spt);
         }
         tickSkinwalkerChunks(overworld);
         tickXyzChunks(overworld);
@@ -585,7 +552,6 @@ public class ModEvents {
                     net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp),
                     new com.abnormalities.network.CrashPacket());
             } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
-                com.abnormalities.horror.SisterController.onKickWarning(sp);
                 sp.connection.disconnect(Component.literal("Unknown error"));
             }
             return;
@@ -639,6 +605,12 @@ public class ModEvents {
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide) return;
+        if (event.getLevel() instanceof ServerLevel sl && sl.dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) {
+            if (event.getEntity() instanceof Mob mob && !(mob instanceof com.abnormalities.sign.HimSignEntity)) {
+                event.setCanceled(true);
+                return;
+            }
+        }
         if (!(event.getEntity() instanceof Mob mob)) return;
         if (mob.getPersistentData().getBoolean("abnormalities:skinwalker")) {
             boolean hasGoal = mob.goalSelector.getAvailableGoals().stream()

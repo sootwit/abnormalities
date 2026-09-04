@@ -19,7 +19,7 @@ public class ConfigScreen extends Screen {
     private static final int DESC_H = 12;
     private static final int CELL_H = TITLE_H + DESC_H + CELL_PAD;
     private static final int ROW_H = CELL_H + 4;
-    private static final int VISIBLE_ROWS = 8;
+    private static final int VISIBLE_ROWS = 7;
 
     private final List<PresetEntry> presets = new ArrayList<>();
     private int scrollOffset = 0;
@@ -45,7 +45,7 @@ public class ConfigScreen extends Screen {
         presets.clear();
 
         presets.add(new PresetEntry("Disable ALL block destruction",
-                "Turns off nur block breaking, k3w undo, wind pillars, wind corruption, wind chunks, wind border, miner, him tower/bridge",
+                "Turns off nur block breaking, k3w undo, 0x0000 pillars, corruption, chunks, border, miner, him tower/bridge",
                 () -> {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.NUR_TOWER.set(false);
@@ -53,94 +53,95 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_LIQUID.set(false);
                     AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(false);
-                    AbnormalitiesConfig.TW_PILLARS_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_CORRUPTION_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_DESTRUCTIVE_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_CHUNK_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_BORDER_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_FURTHERLANDS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
         presets.add(new PresetEntry("Disable ALL hostile entities",
-                "Turns off nur, k3w, him, skinwalkers, it",
+                "Turns off nur, k3w, him, skinwalkers",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(false);
                     AbnormalitiesConfig.K3W_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
-                    AbnormalitiesConfig.IT_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
         presets.add(new PresetEntry("Disable ALL events",
-                "Turns off every horror event (vr9p, hush, lure, miner, etc)",
+                "Turns off every horror event (vr9p, hush, miner, etc)",
                 () -> {
                     AbnormalitiesConfig.VR9P_ENABLED.set(false);
                     AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
-                    AbnormalitiesConfig.LURE_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
                     AbnormalitiesConfig.W4K3_ENABLED.set(false);
                     AbnormalitiesConfig.M1SL4Y_ENABLED.set(false);
                     AbnormalitiesConfig.S1GN_ENABLED.set(false);
-                    AbnormalitiesConfig.WR0NG_ENABLED.set(false);
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-                    AbnormalitiesConfig.GONE_ENABLED.set(false);
+
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
-                    AbnormalitiesConfig.L3NS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
+                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+
                     AbnormalitiesConfig.F4K3_ENABLED.set(false);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(false);
-                    AbnormalitiesConfig.INSANITY_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_ENABLED.set(false);
+                    AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
+                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
-        presets.add(new PresetEntry("Disable THE_WIND system",
-                "Turns off all wind corruption, pillars, farlands, chunks, entity, border",
+        presets.add(new PresetEntry("Disable 0x0000 system",
+                "Turns off all corruption, pillars, farlands, chunks, border",
                 () -> {
-                    AbnormalitiesConfig.TW_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_CORRUPTION_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_DESTRUCTIVE_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_PILLARS_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_FURTHERLANDS_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_CHUNK_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_THEWIND_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_BORDER_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
         presets.add(new PresetEntry("Safe mode (entities + events off)",
-                "Disables all hostile entities and all events. Only xYz and Sister remain.",
+                "Disables all hostile entities and all events. Only xYz remains.",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(false);
                     AbnormalitiesConfig.K3W_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
-                    AbnormalitiesConfig.IT_ENABLED.set(false);
                     AbnormalitiesConfig.VR9P_ENABLED.set(false);
                     AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
-                    AbnormalitiesConfig.LURE_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
                     AbnormalitiesConfig.W4K3_ENABLED.set(false);
                     AbnormalitiesConfig.M1SL4Y_ENABLED.set(false);
                     AbnormalitiesConfig.S1GN_ENABLED.set(false);
-                    AbnormalitiesConfig.WR0NG_ENABLED.set(false);
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-                    AbnormalitiesConfig.GONE_ENABLED.set(false);
+
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
-                    AbnormalitiesConfig.INSANITY_ENABLED.set(false);
+
                     AbnormalitiesConfig.F4K3_ENABLED.set(false);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
@@ -153,26 +154,23 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.K3W_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
-                    AbnormalitiesConfig.IT_ENABLED.set(false);
                     AbnormalitiesConfig.XYZ_ENABLED.set(false);
                     AbnormalitiesConfig.VR9P_ENABLED.set(false);
                     AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
-                    AbnormalitiesConfig.LURE_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
                     AbnormalitiesConfig.W4K3_ENABLED.set(false);
                     AbnormalitiesConfig.M1SL4Y_ENABLED.set(false);
                     AbnormalitiesConfig.S1GN_ENABLED.set(false);
-                    AbnormalitiesConfig.WR0NG_ENABLED.set(false);
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-                    AbnormalitiesConfig.GONE_ENABLED.set(false);
+
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
-                    AbnormalitiesConfig.TW_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
-                    AbnormalitiesConfig.INSANITY_ENABLED.set(false);
+
                     AbnormalitiesConfig.F4K3_ENABLED.set(false);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.L3NS_ENABLED.set(false);
@@ -185,26 +183,21 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_ENABLED.set(true);
                     AbnormalitiesConfig.K3W_ENABLED.set(true);
                     AbnormalitiesConfig.XYZ_ENABLED.set(true);
-                    AbnormalitiesConfig.IT_ENABLED.set(true);
                     AbnormalitiesConfig.HIM_ENABLED.set(true);
                     AbnormalitiesConfig.SW_ENABLED.set(true);
-                    AbnormalitiesConfig.SISTER_ENABLED.set(true);
                     AbnormalitiesConfig.VR9P_ENABLED.set(true);
                     AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(true);
                     AbnormalitiesConfig.HUSH_ENABLED.set(true);
-                    AbnormalitiesConfig.LURE_ENABLED.set(true);
                     AbnormalitiesConfig.M1NER_ENABLED.set(true);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(true);
                     AbnormalitiesConfig.W4K3_ENABLED.set(true);
                     AbnormalitiesConfig.M1SL4Y_ENABLED.set(true);
                     AbnormalitiesConfig.S1GN_ENABLED.set(true);
-                    AbnormalitiesConfig.WR0NG_ENABLED.set(true);
                     AbnormalitiesConfig.BR34TH_ENABLED.set(true);
                     AbnormalitiesConfig.H01D_ENABLED.set(true);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(true);
-                    AbnormalitiesConfig.GONE_ENABLED.set(true);
                     AbnormalitiesConfig.B3D_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_ENABLED.set(true);
+                    AbnormalitiesConfig.HN_ENABLED.set(true);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(true);
                     AbnormalitiesConfig.F4K3_ENABLED.set(true);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(true);
@@ -215,16 +208,18 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_LIQUID.set(true);
                     AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(true);
-                    AbnormalitiesConfig.TW_CORRUPTION_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_PILLARS_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_CHUNK_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_FURTHERLANDS_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_THEWIND_ENABLED.set(true);
-                    AbnormalitiesConfig.TW_BORDER_ENABLED.set(true);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(true);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(true);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(true);
+                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(true);
+                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(true);
+                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(true);
+                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(true);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(true);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
-        int btnY = Math.min(36 + presets.size() * (CELL_H + ROW_H) + 10, this.height - 35);
+        int btnY = Math.min(36 + VISIBLE_ROWS * (CELL_H + ROW_H) + 10, this.height - 35);
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> Minecraft.getInstance().setScreen(null)
@@ -287,10 +282,16 @@ public class ConfigScreen extends Screen {
 
         int row = (int) ((my - startY) / (CELL_H + ROW_H)) + scrollOffset;
         if (row >= 0 && row < presets.size()) {
+            var preset = presets.get(row);
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(
                 net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
                     net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK.get(), 1.0f));
-            presets.get(row).action.run();
+            preset.action.run();
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc.player != null) {
+                mc.player.displayClientMessage(
+                    Component.literal("Applied preset '" + preset.label + "'").withStyle(ChatFormatting.GREEN), false);
+            }
             return true;
         }
         return super.mouseClicked(mx, my, btn);

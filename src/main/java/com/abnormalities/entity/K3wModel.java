@@ -11,12 +11,28 @@ import net.minecraft.resources.ResourceLocation;
 
 public class K3wModel extends HumanoidModel<K3wEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("abnormalities", "k3w"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION_SLIM = new ModelLayerLocation(new ResourceLocation("abnormalities", "k3w_slim"), "main");
 
-    public K3wModel(ModelPart root) {
+    private final boolean slim;
+
+    public K3wModel(ModelPart root, boolean slim) {
         super(root);
+        this.slim = slim;
+    }
+
+    public boolean isSlim() {
+        return slim;
     }
 
     public static LayerDefinition createBodyLayer() {
+        return createBodyLayerInternal(false);
+    }
+
+    public static LayerDefinition createSlimBodyLayer() {
+        return createBodyLayerInternal(true);
+    }
+
+    private static LayerDefinition createBodyLayerInternal(boolean slim) {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
 
@@ -35,15 +51,27 @@ public class K3wModel extends HumanoidModel<K3wEntity> {
                         .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F),
                 PartPose.offset(0.0F, 0.0F, 0.0F));
 
-        root.addOrReplaceChild("right_arm",
-                CubeListBuilder.create().texOffs(40, 16)
-                        .addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
-                PartPose.offset(-5.0F, 2.0F, 0.0F));
+        if (slim) {
+            root.addOrReplaceChild("right_arm",
+                    CubeListBuilder.create().texOffs(40, 16)
+                            .addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F),
+                    PartPose.offset(-5.0F, 2.0F, 0.0F));
 
-        root.addOrReplaceChild("left_arm",
-                CubeListBuilder.create().texOffs(40, 16).mirror()
-                        .addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
-                PartPose.offset(5.0F, 2.0F, 0.0F));
+            root.addOrReplaceChild("left_arm",
+                    CubeListBuilder.create().texOffs(40, 16).mirror()
+                            .addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F),
+                    PartPose.offset(5.0F, 2.0F, 0.0F));
+        } else {
+            root.addOrReplaceChild("right_arm",
+                    CubeListBuilder.create().texOffs(40, 16)
+                            .addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                    PartPose.offset(-5.0F, 2.0F, 0.0F));
+
+            root.addOrReplaceChild("left_arm",
+                    CubeListBuilder.create().texOffs(40, 16).mirror()
+                            .addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F),
+                    PartPose.offset(5.0F, 2.0F, 0.0F));
+        }
 
         root.addOrReplaceChild("right_leg",
                 CubeListBuilder.create().texOffs(0, 16)

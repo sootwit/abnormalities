@@ -33,9 +33,6 @@ public class CircleManager {
     }
 
     private static void spawnRing(ServerLevel level, BlockPos center) {
-        for (var p : level.getServer().getPlayerList().getPlayers()) {
-            SisterController.onCircleWarning(p);
-        }
         int radius = 4 + RNG.nextInt(3);
         int count = radius * 6;
         LOGGER.info("[Circle] ring generated at ({},{},{}) radius={} count={}", center.getX(), center.getY(), center.getZ(), radius, count);

@@ -39,7 +39,6 @@ public class MisplaceManager {
     }
 
     private static void misplace(ServerPlayer player) {
-        SisterController.onMisplaceWarning(player);
         Inventory inv = player.getInventory();
         if (RNG.nextBoolean()) {
             int a = 1 + RNG.nextInt(35);

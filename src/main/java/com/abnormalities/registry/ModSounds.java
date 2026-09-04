@@ -43,4 +43,8 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "pillaralarm")));
     public static final RegistryObject<SoundEvent> WARNING = SOUNDS.register("warning",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "warning")));
+    public static final RegistryObject<SoundEvent> THUMP = SOUNDS.register("thump",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "thump")));
+    public static final RegistryObject<SoundEvent> LOWFREQ = SOUNDS.register("lowfreq",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "lowfreq")));
 }

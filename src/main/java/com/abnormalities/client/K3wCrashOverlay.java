@@ -4,8 +4,7 @@ import com.abnormalities.entity.K3wEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -15,20 +14,41 @@ public class K3wCrashOverlay {
     private static long crashStartTime = 0;
     private static boolean showingCrash = false;
     private static boolean renderedThisFrame = false;
+    private static boolean apparitionActive = false;
+    private static long apparitionStart = 0;
+
     @SubscribeEvent
     public static void onRenderTick(TickEvent.RenderTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             renderedThisFrame = false;
         }
     }
+
     @SubscribeEvent
-    public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.SUBTITLES.type()) return;
+    public static void onRenderOverlay(RenderGuiEvent.Post event) {
         if (renderedThisFrame) return;
         renderedThisFrame = true;
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.player == null || mc.level == null) return;
-        if (mc.options.hideGui) return;
+
+        if (apparitionActive) {
+            long elapsed = System.currentTimeMillis() - apparitionStart;
+            if (elapsed > 100) {
+                apparitionActive = false;
+            } else {
+                GuiGraphics gg = event.getGuiGraphics();
+                int sw = gg.guiWidth();
+                int sh = gg.guiHeight();
+                gg.pose().pushPose();
+                gg.pose().setIdentity();
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+                gg.blit(HUD, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
+                gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+                gg.pose().popPose();
+                return;
+            }
+        }
+
         boolean crashing = false;
         var entities = mc.level.getEntitiesOfClass(K3wEntity.class, mc.player.getBoundingBox().inflate(128.0D));
         for (K3wEntity k3w : entities) {
@@ -58,5 +78,10 @@ public class K3wCrashOverlay {
         gg.blit(HUD, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
         gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         gg.pose().popPose();
+    }
+
+    public static void triggerApparition() {
+        apparitionActive = true;
+        apparitionStart = System.currentTimeMillis();
     }
 }

@@ -93,7 +93,7 @@ public class B3drockManager {
 
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
-            new com.abnormalities.network.TheWindShakePacket(4.0f, 60));
+            new com.abnormalities.network.HexNilShakePacket(4.0f, 60));
 
         LOGGER.info("[B3drock] {} triggered, placed {} bedrock blocks at ({}, 0, {}) size {}x{}x320",
             player.getName().getString(), placed, centerX, centerZ, sizeX, sizeZ);

@@ -1,0 +1,11 @@
+{
+  "type": "abnormalities:sign_type",
+  "generator": {
+    "type": "abnormalities:sign_generator",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:plains"
+    },
+    "settings": "minecraft:overworld"
+  }
+}

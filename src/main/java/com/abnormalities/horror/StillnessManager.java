@@ -59,7 +59,6 @@ public class StillnessManager {
     }
 
     private static void triggerStillness(ServerPlayer sp, ServerLevel level) {
-        SisterController.onHoldWarning(sp);
         ACTIVE.put(sp.getUUID(), new HoldState());
         ACTIVE.get(sp.getUUID()).ticksLeft = 80;
         List<Integer> frozenIds = new ArrayList<>();
@@ -77,7 +76,7 @@ public class StillnessManager {
         int roll = level.random.nextInt(4);
         if (roll == 0) {
             sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.WHISPER_SOUND.get()),
+                net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get()),
                 net.minecraft.sounds.SoundSource.MASTER, sp.getX(), sp.getY(), sp.getZ(), 3.0f, 0.5f, 0));
         } else if (roll == 1) {
             double angle = level.random.nextDouble() * Math.PI * 2;

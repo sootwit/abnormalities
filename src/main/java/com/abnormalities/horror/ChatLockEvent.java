@@ -85,14 +85,12 @@ public class ChatLockEvent extends AbstractHorrorEvent {
         LOCK_TICKS.put(player.getUUID(), ticks);
         LOGGER.info("[ChatLock] {} chat disabled for {}t", player.getName().getString(), ticks);
         sendForgeError(player);
-        SisterController.onChatLockWarning(player, true);
     }
 
     private static void setEnabled(ServerPlayer player) {
         LOCK_TICKS.put(player.getUUID(), 0);
         LOGGER.info("[ChatLock] {} chat enabled", player.getName().getString());
         sendForgeError(player);
-        SisterController.onChatLockWarning(player, false);
     }
 
     private static void sendForgeError(ServerPlayer player) {

@@ -3,8 +3,7 @@ package com.abnormalities.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
@@ -21,8 +20,7 @@ public class Vr9pOverlay {
     public static long lastPacketTime = 0;
 
     @SubscribeEvent
-    public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() != VanillaGuiOverlay.VIGNETTE.type()) return;
+    public static void onRenderOverlay(RenderGuiEvent.Post event) {
         if (currentState < 0) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.player == null) return;
