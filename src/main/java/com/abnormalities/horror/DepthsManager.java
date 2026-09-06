@@ -31,7 +31,7 @@ public class DepthsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Depths");
     private static final Random RNG = new Random();
     private static final Map<UUID, DepthsState> ACTIVE = new HashMap<>();
-    private static final Map<BlockPos, BlockState> SAVED_BLOCKS = new HashMap<>();
+    private static final Map<UUID, Map<BlockPos, BlockState>> SAVED_BLOCKS = new HashMap<>();
     private static final Map<UUID, Long> NEXT_CHECK = new HashMap<>();
 
     private static class DepthsState {
@@ -87,7 +87,7 @@ public class DepthsManager {
         state.preDepthsPos = player.blockPosition();
         ACTIVE.put(uuid, state);
         LOGGER.info("[Depths] {} depths started at ({}, {}, {})", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
-        removeConnectedWaterFloor(player);
+        removeConnectedWaterFloor(player, uuid);
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
             new com.abnormalities.network.DepthsPacket(true));
@@ -96,7 +96,7 @@ public class DepthsManager {
             player.getX(), player.getY(), player.getZ(), 0.5f, 0.3f, 0));
     }
 
-    private static void removeConnectedWaterFloor(ServerPlayer player) {
+    private static void removeConnectedWaterFloor(ServerPlayer player, UUID uuid) {
         ServerLevel level = (ServerLevel) player.level();
         BlockPos start = player.blockPosition();
         if (!level.getBlockState(start).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
@@ -112,7 +112,7 @@ public class DepthsManager {
                 BlockState state = level.getBlockState(below);
                 if (state.isAir()) break;
                 if (state.is(Blocks.BEDROCK) && !AbnormalitiesConfig.DEPTHS_BREAK_BEDROCK.get()) break;
-                SAVED_BLOCKS.put(below.immutable(), state);
+                SAVED_BLOCKS.computeIfAbsent(uuid, k -> new HashMap<>()).put(below.immutable(), state);
                 level.setBlock(below, Blocks.AIR.defaultBlockState(), 2);
                 below = below.below();
             }
@@ -175,7 +175,7 @@ public class DepthsManager {
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
             new com.abnormalities.network.DepthsPacket(false));
-        restoreAll();
+        restorePlayer(uuid);
         if (kick && player.connection != null) {
             player.connection.disconnect(net.minecraft.network.chat.Component.literal("[Forge Error]: depths"));
         }
@@ -200,23 +200,24 @@ public class DepthsManager {
                 sp.teleportTo(overworld, state.preDepthsPos.getX() + 0.5, Math.max(y + 1, state.preDepthsPos.getY()), state.preDepthsPos.getZ() + 0.5, sp.getYRot(), sp.getXRot());
             }
         }
-        restoreAll();
+        restorePlayer(sp.getUUID());
     }
 
-    private static void restoreAll() {
-        if (SAVED_BLOCKS.isEmpty()) return;
+    private static void restorePlayer(UUID uuid) {
+        Map<BlockPos, BlockState> saved = SAVED_BLOCKS.remove(uuid);
+        if (saved == null || saved.isEmpty()) return;
         var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
         Set<Long> forcedChunks = new HashSet<>();
-        for (BlockPos pos : SAVED_BLOCKS.keySet()) {
+        for (BlockPos pos : saved.keySet()) {
             forcedChunks.add(ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
         }
         for (long chunkLong : forcedChunks) {
             overworld.setChunkForced(ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong), true);
         }
-        Iterator<Map.Entry<BlockPos, BlockState>> it = SAVED_BLOCKS.entrySet().iterator();
+        Iterator<Map.Entry<BlockPos, BlockState>> it = saved.entrySet().iterator();
         while (it.hasNext()) {
             var entry = it.next();
             if (overworld.isLoaded(entry.getKey())) {

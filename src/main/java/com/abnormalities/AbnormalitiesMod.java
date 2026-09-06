@@ -59,7 +59,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(Vr9pStrictListener.class);
         MinecraftForge.EVENT_BUS.register(MisplaceManager.class);
         MinecraftForge.EVENT_BUS.register(MinerController.class);
-        MinecraftForge.EVENT_BUS.register(ParkourTracker.class);
         MinecraftForge.EVENT_BUS.register(SignManager.class);
         MinecraftForge.EVENT_BUS.register(StillnessManager.class);
         MinecraftForge.EVENT_BUS.register(CircleManager.class);
@@ -68,8 +67,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(FakeAchievementManager.class);
         MinecraftForge.EVENT_BUS.register(FakeChatManager.class);
 
-        MinecraftForge.EVENT_BUS.register(ChatArgManager.class);
-        MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
         MinecraftForge.EVENT_BUS.register(B3drockManager.class);
         MinecraftForge.EVENT_BUS.register(SlowedMusicManager.class);
         MinecraftForge.EVENT_BUS.register(AnimalNoiseManager.class);
@@ -87,6 +84,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DarkAreaSoundManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DepthsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DistantManager.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.NurSleepBlocker.class);
 
         modBus.addListener((net.minecraftforge.registries.RegisterEvent event) -> {
             event.register(net.minecraft.core.registries.Registries.CHUNK_GENERATOR, registry -> {

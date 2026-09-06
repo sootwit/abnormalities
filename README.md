@@ -1,4 +1,4 @@
-# abnormalities
+># abnormalities
 you will not enjoy your stay.
 
 ### THINGS YOU WANT TO KNOW BEFORE PLAYING
@@ -12,8 +12,10 @@ you will not enjoy your stay.
 *   This mod WILL make you paranoid
 
 ### WHAT THE MOD ADDS
-*   Entities that either stalk, watch, or reward you
-*   Events that happen randomly
+*   Entities that stalk, watch, mimic, or punish you (nur, him, k3w, xYz, distant, skinwalker)
+*   World corruption and terrain anomalies (hexnil pillars, farlands, furtherlands, bedrock cubes)
+*   Random atmospheric horror events, screen shakes, and sanity-testing encounters
+*   Full in-game GUI config screen with presets and advanced toggles
 
 Inspired by The Broken Script / wendigodrip.
 
@@ -28,7 +30,7 @@ Q: Why did my game crash?
 A: the mod. its a feature.
 
 Q: How do I configure it?
-A: abnormalities.toml in your config folder
+A: use the in-game GUI config or edit abnormalities.toml in your config folder
 
 Q: I found a bug.
 A: please report your bug to the issues page
@@ -45,7 +47,6 @@ A: lower spawn weights on config file and/or disable features.
 ## Credits
 
 -   wendigodrip and the broken script - for the idea and inspiration
--   me                                - for coding this entire mod
 -   you                               - for reading this far i guess
 
 ## License

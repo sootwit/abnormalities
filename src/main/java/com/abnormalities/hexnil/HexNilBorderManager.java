@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,7 +23,7 @@ import java.util.UUID;
 public class HexNilBorderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Border");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
-    private static final int FLAG = 34;
+    private static final int FLAG = 2;
     private static final int MAX_CHUNKS = 200;
 
     private static final Map<UUID, Set<Long>> forcedChunks = new HashMap<>();
@@ -97,25 +97,27 @@ public class HexNilBorderManager {
         }
         forcedChunks.put(uuid, forced);
 
-        int totalChunks = chunksToProcess.size();
-        LOGGER.info("[0x0000|Border] Clearing {} chunks INSTANTLY around {} at distances {}-{}",
-                totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
+        try {
+            int totalChunks = chunksToProcess.size();
+            LOGGER.info("[0x0000|Border] Clearing {} chunks INSTANTLY around {} at distances {}-{}",
+                    totalChunks, player.getName().getString(), Math.max(0, borderDist - 1), borderDist + 1);
 
-        int totalDestroyed = 0;
-        for (long key : chunksToProcess) {
-            int cx = (int) (key >> 32);
-            int cz = (int) key;
-            totalDestroyed += clearChunkColumn(level, cx, cz);
+            int totalDestroyed = 0;
+            for (long key : chunksToProcess) {
+                int cx = (int) (key >> 32);
+                int cz = (int) key;
+                totalDestroyed += clearChunkColumn(level, cx, cz);
+            }
+
+            LOGGER.info("[0x0000|Border] Cleared {} blocks around {}", totalDestroyed, player.getName().getString());
+        } finally {
+            for (long key : forced) {
+                int cx = (int) (key >> 32);
+                int cz = (int) key;
+                level.setChunkForced(cx, cz, false);
+            }
+            forcedChunks.remove(uuid);
         }
-
-        for (long key : forced) {
-            int cx = (int) (key >> 32);
-            int cz = (int) key;
-            level.setChunkForced(cx, cz, false);
-        }
-        forcedChunks.remove(uuid);
-
-        LOGGER.info("[0x0000|Border] Cleared {} blocks around {}", totalDestroyed, player.getName().getString());
 
         try {
             level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 8.0f, 0.3f);
@@ -162,15 +164,6 @@ public class HexNilBorderManager {
                     BlockState state = level.getBlockState(pos);
                     if (state.isAir()) continue;
                     if (state.getBlock() == Blocks.BEDROCK) continue;
-
-                    if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof BaseContainerBlockEntity container) {
-                        for (int i = 0; i < container.getContainerSize(); i++) {
-                            var stack = container.getItem(i);
-                            if (!stack.isEmpty()) {
-                                level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(level, wx + 0.5, y + 0.5, wz + 0.5, stack.copy()));
-                            }
-                        }
-                    }
 
                     level.setBlock(pos, Blocks.AIR.defaultBlockState(), FLAG);
                     destroyed++;

@@ -94,7 +94,7 @@ public class HorrorEventPool {
         for (int i = 0; i < eligible.size(); i++) {
             cumulative += weights[i];
             if (roll <= cumulative) {
-                LOGGER.debug("[EventPool] {} selected for {} (weight={:.2f}, rep={})", eligible.get(i).getName(), player.getName().getString(), weights[i], ReputationManager.getRep(player));
+                LOGGER.debug("[EventPool] {} selected for {} (weight={}, rep={})", eligible.get(i).getName(), player.getName().getString(), weights[i], ReputationManager.getRep(player));
                 return eligible.get(i);
             }
         }

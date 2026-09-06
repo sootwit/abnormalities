@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "ang3r", "b3d", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -170,8 +170,6 @@ public class AbnormalitiesCommands {
             case "f4k3" -> com.abnormalities.horror.FakeChatManager.forceChat(player);
             case "f4k3join" -> com.abnormalities.horror.FakeChatManager.forceJoinLeave();
 
-            case "ang3r" -> com.abnormalities.horror.ChatArgManager.forceAnger(player);
-            case "b3d" -> com.abnormalities.horror.BedMemoryManager.forceHunt(player);
             case "b3drock" -> com.abnormalities.horror.B3drockManager.forceB3drock(player);
             case "0x0000Pillar" -> com.abnormalities.hexnil.HexNilController.forcePillar(player);
             case "0x0000Chunk" -> com.abnormalities.hexnil.HexNilChunkManager.forceChunk(player);
@@ -202,6 +200,8 @@ public class AbnormalitiesCommands {
             case "darkAreaEvent" -> com.abnormalities.horror.DarkAreaSoundManager.forceDarkArea(player);
             case "distant" -> com.abnormalities.horror.DistantManager.forceSpawn(player);
             case "distantCircle" -> com.abnormalities.horror.DistantManager.forceCircle(player);
+            case "distantAir" -> com.abnormalities.horror.DistantManager.forceSpawnAir(player);
+            case "distantAirCircle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))

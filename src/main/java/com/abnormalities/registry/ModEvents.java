@@ -161,11 +161,11 @@ public class ModEvents {
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
         BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.debug("[Events] forceHimSpawn failed: no ground below"); return false; }
-        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.debug("[Events] forceHimSpawn failed: spawn pos blocked"); return false; }
+        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.warn("[Events] forceHimSpawn failed for {}: no ground below", player.getName().getString()); return false; }
+        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.warn("[Events] forceHimSpawn failed for {}: spawn pos blocked", player.getName().getString()); return false; }
 
         HimEntity him = ModEntities.HIM.get().create(overworld);
-        if (him == null) { LOGGER.debug("[Events] forceHimSpawn failed: entity create returned null"); return false; }
+        if (him == null) { LOGGER.warn("[Events] forceHimSpawn failed for {}: entity create returned null", player.getName().getString()); return false; }
         if (boss) him.markBoss();
         him.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(him);
@@ -373,6 +373,7 @@ public class ModEvents {
         }
         }
 
+        if (time >= 13000L && time <= 23000L) {
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
                 if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
@@ -394,6 +395,7 @@ public class ModEvents {
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
+        }
         }
         tickSkinwalkerChunks(overworld);
         tickXyzChunks(overworld);

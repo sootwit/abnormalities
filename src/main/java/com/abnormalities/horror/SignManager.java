@@ -40,7 +40,8 @@ public class SignManager {
             "you left something behind.",
             "i was here first.",
             "you dug too deep.",
-            "the dark remembers."
+            "the dark remembers.",
+            "{javaGetPCName}, nice name."
     );
 
     @SubscribeEvent
@@ -67,11 +68,12 @@ public class SignManager {
         }
     }
 
-    private static boolean placeSign(ServerPlayer player, ServerLevel level) {
-        BlockPos pos = findWallSpot(level, player.blockPosition(), AbnormalitiesConfig.S1GN_SEARCH_RADIUS.get());
+private static boolean placeSign(ServerPlayer player, ServerLevel level) {
+        BlockPos pos = findFloorSpot(level, player.blockPosition(), AbnormalitiesConfig.S1GN_SEARCH_RADIUS.get());
         if (pos == null) return false;
         LOGGER.info("[Sign] {} placed sign at ({},{},{})", player.getName().getString(), pos.getX(), pos.getY(), pos.getZ());
-        level.setBlock(pos, Blocks.OAK_WALL_SIGN.defaultBlockState().setValue(net.minecraft.world.level.block.WallSignBlock.FACING, lastDir.getOpposite()), 3);
+        int rotation = (int) (lastDir.toYRot() / 22.5f) % 16;
+        level.setBlock(pos, Blocks.OAK_SIGN.defaultBlockState().setValue(net.minecraft.world.level.block.StandingSignBlock.ROTATION, rotation), 3);
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof SignBlockEntity sign)) return false;
         String msg = MESSAGES.get(level.random.nextInt(MESSAGES.size()));
@@ -79,19 +81,24 @@ public class SignManager {
         int deaths = player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.DEATHS));
         int days = (int) (level.getDayTime() / 24000L);
         int steps = player.getStats().getValue(net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.WALK_ONE_CM)) / 100;
+        String lastMined = player.getPersistentData().contains("abnormalities:last_mined") ? player.getPersistentData().getString("abnormalities:last_mined") : "stone";
         msg = msg.replace("{deaths}", String.valueOf(deaths))
                  .replace("{days}", String.valueOf(days))
                  .replace("{steps}", String.valueOf(steps))
-                 .replace("{block}", "stone");
-        SignText text = new SignText()
-                .setMessage(0, Component.literal(msg).withStyle(ChatFormatting.DARK_RED))
-                .setColor(net.minecraft.world.item.DyeColor.BLACK);
+                 .replace("{block}", lastMined)
+                 .replace("{javaGetPCName}", System.getProperty("user.name"));
+        String[] lines = wrapSignText(msg, 15, 4);
+        SignText text = new SignText();
+        for (int i = 0; i < Math.min(lines.length, 4); i++) {
+            text = text.setMessage(i, Component.literal(lines[i]).withStyle(ChatFormatting.DARK_RED));
+        }
+        text = text.setColor(net.minecraft.world.item.DyeColor.BLACK);
         sign.setText(text, true);
         level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), 3);
         return true;
     }
 
-    private static BlockPos findWallSpot(ServerLevel level, BlockPos center, int radius) {
+    private static BlockPos findFloorSpot(ServerLevel level, BlockPos center, int radius) {
         List<BlockPos> spots = new ArrayList<>();
         List<Direction> dirs = new ArrayList<>();
         BlockPos.betweenClosedStream(center.offset(-radius, -radius, -radius), center.offset(radius, radius, radius))
@@ -99,14 +106,8 @@ public class SignManager {
                     if (!level.getBlockState(p).isAir()) return;
                     BlockState below = level.getBlockState(p.below());
                     if (!below.isAir() && below.canOcclude()) {
-                        for (Direction dir : Direction.Plane.HORIZONTAL) {
-                            BlockState neighbor = level.getBlockState(p.relative(dir));
-                            if (neighbor.canOcclude()) {
-                                spots.add(p.immutable());
-                                dirs.add(dir);
-                                return;
-                            }
-                        }
+                        spots.add(p.immutable());
+                        dirs.add(Direction.Plane.HORIZONTAL.getRandomDirection(level.random));
                     }
                 });
         if (spots.isEmpty()) return null;
@@ -123,5 +124,22 @@ public class SignManager {
 
     public static void forceSign(ServerPlayer player) {
         placeSign(player, (ServerLevel) player.level());
+    }
+
+    private static String[] wrapSignText(String text, int maxLen, int maxLines) {
+        if (text.length() <= maxLen) return new String[]{text};
+        List<String> result = new ArrayList<>();
+        String remaining = text;
+        while (!remaining.isEmpty() && result.size() < maxLines) {
+            if (remaining.length() <= maxLen) {
+                result.add(remaining);
+                break;
+            }
+            int breakAt = remaining.lastIndexOf(' ', maxLen);
+            if (breakAt <= 0) breakAt = maxLen;
+            result.add(remaining.substring(0, breakAt));
+            remaining = remaining.substring(breakAt).stripLeading();
+        }
+        return result.toArray(new String[0]);
     }
 }

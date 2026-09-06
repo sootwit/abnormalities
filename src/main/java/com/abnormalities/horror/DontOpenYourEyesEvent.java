@@ -34,7 +34,7 @@ public class DontOpenYourEyesEvent extends AbstractHorrorEvent {
         PRESENCE.put(player.getUUID(), pos);
         TICKS.put(player.getUUID(), 0);
         LOOK_DURATION.put(player.getUUID(), 0f);
-        LOGGER.info("[DontOpenYourEyes] {} triggered, presence at ({:.1f}, {:.1f}, {:.1f})", player.getName().getString(), pos.x, pos.y, pos.z);
+        LOGGER.info("[DontOpenYourEyes] {} triggered, presence at ({}, {}, {})", player.getName().getString(), pos.x, pos.y, pos.z);
         WhisperManager.sendWhisper(player, "don't open your eyes...");
     }
 
@@ -54,7 +54,7 @@ public class DontOpenYourEyesEvent extends AbstractHorrorEvent {
             float lookTime = LOOK_DURATION.getOrDefault(player.getUUID(), 0f);
             lookTime = Math.min(lookTime + 0.05f, 1.0f);
             LOOK_DURATION.put(player.getUUID(), lookTime);
-            LOGGER.debug("[DontOpenYourEyes] {} looking at presence, dot={:.3f}, lookTime={:.2f}", player.getName().getString(), dot, lookTime);
+            LOGGER.debug("[DontOpenYourEyes] {} looking at presence, dot={}, lookTime={}", player.getName().getString(), dot, lookTime);
 
             int amp = Math.min(2 + (int)(lookTime * 3), 5);
             int dur = Math.min(40 + (int)(lookTime * 60), 100);

@@ -25,7 +25,6 @@ public class DistantManager {
     private static final Map<UUID, Long> DESPAWN_COOLDOWN = new HashMap<>();
     private static final Map<UUID, Integer> FLASHBACK_STAGE = new HashMap<>();
     private static final Map<UUID, Integer> FLASHBACK_TICKS = new HashMap<>();
-    private static final Map<UUID, Integer> FLASHBACK_GRACE = new HashMap<>();
     private static final Map<UUID, UUID> FLASHBACK_ENTITY = new HashMap<>();
 
     @SubscribeEvent
@@ -35,7 +34,6 @@ public class DistantManager {
             DESPAWN_COOLDOWN.clear();
             FLASHBACK_STAGE.clear();
             FLASHBACK_TICKS.clear();
-            FLASHBACK_GRACE.clear();
             FLASHBACK_ENTITY.clear();
             return;
         }
@@ -87,7 +85,6 @@ public class DistantManager {
                 cancelFlashback(player);
                 continue;
             }
-            FLASHBACK_GRACE.remove(uuid);
 
             int ticks = FLASHBACK_TICKS.getOrDefault(uuid, 0) + 1;
             FLASHBACK_TICKS.put(uuid, ticks);
@@ -130,7 +127,6 @@ public class DistantManager {
             } else if (stage == 6 && ticks >= 20) {
                 FLASHBACK_STAGE.remove(uuid);
                 FLASHBACK_TICKS.remove(uuid);
-                FLASHBACK_GRACE.remove(uuid);
                 FLASHBACK_ENTITY.remove(uuid);
                 if (entity != null) entity.discard();
                 LOGGER.info("[DistantManager] {} flashback complete (6.0s)", player.getName().getString());
@@ -147,7 +143,6 @@ public class DistantManager {
         UUID uuid = player.getUUID();
         FLASHBACK_STAGE.remove(uuid);
         FLASHBACK_TICKS.remove(uuid);
-        FLASHBACK_GRACE.remove(uuid);
         UUID entityUuid = FLASHBACK_ENTITY.remove(uuid);
         if (entityUuid != null) {
             var level = player.serverLevel();
@@ -161,57 +156,6 @@ public class DistantManager {
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
             new com.abnormalities.network.DistantFlashbackPacket(0));
-    }
-
-    private static void spawnDistant(ServerLevel level, ServerPlayer player) {
-        double angle = RNG.nextDouble() * Math.PI * 2;
-        double dist = 20.0D + RNG.nextDouble() * 30.0D;
-        double sx = player.getX() + Math.cos(angle) * dist;
-        double sz = player.getZ() + Math.sin(angle) * dist;
-        int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-        if (level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
-            LOGGER.debug("[DistantManager] heightmap hit water at ({}, {}, {}), scanning up", (int) sx, sy, (int) sz);
-            while (sy < level.getMaxBuildHeight() - 2
-                    && (level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)
-                        || !level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).isAir())) {
-                sy++;
-            }
-        }
-        if (RNG.nextBoolean()) {
-            int candidateY = (int) player.getY() + RNG.nextInt(20) - 10;
-            candidateY = Math.max(level.getMinBuildHeight() + 2, Math.min(level.getMaxBuildHeight() - 2, candidateY));
-            if (!level.getBlockState(new BlockPos((int) sx, candidateY, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)
-                    && level.getBlockState(new BlockPos((int) sx, candidateY, (int) sz)).isAir()
-                    && level.getBlockState(new BlockPos((int) sx, candidateY + 1, (int) sz)).isAir()) {
-                boolean waterBelow = false;
-                for (int dy = 1; dy <= 8; dy++) {
-                    if (level.getBlockState(new BlockPos((int) sx, candidateY - dy, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
-                        waterBelow = true;
-                        break;
-                    }
-                }
-                if (!waterBelow) {
-                    sy = candidateY;
-                }
-            }
-        }
-        sy = Math.max(level.getMinBuildHeight() + 2, Math.min(level.getMaxBuildHeight() - 2, sy));
-        BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
-        if (!level.getBlockState(spawnPos).isAir() || !level.getBlockState(spawnPos.above()).isAir()) {
-            LOGGER.debug("[DistantManager] spawn pos invalid at ({}, {}, {}), aborting", spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
-            return;
-        }
-        for (int dy = 1; dy <= 8; dy++) {
-            if (level.getBlockState(spawnPos.below(dy)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
-                LOGGER.debug("[DistantManager] spawn pos over water at ({}, {}, {}), aborting", spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
-                return;
-            }
-        }
-        DistantEntity distant = ModEntities.DISTANT.get().create(level);
-        if (distant == null) return;
-        distant.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
-        distant.setTargetPlayer(player);
-        level.addFreshEntity(distant);
     }
 
     private static void summonNur(ServerPlayer player) {
@@ -235,7 +179,6 @@ public class DistantManager {
         }
         FLASHBACK_STAGE.put(uuid, 1);
         FLASHBACK_TICKS.put(uuid, 0);
-        FLASHBACK_GRACE.remove(uuid);
         FLASHBACK_ENTITY.put(uuid, entity.getUUID());
         LOGGER.info("[DistantManager] {} flashback started", player.getName().getString());
         return true;
@@ -265,13 +208,85 @@ public class DistantManager {
         }
         FLASHBACK_STAGE.remove(uuid);
         FLASHBACK_TICKS.remove(uuid);
-        FLASHBACK_GRACE.remove(uuid);
         DESPAWN_COOLDOWN.remove(uuid);
+    }
+
+    private static void spawnDistant(ServerLevel level, ServerPlayer player) {
+        boolean airborne = RNG.nextBoolean();
+        if (airborne) {
+            spawnDistantAir(level, player);
+        } else {
+            spawnDistantGround(level, player);
+        }
+    }
+
+    private static void spawnDistantGround(ServerLevel level, ServerPlayer player) {
+        double angle = RNG.nextDouble() * Math.PI * 2;
+        double dist = 20.0D + RNG.nextDouble() * 30.0D;
+        double sx = player.getX() + Math.cos(angle) * dist;
+        double sz = player.getZ() + Math.sin(angle) * dist;
+        int sy = level.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        if (level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+            LOGGER.debug("[DistantManager] heightmap hit water at ({}, {}, {}), scanning up", (int) sx, sy, (int) sz);
+            while (sy < level.getMaxBuildHeight() - 2
+                    && (level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)
+                        || !level.getBlockState(new BlockPos((int) sx, sy, (int) sz)).isAir())) {
+                sy++;
+            }
+        }
+        sy = Math.max(level.getMinBuildHeight() + 2, Math.min(level.getMaxBuildHeight() - 2, sy));
+        BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+        if (!level.getBlockState(spawnPos).isAir() || !level.getBlockState(spawnPos.above()).isAir()) {
+            LOGGER.warn("[DistantManager] failed to spawn ground distant for {}: no valid position at ({}, {}, {})", player.getName().getString(), spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
+            return;
+        }
+        for (int dy = 1; dy <= 8; dy++) {
+            if (level.getBlockState(spawnPos.below(dy)).getFluidState().is(net.minecraft.tags.FluidTags.WATER)) {
+                LOGGER.warn("[DistantManager] failed to spawn ground distant for {}: over water at ({}, {}, {})", player.getName().getString(), spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
+                return;
+            }
+        }
+        DistantEntity distant = ModEntities.DISTANT.get().create(level);
+        if (distant == null) {
+            LOGGER.warn("[DistantManager] failed to spawn ground distant for {}: entity create returned null", player.getName().getString());
+            return;
+        }
+        distant.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
+        distant.setTargetPlayer(player);
+        level.addFreshEntity(distant);
+    }
+
+    private static void spawnDistantAir(ServerLevel level, ServerPlayer player) {
+        double angle = RNG.nextDouble() * Math.PI * 2;
+        double dist = 20.0D + RNG.nextDouble() * 30.0D;
+        double sx = player.getX() + Math.cos(angle) * dist;
+        double sz = player.getZ() + Math.sin(angle) * dist;
+        int sy = (int) player.getY() + 15 + RNG.nextInt(20);
+        sy = Math.max(level.getMinBuildHeight() + 2, Math.min(level.getMaxBuildHeight() - 2, sy));
+        BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+        if (!level.getBlockState(spawnPos).isAir() || !level.getBlockState(spawnPos.above()).isAir()) {
+            LOGGER.warn("[DistantManager] failed to spawn airborne distant for {}: blocked at ({}, {}, {})", player.getName().getString(), spawnPos.getX(), spawnPos.getY(), spawnPos.getZ());
+            return;
+        }
+        DistantEntity distant = ModEntities.DISTANT.get().create(level);
+        if (distant == null) {
+            LOGGER.warn("[DistantManager] failed to spawn airborne distant for {}: entity create returned null", player.getName().getString());
+            return;
+        }
+        distant.setAirborne(true);
+        distant.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
+        distant.setTargetPlayer(player);
+        level.addFreshEntity(distant);
     }
 
     public static void forceSpawn(ServerPlayer player) {
         ServerLevel level = (ServerLevel) player.level();
-        spawnDistant(level, player);
+        spawnDistantGround(level, player);
+    }
+
+    public static void forceSpawnAir(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        spawnDistantAir(level, player);
     }
 
     public static void forceCircle(ServerPlayer player) {
@@ -297,6 +312,28 @@ public class DistantManager {
             if (waterFound) continue;
             DistantEntity distant = ModEntities.DISTANT.get().create(level);
             if (distant == null) continue;
+            distant.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
+            distant.setTargetPlayer(player);
+            level.addFreshEntity(distant);
+        }
+    }
+
+    public static void forceAirCircle(ServerPlayer player) {
+        ServerLevel level = (ServerLevel) player.level();
+        int radius = 20 + RNG.nextInt(11);
+        int count = 12 + RNG.nextInt(7);
+        int baseY = (int) player.getY() + 15 + RNG.nextInt(20);
+        LOGGER.info("[DistantManager] {} air circle radius={} count={} y={}", player.getName().getString(), radius, count, baseY);
+        for (int i = 0; i < count; i++) {
+            double angle = (Math.PI * 2 * i) / count;
+            double sx = player.getX() + Math.cos(angle) * radius;
+            double sz = player.getZ() + Math.sin(angle) * radius;
+            int sy = Math.max(level.getMinBuildHeight() + 2, Math.min(level.getMaxBuildHeight() - 2, baseY));
+            BlockPos spawnPos = new BlockPos((int) sx, sy, (int) sz);
+            if (!level.getBlockState(spawnPos).isAir() || !level.getBlockState(spawnPos.above()).isAir()) continue;
+            DistantEntity distant = ModEntities.DISTANT.get().create(level);
+            if (distant == null) continue;
+            distant.setAirborne(true);
             distant.moveTo(spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, level.random.nextFloat() * 360, 0);
             distant.setTargetPlayer(player);
             level.addFreshEntity(distant);

@@ -19,7 +19,7 @@ public final class HimDialogue {
         "I WAS A HUNTER BEFORE",
         "YOU MOVE LIKE PREY",
         "THE FLOORBOARDS HEAR",
-        "I USED TO HAVE A SOUK",
+        "I USED TO HAVE A SOUL",
         "I NEVER END",
         "WE WANT YOUR FACE",
         "WE ARE ALL THE SAME DOWN HERE",

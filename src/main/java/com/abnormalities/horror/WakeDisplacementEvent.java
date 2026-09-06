@@ -71,7 +71,7 @@ public class WakeDisplacementEvent {
         if (targetY < level.getMinBuildHeight() + 1) return;
         BlockPos tp = new BlockPos(targetX, targetY + 1, targetZ);
         double distSqr = bedPos.distSqr(tp);
-        LOGGER.info("[WakeDisplacement] {} displaced {:.1f} blocks from bed", sp.getName().getString(), Math.sqrt(distSqr));
+        LOGGER.info("[WakeDisplacement] {} displaced {} blocks from bed", sp.getName().getString(), Math.sqrt(distSqr));
         sp.teleportTo(level, tp.getX() + 0.5, tp.getY(), tp.getZ() + 0.5, sp.getYRot(), sp.getXRot());
     }
 }

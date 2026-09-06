@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.abnormalities.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "abnormalities_refmap.json",
+  "mixins": [],
+  "client": [
+    "GameRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

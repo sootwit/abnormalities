@@ -21,6 +21,7 @@ import java.util.UUID;
 public class DistantEntity extends Mob {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Distant");
     private static final EntityDataAccessor<Boolean> DATA_FLASHBACK = SynchedEntityData.defineId(DistantEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_AIRBORNE = SynchedEntityData.defineId(DistantEntity.class, EntityDataSerializers.BOOLEAN);
     private static final int STARE_TICKS = 15;
     private static final int GRACE_MAX = 10;
 
@@ -42,6 +43,15 @@ public class DistantEntity extends Mob {
         this.setNoGravity(false);
     }
 
+    public void setAirborne(boolean airborne) {
+        this.entityData.set(DATA_AIRBORNE, airborne);
+        this.setNoGravity(airborne);
+    }
+
+    public boolean isAirborne() {
+        return this.entityData.get(DATA_AIRBORNE);
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 9999.0D)
@@ -54,6 +64,7 @@ public class DistantEntity extends Mob {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_FLASHBACK, false);
+        this.entityData.define(DATA_AIRBORNE, false);
     }
 
     @Override
@@ -61,7 +72,7 @@ public class DistantEntity extends Mob {
 
     public void setTargetPlayer(Player player) {
         this.targetPlayer = player.getUUID();
-        LOGGER.info("[Distant] spawned for {} at ({}, {}, {}) range={}", player.getName().getString(), (int)this.getX(), (int)this.getY(), (int)this.getZ(), this.despawnRange);
+        LOGGER.info("[Distant] {} spawned for {} at ({}, {}, {}) range={}", this.isAirborne() ? "airborne" : "ground", player.getName().getString(), (int)this.getX(), (int)this.getY(), (int)this.getZ(), this.despawnRange);
     }
 
     public boolean isFlashback() {
@@ -88,6 +99,11 @@ public class DistantEntity extends Mob {
             LOGGER.info("[Distant] discarded, config disabled");
             this.discard();
             return;
+        }
+
+        if (this.isAirborne() && !this.isInWater()) {
+            double bob = Math.sin(this.tickCount * 0.1D) * 0.05D;
+            this.setDeltaMovement(0.0D, bob, 0.0D);
         }
 
         ServerPlayer player = this.targetPlayer != null
@@ -127,14 +143,14 @@ public class DistantEntity extends Mob {
             return;
         }
 
-        if (!this.flashbackTriggered && dist <= this.despawnRange) {
+        if (!this.flashbackTriggered && !this.isAirborne() && dist <= this.despawnRange) {
             LOGGER.info("[Distant] discarded, player within {} blocks", this.despawnRange);
             com.abnormalities.horror.DistantManager.onProximityDespawn(player);
             this.discard();
             return;
         }
 
-        boolean looking = dist <= 64.0D && isPlayerLookingAt(player);
+        boolean looking = dist <= 128.0D && isPlayerLookingAt(player);
 
         if (looking) {
             this.lookTicks++;
@@ -177,12 +193,12 @@ public class DistantEntity extends Mob {
         Vec3 lookVec = player.getViewVector(1.0F);
         AABB box = this.getBoundingBox().inflate(0.3D);
         Vec3 entityCenter = box.getCenter();
-        if (eyePos.distanceTo(entityCenter) > 64.0D) return false;
+        if (eyePos.distanceTo(entityCenter) > 128.0D) return false;
         double entityDist = rayToAABB(eyePos, lookVec, box);
-        if (entityDist >= 0 && entityDist < 64.0D) {
+        if (entityDist >= 0 && entityDist < 128.0D) {
             return isLineOfSightClear(player, eyePos, eyePos.add(lookVec.scale(entityDist)));
         }
-        if (entityDist >= 64.0D) return false;
+        if (entityDist >= 128.0D) return false;
         double threshold = 1.5D;
         if (!isLineOfSightClear(player, eyePos, entityCenter)) return false;
         Vec3[] corners = {
@@ -255,6 +271,7 @@ public class DistantEntity extends Mob {
         if (this.targetPlayer != null) tag.putUUID("Target", this.targetPlayer);
         tag.putInt("Range", this.despawnRange);
         tag.putBoolean("Triggered", this.flashbackTriggered);
+        tag.putBoolean("Airborne", this.isAirborne());
     }
 
     @Override
@@ -264,5 +281,6 @@ public class DistantEntity extends Mob {
         int savedRange = tag.getInt("Range");
         this.despawnRange = savedRange > 0 ? savedRange : 14 + this.random.nextInt(5);
         this.flashbackTriggered = tag.getBoolean("Triggered");
+        if (tag.getBoolean("Airborne")) this.setAirborne(true);
     }
 }

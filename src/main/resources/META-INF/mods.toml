@@ -8,8 +8,8 @@ displayName="${mod_name}"
 logoFile="abnormalities_icon.png"
 description='''${mod_description}'''
 authors="${mod_authors}"
-[[coremods]]
-    piTransformer = "coremods/pi_transformer.js"
+[[mixins]]
+    config="abnormalities.mixins.json"
 [[dependencies.${mod_id}]]
     modId="forge"
     mandatory=true

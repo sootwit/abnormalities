@@ -16,7 +16,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -27,8 +26,6 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +35,6 @@ public class NurEntity extends Mob {
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_DUMMY = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static long lastGlobalKillTick = -100;
-    private static final Set<UUID> CORRUPTING_NURS = new HashSet<>();
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
     public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING, SMART }
@@ -127,8 +123,6 @@ public class NurEntity extends Mob {
                 LOGGER.debug("[Nur] no target found, discarding if old enough");
                 this.entityData.set(DATA_CHASING, false);
                 if (isChasing() || currentState == State.CHASING) {
-                    CORRUPTING_NURS.remove(this.getUUID());
-                    if (CORRUPTING_NURS.isEmpty()) com.abnormalities.pi.PiHooks.setAll(Math.PI);
                     if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
                     chasedPlayerId = null;
                 }
@@ -603,7 +597,6 @@ public class NurEntity extends Mob {
 
     public void startChasing(Player player) {
         if (currentState == State.CHASING) return;
-        boolean corruptPi = (currentState != State.SMART);
         LOGGER.info("[Nur] state transition {}->CHASING, target={}", currentState, player.getName().getString());
         currentState = State.CHASING;
         currentTarget = player;
@@ -616,10 +609,6 @@ public class NurEntity extends Mob {
             level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
             this.chasedPlayerId = player.getUUID();
             NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
-            if (corruptPi) {
-                CORRUPTING_NURS.add(this.getUUID());
-                com.abnormalities.pi.PiHooks.setAll(-1.0);
-            }
         }
     }
 
@@ -633,9 +622,8 @@ public class NurEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
+        if (this.getRemovalReason() != null) return;
         LOGGER.info("[Nur] removed, reason={} state={} chasing={}", reason, currentState, isChasing());
-        CORRUPTING_NURS.remove(this.getUUID());
-        if (CORRUPTING_NURS.isEmpty()) com.abnormalities.pi.PiHooks.setAll(Math.PI);
         if (level() != null && !level().isClientSide && (isChasing() || currentState == State.CHASING) && chasedPlayerId != null)
             NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
         super.remove(reason);
@@ -663,7 +651,9 @@ public class NurEntity extends Mob {
                 this.soundTick = 0;
                 this.hasPlayedSecondSound = false;
                 this.soundLoopTick = 80;
-                if (!level().isClientSide) NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+                if (!level().isClientSide) {
+                    NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
+                }
             }
         }
     }

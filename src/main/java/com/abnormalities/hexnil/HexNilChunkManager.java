@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
+
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class HexNilChunkManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Chunk");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
-    private static final int FLAG = 34;
+    private static final int FLAG = 2;
 
     public static void forceChunk(ServerPlayer player) {
         playerCooldowns.put(player.getUUID(), player.level().getGameTime());
@@ -97,40 +97,33 @@ public class HexNilChunkManager {
             }
         }
 
-        int destroyed = 0;
-        for (int x = x1; x < x2; x++) {
-            for (int z = z1; z < z2; z++) {
-                for (int y = startY; y < endY; y++) {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    if (!level.isLoaded(pos)) continue;
-                    BlockState state = level.getBlockState(pos);
-                    if (state.isAir()) continue;
-                    if (state.getBlock() == Blocks.BEDROCK) continue;
+        try {
+            int destroyed = 0;
+            for (int x = x1; x < x2; x++) {
+                for (int z = z1; z < z2; z++) {
+                    for (int y = startY; y < endY; y++) {
+                        BlockPos pos = new BlockPos(x, y, z);
+                        if (!level.isLoaded(pos)) continue;
+                        BlockState state = level.getBlockState(pos);
+                        if (state.isAir()) continue;
+                        if (state.getBlock() == Blocks.BEDROCK) continue;
 
-                    if (state.hasBlockEntity() && level.getBlockEntity(pos) instanceof BaseContainerBlockEntity container) {
-                        for (int i = 0; i < container.getContainerSize(); i++) {
-                            var stack = container.getItem(i);
-                            if (!stack.isEmpty()) {
-                                level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(level, x + 0.5, y + 0.5, z + 0.5, stack.copy()));
-                            }
-                        }
+                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), FLAG);
+                        destroyed++;
                     }
+                }
+            }
 
-                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), FLAG);
-                    destroyed++;
+            String axis = alignX ? "X" : "Z";
+            LOGGER.info("[0x0000] Chunk removed: {}x{}x{} ({}) at ({},{})-({},{},{}) - {} blocks",
+                    width, height, depth, axis, x1, startY, x2, z1, z2, destroyed);
+        } finally {
+            for (int cx = minCX - 1; cx <= maxCX + 1; cx++) {
+                for (int cz = minCZ - 1; cz <= maxCZ + 1; cz++) {
+                    level.setChunkForced(cx, cz, false);
                 }
             }
         }
-
-        for (int cx = minCX - 1; cx <= maxCX + 1; cx++) {
-            for (int cz = minCZ - 1; cz <= maxCZ + 1; cz++) {
-                level.setChunkForced(cx, cz, false);
-            }
-        }
-
-        String axis = alignX ? "X" : "Z";
-        LOGGER.info("[0x0000] Chunk removed: {}x{}x{} ({}) at ({},{})-({},{},{}) - {} blocks",
-                width, height, depth, axis, x1, startY, x2, z1, z2, destroyed);
 
         level.playSound(null, player.blockPosition(), ModSounds.NUR_SOUND.get(), SoundSource.AMBIENT, 5.0f, 0.4f);
         level.playSound(null, player.blockPosition(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE, SoundSource.AMBIENT, 3.0f, 0.3f);
