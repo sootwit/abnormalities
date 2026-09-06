@@ -79,6 +79,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilPillarManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilFarlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilFurtherlandsManager.class);
+        MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilChunkManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilBorderManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.sign.SignDimension.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DarkAreaSoundManager.class);
