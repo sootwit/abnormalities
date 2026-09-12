@@ -31,7 +31,9 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
             boolean slim = mc.player.getModelName().equals("slim");
             MODEL_CACHE.put(targetUUID, slim);
             this.model = slim ? slimModel : wideModel;
-            return mc.player.getSkinTextureLocation();
+            ResourceLocation skin = mc.player.getSkinTextureLocation();
+            entity.setSkinLocation(skin.toString());
+            return skin;
         }
         var conn = mc.getConnection();
         if (conn != null) {
@@ -42,8 +44,18 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
                 boolean slim = info.getModelName().equals("slim");
                 MODEL_CACHE.put(targetUUID, slim);
                 this.model = slim ? slimModel : wideModel;
+                entity.setSkinLocation(skin.toString());
                 return skin;
             }
+        }
+        String stored = entity.getSkinLocation();
+        if (stored != null && !stored.isEmpty()) {
+            try {
+                ResourceLocation skin = new ResourceLocation(stored);
+                boolean slim = MODEL_CACHE.getOrDefault(targetUUID, false);
+                this.model = slim ? slimModel : wideModel;
+                return skin;
+            } catch (Exception ignored) {}
         }
         boolean slim = MODEL_CACHE.getOrDefault(targetUUID, false);
         this.model = slim ? slimModel : wideModel;

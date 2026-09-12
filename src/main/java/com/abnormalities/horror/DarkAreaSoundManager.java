@@ -23,6 +23,8 @@ public class DarkAreaSoundManager {
     private static final Random RNG = new Random();
     private static final Map<UUID, Long> NEXT_THUMP = new HashMap<>();
     private static final Map<UUID, Long> NEXT_DOOR = new HashMap<>();
+    private static final Map<UUID, Long> NEXT_SLOWED = new HashMap<>();
+    private static final Map<UUID, Long> NEXT_ANIMAL = new HashMap<>();
     private static final Map<UUID, Boolean> WAS_DARK = new HashMap<>();
 
     @SubscribeEvent
@@ -82,6 +84,22 @@ public class DarkAreaSoundManager {
                 LOGGER.debug("[DarkArea] {} zombie door sound at ({}, {}, {})", player.getName().getString(), (int)(player.getX() + ox), (int)player.getY(), (int)(player.getZ() + oz));
                 NEXT_DOOR.put(player.getUUID(), now + 4000 + RNG.nextInt(4000));
             }
+
+            Long ns = NEXT_SLOWED.get(player.getUUID());
+            if (ns == null) {
+                NEXT_SLOWED.put(player.getUUID(), now + 1200 + RNG.nextInt(1200));
+            } else if (now >= ns) {
+                com.abnormalities.horror.SlowedMusicManager.forcePlay();
+                NEXT_SLOWED.put(player.getUUID(), now + 1200 + RNG.nextInt(1200));
+            }
+
+            Long na = NEXT_ANIMAL.get(player.getUUID());
+            if (na == null) {
+                NEXT_ANIMAL.put(player.getUUID(), now + 500 + RNG.nextInt(600));
+            } else if (now >= na) {
+                com.abnormalities.horror.AnimalNoiseManager.forcePlay(player);
+                NEXT_ANIMAL.put(player.getUUID(), now + 500 + RNG.nextInt(600));
+            }
         }
     }
 
@@ -91,6 +109,8 @@ public class DarkAreaSoundManager {
         UUID uuid = event.getEntity().getUUID();
         NEXT_THUMP.remove(uuid);
         NEXT_DOOR.remove(uuid);
+        NEXT_SLOWED.remove(uuid);
+        NEXT_ANIMAL.remove(uuid);
         WAS_DARK.remove(uuid);
     }
 

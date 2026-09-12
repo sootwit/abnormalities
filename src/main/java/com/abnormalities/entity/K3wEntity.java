@@ -4,12 +4,17 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,8 +38,10 @@ import org.slf4j.LoggerFactory;
 public class K3wEntity extends Mob {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|K3w");
     private static final int CHAT_DELAY = 600;
+    private static final TicketType<K3wEntity> K3W_TICKET = TicketType.create("abnormalities_k3w", Comparator.comparingInt(System::identityHashCode), 0);
     private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.STRING);
 
     private final List<K3wAction> pendingActions = new ArrayList<>();
     private final Set<BlockPos> undonePositions = new HashSet<>();
@@ -56,6 +63,8 @@ public class K3wEntity extends Mob {
     private boolean possessionActive = false;
     private int mimicSprintTicks = 0;
     private int mimicJumpTicks = 0;
+    private BlockPos forcedChunk = null;
+    private boolean needsChunkForce = false;
 
     public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
         super(type, level);
@@ -78,6 +87,7 @@ public class K3wEntity extends Mob {
         super.defineSynchedData();
         this.entityData.define(DATA_TARGET_UUID, Optional.empty());
         this.entityData.define(DATA_CRASHING, false);
+        this.entityData.define(DATA_SKIN, "");
     }
 
     @Override
@@ -118,6 +128,14 @@ public class K3wEntity extends Mob {
 
     public boolean isCrashing() {
         return this.entityData.get(DATA_CRASHING);
+    }
+
+    public String getSkinLocation() {
+        return this.entityData.get(DATA_SKIN);
+    }
+
+    public void setSkinLocation(String skin) {
+        this.entityData.set(DATA_SKIN, skin != null ? skin : "");
     }
 
     public Player getTargetPlayer() {
@@ -207,6 +225,21 @@ public class K3wEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+
+        if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+            BlockPos targetChunk = targetPlayer.blockPosition();
+            boolean chunkChanged = forcedChunk == null || (forcedChunk.getX() >> 4) != (targetChunk.getX() >> 4) || (forcedChunk.getZ() >> 4) != (targetChunk.getZ() >> 4);
+            if (chunkChanged || needsChunkForce) {
+                if (forcedChunk != null && level() instanceof ServerLevel sl) {
+                    sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+                }
+                forcedChunk = targetChunk;
+                if (level() instanceof ServerLevel sl) {
+                    sl.getChunkSource().addRegionTicket(K3W_TICKET, new ChunkPos(targetChunk), 2, this);
+                }
+                needsChunkForce = false;
+            }
+        }
 
         if (possessionActive) {
             tickPossession();
@@ -440,6 +473,10 @@ public class K3wEntity extends Mob {
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
         LOGGER.info("[K3w] removed, reason={}", reason);
+        if (forcedChunk != null && level() instanceof ServerLevel sl) {
+            sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+            forcedChunk = null;
+        }
         super.remove(reason);
         if (level() != null && !level().isClientSide && targetPlayer != null) {
             level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
@@ -449,6 +486,10 @@ public class K3wEntity extends Mob {
 
     @Override
     public void die(net.minecraft.world.damagesource.DamageSource source) {
+        if (forcedChunk != null && level() instanceof ServerLevel sl) {
+            sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+            forcedChunk = null;
+        }
         if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide) {
             targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
         }
@@ -467,6 +508,11 @@ public class K3wEntity extends Mob {
         tag.putInt("CurrentPathIndex", currentPathIndex);
         tag.putInt("CrashTimer", crashTimer);
         tag.putInt("LifetimeTicks", lifetimeTicks);
+        tag.putString("StoredSkin", getSkinLocation());
+        if (forcedChunk != null) {
+            tag.putInt("ForcedChunkX", forcedChunk.getX());
+            tag.putInt("ForcedChunkZ", forcedChunk.getZ());
+        }
 
         net.minecraft.nbt.ListTag pathTag = new net.minecraft.nbt.ListTag();
         for (double[] pt : pathPoints) {
@@ -514,6 +560,11 @@ public class K3wEntity extends Mob {
         currentPathIndex = tag.getInt("CurrentPathIndex");
         crashTimer = tag.getInt("CrashTimer");
         lifetimeTicks = tag.getInt("LifetimeTicks");
+        if (tag.contains("StoredSkin")) setSkinLocation(tag.getString("StoredSkin"));
+        if (tag.contains("ForcedChunkX") && tag.contains("ForcedChunkZ")) {
+            forcedChunk = new BlockPos(tag.getInt("ForcedChunkX"), 0, tag.getInt("ForcedChunkZ"));
+            needsChunkForce = true;
+        }
 
         pathPoints.clear();
         net.minecraft.nbt.ListTag pathTag = tag.getList("PathPoints", 10);

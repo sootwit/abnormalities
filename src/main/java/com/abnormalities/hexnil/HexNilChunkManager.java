@@ -72,7 +72,8 @@ public class HexNilChunkManager {
                 continue;
             }
             int iterations = 0;
-            while (iterations < MAX_ITERATIONS_PER_TICK && job.destroyed < BLOCKS_PER_TICK && !job.positions.isEmpty()) {
+            int destroyedThisTick = 0;
+            while (iterations < MAX_ITERATIONS_PER_TICK && destroyedThisTick < BLOCKS_PER_TICK && !job.positions.isEmpty()) {
                 BlockPos pos = job.positions.remove(job.positions.size() - 1);
                 iterations++;
                 if (!job.level.isLoaded(pos)) continue;
@@ -86,6 +87,7 @@ public class HexNilChunkManager {
                     continue;
                 }
                 job.destroyed++;
+                destroyedThisTick++;
             }
             if (!job.soundPlayed && job.destroyed > 0) {
                 ServerPlayer player = job.level.getServer().getPlayerList().getPlayer(job.playerUuid);

@@ -30,7 +30,10 @@ public class GameRendererMixin {
             RenderSystem.setProjectionMatrix(
                     new Matrix4f().setOrtho(0, (float)w, (float)h, 0, 1000, -1000),
                     VertexSorting.ORTHOGRAPHIC_Z);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
             OverlayManager.renderAll(w, h);
+            RenderSystem.disableBlend();
         } finally {
             RenderSystem.setProjectionMatrix(prevProj, VertexSorting.ORTHOGRAPHIC_Z);
         }
