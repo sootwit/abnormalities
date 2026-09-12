@@ -268,26 +268,25 @@ public class K3wEntity extends Mob {
         }
 
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) {
-            if (currentPathIndex < pathPoints.size()) {
-                isMoving = true;
-            } else {
-                var nearest = level().getNearestPlayer(this, 64.0D);
-                if (nearest != null) {
-                    setTargetPlayer(nearest);
-                    int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
-                    spawnTimer = CHAT_DELAY + followTicks;
-                    messageSent = true;
-                    List<double[]> dummyPath = new ArrayList<>();
-                    for (int i = 0; i < 20; i++) {
-                        dummyPath.add(new double[]{nearest.getX(), nearest.getY(), nearest.getZ(), nearest.getYRot(), nearest.getXRot()});
-                    }
-                    this.pathPoints.clear();
-                    this.pathPoints.addAll(dummyPath);
-                    this.isMoving = true;
-                } else {
-                    discard();
-                    return;
+            isMoving = false;
+            pathPoints.clear();
+            currentPathIndex = 0;
+            var nearest = level().getNearestPlayer(this, 64.0D);
+            if (nearest != null) {
+                setTargetPlayer(nearest);
+                int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+                spawnTimer = CHAT_DELAY + followTicks;
+                messageSent = true;
+                List<double[]> dummyPath = new ArrayList<>();
+                for (int i = 0; i < 20; i++) {
+                    dummyPath.add(new double[]{nearest.getX(), nearest.getY(), nearest.getZ(), nearest.getYRot(), nearest.getXRot()});
                 }
+                this.pathPoints.clear();
+                this.pathPoints.addAll(dummyPath);
+                this.isMoving = true;
+            } else {
+                discard();
+                return;
             }
         }
 
@@ -490,6 +489,18 @@ public class K3wEntity extends Mob {
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
         LOGGER.info("[K3w] removed, reason={}", reason);
+        if (possessionActive) {
+            for (UUID uuid : possessedPlayers) {
+                ServerPlayer p = level().getServer() != null ? level().getServer().getPlayerList().getPlayer(uuid) : null;
+                if (p != null) {
+                    p.setInvisible(false);
+                    com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                        net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
+                        new com.abnormalities.network.K3wPossessPacket(-1, this.getId()));
+                }
+            }
+            possessionActive = false;
+        }
         if (forcedChunk != null && level() instanceof ServerLevel sl) {
             sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
