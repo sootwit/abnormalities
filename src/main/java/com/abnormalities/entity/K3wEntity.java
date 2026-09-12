@@ -4,7 +4,6 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -151,6 +150,7 @@ public class K3wEntity extends Mob {
         if (player != null) {
             UUID uuid = player.getUUID();
             this.entityData.set(DATA_TARGET_UUID, Optional.of(uuid));
+            this.entityData.set(DATA_SKIN, "");
             this.setCustomName(net.minecraft.network.chat.Component.literal(player.getName().getString()));
             this.setCustomNameVisible(true);
         }

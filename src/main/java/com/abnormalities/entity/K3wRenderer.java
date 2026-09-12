@@ -49,7 +49,7 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
             }
         }
         String stored = entity.getSkinLocation();
-        if (stored != null && !stored.isEmpty()) {
+        if (stored != null && !stored.isEmpty() && stored.contains(":")) {
             try {
                 ResourceLocation skin = new ResourceLocation(stored);
                 boolean slim = MODEL_CACHE.getOrDefault(targetUUID, false);
