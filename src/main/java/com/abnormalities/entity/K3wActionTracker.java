@@ -309,7 +309,7 @@ public class K3wActionTracker {
         Entity source = event.getSource().getEntity();
         if (!(source instanceof ServerPlayer player)) return;
         UUID uuid = player.getUUID();
-        if (!SPAWN_TIMERS.containsKey(uuid)) return;
+        if (!SPAWN_TIMERS.containsKey(uuid) && !ACTIVE_CLONES.containsKey(uuid)) return;
 
         EntityType<?> type = dead.getType();
 

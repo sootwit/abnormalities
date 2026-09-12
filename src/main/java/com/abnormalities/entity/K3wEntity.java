@@ -372,8 +372,18 @@ public class K3wEntity extends Mob {
 
         if (spawnTimer < CHAT_DELAY + followTicks) return;
 
+        double pathDist = targetPlayer != null ? this.distanceTo(targetPlayer) : 0;
+
         if (!isMoving || pathPoints.isEmpty()) {
-            if (spawnTimer > CHAT_DELAY + followTicks + 200) {
+            if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+                if (pathDist > 32) {
+                    this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
+                    this.setNoGravity(true);
+                    this.noPhysics = true;
+                } else if (spawnTimer > CHAT_DELAY + followTicks + 200) {
+                    discard();
+                }
+            } else if (spawnTimer > CHAT_DELAY + followTicks + 200) {
                 discard();
             }
             return;
@@ -382,7 +392,14 @@ public class K3wEntity extends Mob {
         double[] target;
         if (currentPathIndex >= pathPoints.size()) {
             target = K3wActionTracker.getDelayedPosition(targetPlayer);
-            if (target == null) return;
+            if (target == null) {
+                if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && pathDist > 32) {
+                    this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
+                    this.setNoGravity(true);
+                    this.noPhysics = true;
+                }
+                return;
+            }
             LOGGER.debug("[K3w] path complete, following delayed position");
             this.setPos(target[0], target[1], target[2]);
             this.setNoGravity(true);
@@ -667,7 +684,9 @@ public class K3wEntity extends Mob {
     private void punishAllPossessed(ServerPlayer finalVictim) {
         LOGGER.info("[K3w] possession complete, punishing {} possessed players", possessedPlayers.size());
         if (level().getServer() == null) return;
-        for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
+        for (UUID uuid : possessedPlayers) {
+            ServerPlayer p = level().getServer().getPlayerList().getPlayer(uuid);
+            if (p == null) continue;
             p.setInvisible(false);
             com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                 net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
