@@ -255,7 +255,7 @@ public class NurEntity extends Mob {
         this.getNavigation().stop();
         this.setDeltaMovement(0, this.getDeltaMovement().y, 0);
         if (currentTarget == null) return;
-        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
+        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget) && hasLineOfSight(currentTarget, currentTarget.getEyePosition(1.0F))) {
             dummyTriggered = true;
             LOGGER.info("[Nur] dummy triggered in DUMMY state");
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
@@ -287,7 +287,7 @@ public class NurEntity extends Mob {
             replaceFluidsUnderneath();
         }
 
-        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget)) {
+        if (!dummyTriggered && isPlayerLookingAtMe(currentTarget) && hasLineOfSight(currentTarget, currentTarget.getEyePosition(1.0F))) {
             dummyTriggered = true;
             LOGGER.info("[Nur] dummy triggered in STALKING_DUMMY state");
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
@@ -334,12 +334,14 @@ public class NurEntity extends Mob {
     private static boolean isSeeThrough(BlockState state) {
         Block b = state.getBlock();
         if (b == Blocks.AIR || b == Blocks.CAVE_AIR || b == Blocks.VOID_AIR) return true;
-        if (b == Blocks.GLASS || b == Blocks.GLASS_PANE) return true;
-        if (b == Blocks.IRON_BARS) return true;
-        if (b == Blocks.CHAIN) return true;
+        if (b instanceof net.minecraft.world.level.block.LeavesBlock) return true;
         if (b instanceof net.minecraft.world.level.block.FenceBlock) return true;
         if (b instanceof net.minecraft.world.level.block.FenceGateBlock) return true;
-        if (b instanceof net.minecraft.world.level.block.LeavesBlock) return true;
+        if (b instanceof net.minecraft.world.level.block.IronBarsBlock) return true;
+        if (b instanceof net.minecraft.world.level.block.GlassBlock) return true;
+        if (b instanceof net.minecraft.world.level.block.StainedGlassBlock) return true;
+        if (b == Blocks.CHAIN) return true;
+        if (b == Blocks.TINTED_GLASS) return true;
         return false;
     }
 
