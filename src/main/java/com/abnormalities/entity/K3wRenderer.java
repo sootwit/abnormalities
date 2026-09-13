@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.UUID;
 
 public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Abnormalities|K3wRenderer");
     private static final ResourceLocation STEVE = new ResourceLocation("textures/entity/player/wide/steve.png");
     private static final ResourceLocation STEVE_SLIM = new ResourceLocation("textures/entity/player/slim/steve.png");
     private static final java.util.Map<UUID, ResourceLocation> SKIN_CACHE = new java.util.HashMap<>();
@@ -59,7 +60,10 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
         }
         boolean slim = MODEL_CACHE.getOrDefault(targetUUID, false);
         this.model = slim ? slimModel : wideModel;
-        return SKIN_CACHE.getOrDefault(targetUUID, slim ? STEVE_SLIM : STEVE);
+        ResourceLocation fallback = SKIN_CACHE.getOrDefault(targetUUID, slim ? STEVE_SLIM : STEVE);
+        LOGGER.debug("[K3wRenderer] skin fallback for {}: stored='{}', conn={}, cache={}, result={}",
+                targetUUID, stored, conn != null, SKIN_CACHE.containsKey(targetUUID), fallback);
+        return fallback;
     }
 
     @Override

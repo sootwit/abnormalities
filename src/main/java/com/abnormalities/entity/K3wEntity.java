@@ -137,6 +137,25 @@ public class K3wEntity extends Mob {
         this.entityData.set(DATA_SKIN, skin != null ? skin : "");
     }
 
+    private String extractSkinFromProfile(Player player) {
+        try {
+            com.mojang.authlib.GameProfile profile = player.getGameProfile();
+            var textures = profile.getProperties().get("textures");
+            if (textures == null || textures.isEmpty()) return null;
+            String encoded = textures.iterator().next().getValue();
+            String json = new String(java.util.Base64.getDecoder().decode(encoded), java.nio.charset.StandardCharsets.UTF_8);
+            com.google.gson.JsonObject obj = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
+            com.google.gson.JsonObject texturesObj = obj.getAsJsonObject("textures");
+            if (texturesObj == null) return null;
+            com.google.gson.JsonObject skinObj = texturesObj.getAsJsonObject("SKIN");
+            if (skinObj == null) return null;
+            return skinObj.get("url").getAsString();
+        } catch (Exception e) {
+            LOGGER.debug("[K3w] failed to extract skin from profile: {}", e.getMessage());
+            return null;
+        }
+    }
+
     public Player getTargetPlayer() {
         return targetPlayer;
     }
@@ -150,9 +169,15 @@ public class K3wEntity extends Mob {
         if (player != null) {
             UUID uuid = player.getUUID();
             this.entityData.set(DATA_TARGET_UUID, Optional.of(uuid));
-            this.entityData.set(DATA_SKIN, "");
             this.setCustomName(net.minecraft.network.chat.Component.literal(player.getName().getString()));
             this.setCustomNameVisible(true);
+            String skinUrl = extractSkinFromProfile(player);
+            if (skinUrl != null) {
+                this.entityData.set(DATA_SKIN, skinUrl);
+                LOGGER.info("[K3w] populated skin from profile for {}: {}", player.getName().getString(), skinUrl);
+            } else {
+                this.entityData.set(DATA_SKIN, "");
+            }
         }
         this.messageSent = false;
         this.spawnTimer = 0;

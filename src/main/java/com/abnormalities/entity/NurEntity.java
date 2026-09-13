@@ -18,10 +18,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -164,7 +168,7 @@ public class NurEntity extends Mob {
                 Vec3 lookVec = currentTarget.getViewVector(1.0F);
                 Vec3 toNur = new Vec3(this.getX() - eyePos.x, this.getY() + this.getBbHeight() / 2 - eyePos.y, this.getZ() - eyePos.z);
                 double dot = lookVec.dot(toNur.normalize());
-                if (dot > 0.95) {
+                if (dot > 0.95 && hasLineOfSight(currentTarget, eyePos)) {
                     LOGGER.info("[Nur] look trigger: target looking at nur (dot={}), starting chase", String.format("%.2f", dot));
                     startChasing(currentTarget);
                     return;
@@ -304,6 +308,41 @@ public class NurEntity extends Mob {
         return look.dot(toNur) > 0.95;
     }
 
+    private boolean hasLineOfSight(Player player, Vec3 eyePos) {
+        Vec3 nurCenter = new Vec3(this.getX(), this.getY() + this.getBbHeight() * 0.5, this.getZ());
+        Vec3 direction = nurCenter.subtract(eyePos);
+        double dist = direction.length();
+        if (dist < 0.001) return true;
+        Vec3 dirNorm = direction.normalize();
+        Vec3 current = eyePos;
+        double walked = 0;
+        while (walked < dist) {
+            Vec3 rayEnd = eyePos.add(dirNorm.scale(dist));
+            BlockHitResult hit = level().clip(new ClipContext(
+                    current, rayEnd, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            if (hit.getType() == HitResult.Type.MISS) return true;
+            double hitDist = current.distanceTo(hit.getLocation());
+            if (walked + hitDist >= dist) return true;
+            BlockState state = level().getBlockState(hit.getBlockPos());
+            if (!isSeeThrough(state)) return false;
+            walked += hitDist + 0.05;
+            current = hit.getLocation().add(dirNorm.scale(0.05));
+        }
+        return true;
+    }
+
+    private static boolean isSeeThrough(BlockState state) {
+        Block b = state.getBlock();
+        if (b == Blocks.AIR || b == Blocks.CAVE_AIR || b == Blocks.VOID_AIR) return true;
+        if (b == Blocks.GLASS || b == Blocks.GLASS_PANE) return true;
+        if (b == Blocks.IRON_BARS) return true;
+        if (b == Blocks.CHAIN) return true;
+        if (b instanceof net.minecraft.world.level.block.FenceBlock) return true;
+        if (b instanceof net.minecraft.world.level.block.FenceGateBlock) return true;
+        if (b instanceof net.minecraft.world.level.block.LeavesBlock) return true;
+        return false;
+    }
+
     private void tickChasing() {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) { discard(); return; }
         if (soundTick < 0) soundTick = 0;
@@ -364,7 +403,7 @@ public class NurEntity extends Mob {
         Vec3 toNur = new Vec3(this.getX() - eyePos.x, this.getY() + this.getBbHeight() / 2 - eyePos.y, this.getZ() - eyePos.z);
         double len = toNur.length();
         if (len > 0.001) {
-            looking = lookVec.dot(toNur.normalize()) > 0.95;
+            looking = lookVec.dot(toNur.normalize()) > 0.95 && hasLineOfSight(currentTarget, eyePos);
         }
         if (!this.entityData.get(DATA_CHASING)) {
             if (!looking && dist > 5.0D) {
