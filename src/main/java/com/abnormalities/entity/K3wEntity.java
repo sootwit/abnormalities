@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.*;
@@ -250,6 +251,13 @@ public class K3wEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
+            this.stopRiding();
+        }
+        if (this.tickCount % 10 == 0) {
+            AABB box = this.getBoundingBox().inflate(3.0D);
+            level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
+        }
 
         if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
             BlockPos targetChunk = targetPlayer.blockPosition();

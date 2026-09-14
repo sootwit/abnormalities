@@ -120,6 +120,13 @@ public class NurEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
+            this.stopRiding();
+        }
+        if (this.tickCount % 10 == 0) {
+            AABB box = this.getBoundingBox().inflate(3.0D);
+            level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
+        }
         if (dummyTriggered && currentState != State.DUMMY && currentState != State.STALKING_DUMMY) dummyTriggered = false;
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
             currentTarget = findNearestPlayer();

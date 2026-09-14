@@ -38,6 +38,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -102,6 +103,8 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
     public float collapseProgress() {
         return this.entityData.get(DATA_COLLAPSE);
     }
+
+    protected boolean canRide(net.minecraft.world.entity.Entity vehicle) { return false; }
 
     @Override
     protected void defineSynchedData() {
@@ -222,6 +225,13 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         super.tick();
         if (this.level().isClientSide) {
             return;
+        }
+        if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
+            this.stopRiding();
+        }
+        if (this.tickCount % 10 == 0) {
+            AABB box = this.getBoundingBox().inflate(3.0D);
+            level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
         }
         if (this.bossBar != null) {
             var srv = this.level().getServer();

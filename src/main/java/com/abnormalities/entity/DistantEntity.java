@@ -79,10 +79,19 @@ public class DistantEntity extends Mob {
         return this.entityData.get(DATA_FLASHBACK);
     }
 
+    protected boolean canRide(net.minecraft.world.entity.Entity vehicle) { return false; }
+
     @Override
     public void tick() {
         super.tick();
         if (this.level().isClientSide) return;
+        if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
+            this.stopRiding();
+        }
+        if (this.tickCount % 10 == 0) {
+            AABB box = this.getBoundingBox().inflate(3.0D);
+            level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
+        }
         this.setAirSupply(this.getMaxAirSupply());
         if (this.isInWater()) {
             this.setDeltaMovement(this.getDeltaMovement().add(0.0D, -0.05D, 0.0D));

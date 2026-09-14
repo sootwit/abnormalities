@@ -30,6 +30,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -283,6 +284,13 @@ public class XyzEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
+            this.stopRiding();
+        }
+        if (this.tickCount % 10 == 0) {
+            AABB box = this.getBoundingBox().inflate(3.0D);
+            level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
+        }
         this.setDeltaMovement(0, 0, 0);
 
         if (hasFailed || rewardGiven) return;
