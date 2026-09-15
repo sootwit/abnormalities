@@ -221,7 +221,7 @@ public class AbnormalitiesConfig {
         NUR_ENABLED = b.comment("enable nur entity (the shy stalker)").define("enabled", true);
         NUR_PUNISH = b.comment("punishment mode when nur kills you: KICK, CRASH, or NONE").defineEnum("onDeath", PunishMode.KICK);
         NUR_SPAWN_WEIGHT = b.comment("higher = rarer spawns at night").defineInRange("spawnWeight", 4000, 1, 100000);
-        NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 0.5, 0.1, 3.0);
+        NUR_CURSOR_TRIGGER_DISTANCE = b.comment("how close cursor must be to hitbox to trigger chase").defineInRange("cursorTriggerDist", 1.5, 0.1, 3.0);
         NUR_WATER = b.comment("nur can walk on water by replacing it with stone").define("waterWalk", true);
         NUR_LAVA = b.comment("nur can walk on lava by replacing it with stone").define("lavaWalk", true);
         NUR_LIQUID = b.comment("nur can walk on any other liquid (modded fluids like create:honey) by replacing it with stone").define("liquidWalk", true);
