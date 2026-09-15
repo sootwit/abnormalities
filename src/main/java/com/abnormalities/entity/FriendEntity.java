@@ -433,7 +433,7 @@ public class FriendEntity extends Mob {
                 return;
             }
             LOGGER.debug("[Friend] path complete, following delayed position");
-            this.setPos(target[0], target[1], target[2]);
+            this.teleportTo(target[0], target[1], target[2]);
             this.setNoGravity(true);
             this.noPhysics = true;
             return;
