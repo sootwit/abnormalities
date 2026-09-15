@@ -2,7 +2,7 @@ package com.abnormalities.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -11,9 +11,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 
 public class NurRenderer extends EntityRenderer<NurEntity> {
     private static final ResourceLocation TEXTURE_STALK = new ResourceLocation("abnormalities", "textures/entity/nur_stalk.png");
@@ -36,18 +33,12 @@ public class NurRenderer extends EntityRenderer<NurEntity> {
         var mc = Minecraft.getInstance();
         var player = mc.cameraEntity;
         if (player == null) return;
+        Camera camera = mc.gameRenderer.getMainCamera();
         float hw = 2.0F;
         float hh = 2.67F;
         poseStack.pushPose();
         poseStack.translate(0, hh, 0);
-        Vec3 camPos = player.getEyePosition(partialTick);
-        double dx = entity.getX() - camPos.x;
-        double dy = (entity.getY() + hh) - camPos.y;
-        double dz = entity.getZ() - camPos.z;
-        float yaw = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
-        float pitch = (float) -(Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180.0D / Math.PI));
-        poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
+        poseStack.mulPose(camera.rotation());
         ResourceLocation tex = getTextureLocation(entity);
         RenderType renderType = RenderType.entityTranslucent(tex);
         VertexConsumer vc = bufferSource.getBuffer(renderType);
