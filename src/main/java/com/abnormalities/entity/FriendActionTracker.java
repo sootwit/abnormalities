@@ -43,6 +43,7 @@ public class FriendActionTracker {
     private static final Map<UUID, Deque<double[]>> POSITION_BUFFERS = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_COOLDOWNS = new HashMap<>();
     private static final Map<UUID, Integer> FOLLOW_TIMES = new HashMap<>();
+    private static final Map<UUID, Integer> SPAWN_TICKS = new HashMap<>();
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -80,6 +81,7 @@ public class FriendActionTracker {
                     SPAWN_TIMERS.remove(uuid);
                     MESSAGES_SENT.remove(uuid);
                     FOLLOW_TIMES.remove(uuid);
+                    SPAWN_TICKS.remove(uuid);
                 }
                 continue;
             }
@@ -99,6 +101,10 @@ public class FriendActionTracker {
             int timer = SPAWN_TIMERS.get(uuid);
             timer++;
             SPAWN_TIMERS.put(uuid, timer);
+
+            int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
+            spawnTick++;
+            SPAWN_TICKS.put(uuid, spawnTick);
 
             boolean forced = FORCED_SPAWNS.getOrDefault(uuid, false);
             int spawnAt = forced ? FORCED_SPAWN_DELAY : CHAT_DELAY;
@@ -185,12 +191,15 @@ public class FriendActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 100);
         if (buf.size() < followTicks) return null;
+        int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
+        int elapsed = Math.max(0, spawnTick - followTicks);
         double[][] arr = buf.toArray(new double[0][]);
-        int target = Math.max(0, arr.length - followTicks);
+        int target = Math.min(elapsed, arr.length - 1);
+        target = Math.max(0, target);
         double[] pt = arr[target];
-        LOGGER.debug("[FriendActionTracker] delayed position for {} buffer={}", player.getName().getString(), buf.size());
+        LOGGER.debug("[FriendActionTracker] delayed position for {} buffer={} target={}", player.getName().getString(), buf.size(), target);
         return new double[]{pt[0], pt[1], pt[2], pt[5]};
     }
 
@@ -198,10 +207,13 @@ public class FriendActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 100);
         if (buf.size() < followTicks) return null;
+        int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
+        int elapsed = Math.max(0, spawnTick - followTicks);
         double[][] arr = buf.toArray(new double[0][]);
-        int target = Math.max(0, arr.length - followTicks);
+        int target = Math.min(elapsed, arr.length - 1);
+        target = Math.max(0, target);
         double[] pt = arr[target];
         return new double[]{pt[6], pt[7]};
     }
@@ -215,7 +227,8 @@ public class FriendActionTracker {
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, false);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        FOLLOW_TIMES.put(uuid, 80 + player.getRandom().nextInt(121));
+        FOLLOW_TIMES.put(uuid, 40 + player.getRandom().nextInt(121));
+        SPAWN_TICKS.put(uuid, 0);
         LOGGER.info("[FriendActionTracker] spawn sequence started for {}", player.getName().getString());
     }
 
@@ -346,6 +359,7 @@ public class FriendActionTracker {
         ACTION_LOGS.remove(uuid);
         POSITION_BUFFERS.remove(uuid);
         FOLLOW_TIMES.remove(uuid);
+        SPAWN_TICKS.remove(uuid);
         SPAWN_COOLDOWNS.remove(uuid);
         CHAT_COOLDOWN.remove(uuid);
         PENDING_ECHOES.remove(uuid);
