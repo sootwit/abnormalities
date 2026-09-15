@@ -402,6 +402,7 @@ public class TheMotherEntity extends Mob {
         int appleAmt = AbnormalitiesConfig.THE_MOTHER_REWARD_GOLDEN_APPLES.get();
         ItemStack reward = rollGoody(cookieAmt, carrotAmt, appleAmt);
         ItemStack reward2 = rollExtra();
+        ItemStack reward3 = rollBonus();
 
         BlockPos chestPos = this.blockPosition();
         if (!level().getBlockState(chestPos).canBeReplaced()) {
@@ -417,6 +418,7 @@ public class TheMotherEntity extends Mob {
         if (level().getBlockEntity(chestPos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest) {
             chest.setItem(0, reward);
             if (!reward2.isEmpty()) chest.setItem(1, reward2);
+            if (!reward3.isEmpty()) chest.setItem(2, reward3);
         }
 
         level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -441,8 +443,10 @@ public class TheMotherEntity extends Mob {
         new ItemStack(Items.DIAMOND, 6), new ItemStack(Items.EMERALD, 16),
         new ItemStack(Items.GOLD_INGOT, 16),
         new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Items.DIAMOND_SWORD),
-        new ItemStack(Items.IRON_PICKAXE), new ItemStack(Items.HEART_OF_THE_SEA),
-        new ItemStack(Items.NETHERITE_INGOT, 2), new ItemStack(Items.ELYTRA)
+        new ItemStack(Items.NETHERITE_INGOT, 2)
+    };
+    private static final ItemStack[] BONUS_ITEMS = {
+        new ItemStack(Items.HEART_OF_THE_SEA), new ItemStack(Items.ELYTRA)
     };
 
     private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
@@ -451,6 +455,13 @@ public class TheMotherEntity extends Mob {
 
     private ItemStack rollExtra() {
         return MISC_ITEMS[level().random.nextInt(MISC_ITEMS.length)].copy();
+    }
+
+    private ItemStack rollBonus() {
+        if (level().random.nextInt(100) < 5) {
+            return BONUS_ITEMS[level().random.nextInt(BONUS_ITEMS.length)].copy();
+        }
+        return ItemStack.EMPTY;
     }
 
     private void triggerFailure(Player attacker) {
