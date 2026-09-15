@@ -48,14 +48,14 @@ public class AdvancedConfigScreen extends Screen {
 
         addSection("Entities");
         addToggle("Nur", AbnormalitiesConfig.NUR_ENABLED, "The billboard stalker that chases at night");
-        addToggle("K3w", AbnormalitiesConfig.K3W_ENABLED, "Player clone that undoes your actions");
-        addToggle("xYz", AbnormalitiesConfig.XYZ_ENABLED, "Giant supplier that demands items");
+        addToggle("Friend", AbnormalitiesConfig.FRIEND_ENABLED, "Player clone that undoes your actions");
+        addToggle("The Mother", AbnormalitiesConfig.THE_MOTHER_ENABLED, "Giant supplier that demands items");
         addToggle("Him", AbnormalitiesConfig.HIM_ENABLED, "Player-like survivor that bridges at you");
         addToggle("Skinwalkers", AbnormalitiesConfig.SW_ENABLED, "Disguised mobs that transform");
 
         addSection("Events");
-        addToggle("vr9p", AbnormalitiesConfig.VR9P_ENABLED, "STOP/CONTINUE overlay game");
-        addToggle("vr9p Stargazed", AbnormalitiesConfig.VR9P_STARGAZED_ENABLED, "Stricter vr9p variant");
+        addToggle("segfault", AbnormalitiesConfig.SEGFAULT_ENABLED, "STOP/CONTINUE overlay game");
+        addToggle("segfault Stargazed", AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED, "Stricter segfault variant");
         addToggle("h1sh", AbnormalitiesConfig.HUSH_ENABLED, "Mobs freeze and stare at you");
         addToggle("m1n3r", AbnormalitiesConfig.M1NER_ENABLED, "Tunnel digger underground");
         addToggle("v1s1t", AbnormalitiesConfig.V1S1T_ENABLED, "Home invasion gift giver");
@@ -77,9 +77,9 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("Nur towers", AbnormalitiesConfig.NUR_TOWER, "Nur towers up with cobble");
         addToggle("Nur bridges", AbnormalitiesConfig.NUR_BRIDGE, "Nur bridges horizontally");
         addToggle("Nur liquids", AbnormalitiesConfig.NUR_LIQUID, "Nur walks on liquids");
-        addToggle("K3w undo breaks", AbnormalitiesConfig.K3W_BREAK_BLOCKS, "K3w replaces blocks you broke");
-        addToggle("K3w undo places", AbnormalitiesConfig.K3W_PLACE_BLOCKS, "K3w breaks blocks you placed");
-        addToggle("K3w undo kills", AbnormalitiesConfig.K3W_KILL_MOBS, "K3w revives mobs you killed");
+        addToggle("Friend undo breaks", AbnormalitiesConfig.FRIEND_BREAK_BLOCKS, "Friend replaces blocks you broke");
+        addToggle("Friend undo places", AbnormalitiesConfig.FRIEND_PLACE_BLOCKS, "Friend breaks blocks you placed");
+        addToggle("Friend undo kills", AbnormalitiesConfig.FRIEND_KILL_MOBS, "Friend revives mobs you killed");
         addToggle("0x0000", AbnormalitiesConfig.HN_ENABLED, "0x0000 corruption system");
         addToggle("0x0000 pillars", AbnormalitiesConfig.HN_PILLARS_ENABLED, "Pillar terrain destruction");
         addToggle("0x0000 farlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Farlands terrain generation");

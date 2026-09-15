@@ -8,23 +8,23 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
-public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
-    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Abnormalities|K3wRenderer");
+public class FriendRenderer extends MobRenderer<FriendEntity, FriendModel> {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Abnormalities|FriendRenderer");
     private static final ResourceLocation STEVE = new ResourceLocation("textures/entity/player/wide/steve.png");
     private static final ResourceLocation STEVE_SLIM = new ResourceLocation("textures/entity/player/slim/steve.png");
     private static final java.util.Map<UUID, ResourceLocation> SKIN_CACHE = new java.util.HashMap<>();
     private static final java.util.Map<UUID, Boolean> MODEL_CACHE = new java.util.HashMap<>();
-    private final K3wModel wideModel;
-    private final K3wModel slimModel;
+    private final FriendModel wideModel;
+    private final FriendModel slimModel;
 
-    public K3wRenderer(EntityRendererProvider.Context ctx) {
-        super(ctx, new K3wModel(ctx.bakeLayer(K3wModel.LAYER_LOCATION), false), 0.0F);
+    public FriendRenderer(EntityRendererProvider.Context ctx) {
+        super(ctx, new FriendModel(ctx.bakeLayer(FriendModel.LAYER_LOCATION), false), 0.0F);
         this.wideModel = this.model;
-        this.slimModel = new K3wModel(ctx.bakeLayer(K3wModel.LAYER_LOCATION_SLIM), true);
+        this.slimModel = new FriendModel(ctx.bakeLayer(FriendModel.LAYER_LOCATION_SLIM), true);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(K3wEntity entity) {
+    public ResourceLocation getTextureLocation(FriendEntity entity) {
         UUID targetUUID = entity.getTargetUUID();
         if (targetUUID == null) return STEVE;
         var mc = Minecraft.getInstance();
@@ -61,13 +61,13 @@ public class K3wRenderer extends MobRenderer<K3wEntity, K3wModel> {
         boolean slim = MODEL_CACHE.getOrDefault(targetUUID, false);
         this.model = slim ? slimModel : wideModel;
         ResourceLocation fallback = SKIN_CACHE.getOrDefault(targetUUID, slim ? STEVE_SLIM : STEVE);
-        LOGGER.debug("[K3wRenderer] skin fallback for {}: stored='{}', conn={}, cache={}, result={}",
+        LOGGER.debug("[FriendRenderer] skin fallback for {}: stored='{}', conn={}, cache={}, result={}",
                 targetUUID, stored, conn != null, SKIN_CACHE.containsKey(targetUUID), fallback);
         return fallback;
     }
 
     @Override
-    protected void setupRotations(K3wEntity entity, PoseStack poseStack, float ageInTicks, float yBodyRot, float partialTick) {
+    protected void setupRotations(FriendEntity entity, PoseStack poseStack, float ageInTicks, float yBodyRot, float partialTick) {
         super.setupRotations(entity, poseStack, ageInTicks, yBodyRot, partialTick);
         float gx = (float) Math.sin(ageInTicks * 7.3F) * 0.03F;
         float gz = (float) Math.cos(ageInTicks * 5.1F) * 0.03F;

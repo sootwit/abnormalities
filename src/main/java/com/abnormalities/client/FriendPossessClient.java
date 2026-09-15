@@ -11,12 +11,12 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
-public class K3wPossessClient {
+public class FriendPossessClient {
     private static final int OVERLAY_PRIORITY = 60;
     private static boolean possessed = false;
     private static boolean blackout = false;
     private static long blackoutEnd = 0;
-    private static int k3wEntityId = -1;
+    private static int friendEntityId = -1;
     private static boolean registeredOverlay = false;
 
     public static void handle(int phase, int entityId) {
@@ -25,9 +25,9 @@ public class K3wPossessClient {
             possessed = true;
             blackout = true;
             blackoutEnd = System.currentTimeMillis() + 5000L;
-            k3wEntityId = entityId;
+            friendEntityId = entityId;
             if (!registeredOverlay) {
-                OverlayManager.register(OVERLAY_PRIORITY, K3wPossessClient::renderOverlay);
+                OverlayManager.register(OVERLAY_PRIORITY, FriendPossessClient::renderOverlay);
                 registeredOverlay = true;
             }
         } else if (phase == 1) {
@@ -36,7 +36,7 @@ public class K3wPossessClient {
         } else if (phase == -1) {
             possessed = false;
             blackout = false;
-            k3wEntityId = -1;
+            friendEntityId = -1;
             if (mc.options != null) mc.options.hideGui = false;
             if (registeredOverlay) {
                 OverlayManager.unregister(OVERLAY_PRIORITY);
@@ -93,7 +93,7 @@ public class K3wPossessClient {
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         possessed = false;
         blackout = false;
-        k3wEntityId = -1;
+        friendEntityId = -1;
         Minecraft mc = Minecraft.getInstance();
         if (mc != null && mc.options != null) mc.options.hideGui = false;
         if (registeredOverlay) {
@@ -114,12 +114,12 @@ public class K3wPossessClient {
 
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-        if (!possessed || k3wEntityId < 0) return;
+        if (!possessed || friendEntityId < 0) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
-        Entity k3w = mc.level.getEntity(k3wEntityId);
-        if (k3w == null) return;
-        event.setYaw(k3w.getYHeadRot());
-        event.setPitch(k3w.getXRot());
+        Entity friend = mc.level.getEntity(friendEntityId);
+        if (friend == null) return;
+        event.setYaw(friend.getYHeadRot());
+        event.setPitch(friend.getXRot());
     }
 }

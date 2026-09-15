@@ -2,7 +2,7 @@ package com.abnormalities.horror;
 
 import com.abnormalities.AbnormalitiesMod;
 import com.abnormalities.config.AbnormalitiesConfig;
-import com.abnormalities.network.Vr9pPacket;
+import com.abnormalities.network.SegfaultPacket;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,11 +18,11 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Vr9pController {
-    private static final Map<UUID, Vr9pState> ACTIVE = new HashMap<>();
+public class SegfaultController {
+    private static final Map<UUID, SegfaultState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
     private static final Map<UUID, PendingStart> PENDING_STARTS = new HashMap<>();
-    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Vr9p");
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Segfault");
 
     private static class PendingStart {
         int ticksLeft;
@@ -33,7 +33,7 @@ public class Vr9pController {
         }
     }
 
-    private static class Vr9pState {
+    private static class SegfaultState {
         int ticks = 0;
         boolean showingStop = true;
         int nextSwitchAt = 999;
@@ -73,7 +73,7 @@ public class Vr9pController {
             }
             e.getValue().ticksLeft--;
             if (e.getValue().ticksLeft <= 0) {
-                startVr9p(sp, e.getValue().stargazed);
+                startSegfault(sp, e.getValue().stargazed);
                 pit.remove();
             }
         }
@@ -81,15 +81,15 @@ public class Vr9pController {
         COOLDOWNS.replaceAll((u, cd) -> cd - 1);
         COOLDOWNS.values().removeIf(cd -> cd <= 0);
 
-        if (!com.abnormalities.config.AbnormalitiesConfig.VR9P_ENABLED.get()) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.SEGFAULT_ENABLED.get()) return;
 
         long currentDay = overworld.getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
         if (overworld.getGameTime() % 20 != 0) return;
 
-        if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.VR9P_SPAWN_WEIGHT.get())) != 0) {
-            if (AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.get()
-                    && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.VR9P_STARGAZED_SPAWN_WEIGHT.get())) == 0) {
+        if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.SEGFAULT_SPAWN_WEIGHT.get())) != 0) {
+            if (AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.get()
+                    && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.SEGFAULT_STARGAZED_SPAWN_WEIGHT.get())) == 0) {
                 for (ServerPlayer sp : overworld.players()) {
                     if (ACTIVE.containsKey(sp.getUUID()) || COOLDOWNS.containsKey(sp.getUUID()) || PENDING_STARTS.containsKey(sp.getUUID())) continue;
                     if (overworld.random.nextInt(2) != 0) continue;
@@ -117,12 +117,12 @@ public class Vr9pController {
         }
     }
 
-    private static void startVr9p(ServerPlayer player) {
-        startVr9p(player, false);
+    private static void startSegfault(ServerPlayer player) {
+        startSegfault(player, false);
     }
 
-    private static void startVr9p(ServerPlayer player, boolean stargazed) {
-        var st = new Vr9pState();
+    private static void startSegfault(ServerPlayer player, boolean stargazed) {
+        var st = new SegfaultState();
         st.lastX = player.getX();
         st.lastZ = player.getZ();
         st.lastYRot = player.getYRot();
@@ -130,16 +130,16 @@ public class Vr9pController {
         st.lastSlot = player.getInventory().selected;
         st.stargazed = stargazed;
         if (stargazed) {
-            st.graceTicks = AbnormalitiesConfig.VR9P_STARGAZED_GRACE_TICKS.get();
+            st.graceTicks = AbnormalitiesConfig.SEGFAULT_STARGAZED_GRACE_TICKS.get();
             st.startupTicks = 10;
-            st.nextSwitchAt = AbnormalitiesConfig.VR9P_STARGAZED_SWITCH_TICKS.get();
+            st.nextSwitchAt = AbnormalitiesConfig.SEGFAULT_STARGAZED_SWITCH_TICKS.get();
             st.showingStop = player.getRandom().nextBoolean();
         } else {
-            st.graceTicks = AbnormalitiesConfig.VR9P_GRACE_TICKS.get();
+            st.graceTicks = AbnormalitiesConfig.SEGFAULT_GRACE_TICKS.get();
             st.startupTicks = 20;
             st.showingStop = player.getRandom().nextBoolean();
-            int swMin = AbnormalitiesConfig.VR9P_SWITCH_MIN.get();
-            int swMax = AbnormalitiesConfig.VR9P_SWITCH_MAX.get();
+            int swMin = AbnormalitiesConfig.SEGFAULT_SWITCH_MIN.get();
+            int swMax = AbnormalitiesConfig.SEGFAULT_SWITCH_MAX.get();
             st.nextSwitchAt = swMin + player.getRandom().nextInt(Math.max(1, swMax - swMin + 1));
         }
         ACTIVE.put(player.getUUID(), st);
@@ -150,45 +150,45 @@ public class Vr9pController {
 
     private static void playAmbience(ServerPlayer player) {
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(ModSounds.VR9P_AMBIENCE.get()),
+            net.minecraft.core.Holder.direct(ModSounds.SEGFAULT_AMBIENCE.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
     }
 
     private static void stopAmbience(ServerPlayer player) {
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(
-            ModSounds.VR9P_AMBIENCE.get().getLocation(), SoundSource.MASTER));
+            ModSounds.SEGFAULT_AMBIENCE.get().getLocation(), SoundSource.MASTER));
     }
 
     private static void playStop(ServerPlayer player) {
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(ModSounds.VR9P_STOP.get()),
+            net.minecraft.core.Holder.direct(ModSounds.SEGFAULT_STOP.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
     }
 
     private static void playContinue(ServerPlayer player) {
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-            net.minecraft.core.Holder.direct(ModSounds.VR9P_CONTINUE.get()),
+            net.minecraft.core.Holder.direct(ModSounds.SEGFAULT_CONTINUE.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2.0f, 1.0f, 0));
     }
 
-    private static void showState(ServerPlayer player, Vr9pState state) {
+    private static void showState(ServerPlayer player, SegfaultState state) {
         if (state.showingStop) {
-            sendState(player, state.stargazed ? Vr9pPacket.STATE_STARGAZED_STOP : Vr9pPacket.STATE_STOP, 0);
+            sendState(player, state.stargazed ? SegfaultPacket.STATE_STARGAZED_STOP : SegfaultPacket.STATE_STOP, 0);
             playStop(player);
         } else {
-            sendState(player, state.stargazed ? Vr9pPacket.STATE_STARGAZED_CONTINUE : Vr9pPacket.STATE_CONTINUE, 0);
+            sendState(player, state.stargazed ? SegfaultPacket.STATE_STARGAZED_CONTINUE : SegfaultPacket.STATE_CONTINUE, 0);
             playContinue(player);
         }
         com.abnormalities.hexnil.HexNilShakeHandler.sendShake(player, 0.8f, 15);
     }
 
-    private static int getDuration(Vr9pState state) {
-        return state.stargazed ? AbnormalitiesConfig.VR9P_STARGAZED_DURATION.get() : AbnormalitiesConfig.VR9P_EVENT_DURATION.get();
+    private static int getDuration(SegfaultState state) {
+        return state.stargazed ? AbnormalitiesConfig.SEGFAULT_STARGAZED_DURATION.get() : AbnormalitiesConfig.SEGFAULT_EVENT_DURATION.get();
     }
 
     public static void tickPlayer(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        Vr9pState state = ACTIVE.get(uuid);
+        SegfaultState state = ACTIVE.get(uuid);
         if (state == null) return;
         if (state.endPhaseTicks >= 0) {
             if (state.endPhaseTicks > 0) state.endPhaseTicks--;
@@ -196,8 +196,8 @@ public class Vr9pController {
                 stopAmbience(player);
                 sendState(player, -1, 0);
                 ACTIVE.remove(uuid);
-                COOLDOWNS.put(uuid, AbnormalitiesConfig.VR9P_COOLDOWN_TICKS.get());
-                LOGGER.info("{} vr9p ended", player.getName().getString());
+                COOLDOWNS.put(uuid, AbnormalitiesConfig.SEGFAULT_COOLDOWN_TICKS.get());
+                LOGGER.info("{} segfault ended", player.getName().getString());
             }
             return;
         }
@@ -217,7 +217,7 @@ public class Vr9pController {
         if (state.totalTicks >= getDuration(state)) {
             sendState(player, 2, 0);
             state.endPhaseTicks = 5;
-            LOGGER.info("{} vr9p ending (vr9phit 5 ticks)", player.getName().getString());
+            LOGGER.info("{} segfault ending (segfaulthit 5 ticks)", player.getName().getString());
             return;
         }
 
@@ -236,7 +236,7 @@ public class Vr9pController {
 
         double dx = player.getX() - state.lastX;
         double dz = player.getZ() - state.lastZ;
-        double moveThreshold = AbnormalitiesConfig.VR9P_MOVE_THRESHOLD.get();
+        double moveThreshold = AbnormalitiesConfig.SEGFAULT_MOVE_THRESHOLD.get();
         boolean playerMoved = Math.sqrt(dx * dx + dz * dz) > moveThreshold;
         if (Math.sqrt(dx * dx + dz * dz) > 10) {
             state.lastX = player.getX();
@@ -268,13 +268,13 @@ public class Vr9pController {
         if (state.ticks >= state.nextSwitchAt) {
             state.showingStop = player.getRandom().nextBoolean();
             if (state.stargazed) {
-                state.nextSwitchAt = AbnormalitiesConfig.VR9P_STARGAZED_SWITCH_TICKS.get();
-                state.graceTicks = AbnormalitiesConfig.VR9P_STARGAZED_GRACE_TICKS.get();
+                state.nextSwitchAt = AbnormalitiesConfig.SEGFAULT_STARGAZED_SWITCH_TICKS.get();
+                state.graceTicks = AbnormalitiesConfig.SEGFAULT_STARGAZED_GRACE_TICKS.get();
             } else {
-                int swMin = AbnormalitiesConfig.VR9P_SWITCH_MIN.get();
-                int swMax = AbnormalitiesConfig.VR9P_SWITCH_MAX.get();
+                int swMin = AbnormalitiesConfig.SEGFAULT_SWITCH_MIN.get();
+                int swMax = AbnormalitiesConfig.SEGFAULT_SWITCH_MAX.get();
                 state.nextSwitchAt = swMin + player.getRandom().nextInt(Math.max(1, swMax - swMin + 1));
-                state.graceTicks = AbnormalitiesConfig.VR9P_GRACE_TICKS.get();
+                state.graceTicks = AbnormalitiesConfig.SEGFAULT_GRACE_TICKS.get();
             }
             state.ticks = 0;
             state.wrongTicks = 0;
@@ -282,38 +282,38 @@ public class Vr9pController {
         }
     }
 
-    private static void addWrong(ServerPlayer player, UUID uuid, Vr9pState state) {
+    private static void addWrong(ServerPlayer player, UUID uuid, SegfaultState state) {
         state.wrongTicks++;
-        int threshold = state.stargazed ? AbnormalitiesConfig.VR9P_STARGAZED_WRONG_THRESHOLD.get() : AbnormalitiesConfig.VR9P_WRONG_THRESHOLD.get();
+        int threshold = state.stargazed ? AbnormalitiesConfig.SEGFAULT_STARGAZED_WRONG_THRESHOLD.get() : AbnormalitiesConfig.SEGFAULT_WRONG_THRESHOLD.get();
         if (state.wrongTicks >= threshold) startPunish(player, uuid, state);
     }
 
     public static void strictViolation(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        Vr9pState state = ACTIVE.get(uuid);
+        SegfaultState state = ACTIVE.get(uuid);
         if (state == null || !state.stargazed || !state.showingStop) return;
         if (state.graceTicks > 0) return;
         if (state.punishTicks >= 0 || state.endPhaseTicks >= 0) return;
         startPunish(player, uuid, state);
     }
 
-    private static void startPunish(ServerPlayer player, UUID uuid, Vr9pState state) {
+    private static void startPunish(ServerPlayer player, UUID uuid, SegfaultState state) {
         if (state.punishTicks >= 0 || state.endPhaseTicks >= 0) return;
         state.punishTicks = 10;
-        COOLDOWNS.put(uuid, AbnormalitiesConfig.VR9P_COOLDOWN_TICKS.get());
+        COOLDOWNS.put(uuid, AbnormalitiesConfig.SEGFAULT_COOLDOWN_TICKS.get());
         LOGGER.info("{} PUNISHED (was {}, {})", player.getName().getString(), state.showingStop ? "STOP" : "CONTINUE", state.stargazed ? "STARGAZED" : "normal");
         sendState(player, 2, 0);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(ModSounds.NUR_SOUND.get()),
             SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 10.0f, 1.0f, 0));
-        float dmg = AbnormalitiesConfig.VR9P_DAMAGE.get().floatValue();
+        float dmg = AbnormalitiesConfig.SEGFAULT_DAMAGE.get().floatValue();
         player.hurt(player.damageSources().genericKill(), dmg);
     }
 
-    private static void doPunish(ServerPlayer player, UUID uuid, Vr9pState state) {
+    private static void doPunish(ServerPlayer player, UUID uuid, SegfaultState state) {
         stopAmbience(player);
         ACTIVE.remove(uuid);
-        var mode = state.stargazed ? AbnormalitiesConfig.VR9P_STARGAZED_PUNISH.get() : AbnormalitiesConfig.VR9P_PUNISH.get();
+        var mode = state.stargazed ? AbnormalitiesConfig.SEGFAULT_STARGAZED_PUNISH.get() : AbnormalitiesConfig.SEGFAULT_PUNISH.get();
         if (mode == AbnormalitiesConfig.PunishMode.CRASH) {
             AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new com.abnormalities.network.CrashPacket());
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
@@ -327,17 +327,17 @@ public class Vr9pController {
     }
 
     private static void sendState(ServerPlayer player, int state, int duration) {
-        AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new Vr9pPacket(state, duration));
+        AbnormalitiesMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SegfaultPacket(state, duration));
     }
 
     public static void forceStart(ServerPlayer player) {
         if (ACTIVE.containsKey(player.getUUID())) return;
-        startVr9p(player);
+        startSegfault(player);
     }
 
     public static void forceStartStargazed(ServerPlayer player) {
         if (ACTIVE.containsKey(player.getUUID())) return;
-        startVr9p(player, true);
+        startSegfault(player, true);
     }
 
     public static void escViolation(ServerPlayer player) {
@@ -346,7 +346,7 @@ public class Vr9pController {
 
     public static void cleanup(UUID uuid) {
         ACTIVE.remove(uuid);
-        COOLDOWNS.put(uuid, AbnormalitiesConfig.VR9P_COOLDOWN_TICKS.get());
+        COOLDOWNS.put(uuid, AbnormalitiesConfig.SEGFAULT_COOLDOWN_TICKS.get());
     }
 
     public static boolean isActive(UUID uuid) {

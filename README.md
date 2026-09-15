@@ -12,7 +12,7 @@ you will not enjoy your stay.
 *   This mod WILL make you paranoid
 
 ### WHAT THE MOD ADDS
-*   Entities that stalk, watch, mimic, or punish you (nur, him, k3w, xYz, distant, skinwalker)
+*   Entities that stalk, watch, mimic, or punish you (nur, him, friend, xYz, distant, skinwalker)
 *   World corruption and terrain anomalies (hexnil pillars, farlands, furtherlands, bedrock cubes)
 *   Random atmospheric horror events, screen shakes, and sanity-testing encounters
 *   Full in-game GUI config screen with presets and advanced toggles

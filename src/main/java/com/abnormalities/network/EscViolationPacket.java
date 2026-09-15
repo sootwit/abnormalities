@@ -19,7 +19,7 @@ public class EscViolationPacket {
             if (ctx.get().getDirection().getReceptionSide().isServer()) {
                 var sender = ctx.get().getSender();
                 if (sender != null) {
-                    com.abnormalities.horror.Vr9pController.escViolation(sender);
+                    com.abnormalities.horror.SegfaultController.escViolation(sender);
                 }
             }
         });

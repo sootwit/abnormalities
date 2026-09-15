@@ -36,12 +36,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XyzEntity extends Mob {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Xyz");
-    private static final EntityDataAccessor<Boolean> DATA_ACTIVE = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Integer> DATA_SECONDS_LEFT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_AMOUNT = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<String> DATA_REQUEST_NAME = SynchedEntityData.defineId(XyzEntity.class, EntityDataSerializers.STRING);
+public class TheMotherEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|TheMother");
+    private static final EntityDataAccessor<Boolean> DATA_ACTIVE = SynchedEntityData.defineId(TheMotherEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DATA_SECONDS_LEFT = SynchedEntityData.defineId(TheMotherEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_AMOUNT = SynchedEntityData.defineId(TheMotherEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> DATA_REQUEST_NAME = SynchedEntityData.defineId(TheMotherEntity.class, EntityDataSerializers.STRING);
 
     public UUID targetUUID;
     public Player targetPlayer;
@@ -53,7 +53,7 @@ public class XyzEntity extends Mob {
     private boolean hasFailed;
     private int fadeOutTick;
 
-    private static final ResourceLocation XYZ_ITEMS_TAG = new ResourceLocation("abnormalities", "xyz_items");
+    private static final ResourceLocation THE_MOTHER_ITEMS_TAG = new ResourceLocation("abnormalities", "the_mother_items");
 
     public static net.minecraft.world.item.Item pickNearbyItem(net.minecraft.server.level.ServerLevel level, double cx, double cz) {
         java.util.HashSet<net.minecraft.world.item.Item> found = new java.util.HashSet<>();
@@ -170,7 +170,7 @@ public class XyzEntity extends Mob {
                             if (item == null || item == net.minecraft.world.item.Items.AIR) continue;
                             if (silkTouch.contains(state.getBlock())) continue;
                             if (unobtainable.contains(state.getBlock())) continue;
-                            if (AbnormalitiesConfig.XYZ_ONLY_VANILLA.get()) {
+                            if (AbnormalitiesConfig.THE_MOTHER_ONLY_VANILLA.get()) {
                                 net.minecraft.resources.ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
                                 if (key == null || !"minecraft".equals(key.getNamespace())) continue;
                             }
@@ -216,7 +216,7 @@ public class XyzEntity extends Mob {
         return count;
     }
 
-    public XyzEntity(EntityType<? extends XyzEntity> type, Level level) {
+    public TheMotherEntity(EntityType<? extends TheMotherEntity> type, Level level) {
         super(type, level);
         this.xpReward = 0;
         this.setPersistenceRequired();
@@ -265,10 +265,10 @@ public class XyzEntity extends Mob {
         }
         if (!hasFailed && !rewardGiven) {
             if (source.getEntity() instanceof Player attacker) {
-                LOGGER.info("[Xyz] hurt by {}, triggering failure", attacker.getName().getString());
+                LOGGER.info("[TheMother] hurt by {}, triggering failure", attacker.getName().getString());
                 triggerFailure(attacker);
             } else if (targetPlayer != null) {
-                LOGGER.info("[Xyz] hurt by non-player, triggering failure for target");
+                LOGGER.info("[TheMother] hurt by non-player, triggering failure for target");
                 triggerFailure(targetPlayer);
             }
         }
@@ -328,7 +328,7 @@ public class XyzEntity extends Mob {
             if (isRequestedItem(dropped)) {
                 int amount = this.entityData.get(DATA_AMOUNT);
                 if (dropped.getCount() >= amount) {
-                    LOGGER.info("[Xyz] item dropped by {}: {}x {} (needed {}x)", owner.getName().getString(), dropped.getCount(), dropped.getItem(), amount);
+                    LOGGER.info("[TheMother] item dropped by {}: {}x {} (needed {}x)", owner.getName().getString(), dropped.getCount(), dropped.getItem(), amount);
                     if (!level().isClientSide) {
                         deliverItem(targetPlayer);
                         dropped.shrink(amount);
@@ -348,7 +348,7 @@ public class XyzEntity extends Mob {
     }
 
     public void startRequest(int amount, Item item, int seconds) {
-        LOGGER.info("[Xyz] request started: {}x {} in {}s", amount, item, seconds);
+        LOGGER.info("[TheMother] request started: {}x {} in {}s", amount, item, seconds);
         this.entityData.set(DATA_AMOUNT, amount);
         this.requestedItem = item;
         this.requestedItemId = BuiltInRegistries.ITEM.getKey(item);
@@ -386,7 +386,7 @@ public class XyzEntity extends Mob {
 
     private void deliverItem(Player player) {
         if (rewardGiven) return;
-        LOGGER.info("[Xyz] item delivered by {}, reward giving", player.getName().getString());
+        LOGGER.info("[TheMother] item delivered by {}, reward giving", player.getName().getString());
         rewardGiven = true;
         this.entityData.set(DATA_ACTIVE, false);
 
@@ -397,9 +397,9 @@ public class XyzEntity extends Mob {
                     Component.literal("thank you.").withStyle(ChatFormatting.LIGHT_PURPLE), false));
         }
 
-        int cookieAmt = AbnormalitiesConfig.XYZ_REWARD_COOKIES.get();
-        int carrotAmt = AbnormalitiesConfig.XYZ_REWARD_GOLDEN_CARROTS.get();
-        int appleAmt = AbnormalitiesConfig.XYZ_REWARD_GOLDEN_APPLES.get();
+        int cookieAmt = AbnormalitiesConfig.THE_MOTHER_REWARD_COOKIES.get();
+        int carrotAmt = AbnormalitiesConfig.THE_MOTHER_REWARD_GOLDEN_CARROTS.get();
+        int appleAmt = AbnormalitiesConfig.THE_MOTHER_REWARD_GOLDEN_APPLES.get();
         ItemStack reward = rollGoody(cookieAmt, carrotAmt, appleAmt);
         ItemStack reward2 = rollExtra();
 
@@ -456,7 +456,7 @@ public class XyzEntity extends Mob {
 
     private void triggerFailure(Player attacker) {
         if (hasFailed) return;
-        LOGGER.info("[Xyz] triggerFailure for {}", attacker != null ? attacker.getName().getString() : "null");
+        LOGGER.info("[TheMother] triggerFailure for {}", attacker != null ? attacker.getName().getString() : "null");
         hasFailed = true;
         this.entityData.set(DATA_ACTIVE, false);
 
@@ -491,7 +491,7 @@ public class XyzEntity extends Mob {
 
         for (int i = 0; i < 4; i++) {
             String msg = spawnMessages[i];
-            LOGGER.info("[Xyz] spawning nur {}/4 for failure", i + 1);
+            LOGGER.info("[TheMother] spawning nur {}/4 for failure", i + 1);
             var srv = serverLevel.getServer();
             if (srv != null) {
                 for (var p : srv.getPlayerList().getPlayers()) {

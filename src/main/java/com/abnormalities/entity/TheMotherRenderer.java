@@ -14,26 +14,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-public class XyzRenderer extends EntityRenderer<XyzEntity> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation("abnormalities", "textures/entity/xyz.png");
+public class TheMotherRenderer extends EntityRenderer<TheMotherEntity> {
+    private static final ResourceLocation TEXTURE = new ResourceLocation("abnormalities", "textures/entity/the_mother.png");
 
-    public XyzRenderer(EntityRendererProvider.Context ctx) {
+    public TheMotherRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
         this.shadowRadius = 0.0F;
     }
 
     @Override
-    public ResourceLocation getTextureLocation(XyzEntity entity) {
+    public ResourceLocation getTextureLocation(TheMotherEntity entity) {
         return TEXTURE;
     }
 
     @Override
-    public int getBlockLightLevel(XyzEntity entity, BlockPos pos) {
+    public int getBlockLightLevel(TheMotherEntity entity, BlockPos pos) {
         return 15;
     }
 
     @Override
-    public void render(XyzEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(TheMotherEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         var mc = Minecraft.getInstance();
         var player = mc.cameraEntity;

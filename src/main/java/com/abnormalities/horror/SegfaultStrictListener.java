@@ -8,51 +8,51 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class Vr9pStrictListener {
+public class SegfaultStrictListener {
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (event.getLevel().isClientSide()) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getPlayer() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getLevel().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
         if (event.getLevel().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (event.getLevel().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
         if (event.getEntity().level().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 
     @SubscribeEvent
     public static void onContainerOpen(PlayerContainerEvent.Open event) {
         if (event.getEntity().level().isClientSide) return;
-        if (event.getEntity() instanceof ServerPlayer sp) Vr9pController.strictViolation(sp);
+        if (event.getEntity() instanceof ServerPlayer sp) SegfaultController.strictViolation(sp);
     }
 }

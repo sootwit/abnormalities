@@ -3,7 +3,7 @@ package com.abnormalities.horror;
 import com.abnormalities.ReputationManager;
 import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
-import com.abnormalities.network.K3wOverlayPacket;
+import com.abnormalities.network.FriendOverlayPacket;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
@@ -97,7 +97,7 @@ public class ApparitionManager {
                         ModSounds.WARNING.get(), SoundSource.HOSTILE, 2.0f, 0.6f);
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> owner),
-                        new K3wOverlayPacket());
+                        new FriendOverlayPacket());
                 }
             }
 

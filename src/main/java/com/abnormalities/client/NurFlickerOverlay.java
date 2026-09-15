@@ -11,7 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class NurFlickerOverlay {
     private static final ResourceLocation HUD_001 = new ResourceLocation("abnormalities", "textures/gui/nurhud001.png");
     private static final ResourceLocation HUD_002 = new ResourceLocation("abnormalities", "textures/gui/nurhud002.png");
-    private static final ResourceLocation DUMMY_HUD = new ResourceLocation("abnormalities", "textures/gui/k3whud001.png");
+    private static final ResourceLocation DUMMY_HUD = new ResourceLocation("abnormalities", "textures/gui/friendhud001.png");
     private static final int OVERLAY_PRIORITY = 20;
     private static boolean showingFlicker = false;
     private static boolean showingDummy = false;

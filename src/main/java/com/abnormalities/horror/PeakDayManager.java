@@ -85,9 +85,9 @@ public class PeakDayManager {
         return currentType == DayType.GOOD && AbnormalitiesConfig.PEAK_DAY_WIND_DISABLED.get();
     }
 
-    public static int getXyzItemMultiplier() {
-        if (currentType == DayType.BAD) return AbnormalitiesConfig.PEAK_DAY_BAD_XYZ_MULT.get();
-        if (currentType == DayType.GOOD) return AbnormalitiesConfig.PEAK_DAY_GOOD_XYZ_MULT.get();
+    public static int getTheMotherItemMultiplier() {
+        if (currentType == DayType.BAD) return AbnormalitiesConfig.PEAK_DAY_BAD_THE_MOTHER_MULT.get();
+        if (currentType == DayType.GOOD) return AbnormalitiesConfig.PEAK_DAY_GOOD_THE_MOTHER_MULT.get();
         return 1;
     }
 

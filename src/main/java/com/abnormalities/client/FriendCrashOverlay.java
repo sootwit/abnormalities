@@ -1,6 +1,6 @@
 package com.abnormalities.client;
 
-import com.abnormalities.entity.K3wEntity;
+import com.abnormalities.entity.FriendEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -8,8 +8,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
-public class K3wCrashOverlay {
-    private static final ResourceLocation HUD = new ResourceLocation("abnormalities", "textures/gui/k3whud001.png");
+public class FriendCrashOverlay {
+    private static final ResourceLocation HUD = new ResourceLocation("abnormalities", "textures/gui/friendhud001.png");
     private static final int OVERLAY_PRIORITY = 30;
     private static long crashStartTime = 0;
     private static boolean showingCrash = false;
@@ -26,9 +26,9 @@ public class K3wCrashOverlay {
             apparitionActive = false;
         }
         boolean crashing = false;
-        var entities = mc.level.getEntitiesOfClass(K3wEntity.class, mc.player.getBoundingBox().inflate(128.0D));
-        for (K3wEntity k3w : entities) {
-            if (k3w.isCrashing()) { crashing = true; break; }
+        var entities = mc.level.getEntitiesOfClass(FriendEntity.class, mc.player.getBoundingBox().inflate(128.0D));
+        for (FriendEntity friend : entities) {
+            if (friend.isCrashing()) { crashing = true; break; }
         }
         if (!crashing && !apparitionActive) {
             showingCrash = false;
@@ -40,7 +40,7 @@ public class K3wCrashOverlay {
             return;
         }
         if (!registeredOverlay) {
-            OverlayManager.register(OVERLAY_PRIORITY, K3wCrashOverlay::renderOverlay);
+            OverlayManager.register(OVERLAY_PRIORITY, FriendCrashOverlay::renderOverlay);
             registeredOverlay = true;
         }
         long now = System.currentTimeMillis();

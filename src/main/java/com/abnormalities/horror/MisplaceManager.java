@@ -32,7 +32,7 @@ public class MisplaceManager {
 
         for (var sp : new java.util.ArrayList<>(overworld.getServer().getPlayerList().getPlayers())) {
             if (overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.M1SL4Y_WEIGHT.get())) != 0) continue;
-            if (Vr9pController.isActive(sp.getUUID())) continue;
+            if (SegfaultController.isActive(sp.getUUID())) continue;
             if (sp.isSleeping()) continue;
             misplace(sp);
         }

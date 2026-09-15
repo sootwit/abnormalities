@@ -5,7 +5,7 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.entity.NurEntity;
 import com.abnormalities.entity.HimEntity;
 import com.abnormalities.entity.HimTracker;
-import com.abnormalities.entity.XyzEntity;
+import com.abnormalities.entity.TheMotherEntity;
 import com.abnormalities.entity.skinwalker.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -120,9 +120,9 @@ public class ModEvents {
     }
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
-    private static final Map<UUID, int[]> XYZ_CHUNKS = new HashMap<>();
+    private static final Map<UUID, int[]> THE_MOTHER_CHUNKS = new HashMap<>();
     private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
-    private static final Map<String, Integer> XYZ_RELEASE_QUEUE = new HashMap<>();
+    private static final Map<String, Integer> THE_MOTHER_RELEASE_QUEUE = new HashMap<>();
     private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
@@ -229,18 +229,18 @@ public class ModEvents {
         if (time < 13000L && time > 2000L) {
             for (Player player : overworld.players()) {
                 if (player.tickCount % 40 != 0) continue;
-                if (!AbnormalitiesConfig.XYZ_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.XYZ_SPAWN_WEIGHT.get())) != 0) continue;
-                boolean alreadyHasXyz = false;
-                for (XyzEntity existing : overworld.getEntitiesOfClass(XyzEntity.class, player.getBoundingBox().inflate(256.0D))) {
+                if (!AbnormalitiesConfig.THE_MOTHER_ENABLED.get()) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get())) != 0) continue;
+                boolean alreadyHasTheMother = false;
+                for (TheMotherEntity existing : overworld.getEntitiesOfClass(TheMotherEntity.class, player.getBoundingBox().inflate(256.0D))) {
                     if (existing.getTargetPlayer() == player && existing.isActive()) {
-                        alreadyHasXyz = true;
+                        alreadyHasTheMother = true;
                         break;
                     }
                 }
-                if (alreadyHasXyz) continue;
+                if (alreadyHasTheMother) continue;
 
-                LOGGER.debug("[Events] xyz spawn weight roll passed for {}", player.getName().getString());
+                LOGGER.debug("[Events] theMother spawn weight roll passed for {}", player.getName().getString());
                 double angle = overworld.random.nextDouble() * Math.PI * 2;
                 double dist = 45.0D + overworld.random.nextDouble() * 35.0D;
                 double sx = player.getX() + Math.cos(angle) * dist;
@@ -250,42 +250,42 @@ public class ModEvents {
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
                 if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
 
-                LOGGER.debug("[Events] xyz spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
+                LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
 
-                XyzEntity xyz = ModEntities.XYZ.get().create(overworld);
-                if (xyz != null) {
-                    xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
-                    xyz.setTargetPlayer(player);
+                TheMotherEntity theMother = ModEntities.XYZ.get().create(overworld);
+                if (theMother != null) {
+                    theMother.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                    theMother.setTargetPlayer(player);
                     int xc = ((int)Math.floor(sx)) >> 4;
                     int zc = ((int)Math.floor(sz)) >> 4;
                     overworld.setChunkForced(xc, zc, true);
-                    XYZ_CHUNKS.put(xyz.getUUID(), new int[]{xc, zc});
-                    overworld.addFreshEntity(xyz);
+                    THE_MOTHER_CHUNKS.put(theMother.getUUID(), new int[]{xc, zc});
+                    overworld.addFreshEntity(theMother);
 
-                    net.minecraft.world.item.Item chosenItem = XyzEntity.pickNearbyItem(overworld, sx, sz);
+                    net.minecraft.world.item.Item chosenItem = TheMotherEntity.pickNearbyItem(overworld, sx, sz);
                     int maxStack = chosenItem.getMaxStackSize();
-                    int envCount = XyzEntity.countNearbyBlocks(overworld, sx, sz, chosenItem);
+                    int envCount = TheMotherEntity.countNearbyBlocks(overworld, sx, sz, chosenItem);
                     int amount;
-                    if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
-                        amount = Math.min(maxStack, AbnormalitiesConfig.XYZ_STATIC_ITEM_COUNT.get());
+                    if (AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT.get()) {
+                        amount = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_STATIC_ITEM_COUNT.get());
                     } else {
-                        int min = Math.min(maxStack, AbnormalitiesConfig.XYZ_MIN_ITEMS.get());
-                        int max = Math.min(maxStack, AbnormalitiesConfig.XYZ_MAX_ITEMS.get());
+                        int min = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_MIN_ITEMS.get());
+                        int max = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_MAX_ITEMS.get());
                         amount = max > min ? min + overworld.random.nextInt(max - min + 1) : min;
                     }
                     if (envCount > 0 && amount > envCount) {
                         amount = Math.max(1, envCount);
                     }
                     int seconds;
-                    if (AbnormalitiesConfig.XYZ_STATIC_WAIT.get()) {
-                        seconds = AbnormalitiesConfig.XYZ_STATIC_WAIT_SECONDS.get();
+                    if (AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.get()) {
+                        seconds = AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT_SECONDS.get();
                     } else {
-                        int min = AbnormalitiesConfig.XYZ_MIN_WAIT.get();
-                        int max = AbnormalitiesConfig.XYZ_MAX_WAIT.get();
+                        int min = AbnormalitiesConfig.THE_MOTHER_MIN_WAIT.get();
+                        int max = AbnormalitiesConfig.THE_MOTHER_MAX_WAIT.get();
                         seconds = min + (max > min ? overworld.random.nextInt(max - min + 1) : 0);
                     }
-                    xyz.startRequest(amount, chosenItem, seconds);
-                    LOGGER.info("[Events] xyz spawned for {} requesting {}x {} in {}s", player.getName().getString(), amount, chosenItem, seconds);
+                    theMother.startRequest(amount, chosenItem, seconds);
+                    LOGGER.info("[Events] theMother spawned for {} requesting {}x {} in {}s", player.getName().getString(), amount, chosenItem, seconds);
 
                     String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
                     String msg;
@@ -303,7 +303,7 @@ public class ModEvents {
                                         Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
                             }
                         }
-                        xyz.setMessageSent(true);
+                        theMother.setMessageSent(true);
                     }
                 }
             }
@@ -402,7 +402,7 @@ public class ModEvents {
         }
         }
         tickSkinwalkerChunks(overworld);
-        tickXyzChunks(overworld);
+        tickTheMotherChunks(overworld);
     }
 
     @SubscribeEvent
@@ -735,15 +735,15 @@ public class ModEvents {
         }
     }
 
-    private static void tickXyzChunks(ServerLevel level) {
+    private static void tickTheMotherChunks(ServerLevel level) {
         Set<String> active = new HashSet<>();
-        Iterator<Map.Entry<UUID, int[]>> it = XYZ_CHUNKS.entrySet().iterator();
+        Iterator<Map.Entry<UUID, int[]>> it = THE_MOTHER_CHUNKS.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<UUID, int[]> entry = it.next();
             net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
             if (e == null || !e.isAlive()) {
                 int[] p = entry.getValue();
-                XYZ_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                THE_MOTHER_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
                 it.remove();
                 continue;
             }
@@ -752,14 +752,14 @@ public class ModEvents {
             String key = cx + "," + cz;
             active.add(key);
             if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
-                XYZ_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                THE_MOTHER_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
                 entry.getValue()[0] = cx;
                 entry.getValue()[1] = cz;
             }
             level.setChunkForced(cx, cz, true);
         }
-        XYZ_RELEASE_QUEUE.keySet().removeAll(active);
-        Iterator<Map.Entry<String, Integer>> rit = XYZ_RELEASE_QUEUE.entrySet().iterator();
+        THE_MOTHER_RELEASE_QUEUE.keySet().removeAll(active);
+        Iterator<Map.Entry<String, Integer>> rit = THE_MOTHER_RELEASE_QUEUE.entrySet().iterator();
         while (rit.hasNext()) {
             Map.Entry<String, Integer> r = rit.next();
             int t = r.getValue() - 1;

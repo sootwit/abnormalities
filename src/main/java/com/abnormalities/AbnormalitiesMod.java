@@ -1,11 +1,11 @@
 package com.abnormalities;
 
 import com.abnormalities.config.AbnormalitiesConfig;
-import com.abnormalities.entity.K3wActionTracker;
+import com.abnormalities.entity.FriendActionTracker;
 import com.abnormalities.entity.NurHorrorCycle;
 import com.abnormalities.horror.*;
 import com.abnormalities.network.CrashPacket;
-import com.abnormalities.network.Vr9pPacket;
+import com.abnormalities.network.SegfaultPacket;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
 import com.abnormalities.registry.ModSounds;
@@ -43,7 +43,7 @@ public class AbnormalitiesMod {
         modBus.register(ModEntities.class);
         MinecraftForge.EVENT_BUS.register(ModEvents.class);
         MinecraftForge.EVENT_BUS.register(NurHorrorCycle.class);
-        MinecraftForge.EVENT_BUS.register(K3wActionTracker.class);
+        MinecraftForge.EVENT_BUS.register(FriendActionTracker.class);
         MinecraftForge.EVENT_BUS.register(AbnormalitiesCommands.class);
         MinecraftForge.EVENT_BUS.register(ReputationManager.class);
         MinecraftForge.EVENT_BUS.register(ActionLogger.class);
@@ -52,11 +52,11 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(SomeoneElsesBuildEvent.class);
         MinecraftForge.EVENT_BUS.register(TheTallyEvent.class);
         MinecraftForge.EVENT_BUS.register(CountTheKnocksEvent.class);
-        MinecraftForge.EVENT_BUS.register(Vr9pController.class);
+        MinecraftForge.EVENT_BUS.register(SegfaultController.class);
         MinecraftForge.EVENT_BUS.register(V1s1tManager.class);
         MinecraftForge.EVENT_BUS.register(HushController.class);
         MinecraftForge.EVENT_BUS.register(WakeDisplacementEvent.class);
-        MinecraftForge.EVENT_BUS.register(Vr9pStrictListener.class);
+        MinecraftForge.EVENT_BUS.register(SegfaultStrictListener.class);
         MinecraftForge.EVENT_BUS.register(MisplaceManager.class);
         MinecraftForge.EVENT_BUS.register(MinerController.class);
         MinecraftForge.EVENT_BUS.register(SignManager.class);
@@ -106,7 +106,7 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new ChatLockEvent(false));
         HorrorEventPool.register(new VoidEvent());
 
-        CHANNEL.registerMessage(0, Vr9pPacket.class, Vr9pPacket::encode, Vr9pPacket::decode, Vr9pPacket::handle);
+        CHANNEL.registerMessage(0, SegfaultPacket.class, SegfaultPacket::encode, SegfaultPacket::decode, SegfaultPacket::handle);
         CHANNEL.registerMessage(1, CrashPacket.class, CrashPacket::encode, CrashPacket::decode, CrashPacket::handle);
         CHANNEL.registerMessage(2, com.abnormalities.network.EscViolationPacket.class,
                 com.abnormalities.network.EscViolationPacket::encode, com.abnormalities.network.EscViolationPacket::decode,
@@ -123,15 +123,15 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(10, com.abnormalities.network.AdvancedConfigOpenPacket.class,
                 com.abnormalities.network.AdvancedConfigOpenPacket::encode, com.abnormalities.network.AdvancedConfigOpenPacket::decode,
                 com.abnormalities.network.AdvancedConfigOpenPacket::handle);
-        CHANNEL.registerMessage(11, com.abnormalities.network.K3wOverlayPacket.class,
-                com.abnormalities.network.K3wOverlayPacket::encode, com.abnormalities.network.K3wOverlayPacket::decode,
-                com.abnormalities.network.K3wOverlayPacket::handle);
+        CHANNEL.registerMessage(11, com.abnormalities.network.FriendOverlayPacket.class,
+                com.abnormalities.network.FriendOverlayPacket::encode, com.abnormalities.network.FriendOverlayPacket::decode,
+                com.abnormalities.network.FriendOverlayPacket::handle);
         CHANNEL.registerMessage(12, com.abnormalities.network.SignTransitionPacket.class,
                 com.abnormalities.network.SignTransitionPacket::encode, com.abnormalities.network.SignTransitionPacket::decode,
                 com.abnormalities.network.SignTransitionPacket::handle);
-        CHANNEL.registerMessage(13, com.abnormalities.network.K3wPossessPacket.class,
-                com.abnormalities.network.K3wPossessPacket::encode, com.abnormalities.network.K3wPossessPacket::decode,
-                com.abnormalities.network.K3wPossessPacket::handle);
+        CHANNEL.registerMessage(13, com.abnormalities.network.FriendPossessPacket.class,
+                com.abnormalities.network.FriendPossessPacket::encode, com.abnormalities.network.FriendPossessPacket::decode,
+                com.abnormalities.network.FriendPossessPacket::handle);
         CHANNEL.registerMessage(14, com.abnormalities.network.DepthsPacket.class,
                 com.abnormalities.network.DepthsPacket::encode, com.abnormalities.network.DepthsPacket::decode,
                 com.abnormalities.network.DepthsPacket::handle);

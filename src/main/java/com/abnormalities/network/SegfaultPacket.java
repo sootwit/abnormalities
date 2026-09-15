@@ -5,7 +5,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class Vr9pPacket {
+public class SegfaultPacket {
     public static final int STATE_STOP = 0;
     public static final int STATE_CONTINUE = 1;
     public static final int STATE_END = 2;
@@ -15,24 +15,24 @@ public class Vr9pPacket {
     private final int state;
     private final int duration;
 
-    public Vr9pPacket(int state, int duration) {
+    public SegfaultPacket(int state, int duration) {
         this.state = state;
         this.duration = duration;
     }
 
-    public static void encode(Vr9pPacket msg, FriendlyByteBuf buf) {
+    public static void encode(SegfaultPacket msg, FriendlyByteBuf buf) {
         buf.writeByte(msg.state);
         buf.writeShort(msg.duration);
     }
 
-    public static Vr9pPacket decode(FriendlyByteBuf buf) {
-        return new Vr9pPacket(buf.readByte(), buf.readShort());
+    public static SegfaultPacket decode(FriendlyByteBuf buf) {
+        return new SegfaultPacket(buf.readByte(), buf.readShort());
     }
 
-    public static void handle(Vr9pPacket msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(SegfaultPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            com.abnormalities.client.Vr9pOverlay.currentState = msg.state;
-            com.abnormalities.client.Vr9pOverlay.lastPacketTime = System.currentTimeMillis();
+            com.abnormalities.client.SegfaultOverlay.currentState = msg.state;
+            com.abnormalities.client.SegfaultOverlay.lastPacketTime = System.currentTimeMillis();
         });
         ctx.get().setPacketHandled(true);
     }

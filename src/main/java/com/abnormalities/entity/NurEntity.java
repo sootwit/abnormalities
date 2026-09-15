@@ -270,7 +270,7 @@ public class NurEntity extends Mob {
             this.entityData.set(DATA_DUMMY, true);
             if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp) {
                 sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                    net.minecraft.core.Holder.direct(ModSounds.K3W_CRASH1.get()),
+                    net.minecraft.core.Holder.direct(ModSounds.FRIEND_CRASH1.get()),
                     SoundSource.MASTER, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(), 2.0f, 0.5f, 0));
             }
             pendingDiscard = 3;
@@ -302,7 +302,7 @@ public class NurEntity extends Mob {
             this.entityData.set(DATA_DUMMY, true);
             if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp) {
                 sp.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                    net.minecraft.core.Holder.direct(ModSounds.K3W_CRASH1.get()),
+                    net.minecraft.core.Holder.direct(ModSounds.FRIEND_CRASH1.get()),
                     SoundSource.MASTER, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(), 2.0f, 0.5f, 0));
             }
             pendingDiscard = 3;

@@ -27,19 +27,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class K3wActionTracker {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|K3wActionTracker");
+public class FriendActionTracker {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|FriendActionTracker");
     private static final int CHAT_DELAY = 600;
     private static final int FORCED_SPAWN_DELAY = 300;
     private static final int SPAWN_DISTANCE = 64;
     private static final int POST_SPAWN_COOLDOWN = 4800;
     /* private static final int MAX_CLONES = 3; */ // old 
 
-    private static final Map<UUID, List<K3wEntity>> ACTIVE_CLONES = new HashMap<>();
+    private static final Map<UUID, List<FriendEntity>> ACTIVE_CLONES = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_TIMERS = new HashMap<>();
     private static final Map<UUID, Boolean> MESSAGES_SENT = new HashMap<>();
     private static final Map<UUID, Boolean> FORCED_SPAWNS = new HashMap<>();
-    private static final Map<UUID, List<K3wEntity.K3wAction>> ACTION_LOGS = new HashMap<>();
+    private static final Map<UUID, List<FriendEntity.FriendAction>> ACTION_LOGS = new HashMap<>();
     private static final Map<UUID, Deque<double[]>> POSITION_BUFFERS = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_COOLDOWNS = new HashMap<>();
 
@@ -61,7 +61,7 @@ public class K3wActionTracker {
             if (tracked) {
                 Deque<double[]> posBuf = POSITION_BUFFERS.computeIfAbsent(uuid, k -> new ArrayDeque<>());
                 posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0, player.getHealth(), player.getMaxHealth()});
-                int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+                int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
                 if (posBuf.size() > followTicks + 40) {
                     posBuf.removeFirst();
                 }
@@ -83,9 +83,9 @@ public class K3wActionTracker {
             }
 
             if (!SPAWN_TIMERS.containsKey(uuid)) {
-                int k3wWeight = AbnormalitiesConfig.K3W_SPAWN_WEIGHT.get();
-                if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) k3wWeight = Math.max(1, k3wWeight / 2);
-                if (player.tickCount % 40 == 0 && AbnormalitiesConfig.K3W_ENABLED.get() && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(k3wWeight)) == 0 && overworld.isNight()) {
+                int friendWeight = AbnormalitiesConfig.FRIEND_SPAWN_WEIGHT.get();
+                if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) friendWeight = Math.max(1, friendWeight / 2);
+                if (player.tickCount % 40 == 0 && AbnormalitiesConfig.FRIEND_ENABLED.get() && overworld.random.nextInt(com.abnormalities.entity.HimTracker.weighted(friendWeight)) == 0 && overworld.isNight()) {
                     long currentDay = overworld.getDayTime() / 24000L;
                     if (currentDay >= AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) {
                         startSpawnSequence(player);
@@ -100,7 +100,7 @@ public class K3wActionTracker {
 
             boolean forced = FORCED_SPAWNS.getOrDefault(uuid, false);
             int spawnAt = forced ? FORCED_SPAWN_DELAY : CHAT_DELAY;
-            int totalDelay = spawnAt + AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+            int totalDelay = spawnAt + AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
 
             if (!MESSAGES_SENT.getOrDefault(uuid, false) && timer >= spawnAt) {
                 var server = ServerLifecycleHooks.getCurrentServer();
@@ -153,11 +153,11 @@ public class K3wActionTracker {
         return SPAWN_TIMERS.containsKey(uuid) || ACTIVE_CLONES.containsKey(uuid);
     }
 
-    public static boolean forceK3wSpawn(Player player) {
+    public static boolean forceFriendSpawn(Player player) {
         UUID uuid = player.getUUID();
-        List<K3wEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        List<FriendEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         if (existing.size() >= 2) {
-            for (K3wEntity old : existing) {
+            for (FriendEntity old : existing) {
                 if (old.isAlive()) old.discard();
             }
         }
@@ -166,7 +166,7 @@ public class K3wActionTracker {
         MESSAGES_SENT.put(uuid, true);
         FORCED_SPAWNS.put(uuid, true);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        LOGGER.info("[K3wActionTracker] forced spawn for {}", player.getName().getString());
+        LOGGER.info("[FriendActionTracker] forced spawn for {}", player.getName().getString());
         if (player instanceof ServerPlayer) {
             var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
             if (server != null) {
@@ -183,12 +183,12 @@ public class K3wActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
         if (buf.size() < followTicks) return null;
         double[][] arr = buf.toArray(new double[0][]);
         int target = Math.max(0, arr.length - followTicks);
         double[] pt = arr[target];
-        LOGGER.debug("[K3wActionTracker] delayed position for {} buffer={}", player.getName().getString(), buf.size());
+        LOGGER.debug("[FriendActionTracker] delayed position for {} buffer={}", player.getName().getString(), buf.size());
         return new double[]{pt[0], pt[1], pt[2], pt[5]};
     }
 
@@ -196,7 +196,7 @@ public class K3wActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
         if (buf.size() < followTicks) return null;
         double[][] arr = buf.toArray(new double[0][]);
         int target = Math.max(0, arr.length - followTicks);
@@ -209,7 +209,7 @@ public class K3wActionTracker {
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, false);
         ACTION_LOGS.put(uuid, new ArrayList<>());
-        LOGGER.info("[K3wActionTracker] spawn sequence started for {}", player.getName().getString());
+        LOGGER.info("[FriendActionTracker] spawn sequence started for {}", player.getName().getString());
     }
 
     private static boolean spawnClone(Player player) {
@@ -222,14 +222,14 @@ public class K3wActionTracker {
             return false;
         }
 
-        List<K3wEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        List<FriendEntity> existing = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
         if (existing.size() >= 2) {
-            for (K3wEntity old : existing) {
+            for (FriendEntity old : existing) {
                 if (old.isAlive()) old.discard();
             }
         }
 
-        K3wEntity clone = ModEntities.K3W.get().create(level);
+        FriendEntity clone = ModEntities.FRIEND.get().create(level);
         if (clone == null) {
             cleanup(uuid);
             return false;
@@ -241,14 +241,14 @@ public class K3wActionTracker {
         clone.setInitialPath(path);
         clone.initTimers();
 
-        List<K3wEntity.K3wAction> actions = ACTION_LOGS.getOrDefault(uuid, new ArrayList<>());
+        List<FriendEntity.FriendAction> actions = ACTION_LOGS.getOrDefault(uuid, new ArrayList<>());
         clone.setInitialActions(actions);
 
         level.addFreshEntity(clone);
         ACTIVE_CLONES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(clone);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         SPAWN_COOLDOWNS.put(uuid, POST_SPAWN_COOLDOWN);
-        LOGGER.info("[K3wActionTracker] clone spawned for {} at {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
+        LOGGER.info("[FriendActionTracker] clone spawned for {} at {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 5.0f, 0.3f);
@@ -257,7 +257,7 @@ public class K3wActionTracker {
 
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
-        if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
+        if (!AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.get()) return;
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         UUID uuid = player.getUUID();
         if (!SPAWN_TIMERS.containsKey(uuid) && !ACTIVE_CLONES.containsKey(uuid)) return;
@@ -265,12 +265,12 @@ public class K3wActionTracker {
         BlockPos pos = event.getPos();
         var state = event.getState();
 
-        List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
-        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.BREAK, pos.getX(), pos.getY(), pos.getZ(), state));
-        LOGGER.debug("[K3wActionTracker] recorded break at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
+        List<FriendEntity.FriendAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
+        log.add(new FriendEntity.FriendAction(FriendEntity.FriendAction.ActionType.BREAK, pos.getX(), pos.getY(), pos.getZ(), state));
+        LOGGER.debug("[FriendActionTracker] recorded break at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
 
-        List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
-        for (K3wEntity clone : clones) {
+        List<FriendEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        for (FriendEntity clone : clones) {
             if (clone.isAlive()) {
                 clone.recordBlockBreak(player, pos, state);
             }
@@ -279,7 +279,7 @@ public class K3wActionTracker {
 
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
-        if (!AbnormalitiesConfig.K3W_PLACE_BLOCKS.get()) return;
+        if (!AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.get()) return;
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         UUID uuid = player.getUUID();
         if (!SPAWN_TIMERS.containsKey(uuid) && !ACTIVE_CLONES.containsKey(uuid)) return;
@@ -287,12 +287,12 @@ public class K3wActionTracker {
         BlockPos pos = event.getPos();
         var state = event.getState();
 
-        List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
-        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.PLACE, pos.getX(), pos.getY(), pos.getZ(), state));
-        LOGGER.debug("[K3wActionTracker] recorded place at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
+        List<FriendEntity.FriendAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
+        log.add(new FriendEntity.FriendAction(FriendEntity.FriendAction.ActionType.PLACE, pos.getX(), pos.getY(), pos.getZ(), state));
+        LOGGER.debug("[FriendActionTracker] recorded place at {} {} {} for {}", pos.getX(), pos.getY(), pos.getZ(), player.getName().getString());
 
-        List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
-        for (K3wEntity clone : clones) {
+        List<FriendEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        for (FriendEntity clone : clones) {
             if (clone.isAlive()) {
                 clone.recordBlockPlace(player, pos, state);
             }
@@ -301,7 +301,7 @@ public class K3wActionTracker {
 
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
-        if (!AbnormalitiesConfig.K3W_KILL_MOBS.get()) return;
+        if (!AbnormalitiesConfig.FRIEND_KILL_MOBS.get()) return;
         LivingEntity dead = event.getEntity();
         if (dead instanceof Player) return;
         if (dead.level().isClientSide) return;
@@ -313,12 +313,12 @@ public class K3wActionTracker {
 
         EntityType<?> type = dead.getType();
 
-        List<K3wEntity.K3wAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
-        log.add(new K3wEntity.K3wAction(K3wEntity.K3wAction.ActionType.KILL, dead.getX(), dead.getY(), dead.getZ(), type));
-        LOGGER.debug("[K3wActionTracker] recorded kill {} at {} {} {} for {}", type.getDescriptionId(), (int)dead.getX(), (int)dead.getY(), (int)dead.getZ(), player.getName().getString());
+        List<FriendEntity.FriendAction> log = ACTION_LOGS.computeIfAbsent(uuid, k -> new ArrayList<>());
+        log.add(new FriendEntity.FriendAction(FriendEntity.FriendAction.ActionType.KILL, dead.getX(), dead.getY(), dead.getZ(), type));
+        LOGGER.debug("[FriendActionTracker] recorded kill {} at {} {} {} for {}", type.getDescriptionId(), (int)dead.getX(), (int)dead.getY(), (int)dead.getZ(), player.getName().getString());
 
-        List<K3wEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
-        for (K3wEntity clone : clones) {
+        List<FriendEntity> clones = ACTIVE_CLONES.getOrDefault(uuid, Collections.emptyList());
+        for (FriendEntity clone : clones) {
             if (clone.isAlive()) {
                 clone.recordMobKill(player, dead.getX(), dead.getY(), dead.getZ(), type);
             }
@@ -326,10 +326,10 @@ public class K3wActionTracker {
     }
 
     private static void cleanup(UUID uuid) {
-        LOGGER.debug("[K3wActionTracker] cleanup for {}", uuid);
-        List<K3wEntity> clones = ACTIVE_CLONES.remove(uuid);
+        LOGGER.debug("[FriendActionTracker] cleanup for {}", uuid);
+        List<FriendEntity> clones = ACTIVE_CLONES.remove(uuid);
         if (clones != null) {
-            for (K3wEntity e : clones) {
+            for (FriendEntity e : clones) {
                 if (e.isAlive()) e.discard();
             }
         }
@@ -357,12 +357,12 @@ public class K3wActionTracker {
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         UUID uuid = player.getUUID();
-        List<K3wEntity> clones = ACTIVE_CLONES.get(uuid);
+        List<FriendEntity> clones = ACTIVE_CLONES.get(uuid);
         if (clones == null || clones.isEmpty()) return;
-        if (clones.stream().noneMatch(K3wEntity::isAlive)) return;
+        if (clones.stream().noneMatch(FriendEntity::isAlive)) return;
         if (CHAT_COOLDOWN.contains(uuid)) return;
         String msg = event.getMessage().getString();
-        int delayTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        int delayTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
         var server = player.getServer();
         if (server == null) return;
         CHAT_COOLDOWN.add(uuid);

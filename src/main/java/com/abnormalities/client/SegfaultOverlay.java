@@ -7,14 +7,14 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = com.abnormalities.AbnormalitiesMod.MODID, bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
-public class Vr9pOverlay {
-    private static final ResourceLocation VR9P_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9pstop.png");
-    private static final ResourceLocation VR9P_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/vr9pcontinue.png");
-    private static final ResourceLocation VR9P_HIT = new ResourceLocation("abnormalities", "textures/gui/vr9phit.png");
-    private static final ResourceLocation OVERLAY_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9p_overlaystop.png");
-    private static final ResourceLocation OVERLAY_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/vr9p_overlaycontinue.png");
-    private static final ResourceLocation TEXT_STOP = new ResourceLocation("abnormalities", "textures/gui/vr9p_textstop.png");
-    private static final ResourceLocation TEXT_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/vr9p_textcontinue.png");
+public class SegfaultOverlay {
+    private static final ResourceLocation SEGFAULT_STOP = new ResourceLocation("abnormalities", "textures/gui/segfaultstop.png");
+    private static final ResourceLocation SEGFAULT_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/segfaultcontinue.png");
+    private static final ResourceLocation SEGFAULT_HIT = new ResourceLocation("abnormalities", "textures/gui/segfaulthit.png");
+    private static final ResourceLocation OVERLAY_STOP = new ResourceLocation("abnormalities", "textures/gui/segfault_overlaystop.png");
+    private static final ResourceLocation OVERLAY_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/segfault_overlaycontinue.png");
+    private static final ResourceLocation TEXT_STOP = new ResourceLocation("abnormalities", "textures/gui/segfault_textstop.png");
+    private static final ResourceLocation TEXT_CONTINUE = new ResourceLocation("abnormalities", "textures/gui/segfault_textcontinue.png");
     private static final int OVERLAY_PRIORITY = 40;
     private static boolean registeredOverlay = false;
 
@@ -49,7 +49,7 @@ public class Vr9pOverlay {
             return;
         }
         if (!registeredOverlay) {
-            OverlayManager.register(OVERLAY_PRIORITY, Vr9pOverlay::renderOverlay);
+            OverlayManager.register(OVERLAY_PRIORITY, SegfaultOverlay::renderOverlay);
             registeredOverlay = true;
         }
     }
@@ -69,7 +69,7 @@ public class Vr9pOverlay {
         if (currentState == 3 || currentState == 4) {
             if (currentState == 3) {
                 gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-                gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+                gg.blit(SEGFAULT_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);
@@ -78,7 +78,7 @@ public class Vr9pOverlay {
                 }
             } else {
                 gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-                gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+                gg.blit(SEGFAULT_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);
@@ -88,11 +88,11 @@ public class Vr9pOverlay {
             }
         } else if (currentState == 2) {
             gg.fill(0, 0, sw, sh, 0x88000000);
-            gg.blit(VR9P_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+            gg.blit(SEGFAULT_HIT, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
         } else {
             if (currentState == 0) {
                 gg.blit(OVERLAY_STOP, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-                gg.blit(VR9P_STOP, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+                gg.blit(SEGFAULT_STOP, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);
@@ -101,7 +101,7 @@ public class Vr9pOverlay {
                 }
             } else if (currentState == 1) {
                 gg.blit(OVERLAY_CONTINUE, 0, 0, 0, 0.0F, 0.0F, sw, sh, sw, sh);
-                gg.blit(VR9P_CONTINUE, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
+                gg.blit(SEGFAULT_CONTINUE, fx, fy, 0, 0.0F, 0.0F, faceSize, faceSize, faceSize, faceSize);
                 if (elapsed < 200) {
                     float a = 1.0F - elapsed / 200.0F;
                     gg.setColor(1.0F, 1.0F, 1.0F, a);

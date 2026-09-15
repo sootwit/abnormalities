@@ -9,13 +9,13 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
-public class K3wModel extends HumanoidModel<K3wEntity> {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("abnormalities", "k3w"), "main");
-    public static final ModelLayerLocation LAYER_LOCATION_SLIM = new ModelLayerLocation(new ResourceLocation("abnormalities", "k3w_slim"), "main");
+public class FriendModel extends HumanoidModel<FriendEntity> {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("abnormalities", "friend"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION_SLIM = new ModelLayerLocation(new ResourceLocation("abnormalities", "friend_slim"), "main");
 
     private final boolean slim;
 
-    public K3wModel(ModelPart root, boolean slim) {
+    public FriendModel(ModelPart root, boolean slim) {
         super(root);
         this.slim = slim;
     }
@@ -87,7 +87,7 @@ public class K3wModel extends HumanoidModel<K3wEntity> {
     }
 
     @Override
-    public void setupAnim(K3wEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(FriendEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float glitch = (float) Math.sin(ageInTicks * 0.5F) * 0.1F;
         float staticFlicker = (float) Math.sin(ageInTicks * 2.0F) * 0.05F;
 

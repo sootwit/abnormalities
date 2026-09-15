@@ -412,7 +412,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
                 if (srv != null) {
                     for (var p : new ArrayList<>(srv.getPlayerList().getPlayers())) {
                         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.K3W_CRASH4.get()),
+                            net.minecraft.core.Holder.direct(com.abnormalities.registry.ModSounds.FRIEND_CRASH4.get()),
                             SoundSource.MASTER, this.getX(), this.getY(), this.getZ(), 3.0f, 1.0f, 0));
                     }
                 }

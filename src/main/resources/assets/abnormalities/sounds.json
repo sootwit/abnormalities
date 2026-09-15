@@ -9,42 +9,42 @@
             }
         ]
     },
-    "k3w_crash1": {
+    "friend_crash1": {
         "category": "master",
         "range": 64,
         "sounds": [
             {
-                "name": "abnormalities:k3w1edit",
+                "name": "abnormalities:friend1edit",
                 "stream": true
             }
         ]
     },
-    "k3w_crash2": {
+    "friend_crash2": {
         "category": "master",
         "range": 64,
         "sounds": [
             {
-                "name": "abnormalities:k3w2edit",
+                "name": "abnormalities:friend2edit",
                 "stream": true
             }
         ]
     },
-    "k3w_crash3": {
+    "friend_crash3": {
         "category": "master",
         "range": 64,
         "sounds": [
             {
-                "name": "abnormalities:k3w3edit",
+                "name": "abnormalities:friend3edit",
                 "stream": true
             }
         ]
     },
-    "k3w_crash4": {
+    "friend_crash4": {
         "category": "master",
         "range": 64,
         "sounds": [
             {
-                "name": "abnormalities:k3w4edit",
+                "name": "abnormalities:friend4edit",
                 "stream": true
             }
         ]
@@ -79,29 +79,29 @@
             }
         ]
     },
-    "vr9p_stop": {
+    "segfault_stop": {
         "category": "master",
         "sounds": [
             {
-                "name": "abnormalities:vr9pstopedit",
+                "name": "abnormalities:segfaultstopedit",
                 "stream": true
             }
         ]
     },
-    "vr9p_continue": {
+    "segfault_continue": {
         "category": "master",
         "sounds": [
             {
-                "name": "abnormalities:vr9pcontinueedit",
+                "name": "abnormalities:segfaultcontinueedit",
                 "stream": true
             }
         ]
     },
-    "vr9p_ambience": {
+    "segfault_ambience": {
         "category": "master",
         "sounds": [
             {
-                "name": "abnormalities:vr9p_ambience",
+                "name": "abnormalities:segfault_ambience",
                 "stream": true
             }
         ]

@@ -35,15 +35,15 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class K3wEntity extends Mob {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|K3w");
+public class FriendEntity extends Mob {
+    private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Friend");
     private static final int CHAT_DELAY = 600;
-    private static final TicketType<K3wEntity> K3W_TICKET = TicketType.create("abnormalities_k3w", Comparator.comparingInt(System::identityHashCode), 0);
-    private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(K3wEntity.class, EntityDataSerializers.STRING);
+    private static final TicketType<FriendEntity> FRIEND_TICKET = TicketType.create("abnormalities_friend", Comparator.comparingInt(System::identityHashCode), 0);
+    private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.STRING);
 
-    private final List<K3wAction> pendingActions = new ArrayList<>();
+    private final List<FriendAction> pendingActions = new ArrayList<>();
     private final Set<BlockPos> undonePositions = new HashSet<>();
 
     private Player targetPlayer;
@@ -66,7 +66,7 @@ public class K3wEntity extends Mob {
     private BlockPos forcedChunk = null;
     private boolean needsChunkForce = false;
 
-    public K3wEntity(EntityType<? extends K3wEntity> type, Level level) {
+    public FriendEntity(EntityType<? extends FriendEntity> type, Level level) {
         super(type, level);
         this.xpReward = 0;
         this.setPersistenceRequired();
@@ -152,7 +152,7 @@ public class K3wEntity extends Mob {
             if (skinObj == null) return null;
             return skinObj.get("url").getAsString();
         } catch (Exception e) {
-            LOGGER.debug("[K3w] failed to extract skin from profile: {}", e.getMessage());
+            LOGGER.debug("[Friend] failed to extract skin from profile: {}", e.getMessage());
             return null;
         }
     }
@@ -165,7 +165,7 @@ public class K3wEntity extends Mob {
         if (player != null && this.targetPlayer != null && player.getUUID().equals(this.targetPlayer.getUUID())) {
             return;
         }
-        LOGGER.info("[K3w] target set to {} (was {})", player != null ? player.getName().getString() : "null", this.targetPlayer != null ? this.targetPlayer.getName().getString() : "null");
+        LOGGER.info("[Friend] target set to {} (was {})", player != null ? player.getName().getString() : "null", this.targetPlayer != null ? this.targetPlayer.getName().getString() : "null");
         this.targetPlayer = player;
         if (player != null) {
             UUID uuid = player.getUUID();
@@ -175,7 +175,7 @@ public class K3wEntity extends Mob {
             String skinUrl = extractSkinFromProfile(player);
             if (skinUrl != null) {
                 this.entityData.set(DATA_SKIN, skinUrl);
-                LOGGER.info("[K3w] populated skin from profile for {}: {}", player.getName().getString(), skinUrl);
+                LOGGER.info("[Friend] populated skin from profile for {}: {}", player.getName().getString(), skinUrl);
             } else {
                 this.entityData.set(DATA_SKIN, "");
             }
@@ -209,7 +209,7 @@ public class K3wEntity extends Mob {
         messageSent = false;
     }
 
-    public void setInitialActions(List<K3wAction> actions) {
+    public void setInitialActions(List<FriendAction> actions) {
         this.pendingActions.clear();
         this.pendingActions.addAll(actions);
     }
@@ -217,8 +217,8 @@ public class K3wEntity extends Mob {
     public void recordBlockBreak(Player player, BlockPos pos, BlockState state) {
         if (targetPlayer == null || player != targetPlayer) return;
         if (!level().isClientSide) {
-            pendingActions.add(new K3wAction(
-                    K3wAction.ActionType.BREAK,
+            pendingActions.add(new FriendAction(
+                    FriendAction.ActionType.BREAK,
                     pos.getX(), pos.getY(), pos.getZ(),
                     state
             ));
@@ -228,8 +228,8 @@ public class K3wEntity extends Mob {
     public void recordBlockPlace(Player player, BlockPos pos, BlockState state) {
         if (targetPlayer == null || player != targetPlayer) return;
         if (!level().isClientSide) {
-            pendingActions.add(new K3wAction(
-                    K3wAction.ActionType.PLACE,
+            pendingActions.add(new FriendAction(
+                    FriendAction.ActionType.PLACE,
                     pos.getX(), pos.getY(), pos.getZ(),
                     state
             ));
@@ -239,8 +239,8 @@ public class K3wEntity extends Mob {
     public void recordMobKill(Player player, double x, double y, double z, EntityType<?> type) {
         if (targetPlayer == null || player != targetPlayer) return;
         if (!level().isClientSide) {
-            pendingActions.add(new K3wAction(
-                    K3wAction.ActionType.KILL,
+            pendingActions.add(new FriendAction(
+                    FriendAction.ActionType.KILL,
                     x, y, z,
                     type
             ));
@@ -264,11 +264,11 @@ public class K3wEntity extends Mob {
             boolean chunkChanged = forcedChunk == null || (forcedChunk.getX() >> 4) != (targetChunk.getX() >> 4) || (forcedChunk.getZ() >> 4) != (targetChunk.getZ() >> 4);
             if (chunkChanged || needsChunkForce) {
                 if (forcedChunk != null && level() instanceof ServerLevel sl) {
-                    sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+                    sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
                 }
                 forcedChunk = targetChunk;
                 if (level() instanceof ServerLevel sl) {
-                    sl.getChunkSource().addRegionTicket(K3W_TICKET, new ChunkPos(targetChunk), 2, this);
+                    sl.getChunkSource().addRegionTicket(FRIEND_TICKET, new ChunkPos(targetChunk), 2, this);
                 }
                 needsChunkForce = false;
             }
@@ -288,11 +288,11 @@ public class K3wEntity extends Mob {
                     BlockPos p = bp.offset(dx, dy, dz);
                     BlockState s = level().getBlockState(p);
                     if (s.getBlock() instanceof DoorBlock door) {
-                        LOGGER.debug("[K3w] opening door at {}", p);
+                        LOGGER.debug("[Friend] opening door at {}", p);
                         door.setOpen(this, level(), s, p, true);
                     } else if (s.getBlock() instanceof TrapDoorBlock) {
                         if (!s.getValue(TrapDoorBlock.OPEN)) {
-                            LOGGER.debug("[K3w] opening trapdoor at {}", p);
+                            LOGGER.debug("[Friend] opening trapdoor at {}", p);
                             level().setBlock(p, s.setValue(TrapDoorBlock.OPEN, true), 2);
                         }
                     }
@@ -307,7 +307,7 @@ public class K3wEntity extends Mob {
             var nearest = level().getNearestPlayer(this, 64.0D);
             if (nearest != null) {
                 setTargetPlayer(nearest);
-                int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+                int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
                 spawnTimer = CHAT_DELAY + followTicks;
                 messageSent = true;
                 List<double[]> dummyPath = new ArrayList<>();
@@ -325,7 +325,7 @@ public class K3wEntity extends Mob {
 
         if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
             if (this.tickCount - this.lastHurtTick > 40) {
-                double[] hp = K3wActionTracker.getDelayedHealth(targetPlayer);
+                double[] hp = FriendActionTracker.getDelayedHealth(targetPlayer);
                 if (hp != null) {
                     this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(hp[1]);
                     this.setHealth((float) hp[0]);
@@ -342,14 +342,14 @@ public class K3wEntity extends Mob {
             crashTimer++;
             if (targetPlayer instanceof ServerPlayer sp2) {
                 if (crashTimer == 10) {
-                    LOGGER.info("[K3w] crash sequence: nur sound playing");
+                    LOGGER.info("[Friend] crash sequence: nur sound playing");
                     level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                             ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 10.0f, 1.0f);
                 }
                 if (crashTimer >= 16) {
-                    LOGGER.info("[K3w] crash sequence complete: punishing {}", targetPlayer.getName().getString());
-                    K3wEntity.this.discard();
-                    if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
+                    LOGGER.info("[Friend] crash sequence complete: punishing {}", targetPlayer.getName().getString());
+                    FriendEntity.this.discard();
+                    if (AbnormalitiesConfig.FRIEND_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
                         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2),
                             new com.abnormalities.network.CrashPacket());
@@ -367,30 +367,30 @@ public class K3wEntity extends Mob {
 
         double dist = this.distanceTo(targetPlayer);
         if (dist < 2.0D && hitCooldown <= 0 && !isCrashing() && targetPlayer.isAlive()) {
-            LOGGER.info("[K3w] caught player {} at distance {}", targetPlayer.getName().getString(), String.format("%.1f", dist));
+            LOGGER.info("[Friend] caught player {} at distance {}", targetPlayer.getName().getString(), String.format("%.1f", dist));
             targetPlayer.hurt(targetPlayer.damageSources().mobAttack(this), 10.0F);
             hitCooldown = 20;
 
             if (!level().isClientSide && targetPlayer instanceof ServerPlayer sp) {
                 if (possessionActive) {
-                    LOGGER.info("[K3w] possession catch on {} - all possessed, punishing everyone", sp.getName().getString());
+                    LOGGER.info("[Friend] possession catch on {} - all possessed, punishing everyone", sp.getName().getString());
                     punishAllPossessed(sp);
                     return;
                 }
                 int onlinePlayers = level().getServer() != null ? level().getServer().getPlayerList().getPlayers().size() : 1;
                 if (onlinePlayers >= 2) {
-                    LOGGER.info("[K3w] starting possession chain on {} ({} players online)", sp.getName().getString(), onlinePlayers);
+                    LOGGER.info("[Friend] starting possession chain on {} ({} players online)", sp.getName().getString(), onlinePlayers);
                     startPossession(sp);
                     return;
                 }
                 RegistryObject<SoundEvent>[] crashSounds = new RegistryObject[]{
-                        ModSounds.K3W_CRASH1, ModSounds.K3W_CRASH2, ModSounds.K3W_CRASH3, ModSounds.K3W_CRASH4
+                        ModSounds.FRIEND_CRASH1, ModSounds.FRIEND_CRASH2, ModSounds.FRIEND_CRASH3, ModSounds.FRIEND_CRASH4
                 };
                 RegistryObject<SoundEvent> chosen = crashSounds[this.random.nextInt(crashSounds.length)];
                 level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
                         chosen.get(), SoundSource.MASTER, 10.0f, 1.0f);
 
-                if (AbnormalitiesConfig.K3W_PUNISH.get() != AbnormalitiesConfig.PunishMode.NONE) {
+                if (AbnormalitiesConfig.FRIEND_PUNISH.get() != AbnormalitiesConfig.PunishMode.NONE) {
                     this.entityData.set(DATA_CRASHING, true);
                     crashTimer = 0;
                 }
@@ -400,7 +400,7 @@ public class K3wEntity extends Mob {
 
         spawnTimer++;
 
-        int followTicks = AbnormalitiesConfig.K3W_FOLLOW_TIME.get() * 20;
+        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
 
         if (spawnTimer < CHAT_DELAY + followTicks) return;
 
@@ -423,7 +423,7 @@ public class K3wEntity extends Mob {
 
         double[] target;
         if (currentPathIndex >= pathPoints.size()) {
-            target = K3wActionTracker.getDelayedPosition(targetPlayer);
+            target = FriendActionTracker.getDelayedPosition(targetPlayer);
             if (target == null) {
                 if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && pathDist > 32) {
                     this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
@@ -432,7 +432,7 @@ public class K3wEntity extends Mob {
                 }
                 return;
             }
-            LOGGER.debug("[K3w] path complete, following delayed position");
+            LOGGER.debug("[Friend] path complete, following delayed position");
             this.setPos(target[0], target[1], target[2]);
             this.setNoGravity(true);
             this.noPhysics = true;
@@ -459,9 +459,9 @@ public class K3wEntity extends Mob {
         if (currentPathIndex < pathPoints.size()) currentPathIndex++;
 
         BlockPos targetPos = this.blockPosition();
-        Iterator<K3wAction> it = pendingActions.iterator();
+        Iterator<FriendAction> it = pendingActions.iterator();
         while (it.hasNext()) {
-            K3wAction action = it.next();
+            FriendAction action = it.next();
             BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
             if (targetPos.distSqr(actionPos) <= 36 && !undonePositions.contains(actionPos)) {
                 executeUndo(action);
@@ -471,12 +471,12 @@ public class K3wEntity extends Mob {
         }
     }
 
-    private void executeUndo(K3wAction action) {
+    private void executeUndo(FriendAction action) {
         BlockPos pos = new BlockPos(action.x, action.y, action.z);
-        LOGGER.info("[K3w] undoing {} at ({}, {}, {})", action.type, action.x, action.y, action.z);
+        LOGGER.info("[Friend] undoing {} at ({}, {}, {})", action.type, action.x, action.y, action.z);
         switch (action.type) {
             case BREAK -> {
-                if (!AbnormalitiesConfig.K3W_BREAK_BLOCKS.get()) return;
+                if (!AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.get()) return;
                 if (level().getBlockState(pos).isAir()) {
                     if (action.blockState != null) {
                         level().setBlockAndUpdate(pos, action.blockState);
@@ -486,7 +486,7 @@ public class K3wEntity extends Mob {
                 }
             }
             case PLACE -> {
-                if (!AbnormalitiesConfig.K3W_PLACE_BLOCKS.get()) return;
+                if (!AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.get()) return;
                 if (!level().getBlockState(pos).isAir()) {
                     level().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                     level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
@@ -494,7 +494,7 @@ public class K3wEntity extends Mob {
                 }
             }
             case KILL -> {
-                if (!AbnormalitiesConfig.K3W_REVIVE_MOBS.get()) return;
+                if (!AbnormalitiesConfig.FRIEND_REVIVE_MOBS.get()) return;
                 if (action.entityType != null) {
                     try {
                         var entity = action.entityType.create(level());
@@ -521,7 +521,7 @@ public class K3wEntity extends Mob {
 
     @Override
     public void remove(net.minecraft.world.entity.Entity.RemovalReason reason) {
-        LOGGER.info("[K3w] removed, reason={}", reason);
+        LOGGER.info("[Friend] removed, reason={}", reason);
         if (possessionActive) {
             for (UUID uuid : possessedPlayers) {
                 ServerPlayer p = level().getServer() != null ? level().getServer().getPlayerList().getPlayer(uuid) : null;
@@ -529,13 +529,13 @@ public class K3wEntity extends Mob {
                     p.setInvisible(false);
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
-                        new com.abnormalities.network.K3wPossessPacket(-1, this.getId()));
+                        new com.abnormalities.network.FriendPossessPacket(-1, this.getId()));
                 }
             }
             possessionActive = false;
         }
         if (forcedChunk != null && level() instanceof ServerLevel sl) {
-            sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
         }
         super.remove(reason);
@@ -548,7 +548,7 @@ public class K3wEntity extends Mob {
     @Override
     public void die(net.minecraft.world.damagesource.DamageSource source) {
         if (forcedChunk != null && level() instanceof ServerLevel sl) {
-            sl.getChunkSource().removeRegionTicket(K3W_TICKET, new ChunkPos(forcedChunk), 2, this);
+            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
         }
         if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide) {
@@ -588,7 +588,7 @@ public class K3wEntity extends Mob {
         tag.put("PathPoints", pathTag);
 
         net.minecraft.nbt.ListTag actionTag = new net.minecraft.nbt.ListTag();
-        for (K3wAction action : pendingActions) {
+        for (FriendAction action : pendingActions) {
             CompoundTag aTag = new CompoundTag();
             aTag.putString("Type", action.type.name());
             aTag.putInt("X", action.x);
@@ -638,15 +638,15 @@ public class K3wEntity extends Mob {
         net.minecraft.nbt.ListTag actionTag = tag.getList("PendingActions", 10);
         for (int i = 0; i < actionTag.size(); i++) {
             CompoundTag aTag = actionTag.getCompound(i);
-            K3wAction.ActionType type;
-            try { type = K3wAction.ActionType.valueOf(aTag.getString("Type")); } catch (Exception ignored) { continue; }
+            FriendAction.ActionType type;
+            try { type = FriendAction.ActionType.valueOf(aTag.getString("Type")); } catch (Exception ignored) { continue; }
             int ax = aTag.getInt("X"), ay = aTag.getInt("Y"), az = aTag.getInt("Z");
             if (aTag.contains("EntityType")) {
                 EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
-                if (et != null) pendingActions.add(new K3wAction(type, (double)ax, (double)ay, (double)az, et));
+                if (et != null) pendingActions.add(new FriendAction(type, (double)ax, (double)ay, (double)az, et));
             } else if (aTag.contains("BlockState")) {
                 net.minecraft.world.level.block.state.BlockState bs = net.minecraft.world.level.block.Block.stateById(aTag.getInt("BlockState"));
-                if (bs != null) pendingActions.add(new K3wAction(type, ax, ay, az, bs));
+                if (bs != null) pendingActions.add(new FriendAction(type, ax, ay, az, bs));
             }
         }
     }
@@ -659,12 +659,12 @@ public class K3wEntity extends Mob {
                 if (possessionPhaseTicks == 5) {
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> possessed),
-                        new com.abnormalities.network.K3wPossessPacket(0, this.getId()));
+                        new com.abnormalities.network.FriendPossessPacket(0, this.getId()));
                 }
                 if (possessionPhaseTicks == 105) {
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> possessed),
-                        new com.abnormalities.network.K3wPossessPacket(1, this.getId()));
+                        new com.abnormalities.network.FriendPossessPacket(1, this.getId()));
                 }
                 possessed.setInvisible(true);
                 possessed.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
@@ -696,14 +696,14 @@ public class K3wEntity extends Mob {
             this.getLookControl().setLookAt(targetPlayer, 30, 30);
             double d = this.distanceTo(targetPlayer);
             if (d < 2.0D && targetPlayer instanceof ServerPlayer nextVictim) {
-                LOGGER.info("[K3w] possession caught next player {}", nextVictim.getName().getString());
+                LOGGER.info("[Friend] possession caught next player {}", nextVictim.getName().getString());
                 possessedPlayers.add(nextVictim.getUUID());
                 possessingPlayer = nextVictim.getUUID();
                 possessionPhaseTicks = 0;
                 nextVictim.setInvisible(true);
                 com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                     net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> nextVictim),
-                    new com.abnormalities.network.K3wPossessPacket(0, this.getId()));
+                    new com.abnormalities.network.FriendPossessPacket(0, this.getId()));
                 ServerPlayer next = findNextPossessionTarget();
                 if (next == null) {
                     punishAllPossessed(nextVictim);
@@ -726,7 +726,7 @@ public class K3wEntity extends Mob {
     }
 
     private void punishAllPossessed(ServerPlayer finalVictim) {
-        LOGGER.info("[K3w] possession complete, punishing {} possessed players", possessedPlayers.size());
+        LOGGER.info("[Friend] possession complete, punishing {} possessed players", possessedPlayers.size());
         if (level().getServer() == null) return;
         for (UUID uuid : possessedPlayers) {
             ServerPlayer p = level().getServer().getPlayerList().getPlayer(uuid);
@@ -734,13 +734,13 @@ public class K3wEntity extends Mob {
             p.setInvisible(false);
             com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                 net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
-                new com.abnormalities.network.K3wPossessPacket(-1, this.getId()));
-            if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
+                new com.abnormalities.network.FriendPossessPacket(-1, this.getId()));
+            if (AbnormalitiesConfig.FRIEND_PUNISH.get() == AbnormalitiesConfig.PunishMode.CRASH) {
                 com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                     net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
                     new com.abnormalities.network.CrashPacket());
-            } else if (AbnormalitiesConfig.K3W_PUNISH.get() == AbnormalitiesConfig.PunishMode.KICK) {
-                p.connection.disconnect(Component.literal("k3w got you."));
+            } else if (AbnormalitiesConfig.FRIEND_PUNISH.get() == AbnormalitiesConfig.PunishMode.KICK) {
+                p.connection.disconnect(Component.literal("got you!"));
             }
         }
         this.discard();
@@ -756,10 +756,10 @@ public class K3wEntity extends Mob {
         this.setInvisible(true);
         this.setNoAi(true);
         this.getNavigation().stop();
-        LOGGER.info("[K3w] possession started on {}", victim.getName().getString());
+        LOGGER.info("[Friend] possession started on {}", victim.getName().getString());
     }
 
-    public static class K3wAction {
+    public static class FriendAction {
         enum ActionType { BREAK, PLACE, KILL }
 
         final ActionType type;
@@ -767,7 +767,7 @@ public class K3wEntity extends Mob {
         final net.minecraft.world.level.block.state.BlockState blockState;
         final net.minecraft.world.entity.EntityType<?> entityType;
 
-        K3wAction(ActionType type, int x, int y, int z, net.minecraft.world.level.block.state.BlockState blockState) {
+        FriendAction(ActionType type, int x, int y, int z, net.minecraft.world.level.block.state.BlockState blockState) {
             this.type = type;
             this.x = x;
             this.y = y;
@@ -776,7 +776,7 @@ public class K3wEntity extends Mob {
             this.entityType = null;
         }
 
-        K3wAction(ActionType type, double x, double y, double z, net.minecraft.world.entity.EntityType<?> entityType) {
+        FriendAction(ActionType type, double x, double y, double z, net.minecraft.world.entity.EntityType<?> entityType) {
             this.type = type;
             this.x = (int) Math.floor(x);
             this.y = (int) Math.floor(y);

@@ -45,14 +45,14 @@ public class ConfigScreen extends Screen {
         presets.clear();
 
         presets.add(new PresetEntry("Disable ALL block destruction",
-                "Turns off nur block breaking, k3w undo, 0x0000 pillars, corruption, chunks, border, miner, him tower/bridge",
+                "Turns off nur block breaking, friend undo, 0x0000 pillars, corruption, chunks, border, miner, him tower/bridge",
                 () -> {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.NUR_TOWER.set(false);
                     AbnormalitiesConfig.NUR_BRIDGE.set(false);
                     AbnormalitiesConfig.NUR_LIQUID.set(false);
-                    AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(false);
-                    AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(false);
+                    AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.set(false);
+                    AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(false);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
                     AbnormalitiesConfig.HN_BORDER_ENABLED.set(false);
@@ -63,10 +63,10 @@ public class ConfigScreen extends Screen {
                 }));
 
         presets.add(new PresetEntry("Disable ALL hostile entities",
-                "Turns off nur, k3w, him, skinwalkers",
+                "Turns off nur, friend, him, skinwalkers",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(false);
-                    AbnormalitiesConfig.K3W_ENABLED.set(false);
+                    AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
@@ -74,10 +74,10 @@ public class ConfigScreen extends Screen {
                 }));
 
         presets.add(new PresetEntry("Disable ALL events",
-                "Turns off every horror event (vr9p, hush, miner, etc)",
+                "Turns off every horror event (segfault, hush, miner, etc)",
                 () -> {
-                    AbnormalitiesConfig.VR9P_ENABLED.set(false);
-                    AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
@@ -120,14 +120,14 @@ public class ConfigScreen extends Screen {
                 }));
 
         presets.add(new PresetEntry("Safe mode (entities + events off)",
-                "Disables all hostile entities and all events. Only xYz remains.",
+                "Disables all hostile entities and all events. Only The Mother remains.",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(false);
-                    AbnormalitiesConfig.K3W_ENABLED.set(false);
+                    AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
-                    AbnormalitiesConfig.VR9P_ENABLED.set(false);
-                    AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
@@ -151,12 +151,12 @@ public class ConfigScreen extends Screen {
                 "Only nur spawns. Everything else off.",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(true);
-                    AbnormalitiesConfig.K3W_ENABLED.set(false);
+                    AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
-                    AbnormalitiesConfig.XYZ_ENABLED.set(false);
-                    AbnormalitiesConfig.VR9P_ENABLED.set(false);
-                    AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(false);
+                    AbnormalitiesConfig.THE_MOTHER_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_ENABLED.set(false);
+                    AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(false);
@@ -181,12 +181,12 @@ public class ConfigScreen extends Screen {
                 "Re-enable all entities and events (default)",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(true);
-                    AbnormalitiesConfig.K3W_ENABLED.set(true);
-                    AbnormalitiesConfig.XYZ_ENABLED.set(true);
+                    AbnormalitiesConfig.FRIEND_ENABLED.set(true);
+                    AbnormalitiesConfig.THE_MOTHER_ENABLED.set(true);
                     AbnormalitiesConfig.HIM_ENABLED.set(true);
                     AbnormalitiesConfig.SW_ENABLED.set(true);
-                    AbnormalitiesConfig.VR9P_ENABLED.set(true);
-                    AbnormalitiesConfig.VR9P_STARGAZED_ENABLED.set(true);
+                    AbnormalitiesConfig.SEGFAULT_ENABLED.set(true);
+                    AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.set(true);
                     AbnormalitiesConfig.HUSH_ENABLED.set(true);
                     AbnormalitiesConfig.M1NER_ENABLED.set(true);
                     AbnormalitiesConfig.V1S1T_ENABLED.set(true);
@@ -206,8 +206,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_TOWER.set(true);
                     AbnormalitiesConfig.NUR_BRIDGE.set(true);
                     AbnormalitiesConfig.NUR_LIQUID.set(true);
-                    AbnormalitiesConfig.K3W_BREAK_BLOCKS.set(true);
-                    AbnormalitiesConfig.K3W_PLACE_BLOCKS.set(true);
+                    AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.set(true);
+                    AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(true);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(true);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(true);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(true);

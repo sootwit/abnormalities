@@ -1,8 +1,8 @@
 package com.abnormalities;
 
 import com.abnormalities.config.AbnormalitiesConfig;
-import com.abnormalities.entity.K3wActionTracker;
-import com.abnormalities.entity.XyzEntity;
+import com.abnormalities.entity.FriendActionTracker;
+import com.abnormalities.entity.TheMotherEntity;
 import com.abnormalities.horror.HorrorEventPool;
 import com.abnormalities.registry.ModEntities;
 import com.abnormalities.registry.ModEvents;
@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "k3wSpawns", "xyzSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "vr9p", "vr9pStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "friendSpawns", "theMotherSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "segfault", "segfaultStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -142,8 +142,8 @@ public class AbnormalitiesCommands {
     private static void fireEvent(ServerPlayer player, String eventName) {
         switch (eventName) {
             case "nurSpawns" -> ModEvents.forceNurSpawn(player);
-            case "k3wSpawns" -> K3wActionTracker.forceK3wSpawn(player);
-            case "xyzSpawns" -> forceXyzSpawn(player);
+            case "friendSpawns" -> FriendActionTracker.forceFriendSpawn(player);
+            case "theMotherSpawns" -> forceTheMotherSpawn(player);
             case "himSpawns" -> {
                 if (!ModEvents.forceHimSpawn(player, false)) {
                     player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
@@ -155,8 +155,8 @@ public class AbnormalitiesCommands {
                 }
             }
             case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
-            case "vr9p" -> com.abnormalities.horror.Vr9pController.forceStart(player);
-            case "vr9pStargazed" -> com.abnormalities.horror.Vr9pController.forceStartStargazed(player);
+            case "segfault" -> com.abnormalities.horror.SegfaultController.forceStart(player);
+            case "segfaultStargazed" -> com.abnormalities.horror.SegfaultController.forceStartStargazed(player);
             case "v1s1t" -> com.abnormalities.horror.V1s1tManager.forceVisit(player);
             case "hush" -> com.abnormalities.horror.HushController.forceStart(player);
             case "w4k3" -> com.abnormalities.horror.WakeDisplacementEvent.forceDisplace(player);
@@ -213,16 +213,16 @@ public class AbnormalitiesCommands {
         }
     }
 
-    public static void forceXyzSpawn(ServerPlayer player) {
+    public static void forceTheMotherSpawn(ServerPlayer player) {
         var level = (net.minecraft.server.level.ServerLevel) player.level();
-        var chosenItem = XyzEntity.pickNearbyItem(level, player.getX(), player.getZ());
+        var chosenItem = TheMotherEntity.pickNearbyItem(level, player.getX(), player.getZ());
         int maxStack = chosenItem.getMaxStackSize();
         int amount;
-        if (AbnormalitiesConfig.XYZ_STATIC_AMOUNT.get()) {
-            amount = Math.min(maxStack, AbnormalitiesConfig.XYZ_STATIC_ITEM_COUNT.get());
+        if (AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT.get()) {
+            amount = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_STATIC_ITEM_COUNT.get());
         } else {
-            int min = Math.min(maxStack, AbnormalitiesConfig.XYZ_MIN_ITEMS.get());
-            int max = Math.min(maxStack, AbnormalitiesConfig.XYZ_MAX_ITEMS.get());
+            int min = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_MIN_ITEMS.get());
+            int max = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_MAX_ITEMS.get());
             amount = max > min ? min + level.random.nextInt(max - min + 1) : min;
         }
 
@@ -232,20 +232,20 @@ public class AbnormalitiesCommands {
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
 
-        XyzEntity xyz = ModEntities.XYZ.get().create(level);
-        if (xyz != null) {
-            xyz.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
-            xyz.setTargetPlayer(player);
-            level.addFreshEntity(xyz);
+        TheMotherEntity theMother = ModEntities.XYZ.get().create(level);
+        if (theMother != null) {
+            theMother.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+            theMother.setTargetPlayer(player);
+            level.addFreshEntity(theMother);
             int seconds;
-            if (AbnormalitiesConfig.XYZ_STATIC_WAIT.get()) {
-                seconds = AbnormalitiesConfig.XYZ_STATIC_WAIT_SECONDS.get();
+            if (AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.get()) {
+                seconds = AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT_SECONDS.get();
             } else {
-                int min = AbnormalitiesConfig.XYZ_MIN_WAIT.get();
-                int max = AbnormalitiesConfig.XYZ_MAX_WAIT.get();
+                int min = AbnormalitiesConfig.THE_MOTHER_MIN_WAIT.get();
+                int max = AbnormalitiesConfig.THE_MOTHER_MAX_WAIT.get();
                 seconds = min + (max > min ? level.random.nextInt(max - min + 1) : 0);
             }
-            xyz.startRequest(amount, chosenItem, seconds);
+            theMother.startRequest(amount, chosenItem, seconds);
 
             String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
             String msg;
@@ -257,7 +257,7 @@ public class AbnormalitiesCommands {
             }
             player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                     Component.literal(msg).withStyle(ChatFormatting.LIGHT_PURPLE), false));
-            xyz.setMessageSent(true);
+            theMother.setMessageSent(true);
         }
     }
 
