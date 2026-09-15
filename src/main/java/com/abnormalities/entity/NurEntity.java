@@ -64,6 +64,7 @@ public class NurEntity extends Mob {
     private int pendingDiscard = 0;
     private boolean dummyTriggered = false;
     private NurEntity.State lastState = null;
+    public boolean forceSignTeleport = false;
 
     public NurEntity(EntityType<? extends NurEntity> type, Level level) {
         super(type, level);
@@ -389,7 +390,7 @@ public class NurEntity extends Mob {
             if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp
                     && com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()
                     && sp.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
-                int signChance = com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
+                int signChance = forceSignTeleport ? 1 : com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
                 if (signChance > 0 && level().random.nextInt(signChance) == 0) {
                     com.abnormalities.sign.SignDimension.teleportToSign(sp, sp.blockPosition());
                     this.discard();
@@ -462,7 +463,7 @@ public class NurEntity extends Mob {
             if (currentTarget instanceof net.minecraft.server.level.ServerPlayer sp
                     && com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()
                     && sp.level().dimension() == net.minecraft.world.level.Level.OVERWORLD) {
-                int signChance = com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
+                int signChance = forceSignTeleport ? 1 : com.abnormalities.config.AbnormalitiesConfig.SIGN_TELEPORT_CHANCE.get();
                 if (signChance > 0 && level().random.nextInt(signChance) == 0) {
                     com.abnormalities.sign.SignDimension.teleportToSign(sp, sp.blockPosition());
                     this.discard();

@@ -119,6 +119,22 @@ public class ModEvents {
         }
     }
     private static final List<SkinwalkerSpawnTask> PENDING_SKINWALKER_SPAWNS = new ArrayList<>();
+
+    private static class SignSpawnTask {
+        int ticksRemaining;
+        final ServerLevel level;
+        final java.util.UUID playerUUID;
+        final double angle;
+        final double dist;
+        SignSpawnTask(int delay, double angle, double dist, ServerLevel level, java.util.UUID playerUUID) {
+            this.ticksRemaining = delay;
+            this.angle = angle;
+            this.dist = dist;
+            this.level = level;
+            this.playerUUID = playerUUID;
+        }
+    }
+    private static final List<SignSpawnTask> PENDING_SIGN_SPAWNS = new ArrayList<>();
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
     private static final Map<UUID, int[]> THE_MOTHER_CHUNKS = new HashMap<>();
     private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
@@ -154,6 +170,31 @@ public class ModEvents {
         player.level().playSound(null, preSx, preSy, preSz,
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
         PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
+    }
+
+    public static void forceNurSignSpawn(ServerPlayer player) {
+        if (!AbnormalitiesConfig.NUR_ENABLED.get()) {
+            LOGGER.info("[Events] forceNurSignSpawn skipped for {}, nur disabled", player.getName().getString());
+            return;
+        }
+        if (!AbnormalitiesConfig.SIGN_ENABLED.get()) {
+            LOGGER.info("[Events] forceNurSignSpawn skipped for {}, sign dimension disabled", player.getName().getString());
+            return;
+        }
+        LOGGER.info("[Events] forceNurSignSpawn for {}", player.getName().getString());
+        ServerLevel level = (ServerLevel) player.level();
+        String text = PRE_SPAWN_TEXTS[level.random.nextInt(PRE_SPAWN_TEXTS.length)];
+        var srv = level.getServer();
+        if (srv != null) {
+            var players = new java.util.ArrayList<>(srv.getPlayerList().getPlayers());
+            for (var p : players) {
+                p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                        Component.literal(text).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
+            }
+        }
+        double angle = level.random.nextDouble() * Math.PI * 2;
+        double dist = 10.0D + level.random.nextDouble() * 15.0D;
+        PENDING_SIGN_SPAWNS.add(new SignSpawnTask(100, angle, dist, level, player.getUUID()));
     }
 
     public static boolean forceHimSpawn(ServerPlayer player, boolean boss) {
@@ -220,6 +261,28 @@ public class ModEvents {
                     nur.startChasing(target);
                 }
                 task.level.addFreshEntity(nur);
+            }
+            Iterator<SignSpawnTask> signIt = PENDING_SIGN_SPAWNS.iterator();
+            while (signIt.hasNext()) {
+                SignSpawnTask task = signIt.next();
+                task.ticksRemaining--;
+                if (task.ticksRemaining <= 0) {
+                    signIt.remove();
+                    Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
+                    if (target == null) continue;
+                    double sx = target.getX() + Math.cos(task.angle) * task.dist;
+                    double sz = target.getZ() + Math.sin(task.angle) * task.dist;
+                    int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                    NurEntity nur = ModEntities.NUR.get().create(task.level);
+                    if (nur == null) continue;
+                    nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+                    nur.currentState = com.abnormalities.entity.NurEntity.State.SMART;
+                    nur.forceSignTeleport = true;
+                    LOGGER.info("[Events] sign-teleport nur spawned for {} at ({}, {}, {})", target.getName().getString(), (int)sx, sy, (int)sz);
+                    task.level.addFreshEntity(nur);
+                    task.level.playSound(null, sx, sy, sz,
+                            SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
+                }
             }
         }
 
