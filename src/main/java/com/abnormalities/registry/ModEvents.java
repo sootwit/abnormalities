@@ -422,6 +422,11 @@ public class ModEvents {
                 nur.startChasing(player);
                 return;
             }
+            if (player.distanceTo(nur) < 16.0D) {
+                LOGGER.info("[Events] player {} triggered nur chase by proximity (distance {})", player.getName().getString(), String.format("%.1f", player.distanceTo(nur)));
+                nur.startChasing(player);
+                return;
+            }
         }
         var nurRep = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
         boolean lookingAtStalking = false;
