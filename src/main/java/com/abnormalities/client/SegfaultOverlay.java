@@ -62,7 +62,7 @@ public class SegfaultOverlay {
     }
 
     private static ResourceLocation getAnimFrame(ResourceLocation f1, ResourceLocation f2) {
-        return (animTick / 5) % 2 == 0 ? f1 : f2;
+        return (animTick / 9) % 2 == 0 ? f1 : f2;
     }
 
     private static void renderOverlay(int sw, int sh) {
