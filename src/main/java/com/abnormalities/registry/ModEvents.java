@@ -249,6 +249,18 @@ public class ModEvents {
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
                 if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
+                if (overworld.getBlockState(spawnPos).liquid()) continue;
+
+                int waterCount = 0;
+                int totalChecked = 0;
+                for (int dx = -2; dx <= 2; dx++) {
+                    for (int dz = -2; dz <= 2; dz++) {
+                        BlockPos check = spawnPos.offset(dx, 0, dz);
+                        if (overworld.getBlockState(check).liquid()) waterCount++;
+                        totalChecked++;
+                    }
+                }
+                if (waterCount == totalChecked) continue;
 
                 LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
 
