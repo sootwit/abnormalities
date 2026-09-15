@@ -25,7 +25,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue FRIEND_PLACE_BLOCKS;
     public static final ForgeConfigSpec.BooleanValue FRIEND_KILL_MOBS;
     public static final ForgeConfigSpec.BooleanValue FRIEND_REVIVE_MOBS;
-    public static final ForgeConfigSpec.IntValue FRIEND_FOLLOW_TIME;
     public static final ForgeConfigSpec.IntValue FRIEND_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.IntValue THE_MOTHER_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.IntValue THE_MOTHER_MIN_WAIT;
@@ -242,7 +241,6 @@ public class AbnormalitiesConfig {
         FRIEND_PLACE_BLOCKS = b.comment("friend can undo block placements").define("placeBlocks", true);
         FRIEND_KILL_MOBS = b.comment("friend can undo mob kills").define("killMobs", true);
         FRIEND_REVIVE_MOBS = b.comment("friend can revive killed mobs").define("reviveMobs", true);
-        FRIEND_FOLLOW_TIME = b.comment("seconds friend follows your path (default 10)").defineInRange("followTime", 10, 1, 60);
         b.pop();
         b.push("theMother");
         THE_MOTHER_ENABLED = b.comment("enable the Mother entity (the supplier that demands items)").define("enabled", true);
@@ -460,7 +458,7 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("apparition");
         APPARITION_ENABLED = b.comment("enable apparition jumpscares (entity appears then vanishes when looked at)").define("enabled", true);
-        APPARITION_WEIGHT = b.comment("higher = rarer apparition spawns").defineInRange("spawnWeight", 2000, 100, 100000);
+        APPARITION_WEIGHT = b.comment("higher = rarer apparition spawns").defineInRange("spawnWeight", 500, 100, 100000);
         APPARITION_MIN_REP = b.comment("minimum rep for apparitions to appear").defineInRange("minRep", 1200, 0, 2500);
         APPARITION_MAX_REP = b.comment("maximum rep for apparitions to appear").defineInRange("maxRep", 2500, 0, 2500);
         APPARITION_SPAWN_RANGE = b.comment("max distance from player to spawn apparition").defineInRange("spawnRange", 15, 5, 64);

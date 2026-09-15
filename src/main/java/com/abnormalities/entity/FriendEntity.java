@@ -307,7 +307,7 @@ public class FriendEntity extends Mob {
             var nearest = level().getNearestPlayer(this, 64.0D);
             if (nearest != null) {
                 setTargetPlayer(nearest);
-                int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+                int followTicks = FriendActionTracker.getFollowTime(targetPlayer.getUUID());
                 spawnTimer = CHAT_DELAY + followTicks;
                 messageSent = true;
                 List<double[]> dummyPath = new ArrayList<>();
@@ -400,7 +400,7 @@ public class FriendEntity extends Mob {
 
         spawnTimer++;
 
-        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+        int followTicks = targetPlayer != null ? FriendActionTracker.getFollowTime(targetPlayer.getUUID()) : 140;
 
         if (spawnTimer < CHAT_DELAY + followTicks) return;
 

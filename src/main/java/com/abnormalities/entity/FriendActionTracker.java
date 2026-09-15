@@ -42,6 +42,7 @@ public class FriendActionTracker {
     private static final Map<UUID, List<FriendEntity.FriendAction>> ACTION_LOGS = new HashMap<>();
     private static final Map<UUID, Deque<double[]>> POSITION_BUFFERS = new HashMap<>();
     private static final Map<UUID, Integer> SPAWN_COOLDOWNS = new HashMap<>();
+    private static final Map<UUID, Integer> FOLLOW_TIMES = new HashMap<>();
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -61,7 +62,7 @@ public class FriendActionTracker {
             if (tracked) {
                 Deque<double[]> posBuf = POSITION_BUFFERS.computeIfAbsent(uuid, k -> new ArrayDeque<>());
                 posBuf.addLast(new double[]{player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().flying ? 1 : 0, player.getHealth(), player.getMaxHealth()});
-                int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+                int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
                 if (posBuf.size() > followTicks + 40) {
                     posBuf.removeFirst();
                 }
@@ -78,6 +79,7 @@ public class FriendActionTracker {
                 if (SPAWN_TIMERS.containsKey(uuid)) {
                     SPAWN_TIMERS.remove(uuid);
                     MESSAGES_SENT.remove(uuid);
+                    FOLLOW_TIMES.remove(uuid);
                 }
                 continue;
             }
@@ -100,7 +102,7 @@ public class FriendActionTracker {
 
             boolean forced = FORCED_SPAWNS.getOrDefault(uuid, false);
             int spawnAt = forced ? FORCED_SPAWN_DELAY : CHAT_DELAY;
-            int totalDelay = spawnAt + AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+            int totalDelay = spawnAt + FOLLOW_TIMES.getOrDefault(uuid, 140);
 
             if (!MESSAGES_SENT.getOrDefault(uuid, false) && timer >= spawnAt) {
                 var server = ServerLifecycleHooks.getCurrentServer();
@@ -183,7 +185,7 @@ public class FriendActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
         double[][] arr = buf.toArray(new double[0][]);
         int target = Math.max(0, arr.length - followTicks);
@@ -196,7 +198,7 @@ public class FriendActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
         double[][] arr = buf.toArray(new double[0][]);
         int target = Math.max(0, arr.length - followTicks);
@@ -204,11 +206,16 @@ public class FriendActionTracker {
         return new double[]{pt[6], pt[7]};
     }
 
+    public static int getFollowTime(UUID uuid) {
+        return FOLLOW_TIMES.getOrDefault(uuid, 140);
+    }
+
     private static void startSpawnSequence(Player player) {
         UUID uuid = player.getUUID();
         SPAWN_TIMERS.put(uuid, 0);
         MESSAGES_SENT.put(uuid, false);
         ACTION_LOGS.put(uuid, new ArrayList<>());
+        FOLLOW_TIMES.put(uuid, 80 + player.getRandom().nextInt(121));
         LOGGER.info("[FriendActionTracker] spawn sequence started for {}", player.getName().getString());
     }
 
@@ -338,6 +345,7 @@ public class FriendActionTracker {
         FORCED_SPAWNS.remove(uuid);
         ACTION_LOGS.remove(uuid);
         POSITION_BUFFERS.remove(uuid);
+        FOLLOW_TIMES.remove(uuid);
         SPAWN_COOLDOWNS.remove(uuid);
         CHAT_COOLDOWN.remove(uuid);
         PENDING_ECHOES.remove(uuid);
@@ -362,7 +370,7 @@ public class FriendActionTracker {
         if (clones.stream().noneMatch(FriendEntity::isAlive)) return;
         if (CHAT_COOLDOWN.contains(uuid)) return;
         String msg = event.getMessage().getString();
-        int delayTicks = AbnormalitiesConfig.FRIEND_FOLLOW_TIME.get() * 20;
+        int delayTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         var server = player.getServer();
         if (server == null) return;
         CHAT_COOLDOWN.add(uuid);

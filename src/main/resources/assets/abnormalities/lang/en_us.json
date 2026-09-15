@@ -27,7 +27,6 @@
   "abnormalities.config.friend.placeBlocks": "friend undo block places",
   "abnormalities.config.friend.killMobs": "friend undo mob kills",
   "abnormalities.config.friend.reviveMobs": "friend revive mobs",
-  "abnormalities.config.friend.followTime": "friend follow time (seconds)",
   "abnormalities.config.theMother.spawnWeight": "The Mother spawn weight",
   "abnormalities.config.theMother.rewardCookies": "The Mother cookie reward",
   "abnormalities.config.theMother.rewardGoldenCarrots": "The Mother golden carrot reward",

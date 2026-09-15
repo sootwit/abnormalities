@@ -412,7 +412,7 @@ public class ModEvents {
         Level level = event.player.level();
         Player player = event.player;
         if (player.tickCount % 2 != 0) return;
-        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(64.0D));
+        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(16.0D));
         for (NurEntity nur : entities) {
             if (nur.currentState == NurEntity.State.CHASING) continue;
             if (nur.currentState == NurEntity.State.DUMMY || nur.currentState == NurEntity.State.STALKING_DUMMY) continue;
