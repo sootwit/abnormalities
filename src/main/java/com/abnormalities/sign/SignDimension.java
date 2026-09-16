@@ -68,7 +68,15 @@ public class SignDimension {
             spawnY = bestY;
         }
         BlockPos tpPos = new BlockPos(spawnX, spawnY + 2, spawnZ);
+        while (tpPos.getY() < signLevel.getMaxBuildHeight() && !signLevel.getBlockState(tpPos).canBeReplaced()) {
+            tpPos = tpPos.above();
+        }
+        if (tpPos.getY() >= signLevel.getMaxBuildHeight()) {
+            tpPos = new BlockPos(spawnX, spawnY + 2, spawnZ);
+        }
         player.teleportTo(signLevel, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
+        player.fallDistance = 0.0F;
+        player.hurtMarked = true;
         LOGGER.info("[SignDimension] {} teleported to sign dimension at {}", player.getName().getString(), tpPos);
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                 net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
@@ -100,6 +108,8 @@ public class SignDimension {
                 int y = targetLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, returnPos.getX(), returnPos.getZ());
                 BlockPos tpPos = new BlockPos(returnPos.getX(), Math.max(y + 1, returnPos.getY()), returnPos.getZ());
                 player.teleportTo(targetLevel, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
+                player.fallDistance = 0.0F;
+                player.hurtMarked = true;
                 LOGGER.info("[SignDimension] {} returned from sign dimension to {}", player.getName().getString(), tpPos);
                 com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
@@ -142,11 +152,11 @@ public class SignDimension {
         if (spawnTickAccum >= interval) {
             spawnTickAccum = 0;
             var allHimSigns = signLevel.getEntitiesOfClass(HimSignEntity.class, new net.minecraft.world.phys.AABB(-32000, -64, -32000, 32000, 320, 32000));
-            if (allHimSigns.size() < 50) {
+            if (allHimSigns.size() < 20) {
                 for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
                     if (player.level().dimension() != LEVEL_KEY) continue;
                     var nearby = signLevel.getEntitiesOfClass(HimSignEntity.class, player.getBoundingBox().inflate(64.0D));
-                    if (nearby.size() >= 10) continue;
+                    if (nearby.size() >= 5) continue;
                     for (int i = 0; i < batchSize; i++) {
                         double angle = signLevel.random.nextDouble() * Math.PI * 2;
                         double dist = 16.0 + signLevel.random.nextDouble() * 24.0;

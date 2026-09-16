@@ -647,6 +647,7 @@ public class NurEntity extends Mob {
 
     public void startChasing(Player player) {
         if (currentState == State.CHASING) return;
+        State prevState = currentState;
         LOGGER.info("[Nur] state transition {}->CHASING, target={}", currentState, player.getName().getString());
         currentState = State.CHASING;
         currentTarget = player;
@@ -656,7 +657,11 @@ public class NurEntity extends Mob {
         soundLoopTick = 0;
         this.entityData.set(DATA_CHASING, true);
         if (!level().isClientSide) {
-            level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
+            if (prevState == State.DUMMY || prevState == State.STALKING_DUMMY) {
+                level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.HIM_BOSS3.get(), SoundSource.MASTER, 6.0f, 1.0f);
+            } else {
+                level().playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.NUR_SOUND.get(), SoundSource.MASTER, 6.0f, 1.0f);
+            }
             this.chasedPlayerId = player.getUUID();
             NurHorrorCycle.start(this.chasedPlayerId, this.getUUID());
         }
