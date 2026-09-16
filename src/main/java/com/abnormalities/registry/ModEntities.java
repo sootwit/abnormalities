@@ -37,7 +37,7 @@ public class ModEntities {
                     .build("friend"));
     public static final RegistryObject<EntityType<TheMotherEntity>> XYZ = ENTITIES.register("the_mother", () ->
             EntityType.Builder.of(TheMotherEntity::new, MobCategory.MONSTER)
-                    .sized(16.0f, 64.0f)
+                    .sized(1.0f, 64.0f)
                     .clientTrackingRange(128)
                     .fireImmune()
                     .build("the_mother"));

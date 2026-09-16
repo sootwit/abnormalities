@@ -39,7 +39,7 @@ public class TheMotherRenderer extends EntityRenderer<TheMotherEntity> {
         var player = mc.cameraEntity;
         if (player == null) return;
 
-        float hw = 8.0F;
+        float hw = 0.5F;
         float hh = 32.0F;
 
         poseStack.pushPose();

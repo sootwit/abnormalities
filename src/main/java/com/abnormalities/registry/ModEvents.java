@@ -337,9 +337,9 @@ public class ModEvents {
                     THE_MOTHER_CHUNKS.put(theMother.getUUID(), new int[]{xc, zc});
                     overworld.addFreshEntity(theMother);
 
-                    net.minecraft.world.item.Item chosenItem = TheMotherEntity.pickNearbyItem(overworld, sx, sz);
+                    net.minecraft.world.item.Item chosenItem = TheMotherEntity.pickNearbyItem(overworld, player.getX(), player.getZ());
                     int maxStack = chosenItem.getMaxStackSize();
-                    int envCount = TheMotherEntity.countNearbyBlocks(overworld, sx, sz, chosenItem);
+                    int envCount = TheMotherEntity.countNearbyBlocks(overworld, player.getX(), player.getZ(), chosenItem);
                     int amount;
                     if (AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT.get()) {
                         amount = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_STATIC_ITEM_COUNT.get());
