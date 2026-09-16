@@ -310,25 +310,10 @@ public class ModEvents {
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-                while (spawnPos.getY() > overworld.getMinBuildHeight() + 10) {
-                    if (overworld.getBlockState(spawnPos.below()).canOcclude() && overworld.getBlockState(spawnPos).canBeReplaced() && !overworld.getBlockState(spawnPos).liquid()) break;
-                    spawnPos = spawnPos.below();
-                }
-                if (spawnPos.getY() <= overworld.getMinBuildHeight() + 10) continue;
-                if (spawnPos.getY() > (int) player.getY() + 30) continue;
-                if (!overworld.canSeeSky(spawnPos)) continue;
+                if (!overworld.getBlockState(spawnPos).canBeReplaced() || overworld.getBlockState(spawnPos).liquid()) continue;
+                if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
+                if (spawnPos.getY() > (int) player.getY() + 100) continue;
                 sy = spawnPos.getY();
-
-                int waterCount = 0;
-                int totalChecked = 0;
-                for (int dx = -2; dx <= 2; dx++) {
-                    for (int dz = -2; dz <= 2; dz++) {
-                        BlockPos check = spawnPos.offset(dx, 0, dz);
-                        if (overworld.getBlockState(check).liquid()) waterCount++;
-                        totalChecked++;
-                    }
-                }
-                if (waterCount == totalChecked) continue;
 
                 LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
 
