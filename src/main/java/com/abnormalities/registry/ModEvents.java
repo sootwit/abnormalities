@@ -310,9 +310,12 @@ public class ModEvents {
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-                if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
-                if (!overworld.getBlockState(spawnPos).canBeReplaced()) continue;
-                if (overworld.getBlockState(spawnPos).liquid()) continue;
+                while (spawnPos.getY() > overworld.getMinBuildHeight() + 10) {
+                    if (overworld.getBlockState(spawnPos.below()).canOcclude() && overworld.getBlockState(spawnPos).canBeReplaced() && !overworld.getBlockState(spawnPos).liquid()) break;
+                    spawnPos = spawnPos.below();
+                }
+                if (spawnPos.getY() <= overworld.getMinBuildHeight() + 10) continue;
+                sy = spawnPos.getY();
 
                 int waterCount = 0;
                 int totalChecked = 0;
