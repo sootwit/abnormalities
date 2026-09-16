@@ -315,6 +315,7 @@ public class ModEvents {
                     spawnPos = spawnPos.below();
                 }
                 if (spawnPos.getY() <= overworld.getMinBuildHeight() + 10) continue;
+                if (!overworld.canSeeSky(spawnPos)) continue;
                 sy = spawnPos.getY();
 
                 int waterCount = 0;
