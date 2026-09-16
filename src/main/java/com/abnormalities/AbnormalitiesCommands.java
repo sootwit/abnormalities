@@ -226,17 +226,37 @@ public class AbnormalitiesCommands {
             int max = Math.min(maxStack, AbnormalitiesConfig.THE_MOTHER_MAX_ITEMS.get());
             amount = max > min ? min + level.random.nextInt(max - min + 1) : min;
         }
+        int envCount = TheMotherEntity.countNearbyBlocks(level, player.getX(), player.getZ(), chosenItem);
+        if (envCount > 0 && amount > envCount) {
+            amount = Math.max(1, envCount);
+        }
 
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 25.0D + level.random.nextDouble() * 20.0D;
         double sx = player.getX() + Math.cos(angle) * dist;
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
+        if (!level.getBlockState(spawnPos.below()).canOcclude()) {
+            player.displayClientMessage(Component.literal("the mother couldn't find ground here").withStyle(ChatFormatting.GRAY), false);
+            return;
+        }
+        if (!level.getBlockState(spawnPos).canBeReplaced()) {
+            player.displayClientMessage(Component.literal("the mother couldn't fit here").withStyle(ChatFormatting.GRAY), false);
+            return;
+        }
+        if (level.getBlockState(spawnPos).liquid()) {
+            player.displayClientMessage(Component.literal("the mother won't spawn in water").withStyle(ChatFormatting.GRAY), false);
+            return;
+        }
 
         TheMotherEntity theMother = ModEntities.XYZ.get().create(level);
         if (theMother != null) {
             theMother.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
             theMother.setTargetPlayer(player);
+            int xc = ((int)Math.floor(sx)) >> 4;
+            int zc = ((int)Math.floor(sz)) >> 4;
+            level.setChunkForced(xc, zc, true);
             level.addFreshEntity(theMother);
             int seconds;
             if (AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.get()) {

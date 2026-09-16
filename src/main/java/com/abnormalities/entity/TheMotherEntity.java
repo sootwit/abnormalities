@@ -450,7 +450,11 @@ public class TheMotherEntity extends Mob {
     };
 
     private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
-        return FOOD_ITEMS[level().random.nextInt(FOOD_ITEMS.length)].copy();
+        ItemStack base = FOOD_ITEMS[level().random.nextInt(FOOD_ITEMS.length)].copy();
+        if (base.getItem() == Items.COOKIE) base.setCount(cookieAmt);
+        else if (base.getItem() == Items.GOLDEN_CARROT) base.setCount(carrotAmt);
+        else if (base.getItem() == Items.GOLDEN_APPLE) base.setCount(appleAmt);
+        return base;
     }
 
     private ItemStack rollExtra() {
@@ -481,14 +485,17 @@ public class TheMotherEntity extends Mob {
 
         if (timeOfDay < 13000L) {
             long jumpTo = currentDayTime + (13000L - timeOfDay) + 100;
+            serverLevel.setDayTime(jumpTo);
             if (victim instanceof net.minecraft.server.level.ServerPlayer) {
                 ((net.minecraft.server.level.ServerPlayer) victim).connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), jumpTo, true));
             }
         } else {
+            long jumpTo = currentDayTime + 100;
+            serverLevel.setDayTime(jumpTo);
             if (victim instanceof net.minecraft.server.level.ServerPlayer) {
                 ((net.minecraft.server.level.ServerPlayer) victim).connection.send(
-                    new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), currentDayTime + 100, true));
+                    new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), jumpTo, true));
             }
         }
 

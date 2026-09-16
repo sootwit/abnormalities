@@ -39,7 +39,7 @@ public class TheMotherRenderer extends EntityRenderer<TheMotherEntity> {
         var player = mc.cameraEntity;
         if (player == null) return;
 
-        float hw = 0.5F;
+        float hw = 8.0F;
         float hh = 32.0F;
 
         poseStack.pushPose();
@@ -71,7 +71,7 @@ public class TheMotherRenderer extends EntityRenderer<TheMotherEntity> {
             float textW = font.width(amountStr);
             float scale = 0.025F;
             poseStack.pushPose();
-            poseStack.translate(0.0F, -hh + 6.0F, 0.05F);
+            poseStack.translate(0.0F, -hh + 10.0F, 0.05F);
             poseStack.scale(-scale, -scale, scale);
             font.drawInBatch(net.minecraft.network.chat.Component.literal(amountStr).withStyle(net.minecraft.ChatFormatting.LIGHT_PURPLE),
                     -textW / 2.0F, 0, 0xFFFFFFFF, false, poseStack.last().pose(), bufferSource,
