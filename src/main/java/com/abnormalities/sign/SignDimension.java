@@ -41,8 +41,8 @@ public class SignDimension {
         if (signLevel == null) return;
         PRE_ENTRY_POS.put(player.getUUID(), overworldPos);
         ENTRY_TIME.put(player.getUUID(), signLevel.getGameTime());
-        int spawnX = overworldPos.getX();
-        int spawnZ = overworldPos.getZ();
+        int spawnX = overworldPos.getX() % 256;
+        int spawnZ = overworldPos.getZ() % 256;
         int spawnY = signLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawnX, spawnZ);
         if (spawnY < signLevel.getMinBuildHeight() + 10) {
             int origX = spawnX;
@@ -141,19 +141,24 @@ public class SignDimension {
         spawnTickAccum++;
         if (spawnTickAccum >= interval) {
             spawnTickAccum = 0;
-            for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
-                if (player.level().dimension() != LEVEL_KEY) continue;
-                for (int i = 0; i < batchSize; i++) {
-                    double angle = signLevel.random.nextDouble() * Math.PI * 2;
-                    double dist = 16.0 + signLevel.random.nextDouble() * 24.0;
-                    double sx = player.getX() + Math.cos(angle) * dist;
-                    double sz = player.getZ() + Math.sin(angle) * dist;
-                    int sy = signLevel.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                    if (sy < signLevel.getMinBuildHeight() + 5) sy = 64;
-                    HimSignEntity himSign = ModEntities.HIM_SIGN.get().create(signLevel);
-                    if (himSign != null) {
-                        himSign.moveTo(sx + 0.5, sy + 1, sz + 0.5, signLevel.random.nextFloat() * 360, 0);
-                        signLevel.addFreshEntity(himSign);
+            var allHimSigns = signLevel.getEntitiesOfClass(HimSignEntity.class, new net.minecraft.world.phys.AABB(-32000, -64, -32000, 32000, 320, 32000));
+            if (allHimSigns.size() < 50) {
+                for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
+                    if (player.level().dimension() != LEVEL_KEY) continue;
+                    var nearby = signLevel.getEntitiesOfClass(HimSignEntity.class, player.getBoundingBox().inflate(64.0D));
+                    if (nearby.size() >= 10) continue;
+                    for (int i = 0; i < batchSize; i++) {
+                        double angle = signLevel.random.nextDouble() * Math.PI * 2;
+                        double dist = 16.0 + signLevel.random.nextDouble() * 24.0;
+                        double sx = player.getX() + Math.cos(angle) * dist;
+                        double sz = player.getZ() + Math.sin(angle) * dist;
+                        int sy = signLevel.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                        if (sy < signLevel.getMinBuildHeight() + 5) sy = 64;
+                        HimSignEntity himSign = ModEntities.HIM_SIGN.get().create(signLevel);
+                        if (himSign != null) {
+                            himSign.moveTo(sx + 0.5, sy + 1, sz + 0.5, signLevel.random.nextFloat() * 360, 0);
+                            signLevel.addFreshEntity(himSign);
+                        }
                     }
                 }
             }

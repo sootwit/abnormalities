@@ -322,7 +322,7 @@ public class TheMotherEntity extends Mob {
             return;
         }
 
-        for (ItemEntity itemEntity : level().getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(3.0D))) {
+        for (ItemEntity itemEntity : level().getEntitiesOfClass(ItemEntity.class, targetPlayer.getBoundingBox().inflate(3.0D))) {
             if (!(itemEntity.getOwner() instanceof Player owner) || owner != targetPlayer) continue;
             ItemStack dropped = itemEntity.getItem();
             if (isRequestedItem(dropped)) {
@@ -490,7 +490,7 @@ public class TheMotherEntity extends Mob {
                     new net.minecraft.network.protocol.game.ClientboundSetTimePacket(serverLevel.getGameTime(), jumpTo, true));
             }
         } else {
-            long jumpTo = currentDayTime + 100;
+            long jumpTo = currentDayTime + (24000L - timeOfDay) + 13100L;
             serverLevel.setDayTime(jumpTo);
             if (victim instanceof net.minecraft.server.level.ServerPlayer) {
                 ((net.minecraft.server.level.ServerPlayer) victim).connection.send(

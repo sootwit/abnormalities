@@ -133,8 +133,9 @@ public class NurEntity extends Mob {
             currentTarget = findNearestPlayer();
             if (currentTarget == null) {
                 LOGGER.debug("[Nur] no target found, discarding if old enough");
+                boolean wasChasing = isChasing() || currentState == State.CHASING;
                 this.entityData.set(DATA_CHASING, false);
-                if (isChasing() || currentState == State.CHASING) {
+                if (wasChasing) {
                     if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
                     chasedPlayerId = null;
                 }
@@ -684,6 +685,7 @@ public class NurEntity extends Mob {
         super.addAdditionalSaveData(tag);
         tag.putString("NurState", currentState.name());
         tag.putBoolean("Chasing", isChasing());
+        tag.putBoolean("ForceSignTeleport", forceSignTeleport);
         if (currentTarget != null) tag.putUUID("TargetUUID", currentTarget.getUUID());
     }
 
@@ -692,8 +694,11 @@ public class NurEntity extends Mob {
         super.readAdditionalSaveData(tag);
         if (tag.contains("NurState")) { try { currentState = State.valueOf(tag.getString("NurState")); } catch (Exception ignored) {} }
         if (tag.contains("TargetUUID") && level().getServer() != null) currentTarget = level().getServer().getPlayerList().getPlayer(tag.getUUID("TargetUUID"));
+        if (tag.contains("ForceSignTeleport")) forceSignTeleport = tag.getBoolean("ForceSignTeleport");
         if (tag.getBoolean("Chasing")) {
-            currentState = State.CHASING;
+            if (currentState != State.SMART) {
+                currentState = State.CHASING;
+            }
             this.entityData.set(DATA_CHASING, true);
             if (currentTarget != null) {
                 this.chasedPlayerId = currentTarget.getUUID();
