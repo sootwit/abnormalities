@@ -441,7 +441,6 @@ public class TheMotherEntity extends Mob {
     };
     private static final ItemStack[] MISC_ITEMS = {
         new ItemStack(Items.DIAMOND, 6), new ItemStack(Items.EMERALD, 16),
-        new ItemStack(Items.GOLD_INGOT, 16),
         new ItemStack(Items.DIAMOND_PICKAXE), new ItemStack(Items.DIAMOND_SWORD),
         new ItemStack(Items.NETHERITE_INGOT, 2)
     };
