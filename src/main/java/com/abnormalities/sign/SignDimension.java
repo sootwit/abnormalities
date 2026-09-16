@@ -67,16 +67,17 @@ public class SignDimension {
             }
             spawnY = bestY;
         }
-        BlockPos tpPos = new BlockPos(spawnX, spawnY + 2, spawnZ);
+        BlockPos tpPos = new BlockPos(spawnX, spawnY, spawnZ);
         while (tpPos.getY() < signLevel.getMaxBuildHeight() && !signLevel.getBlockState(tpPos).canBeReplaced()) {
             tpPos = tpPos.above();
         }
         if (tpPos.getY() >= signLevel.getMaxBuildHeight()) {
-            tpPos = new BlockPos(spawnX, spawnY + 2, spawnZ);
+            tpPos = new BlockPos(spawnX, spawnY, spawnZ);
         }
         player.teleportTo(signLevel, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
         player.fallDistance = 0.0F;
         player.hurtMarked = true;
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
         LOGGER.info("[SignDimension] {} teleported to sign dimension at {}", player.getName().getString(), tpPos);
         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                 net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
@@ -106,10 +107,11 @@ public class SignDimension {
             ServerLevel targetLevel = srv.getLevel(Level.OVERWORLD);
             if (targetLevel != null) {
                 int y = targetLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, returnPos.getX(), returnPos.getZ());
-                BlockPos tpPos = new BlockPos(returnPos.getX(), Math.max(y + 1, returnPos.getY()), returnPos.getZ());
+                BlockPos tpPos = new BlockPos(returnPos.getX(), y + 1, returnPos.getZ());
                 player.teleportTo(targetLevel, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
                 player.fallDistance = 0.0F;
                 player.hurtMarked = true;
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
                 LOGGER.info("[SignDimension] {} returned from sign dimension to {}", player.getName().getString(), tpPos);
                 com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),

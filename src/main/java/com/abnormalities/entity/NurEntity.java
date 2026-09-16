@@ -233,14 +233,15 @@ public class NurEntity extends Mob {
             startChasing(currentTarget); return;
         }
 
-        if (soundTick == -1) {
+        boolean inSign = level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY;
+        if (soundTick == -1 && !inSign) {
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             soundTick = 0;
         }
 
         stalkBlockTick++;
-        if (stalkBlockTick % 40 == 0) {
+        if (stalkBlockTick % 40 == 0 && !inSign) {
             replaceFluidsUnderneath();
         }
     }
@@ -285,14 +286,15 @@ public class NurEntity extends Mob {
         this.getNavigation().moveTo(currentTarget, 0.06D);
         this.getLookControl().setLookAt(currentTarget, 10, 10);
 
-        if (soundTick == -1) {
+        boolean inSign = level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY;
+        if (soundTick == -1 && !inSign) {
             level().playSound(null, currentTarget.getX(), currentTarget.getY(), currentTarget.getZ(),
                     net.minecraft.sounds.SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             soundTick = 0;
         }
 
         stalkBlockTick++;
-        if (stalkBlockTick % 40 == 0) {
+        if (stalkBlockTick % 40 == 0 && !inSign) {
             replaceFluidsUnderneath();
         }
 

@@ -309,6 +309,7 @@ public class ModEvents {
                 double sx = player.getX() + Math.cos(angle) * dist;
                 double sz = player.getZ() + Math.sin(angle) * dist;
                 int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                if (sy > 200 || sy < overworld.getMinBuildHeight() + 10) continue;
                 BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
                 if (!overworld.getBlockState(spawnPos).canBeReplaced() || overworld.getBlockState(spawnPos).liquid()) continue;
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
