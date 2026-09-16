@@ -532,7 +532,7 @@ public class TheMotherEntity extends Mob {
 
         var nearbyNurs = level().getEntitiesOfClass(NurEntity.class, this.getBoundingBox().inflate(128.0D));
         for (NurEntity nur : nearbyNurs) {
-            if (nur.currentState == NurEntity.State.STALKING) {
+            if (nur.currentState != NurEntity.State.CHASING) {
                 nur.startChasing(victim);
             }
         }
