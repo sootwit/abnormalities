@@ -313,6 +313,7 @@ public class ModEvents {
                 if (!overworld.getBlockState(spawnPos).canBeReplaced() || overworld.getBlockState(spawnPos).liquid()) continue;
                 if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
                 if (spawnPos.getY() > (int) player.getY() + 100) continue;
+                if (!overworld.canSeeSky(spawnPos.above(20))) continue;
                 sy = spawnPos.getY();
 
                 LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
