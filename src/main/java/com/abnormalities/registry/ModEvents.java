@@ -163,7 +163,7 @@ public class ModEvents {
             }
         }
         double angle = level.random.nextDouble() * Math.PI * 2;
-        double dist = 10.0D + level.random.nextDouble() * 15.0D;
+        double dist = 25.0D + level.random.nextDouble() * 14.0D;
         double preSx = player.getX() + Math.cos(angle) * dist;
         double preSz = player.getZ() + Math.sin(angle) * dist;
         int preSy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) preSx, (int) preSz);
@@ -201,7 +201,7 @@ public class ModEvents {
         LOGGER.info("[Events] forceHimSpawn for {} boss={}", player.getName().getString(), boss);
         ServerLevel overworld = (ServerLevel) player.level();
         double angle = overworld.random.nextDouble() * Math.PI * 2;
-        double dist = 12.0D + overworld.random.nextDouble() * 14.0D;
+        double dist = 25.0D + overworld.random.nextDouble() * 14.0D;
         double sx = player.getX() + Math.cos(angle) * dist;
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
@@ -479,7 +479,7 @@ public class ModEvents {
         Level level = event.player.level();
         Player player = event.player;
         if (player.tickCount % 2 != 0) return;
-        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(32.0D));
+        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(16.0D));
         for (NurEntity nur : entities) {
             if (nur.currentState == NurEntity.State.CHASING) continue;
             if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
@@ -487,7 +487,7 @@ public class ModEvents {
                 nur.startChasing(player);
                 return;
             }
-            if (player.distanceTo(nur) < 32.0D) {
+            if (player.distanceTo(nur) < 16.0D) {
                 LOGGER.info("[Events] player {} triggered nur chase by proximity (distance {})", player.getName().getString(), String.format("%.1f", player.distanceTo(nur)));
                 nur.startChasing(player);
                 return;
