@@ -501,7 +501,7 @@ public class FriendEntity extends Mob {
             }
             case PLACE -> {
                 if (!AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.get()) return;
-                if (!level().getBlockState(pos).isAir() && action.blockState != null && !level().getBlockState(pos).equals(action.blockState)) {
+                if (!level().getBlockState(pos).isAir() && action.blockState != null && level().getBlockState(pos).equals(action.blockState)) {
                     level().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                     level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                             net.minecraft.sounds.SoundEvents.STONE_BREAK, SoundSource.MASTER, 1.0f, 0.8f);
