@@ -686,6 +686,9 @@ public class FriendEntity extends Mob {
                 UUID uuid = tag.getUUID("TargetPlayer");
                 if (level() != null && level().getServer() != null) {
                     targetPlayer = level().getServer().getPlayerList().getPlayer(uuid);
+                    if (targetPlayer != null) {
+                        this.entityData.set(DATA_TARGET_UUID, Optional.of(uuid));
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.warn("[Friend] corrupted TargetPlayer UUID in NBT, ignoring");
@@ -855,6 +858,7 @@ public class FriendEntity extends Mob {
                 p.connection.disconnect(Component.literal("got you!"));
             }
         }
+        possessionActive = false;
         this.discard();
     }
 
