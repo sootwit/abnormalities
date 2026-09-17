@@ -319,7 +319,7 @@ public class SegfaultController {
         } else if (mode == AbnormalitiesConfig.PunishMode.KICK) {
             if (player.connection != null) {
                 sendState(player, -1, 0);
-                player.connection.disconnect(Component.literal("STARGAZED"));
+                player.connection.disconnect(Component.literal(state.stargazed ? "0x0000.STARGAZED: Fatal Error" : "SEGFAULT at 0x0000: Memory access violation"));
             }
         } else {
             sendState(player, -1, 0);

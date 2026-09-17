@@ -281,7 +281,7 @@ public class AbnormalitiesConfig {
         SEGFAULT_SWITCH_MAX = b.comment("maximum ticks between state switches").defineInRange("switchMax", 80, 10, 400);
         SEGFAULT_DAMAGE = b.comment("damage dealt on punishment").defineInRange("damage", 10.0, 1.0, 40.0);
         SEGFAULT_MOVE_THRESHOLD = b.comment("blocks/tick movement threshold (0.15 = walk speed)").defineInRange("moveThreshold", 0.15, 0.01, 1.0);
-        SEGFAULT_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.NONE);
+        SEGFAULT_PUNISH = b.comment("punishment for wrong move: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.KICK);
         b.pop();
         b.push("segfaultStargazed");
         SEGFAULT_STARGAZED_ENABLED = b.comment("enable stargazed variant").define("enabled", true);
@@ -290,7 +290,7 @@ public class AbnormalitiesConfig {
         SEGFAULT_STARGAZED_SWITCH_TICKS = b.comment("ticks between decisions (10 = 0.5s)").defineInRange("switchTicks", 10, 5, 60);
         SEGFAULT_STARGAZED_GRACE_TICKS = b.comment("grace after each switch").defineInRange("graceTicks", 15, 1, 60);
         SEGFAULT_STARGAZED_WRONG_THRESHOLD = b.comment("wrong ticks before punishment").defineInRange("wrongThreshold", 3, 1, 20);
-        SEGFAULT_STARGAZED_PUNISH = b.comment("punishment for stargazed violation: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.NONE);
+        SEGFAULT_STARGAZED_PUNISH = b.comment("punishment for stargazed violation: KICK, CRASH, or NONE").defineEnum("onPunish", PunishMode.CRASH);
         b.pop();
         b.push("v1s1t");
         V1S1T_ENABLED = b.comment("enable v1s1t home invasion events").define("enabled", true);
