@@ -54,6 +54,7 @@ public class FriendActionTracker {
         if (overworld == null) return;
 
         ACTIVE_CLONES.values().forEach(list -> list.removeIf(e -> !e.isAlive()));
+        ACTIVE_CLONES.values().removeIf(List::isEmpty);
 
         for (Player player : overworld.players()) {
             UUID uuid = player.getUUID();
@@ -72,6 +73,9 @@ public class FriendActionTracker {
             int cd = SPAWN_COOLDOWNS.getOrDefault(uuid, 0);
             if (cd > 0) {
                 SPAWN_COOLDOWNS.put(uuid, cd - 1);
+                int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
+                spawnTick++;
+                SPAWN_TICKS.put(uuid, spawnTick);
                 continue;
             }
             if (SPAWN_COOLDOWNS.containsKey(uuid) && cd == 0) {
@@ -174,6 +178,8 @@ public class FriendActionTracker {
         MESSAGES_SENT.put(uuid, true);
         FORCED_SPAWNS.put(uuid, true);
         ACTION_LOGS.put(uuid, new ArrayList<>());
+        FOLLOW_TIMES.put(uuid, 40 + player.getRandom().nextInt(121));
+        SPAWN_TICKS.put(uuid, 0);
         LOGGER.info("[FriendActionTracker] forced spawn for {}", player.getName().getString());
         if (player instanceof ServerPlayer) {
             var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
@@ -191,7 +197,7 @@ public class FriendActionTracker {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 100);
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
         int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
         int elapsed = Math.max(0, spawnTick - followTicks);
@@ -200,14 +206,14 @@ public class FriendActionTracker {
         target = Math.max(0, target);
         double[] pt = arr[target];
         LOGGER.debug("[FriendActionTracker] delayed position for {} buffer={} target={}", player.getName().getString(), buf.size(), target);
-        return new double[]{pt[0], pt[1], pt[2], pt[5]};
+        return new double[]{pt[0], pt[1], pt[2], pt[3], pt[4]};
     }
 
     public static double[] getDelayedHealth(Player player) {
         UUID uuid = player.getUUID();
         Deque<double[]> buf = POSITION_BUFFERS.get(uuid);
         if (buf == null || buf.isEmpty()) return null;
-        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 100);
+        int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
         int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
         int elapsed = Math.max(0, spawnTick - followTicks);
@@ -268,6 +274,7 @@ public class FriendActionTracker {
         ACTIVE_CLONES.computeIfAbsent(uuid, k -> new ArrayList<>()).add(clone);
         ACTION_LOGS.put(uuid, new ArrayList<>());
         SPAWN_COOLDOWNS.put(uuid, POST_SPAWN_COOLDOWN);
+        SPAWN_TICKS.put(uuid, 0);
         LOGGER.info("[FriendActionTracker] clone spawned for {} at {} {} {}", player.getName().getString(), (int)player.getX(), (int)player.getY(), (int)player.getZ());
 
         level.playSound(null, player.getX(), player.getY(), player.getZ(),

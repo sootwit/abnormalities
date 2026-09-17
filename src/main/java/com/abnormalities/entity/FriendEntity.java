@@ -272,6 +272,9 @@ public class FriendEntity extends Mob {
                 }
                 needsChunkForce = false;
             }
+        } else if (forcedChunk != null && level() instanceof ServerLevel sl) {
+            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
+            forcedChunk = null;
         }
 
         if (possessionActive) {
@@ -304,6 +307,7 @@ public class FriendEntity extends Mob {
             isMoving = false;
             pathPoints.clear();
             currentPathIndex = 0;
+            if (!AbnormalitiesConfig.FRIEND_ENABLED.get()) { discard(); return; }
             var nearest = level().getNearestPlayer(this, 64.0D);
             if (nearest != null) {
                 setTargetPlayer(nearest);
@@ -430,12 +434,18 @@ public class FriendEntity extends Mob {
                     this.setNoGravity(true);
                     this.noPhysics = true;
                 }
+                runUndoLoop();
                 return;
             }
             LOGGER.debug("[Friend] path complete, following delayed position");
             this.teleportTo(target[0], target[1], target[2]);
+            this.setYRot((float) target[3]);
+            this.setXRot((float) target[4]);
+            this.yHeadRot = this.getYRot();
+            this.yBodyRot = this.getYRot();
             this.setNoGravity(true);
             this.noPhysics = true;
+            runUndoLoop();
             return;
         }
         target = pathPoints.get(currentPathIndex);
@@ -458,6 +468,10 @@ public class FriendEntity extends Mob {
         this.yBodyRot = this.getYRot();
         if (currentPathIndex < pathPoints.size()) currentPathIndex++;
 
+        runUndoLoop();
+    }
+
+    private void runUndoLoop() {
         BlockPos targetPos = this.blockPosition();
         Iterator<FriendAction> it = pendingActions.iterator();
         while (it.hasNext()) {
@@ -487,7 +501,7 @@ public class FriendEntity extends Mob {
             }
             case PLACE -> {
                 if (!AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.get()) return;
-                if (!level().getBlockState(pos).isAir()) {
+                if (!level().getBlockState(pos).isAir() && action.blockState != null && !level().getBlockState(pos).equals(action.blockState)) {
                     level().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                     level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                             net.minecraft.sounds.SoundEvents.STONE_BREAK, SoundSource.MASTER, 1.0f, 0.8f);
@@ -496,15 +510,22 @@ public class FriendEntity extends Mob {
             case KILL -> {
                 if (!AbnormalitiesConfig.FRIEND_REVIVE_MOBS.get()) return;
                 if (action.entityType != null) {
-                    try {
-                        var entity = action.entityType.create(level());
-                        if (entity != null) {
-                            entity.moveTo(action.x + 0.5, action.y, action.z + 0.5, 0, 0);
-                            level().addFreshEntity(entity);
-                            level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
-                                    net.minecraft.sounds.SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.MASTER, 1.0f, 1.2f);
+                    boolean alreadyExists = !level().getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                            new AABB(action.x - 2, action.y - 2, action.z - 2, action.x + 2, action.y + 2, action.z + 2),
+                            e -> e.getType() == action.entityType).isEmpty();
+                    if (!alreadyExists) {
+                        try {
+                            var entity = action.entityType.create(level());
+                            if (entity != null) {
+                                entity.moveTo(action.x + 0.5, action.y, action.z + 0.5, 0, 0);
+                                level().addFreshEntity(entity);
+                                level().playSound(null, pos.getX(), pos.getY(), pos.getZ(),
+                                        net.minecraft.sounds.SoundEvents.ZOMBIE_VILLAGER_CURE, SoundSource.MASTER, 1.0f, 1.2f);
+                            }
+                        } catch (Exception e) {
+                            LOGGER.warn("[Friend] failed to revive mob at ({}, {}, {}): {}", action.x, action.y, action.z, e.getMessage());
                         }
-                    } catch (Exception ignored) {}
+                    }
                 }
             }
         }
@@ -551,7 +572,7 @@ public class FriendEntity extends Mob {
             sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
         }
-        if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide) {
+        if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide && !possessionActive) {
             targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
         }
         super.die(source);
@@ -604,15 +625,40 @@ public class FriendEntity extends Mob {
             actionTag.add(aTag);
         }
         tag.put("PendingActions", actionTag);
+
+        tag.putBoolean("PossessionActive", possessionActive);
+        if (possessingPlayer != null) tag.putUUID("PossessingPlayer", possessingPlayer);
+        net.minecraft.nbt.ListTag possessedTag = new net.minecraft.nbt.ListTag();
+        for (UUID puuid : possessedPlayers) {
+            CompoundTag puuidTag = new CompoundTag();
+            puuidTag.putUUID("P", puuid);
+            possessedTag.add(puuidTag);
+        }
+        tag.put("PossessedPlayers", possessedTag);
+        tag.putInt("PossessionPhaseTicks", possessionPhaseTicks);
+        tag.putBoolean("WaitingForDay", waitingForDay);
+        net.minecraft.nbt.ListTag undoneTag = new net.minecraft.nbt.ListTag();
+        for (BlockPos up : undonePositions) {
+            CompoundTag upTag = new CompoundTag();
+            upTag.putInt("X", up.getX());
+            upTag.putInt("Y", up.getY());
+            upTag.putInt("Z", up.getZ());
+            undoneTag.add(upTag);
+        }
+        tag.put("UndonePositions", undoneTag);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.hasUUID("TargetPlayer")) {
-            UUID uuid = tag.getUUID("TargetPlayer");
-            if (level() != null && level().getServer() != null) {
-                targetPlayer = level().getServer().getPlayerList().getPlayer(uuid);
+            try {
+                UUID uuid = tag.getUUID("TargetPlayer");
+                if (level() != null && level().getServer() != null) {
+                    targetPlayer = level().getServer().getPlayerList().getPlayer(uuid);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("[Friend] corrupted TargetPlayer UUID in NBT, ignoring");
             }
         }
         spawnTimer = tag.getInt("SpawnTimer");
@@ -642,17 +688,49 @@ public class FriendEntity extends Mob {
             try { type = FriendAction.ActionType.valueOf(aTag.getString("Type")); } catch (Exception ignored) { continue; }
             int ax = aTag.getInt("X"), ay = aTag.getInt("Y"), az = aTag.getInt("Z");
             if (aTag.contains("EntityType")) {
-                EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
-                if (et != null) pendingActions.add(new FriendAction(type, (double)ax, (double)ay, (double)az, et));
+                try {
+                    EntityType<?> et = net.minecraftforge.registries.ForgeRegistries.ENTITY_TYPES.getValue(new net.minecraft.resources.ResourceLocation(aTag.getString("EntityType")));
+                    if (et != null) pendingActions.add(new FriendAction(type, (double)ax, (double)ay, (double)az, et));
+                } catch (Exception e) {
+                    LOGGER.warn("[Friend] corrupted EntityType in NBT action, skipping");
+                }
             } else if (aTag.contains("BlockState")) {
                 net.minecraft.world.level.block.state.BlockState bs = net.minecraft.world.level.block.Block.stateById(aTag.getInt("BlockState"));
                 if (bs != null) pendingActions.add(new FriendAction(type, ax, ay, az, bs));
             }
         }
+
+        possessionActive = tag.getBoolean("PossessionActive");
+        if (tag.hasUUID("PossessingPlayer")) {
+            try { possessingPlayer = tag.getUUID("PossessingPlayer"); } catch (Exception e) {
+                LOGGER.warn("[Friend] corrupted PossessingPlayer UUID in NBT, ignoring");
+            }
+        }
+        possessedPlayers.clear();
+        net.minecraft.nbt.ListTag possessedTag = tag.getList("PossessedPlayers", 10);
+        for (int i = 0; i < possessedTag.size(); i++) {
+            CompoundTag puuidTag = possessedTag.getCompound(i);
+            try { possessedPlayers.add(puuidTag.getUUID("P")); } catch (Exception e) {
+                LOGGER.warn("[Friend] corrupted possessed player UUID in NBT, skipping");
+            }
+        }
+        possessionPhaseTicks = tag.getInt("PossessionPhaseTicks");
+        waitingForDay = tag.getBoolean("WaitingForDay");
+        undonePositions.clear();
+        net.minecraft.nbt.ListTag undoneTag = tag.getList("UndonePositions", 10);
+        for (int i = 0; i < undoneTag.size(); i++) {
+            CompoundTag upTag = undoneTag.getCompound(i);
+            undonePositions.add(new BlockPos(upTag.getInt("X"), upTag.getInt("Y"), upTag.getInt("Z")));
+        }
     }
 
     private void tickPossession() {
         possessionPhaseTicks++;
+        if (possessionPhaseTicks > 6000) {
+            LOGGER.info("[Friend] possession chain timed out after {} ticks", possessionPhaseTicks);
+            punishAllPossessed(null);
+            return;
+        }
         if (possessingPlayer != null) {
             ServerPlayer possessed = level().getServer() != null ? level().getServer().getPlayerList().getPlayer(possessingPlayer) : null;
             if (possessed != null) {
@@ -717,7 +795,6 @@ public class FriendEntity extends Mob {
     private ServerPlayer findNextPossessionTarget() {
         if (level().getServer() == null) return null;
         for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
-            if (p.level().dimension() != this.level().dimension()) continue;
             if (possessedPlayers.contains(p.getUUID())) continue;
             if (p.getUUID().equals(possessingPlayer)) continue;
             return p;
