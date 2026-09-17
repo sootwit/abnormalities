@@ -81,6 +81,12 @@ public class FriendActionTracker {
             if (SPAWN_COOLDOWNS.containsKey(uuid) && cd == 0) {
                 SPAWN_COOLDOWNS.remove(uuid);
                 FORCED_SPAWNS.remove(uuid);
+                List<FriendEntity> clones = ACTIVE_CLONES.remove(uuid);
+                if (clones != null) {
+                    for (FriendEntity e : clones) {
+                        if (e.isAlive()) e.discard();
+                    }
+                }
                 if (SPAWN_TIMERS.containsKey(uuid)) {
                     SPAWN_TIMERS.remove(uuid);
                     MESSAGES_SENT.remove(uuid);

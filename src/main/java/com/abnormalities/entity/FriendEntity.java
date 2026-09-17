@@ -64,6 +64,7 @@ public class FriendEntity extends Mob {
     private int mimicSprintTicks = 0;
     private int mimicJumpTicks = 0;
     private BlockPos forcedChunk = null;
+    private BlockPos forcedEntityChunk = null;
     private boolean needsChunkForce = false;
 
     public FriendEntity(EntityType<? extends FriendEntity> type, Level level) {
@@ -183,7 +184,6 @@ public class FriendEntity extends Mob {
         this.messageSent = false;
         this.spawnTimer = 0;
         this.pendingActions.clear();
-        this.undonePositions.clear();
         this.pathPoints.clear();
         this.currentPathIndex = 0;
         this.isMoving = false;
@@ -251,6 +251,7 @@ public class FriendEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (!AbnormalitiesConfig.FRIEND_ENABLED.get()) { discard(); return; }
         if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
             this.stopRiding();
         }
@@ -259,9 +260,11 @@ public class FriendEntity extends Mob {
             level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
         }
 
-        if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+        if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && targetPlayer.level().dimension() == this.level().dimension()) {
             BlockPos targetChunk = targetPlayer.blockPosition();
+            BlockPos entityChunk = this.blockPosition();
             boolean chunkChanged = forcedChunk == null || (forcedChunk.getX() >> 4) != (targetChunk.getX() >> 4) || (forcedChunk.getZ() >> 4) != (targetChunk.getZ() >> 4);
+            boolean entityChunkChanged = forcedEntityChunk == null || (forcedEntityChunk.getX() >> 4) != (entityChunk.getX() >> 4) || (forcedEntityChunk.getZ() >> 4) != (entityChunk.getZ() >> 4);
             if (chunkChanged || needsChunkForce) {
                 if (forcedChunk != null && level() instanceof ServerLevel sl) {
                     sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
@@ -272,9 +275,24 @@ public class FriendEntity extends Mob {
                 }
                 needsChunkForce = false;
             }
-        } else if (forcedChunk != null && level() instanceof ServerLevel sl) {
-            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
-            forcedChunk = null;
+            if (entityChunkChanged || needsChunkForce) {
+                if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
+                    sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+                }
+                forcedEntityChunk = entityChunk;
+                if (level() instanceof ServerLevel sl) {
+                    sl.getChunkSource().addRegionTicket(FRIEND_TICKET, new ChunkPos(entityChunk), 2, this);
+                }
+            }
+        } else {
+            if (forcedChunk != null && level() instanceof ServerLevel sl) {
+                sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
+                forcedChunk = null;
+            }
+            if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
+                sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+                forcedEntityChunk = null;
+            }
         }
 
         if (possessionActive) {
@@ -357,7 +375,7 @@ public class FriendEntity extends Mob {
                         com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                             net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp2),
                             new com.abnormalities.network.CrashPacket());
-                    } else {
+                    } else if (AbnormalitiesConfig.FRIEND_PUNISH.get() == AbnormalitiesConfig.PunishMode.KICK) {
                         sp2.connection.disconnect(Component.literal("got you!"));
                     }
                 }
@@ -411,7 +429,7 @@ public class FriendEntity extends Mob {
         double pathDist = targetPlayer != null ? this.distanceTo(targetPlayer) : 0;
 
         if (!isMoving || pathPoints.isEmpty()) {
-            if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved()) {
+        if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && targetPlayer.level().dimension() == this.level().dimension()) {
                 if (pathDist > 32) {
                     this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
                     this.setNoGravity(true);
@@ -559,6 +577,10 @@ public class FriendEntity extends Mob {
             sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
         }
+        if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
+            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+            forcedEntityChunk = null;
+        }
         super.remove(reason);
         if (level() != null && !level().isClientSide && targetPlayer != null) {
             level().playSound(null, targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ(),
@@ -571,6 +593,10 @@ public class FriendEntity extends Mob {
         if (forcedChunk != null && level() instanceof ServerLevel sl) {
             sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;
+        }
+        if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
+            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+            forcedEntityChunk = null;
         }
         if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide && !possessionActive) {
             targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
@@ -635,6 +661,10 @@ public class FriendEntity extends Mob {
             possessedTag.add(puuidTag);
         }
         tag.put("PossessedPlayers", possessedTag);
+        tag.putInt("HitCooldown", hitCooldown);
+        tag.putInt("LastHurtTick", lastHurtTick);
+        tag.putInt("MimicSprintTicks", mimicSprintTicks);
+        tag.putInt("MimicJumpTicks", mimicJumpTicks);
         tag.putInt("PossessionPhaseTicks", possessionPhaseTicks);
         tag.putBoolean("WaitingForDay", waitingForDay);
         net.minecraft.nbt.ListTag undoneTag = new net.minecraft.nbt.ListTag();
@@ -714,6 +744,10 @@ public class FriendEntity extends Mob {
                 LOGGER.warn("[Friend] corrupted possessed player UUID in NBT, skipping");
             }
         }
+        hitCooldown = tag.getInt("HitCooldown");
+        lastHurtTick = tag.getInt("LastHurtTick");
+        mimicSprintTicks = tag.getInt("MimicSprintTicks");
+        mimicJumpTicks = tag.getInt("MimicJumpTicks");
         possessionPhaseTicks = tag.getInt("PossessionPhaseTicks");
         waitingForDay = tag.getBoolean("WaitingForDay");
         undonePositions.clear();
@@ -795,6 +829,7 @@ public class FriendEntity extends Mob {
     private ServerPlayer findNextPossessionTarget() {
         if (level().getServer() == null) return null;
         for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
+            if (p.level().dimension() != this.level().dimension()) continue;
             if (possessedPlayers.contains(p.getUUID())) continue;
             if (p.getUUID().equals(possessingPlayer)) continue;
             return p;
