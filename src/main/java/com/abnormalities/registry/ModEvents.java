@@ -201,7 +201,7 @@ public class ModEvents {
         LOGGER.info("[Events] forceHimSpawn for {} boss={}", player.getName().getString(), boss);
         ServerLevel overworld = (ServerLevel) player.level();
         double angle = overworld.random.nextDouble() * Math.PI * 2;
-        double dist = 25.0D + overworld.random.nextDouble() * 14.0D;
+        double dist = 12.0D + overworld.random.nextDouble() * 14.0D;
         double sx = player.getX() + Math.cos(angle) * dist;
         double sz = player.getZ() + Math.sin(angle) * dist;
         int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
