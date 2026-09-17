@@ -479,7 +479,7 @@ public class ModEvents {
         Level level = event.player.level();
         Player player = event.player;
         if (player.tickCount % 2 != 0) return;
-        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(16.0D));
+        var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(32.0D));
         for (NurEntity nur : entities) {
             if (nur.currentState == NurEntity.State.CHASING) continue;
             if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
@@ -487,7 +487,7 @@ public class ModEvents {
                 nur.startChasing(player);
                 return;
             }
-            if (player.distanceTo(nur) < 16.0D) {
+            if (player.distanceTo(nur) < 32.0D) {
                 LOGGER.info("[Events] player {} triggered nur chase by proximity (distance {})", player.getName().getString(), String.format("%.1f", player.distanceTo(nur)));
                 nur.startChasing(player);
                 return;
