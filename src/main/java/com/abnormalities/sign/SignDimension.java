@@ -92,33 +92,31 @@ public class SignDimension {
         UUID uuid = player.getUUID();
         BlockPos returnPos = PRE_ENTRY_POS.remove(uuid);
         ENTRY_TIME.remove(uuid);
+        ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
+        if (overworld == null) return;
         if (returnPos == null) {
-            ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
-            if (overworld != null) {
-                BlockPos bedPos = player.getRespawnPosition();
-                if (bedPos != null) {
-                    returnPos = bedPos;
-                } else {
-                    returnPos = overworld.getSharedSpawnPos();
-                }
+            BlockPos bedPos = player.getRespawnPosition();
+            if (bedPos != null) {
+                returnPos = bedPos;
+            } else {
+                returnPos = overworld.getSharedSpawnPos();
             }
         }
-        if (returnPos != null) {
-            ServerLevel targetLevel = srv.getLevel(Level.OVERWORLD);
-            if (targetLevel != null) {
-                int y = targetLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, returnPos.getX(), returnPos.getZ());
-                BlockPos tpPos = new BlockPos(returnPos.getX(), y + 1, returnPos.getZ());
-                player.teleportTo(targetLevel, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
-                player.fallDistance = 0.0F;
-                player.hurtMarked = true;
-                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
-                LOGGER.info("[SignDimension] {} returned from sign dimension to {}", player.getName().getString(), tpPos);
-                com.abnormalities.AbnormalitiesMod.CHANNEL.send(
-                        net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
-                        new SignTransitionPacket()
-                );
-            }
+        int y = overworld.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, returnPos.getX(), returnPos.getZ());
+        if (y <= overworld.getMinBuildHeight() + 10) {
+            returnPos = overworld.getSharedSpawnPos();
+            y = overworld.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, returnPos.getX(), returnPos.getZ());
         }
+        BlockPos tpPos = new BlockPos(returnPos.getX(), y + 1, returnPos.getZ());
+        player.teleportTo(overworld, tpPos.getX() + 0.5, tpPos.getY(), tpPos.getZ() + 0.5, player.getYRot(), player.getXRot());
+        player.fallDistance = 0.0F;
+        player.hurtMarked = true;
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
+        LOGGER.info("[SignDimension] {} returned from sign dimension to {}", player.getName().getString(), tpPos);
+        com.abnormalities.AbnormalitiesMod.CHANNEL.send(
+                net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player),
+                new SignTransitionPacket()
+        );
     }
 
     @SubscribeEvent
