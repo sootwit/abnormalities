@@ -224,65 +224,63 @@ public class ModEvents {
         if (overworld == null) return;
 
         long currentDay = overworld.getDayTime() / 24000L;
-        if (currentDay >= AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) {
-            Iterator<SpawnTask> it = PENDING_SPAWNS.iterator();
-            while (it.hasNext()) {
-                SpawnTask task = it.next();
-                task.ticksRemaining--;
-                if (task.ticksRemaining <= 0) {
-                    it.remove();
-                    Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
-                    if (target == null) { LOGGER.debug("[Events] pending nur spawn: target offline, skipping"); continue; }
-                    double sx = target.getX() + Math.cos(task.angle) * task.dist;
-                    double sz = target.getZ() + Math.sin(task.angle) * task.dist;
-                    int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                    NurEntity nur = ModEntities.NUR.get().create(task.level);
-                    if (nur == null) continue;
-                    nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
-                    nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
-                    LOGGER.info("[Events] nur spawned for {} at ({}, {}, {}) state={}", target.getName().getString(), (int)sx, sy, (int)sz, nur.currentState);
-                    task.level.addFreshEntity(nur);
-                    task.level.playSound(null, sx, sy, sz,
-                            SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
-                }
-            }
-            Iterator<SkinwalkerSpawnTask> sit = PENDING_SKINWALKER_SPAWNS.iterator();
-            while (sit.hasNext()) {
-                SkinwalkerSpawnTask task = sit.next();
-                task.ticksRemaining--;
-                if (task.ticksRemaining > 0) continue;
-                sit.remove();
+        Iterator<SpawnTask> it = PENDING_SPAWNS.iterator();
+        while (it.hasNext()) {
+            SpawnTask task = it.next();
+            task.ticksRemaining--;
+            if (task.ticksRemaining <= 0) {
+                it.remove();
+                Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
+                if (target == null) { LOGGER.debug("[Events] pending nur spawn: target offline, skipping"); continue; }
+                double sx = target.getX() + Math.cos(task.angle) * task.dist;
+                double sz = target.getZ() + Math.sin(task.angle) * task.dist;
+                int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
-                nur.moveTo(task.x, task.y, task.z, 0, 0);
-                LOGGER.info("[Events] skinwalker nur spawned at ({}, {}, {})", (int)task.x, (int)task.y, (int)task.z);
-                Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
-                if (target != null) {
-                    nur.startChasing(target);
-                }
+                nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+                nur.currentState = com.abnormalities.entity.NurEntity.rollSpawnState(task.level.random);
+                LOGGER.info("[Events] nur spawned for {} at ({}, {}, {}) state={}", target.getName().getString(), (int)sx, sy, (int)sz, nur.currentState);
                 task.level.addFreshEntity(nur);
+                task.level.playSound(null, sx, sy, sz,
+                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             }
-            Iterator<SignSpawnTask> signIt = PENDING_SIGN_SPAWNS.iterator();
-            while (signIt.hasNext()) {
-                SignSpawnTask task = signIt.next();
-                task.ticksRemaining--;
-                if (task.ticksRemaining <= 0) {
-                    signIt.remove();
-                    Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
-                    if (target == null) continue;
-                    double sx = target.getX() + Math.cos(task.angle) * task.dist;
-                    double sz = target.getZ() + Math.sin(task.angle) * task.dist;
-                    int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                    NurEntity nur = ModEntities.NUR.get().create(task.level);
-                    if (nur == null) continue;
-                    nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
-                    nur.currentState = com.abnormalities.entity.NurEntity.State.SMART;
-                    nur.forceSignTeleport = true;
-                    LOGGER.info("[Events] sign-teleport nur spawned for {} at ({}, {}, {})", target.getName().getString(), (int)sx, sy, (int)sz);
-                    task.level.addFreshEntity(nur);
-                    task.level.playSound(null, sx, sy, sz,
-                            SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
-                }
+        }
+        Iterator<SkinwalkerSpawnTask> sit = PENDING_SKINWALKER_SPAWNS.iterator();
+        while (sit.hasNext()) {
+            SkinwalkerSpawnTask task = sit.next();
+            task.ticksRemaining--;
+            if (task.ticksRemaining > 0) continue;
+            sit.remove();
+            NurEntity nur = ModEntities.NUR.get().create(task.level);
+            if (nur == null) continue;
+            nur.moveTo(task.x, task.y, task.z, 0, 0);
+            LOGGER.info("[Events] skinwalker nur spawned at ({}, {}, {})", (int)task.x, (int)task.y, (int)task.z);
+            Player target = task.level.getServer().getPlayerList().getPlayer(task.targetUUID);
+            if (target != null) {
+                nur.startChasing(target);
+            }
+            task.level.addFreshEntity(nur);
+        }
+        Iterator<SignSpawnTask> signIt = PENDING_SIGN_SPAWNS.iterator();
+        while (signIt.hasNext()) {
+            SignSpawnTask task = signIt.next();
+            task.ticksRemaining--;
+            if (task.ticksRemaining <= 0) {
+                signIt.remove();
+                Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
+                if (target == null) continue;
+                double sx = target.getX() + Math.cos(task.angle) * task.dist;
+                double sz = target.getZ() + Math.sin(task.angle) * task.dist;
+                int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                NurEntity nur = ModEntities.NUR.get().create(task.level);
+                if (nur == null) continue;
+                nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
+                nur.currentState = com.abnormalities.entity.NurEntity.State.SMART;
+                nur.forceSignTeleport = true;
+                LOGGER.info("[Events] sign-teleport nur spawned for {} at ({}, {}, {})", target.getName().getString(), (int)sx, sy, (int)sz);
+                task.level.addFreshEntity(nur);
+                task.level.playSound(null, sx, sy, sz,
+                        SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
             }
         }
 
