@@ -286,7 +286,7 @@ public class AbnormalitiesCommands {
         var level = (net.minecraft.server.level.ServerLevel) player.level();
         var nearby = level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
             e -> e.getPersistentData().getBoolean("abnormalities:skinwalker"));
-        if (nearby.size() >= 10) {
+        if (nearby.size() >= 64) {
             player.sendSystemMessage(Component.literal("too many skinwalkers nearby"));
             return;
         }
@@ -307,6 +307,7 @@ public class AbnormalitiesCommands {
         Entity raw = disguise.create(level);
         if (raw instanceof Mob mob) {
             mob.setPersistenceRequired();
+            mob.finalizeSpawn(level, level.getCurrentDifficultyAt(mob.blockPosition()), net.minecraft.world.entity.MobSpawnType.COMMAND, null, null);
             mob.getPersistentData().putBoolean("abnormalities:skinwalker", true);
             mob.goalSelector.addGoal(1, new com.abnormalities.entity.skinwalker.NurSkinwalkerApproachGoal(mob));
             mob.moveTo(spawnAt.getX() + 0.5, spawnAt.getY(), spawnAt.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0);

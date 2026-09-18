@@ -398,6 +398,7 @@ public class ModEvents {
             if (raw instanceof Mob skinwalker) {
                 LOGGER.info("[Events] skinwalker spawned as {} for {} at ({}, {}, {})", disguise, player.getName().getString(), (int)sx, sy, (int)sz);
                 skinwalker.setPersistenceRequired();
+                skinwalker.finalizeSpawn(overworld, overworld.getCurrentDifficultyAt(skinwalker.blockPosition()), net.minecraft.world.entity.MobSpawnType.COMMAND, null, null);
                 skinwalker.getPersistentData().putBoolean("abnormalities:skinwalker", true);
                 skinwalker.goalSelector.addGoal(1, new NurSkinwalkerApproachGoal(skinwalker));
                 skinwalker.moveTo(sx + 0.5, sy + 1, sz + 0.5, overworld.random.nextFloat() * 360.0F, 0);
@@ -408,6 +409,7 @@ public class ModEvents {
                     if (decoy instanceof Mob dm) {
                         double da = overworld.random.nextDouble() * Math.PI * 2;
                         double dd = 1.0 + overworld.random.nextDouble() * 3.0;
+                        dm.finalizeSpawn(overworld, overworld.getCurrentDifficultyAt(dm.blockPosition()), net.minecraft.world.entity.MobSpawnType.COMMAND, null, null);
                         dm.moveTo(sx + 0.5 + Math.cos(da) * dd, sy + 1, sz + 0.5 + Math.sin(da) * dd, overworld.random.nextFloat() * 360.0F, 0);
                         overworld.addFreshEntity(dm);
                     }
@@ -634,7 +636,15 @@ public class ModEvents {
         }
         if (event.getEntity().level().isClientSide) return;
         if (!event.getEntity().getPersistentData().getBoolean("abnormalities:skinwalker")) return;
-        if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
+        Entity killer = event.getSource().getEntity();
+        if (killer == null && event.getSource().is(net.minecraft.tags.DamageTypeTags.IS_LIGHTNING)) {
+            var bolts = event.getEntity().level().getEntitiesOfClass(net.minecraft.world.entity.LightningBolt.class,
+                    event.getEntity().getBoundingBox().inflate(4.0D));
+            for (var bolt : bolts) {
+                if (bolt.getCause() != null) { killer = bolt.getCause(); break; }
+            }
+        }
+        if (!(killer instanceof ServerPlayer player)) return;
         if (event.getEntity().level().random.nextInt(100) >= AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) return;
         LOGGER.info("[Events] skinwalker killed by {}, scheduling nur spawn", player.getName().getString());
         scheduleSkinwalkerSpawn(40, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),
