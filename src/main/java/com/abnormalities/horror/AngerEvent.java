@@ -74,14 +74,7 @@ public class AngerEvent extends AbstractHorrorEvent {
         int anger = ANGER_TICKS.getOrDefault(uuid, 0);
         if (anger > 0) {
             event.setCanceled(true);
-            String reversed = new StringBuilder(event.getMessage().getString()).reverse().toString();
-            for (var p : player.getServer().getPlayerList().getPlayers()) {
-                p.connection.send(new ClientboundSystemChatPacket(
-                        Component.literal("<" + player.getName().getString() + "> " + reversed), false));
-            }
-            if (RNG.nextInt(3) == 0) {
-                sendWhisper(player, ANGRY_REPLIES[RNG.nextInt(ANGRY_REPLIES.length)]);
-            }
+            sendWhisper(player, ANGRY_REPLIES[RNG.nextInt(ANGRY_REPLIES.length)]);
             return;
         }
         for (String insult : INSULTS) {
