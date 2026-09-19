@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "nurSignSpawns", "friendSpawns", "theMotherSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "segfault", "segfaultStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "ang3r", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle");
+    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "nurSignSpawns", "friendSpawns", "theMotherSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "segfault", "segfaultStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "ang3r", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle", "screenShake");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -74,10 +74,28 @@ public class AbnormalitiesCommands {
                                                 src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
                                                 return 0;
                                             }
-                                            fireEvent(player, eventName);
+                                            fireEvent(player, eventName, 0);
                                             src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
                                             return Command.SINGLE_SUCCESS;
-                                        })))
+                                        })
+                                        .then(Commands.argument("intensity", IntegerArgumentType.integer(1, 10))
+                                                .executes(ctx -> {
+                                                    CommandSourceStack src = ctx.getSource();
+                                                    if (!(src.getEntity() instanceof ServerPlayer player)) {
+                                                        src.sendFailure(Component.literal("must be a player"));
+                                                        return 0;
+                                                    }
+                                                    String eventName = StringArgumentType.getString(ctx, "name");
+                                                    int intensity = IntegerArgumentType.getInteger(ctx, "intensity");
+                                                    List<String> events = allEvents();
+                                                    if (!events.contains(eventName)) {
+                                                        src.sendFailure(Component.literal("unknown event. valid: " + String.join(", ", events)));
+                                                        return 0;
+                                                    }
+                                                    fireEvent(player, eventName, intensity);
+                                                    src.sendSuccess(() -> Component.literal("triggered: " + eventName + " intensity=" + intensity).withStyle(ChatFormatting.GREEN), false);
+                                                    return Command.SINGLE_SUCCESS;
+                                                }))))
                 .then(Commands.literal("random")
                         .executes(ctx -> {
                             CommandSourceStack src = ctx.getSource();
@@ -87,7 +105,7 @@ public class AbnormalitiesCommands {
                             }
                             List<String> events = allEvents();
                             String eventName = events.get(RNG.nextInt(events.size()));
-                            fireEvent(player, eventName);
+                            fireEvent(player, eventName, 0);
                             src.sendSuccess(() -> Component.literal("triggered: " + eventName).withStyle(ChatFormatting.GREEN), false);
                             return Command.SINGLE_SUCCESS;
                         }))
@@ -139,7 +157,7 @@ public class AbnormalitiesCommands {
                                                 StringArgumentType.getString(ctx, "value")))))));
     }
 
-    private static void fireEvent(ServerPlayer player, String eventName) {
+    private static void fireEvent(ServerPlayer player, String eventName, int intensity) {
         switch (eventName) {
             case "nurSpawns" -> ModEvents.forceNurSpawn(player);
             case "nurSignSpawns" -> ModEvents.forceNurSignSpawn(player);
@@ -204,6 +222,7 @@ public class AbnormalitiesCommands {
             case "distantCircle" -> com.abnormalities.horror.DistantManager.forceCircle(player);
             case "distantAir" -> com.abnormalities.horror.DistantManager.forceSpawnAir(player);
             case "distantAirCircle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
+            case "screenShake" -> com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, Math.max(1.0f, intensity), 120);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
