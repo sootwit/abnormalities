@@ -196,7 +196,7 @@ public class HexNilBorderManager {
         }
 
         if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) {
-            HexNilShakeHandler.sendShake(player, 2.0f, 200);
+            ScreenShakeManager.sendShake(player, 2.0f, 200);
         }
     }
 

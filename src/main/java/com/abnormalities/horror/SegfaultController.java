@@ -179,7 +179,7 @@ public class SegfaultController {
             sendState(player, state.stargazed ? SegfaultPacket.STATE_STARGAZED_CONTINUE : SegfaultPacket.STATE_CONTINUE, 0);
             playContinue(player);
         }
-        com.abnormalities.hexnil.HexNilShakeHandler.sendShake(player, 0.8f, 15);
+        com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, 0.8f, 15);
     }
 
     private static int getDuration(SegfaultState state) {

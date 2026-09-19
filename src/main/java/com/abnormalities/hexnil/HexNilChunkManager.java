@@ -238,7 +238,7 @@ public class HexNilChunkManager {
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(cx, startY, cz);
             if (dist < shakeRangeSq) {
-                HexNilShakeHandler.sendShake(p, 2.0f, 200);
+                ScreenShakeManager.sendShake(p, 2.0f, 200);
             }
         }
     }

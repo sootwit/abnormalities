@@ -31,7 +31,7 @@ public class HexNilShakePacket {
         ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             Player player = Minecraft.getInstance().player;
             if (player != null) {
-                com.abnormalities.hexnil.HexNilShakeHandler.triggerShake(player, msg.intensity, msg.duration);
+                com.abnormalities.hexnil.ScreenShakeManager.triggerShake(player, msg.intensity, msg.duration);
             }
         }));
         ctx.get().setPacketHandled(true);

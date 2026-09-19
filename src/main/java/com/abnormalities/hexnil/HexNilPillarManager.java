@@ -196,7 +196,7 @@ public class HexNilPillarManager {
         for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
             double dist = p.distanceToSqr(target.getX(), startY, target.getZ());
             if (dist < AbnormalitiesConfig.HN_SHAKE_RANGE.get() * AbnormalitiesConfig.HN_SHAKE_RANGE.get()) {
-                if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) com.abnormalities.hexnil.HexNilShakeHandler.sendShake(p, 3.0f, 200);
+                if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) com.abnormalities.hexnil.ScreenShakeManager.sendShake(p, 3.0f, 200);
             }
         }
 
@@ -223,7 +223,7 @@ public class HexNilPillarManager {
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                     double dist = p.distanceToSqr(player.getX(), player.getY(), player.getZ());
                     if (dist < AbnormalitiesConfig.HN_SHAKE_RANGE.get() * AbnormalitiesConfig.HN_SHAKE_RANGE.get()) {
-                        if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) com.abnormalities.hexnil.HexNilShakeHandler.sendShake(p, (float) AbnormalitiesConfig.HN_SHAKE_CRUSH.get().doubleValue(), 120);
+                        if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) com.abnormalities.hexnil.ScreenShakeManager.sendShake(p, (float) AbnormalitiesConfig.HN_SHAKE_CRUSH.get().doubleValue(), 120);
                     }
                 }
             } else if (near) {
