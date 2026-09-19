@@ -18,10 +18,12 @@ public class StillnessManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Stillness");
     private static final Map<UUID, Integer> STILL_TICKS = new HashMap<>();
     private static final Map<UUID, HoldState> ACTIVE = new HashMap<>();
-    private static final Map<UUID, List<Integer>> FROZEN = new HashMap<>();
+    private static final Map<UUID, List<UUID>> FROZEN = new HashMap<>();
 
     private static class HoldState {
         int ticksLeft;
+        final net.minecraft.resources.ResourceKey<Level> dimension;
+        HoldState(net.minecraft.resources.ResourceKey<Level> dim) { this.dimension = dim; }
     }
 
     @SubscribeEvent
@@ -59,16 +61,17 @@ public class StillnessManager {
     }
 
     private static void triggerStillness(ServerPlayer sp, ServerLevel level) {
-        ACTIVE.put(sp.getUUID(), new HoldState());
-        ACTIVE.get(sp.getUUID()).ticksLeft = 80;
-        List<Integer> frozenIds = new ArrayList<>();
+        HoldState st = new HoldState(sp.level().dimension());
+        st.ticksLeft = 80;
+        ACTIVE.put(sp.getUUID(), st);
+        List<UUID> frozenIds = new ArrayList<>();
         int range = 40;
         for (Mob mob : level.getEntitiesOfClass(Mob.class, sp.getBoundingBox().inflate(range))) {
             if (mob.isNoAi()) continue;
             if (mob.getPersistentData().getBoolean("abnormalities:h01d_ignore")) continue;
             mob.getPersistentData().putBoolean("abnormalities:h01d_was_noai", mob.isNoAi());
             mob.setNoAi(true);
-            frozenIds.add(mob.getId());
+            frozenIds.add(mob.getUUID());
             forceFace(mob, sp);
         }
         FROZEN.put(sp.getUUID(), frozenIds);
@@ -121,14 +124,20 @@ public class StillnessManager {
             UUID uuid = entry.getKey();
             ServerPlayer sp = level.getServer().getPlayerList().getPlayer(uuid);
             if (sp == null || !sp.isAlive()) {
-                release(uuid, level);
+                release(uuid);
                 it.remove();
                 continue;
             }
             HoldState st = entry.getValue();
+            if (sp.level().dimension() != st.dimension) {
+                LOGGER.info("[Stillness] {} changed dimension mid-hold, releasing", sp.getName().getString());
+                release(uuid);
+                it.remove();
+                continue;
+            }
             st.ticksLeft--;
             if (st.ticksLeft <= 0) {
-                release(uuid, level);
+                release(uuid);
                 it.remove();
                 continue;
             }
@@ -139,22 +148,26 @@ public class StillnessManager {
                     mob.getPersistentData().putBoolean("abnormalities:h01d_was_noai", false);
                     mob.setNoAi(true);
                     var ids = FROZEN.get(uuid);
-                    if (ids != null && !ids.contains(mob.getId())) ids.add(mob.getId());
+                    if (ids != null && !ids.contains(mob.getUUID())) ids.add(mob.getUUID());
                 }
                 forceFace(mob, sp);
             }
         }
     }
 
-    private static void release(UUID uuid, ServerLevel level) {
-        List<Integer> ids = FROZEN.remove(uuid);
+    private static void release(UUID uuid) {
+        List<UUID> ids = FROZEN.remove(uuid);
         if (ids == null) return;
-        for (int id : ids) {
-            var e = level.getEntity(id);
-            if (e instanceof Mob mob) {
-                boolean wasNoai = mob.getPersistentData().getBoolean("abnormalities:h01d_was_noai");
-                mob.setNoAi(wasNoai);
-                mob.getPersistentData().remove("abnormalities:h01d_was_noai");
+        var srv = ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        for (var lvl : srv.getAllLevels()) {
+            for (UUID id : ids) {
+                var e = lvl.getEntity(id);
+                if (e instanceof Mob mob) {
+                    boolean wasNoai = mob.getPersistentData().getBoolean("abnormalities:h01d_was_noai");
+                    mob.setNoAi(wasNoai);
+                    mob.getPersistentData().remove("abnormalities:h01d_was_noai");
+                }
             }
         }
     }
@@ -172,11 +185,6 @@ public class StillnessManager {
         UUID uuid = event.getEntity().getUUID();
         ACTIVE.remove(uuid);
         STILL_TICKS.remove(uuid);
-        var srv = ServerLifecycleHooks.getCurrentServer();
-        if (srv != null) {
-            for (var level : srv.getAllLevels()) {
-                release(uuid, (ServerLevel) level);
-            }
-        }
+        release(uuid);
     }
 }

@@ -105,6 +105,8 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new ChatLockEvent(true));
         HorrorEventPool.register(new ChatLockEvent(false));
         HorrorEventPool.register(new VoidEvent());
+        HorrorEventPool.register(new AngerEvent());
+        MinecraftForge.EVENT_BUS.register(AngerEvent.class);
 
         CHANNEL.registerMessage(0, SegfaultPacket.class, SegfaultPacket::encode, SegfaultPacket::decode, SegfaultPacket::handle);
         CHANNEL.registerMessage(1, CrashPacket.class, CrashPacket::encode, CrashPacket::decode, CrashPacket::handle);

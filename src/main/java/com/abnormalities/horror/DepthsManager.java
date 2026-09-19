@@ -124,10 +124,13 @@ public class DepthsManager {
         Deque<BlockPos> queue = new ArrayDeque<>();
         queue.add(start);
         int maxBlocks = 4096;
+        int radius = AbnormalitiesConfig.DEPTHS_RADIUS.get();
+        int rSq = radius * radius;
         while (!queue.isEmpty() && visited.size() < maxBlocks) {
             BlockPos pos = queue.poll();
             if (visited.contains(pos)) continue;
             if (!level.isLoaded(pos)) continue;
+            if (pos.distSqr(start) > rSq) continue;
             BlockState state = level.getBlockState(pos);
             if (!state.getFluidState().is(net.minecraft.tags.FluidTags.WATER)) continue;
             visited.add(pos);
@@ -210,23 +213,15 @@ public class DepthsManager {
         if (srv == null) return;
         ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
-        Set<Long> forcedChunks = new HashSet<>();
+        Set<Long> touchedChunks = new HashSet<>();
         for (BlockPos pos : saved.keySet()) {
-            forcedChunks.add(ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
+            touchedChunks.add(ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
         }
-        for (long chunkLong : forcedChunks) {
-            overworld.setChunkForced(ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong), true);
+        for (long chunkLong : touchedChunks) {
+            overworld.getChunk(ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong));
         }
-        Iterator<Map.Entry<BlockPos, BlockState>> it = saved.entrySet().iterator();
-        while (it.hasNext()) {
-            var entry = it.next();
-            if (overworld.isLoaded(entry.getKey())) {
-                overworld.setBlock(entry.getKey(), entry.getValue(), 2);
-                it.remove();
-            }
-        }
-        for (long chunkLong : forcedChunks) {
-            overworld.setChunkForced(ChunkPos.getX(chunkLong), ChunkPos.getZ(chunkLong), false);
+        for (Map.Entry<BlockPos, BlockState> entry : saved.entrySet()) {
+            overworld.setBlock(entry.getKey(), entry.getValue(), 2);
         }
     }
 }

@@ -20,10 +20,12 @@ public class HushController {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Hush");
     private static final Map<UUID, HushState> ACTIVE = new HashMap<>();
     private static final Map<UUID, Integer> COOLDOWNS = new HashMap<>();
-    private static final Map<UUID, List<Integer>> FROZEN_MOBS = new HashMap<>();
+    private static final Map<UUID, List<UUID>> FROZEN_MOBS = new HashMap<>();
 
     private static class HushState {
         int ticksLeft;
+        final net.minecraft.resources.ResourceKey<Level> dimension;
+        HushState(net.minecraft.resources.ResourceKey<Level> dim) { this.dimension = dim; }
     }
 
     @SubscribeEvent
@@ -57,7 +59,7 @@ public class HushController {
 
     private static void startHush(ServerPlayer player, ServerLevel level) {
         UUID uuid = player.getUUID();
-        var st = new HushState();
+        var st = new HushState(player.level().dimension());
         int dur = AbnormalitiesConfig.HUSH_DURATION.get();
         st.ticksLeft = dur;
         ACTIVE.put(uuid, st);
@@ -69,12 +71,12 @@ public class HushController {
 
         int range = AbnormalitiesConfig.HUSH_RANGE.get();
         var mobs = level.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(range));
-        List<Integer> frozenIds = new ArrayList<>();
+        List<UUID> frozenIds = new ArrayList<>();
         for (Mob mob : mobs) {
             if (mob.isNoAi()) continue;
             mob.getPersistentData().putBoolean("abnormalities:hush_was_noai", mob.isNoAi());
             mob.setNoAi(true);
-            frozenIds.add(mob.getId());
+            frozenIds.add(mob.getUUID());
         }
         FROZEN_MOBS.put(uuid, frozenIds);
         LOGGER.info("[Hush] {} triggered, froze {} mobs, duration={}t", player.getName().getString(), frozenIds.size(), dur);
@@ -88,14 +90,21 @@ public class HushController {
             HushState st = entry.getValue();
             Player player = level.getPlayerByUUID(uuid);
             if (player == null || !player.isAlive()) {
-                unfreezeMobs(uuid, level);
+                unfreezeMobs(uuid);
+                it.remove();
+                COOLDOWNS.put(uuid, AbnormalitiesConfig.HUSH_COOLDOWN.get());
+                continue;
+            }
+            if (player.level().dimension() != st.dimension) {
+                LOGGER.info("[Hush] {} changed dimension mid-hush, releasing", player.getName().getString());
+                unfreezeMobs(uuid);
                 it.remove();
                 COOLDOWNS.put(uuid, AbnormalitiesConfig.HUSH_COOLDOWN.get());
                 continue;
             }
             st.ticksLeft--;
             if (st.ticksLeft <= 0) {
-                unfreezeMobs(uuid, level);
+                unfreezeMobs(uuid);
                 it.remove();
                 COOLDOWNS.put(uuid, AbnormalitiesConfig.HUSH_COOLDOWN.get());
                 continue;
@@ -107,7 +116,7 @@ public class HushController {
                     mob.getPersistentData().putBoolean("abnormalities:hush_was_noai", false);
                     mob.setNoAi(true);
                     var ids = FROZEN_MOBS.get(uuid);
-                    if (ids != null && !ids.contains(mob.getId())) ids.add(mob.getId());
+                    if (ids != null && !ids.contains(mob.getUUID())) ids.add(mob.getUUID());
                 }
                 Vec3 lookTarget = player.getEyePosition();
                 double dx = lookTarget.x - mob.getX();
@@ -124,15 +133,19 @@ public class HushController {
         }
     }
 
-    private static void unfreezeMobs(UUID uuid, ServerLevel level) {
-        List<Integer> ids = FROZEN_MOBS.remove(uuid);
+    private static void unfreezeMobs(UUID uuid) {
+        List<UUID> ids = FROZEN_MOBS.remove(uuid);
         if (ids == null) return;
-        for (int id : ids) {
-            var e = level.getEntity(id);
-            if (e instanceof Mob mob) {
-                boolean wasNoai = mob.getPersistentData().getBoolean("abnormalities:hush_was_noai");
-                mob.setNoAi(wasNoai);
-                mob.getPersistentData().remove("abnormalities:hush_was_noai");
+        var srv = ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        for (var lvl : srv.getAllLevels()) {
+            for (UUID id : ids) {
+                var e = lvl.getEntity(id);
+                if (e instanceof Mob mob) {
+                    boolean wasNoai = mob.getPersistentData().getBoolean("abnormalities:hush_was_noai");
+                    mob.setNoAi(wasNoai);
+                    mob.getPersistentData().remove("abnormalities:hush_was_noai");
+                }
             }
         }
     }
@@ -142,12 +155,7 @@ public class HushController {
         UUID uuid = event.getEntity().getUUID();
         ACTIVE.remove(uuid);
         COOLDOWNS.remove(uuid);
-        var srv = ServerLifecycleHooks.getCurrentServer();
-        if (srv != null) {
-            for (var level : srv.getAllLevels()) {
-                unfreezeMobs(uuid, (ServerLevel) level);
-            }
-        }
+        unfreezeMobs(uuid);
     }
 
     public static boolean isActive(UUID uuid) {

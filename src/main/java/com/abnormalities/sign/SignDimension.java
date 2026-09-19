@@ -151,6 +151,7 @@ public class SignDimension {
         spawnTickAccum++;
         if (spawnTickAccum >= interval) {
             spawnTickAccum = 0;
+            if (signLevel.random.nextInt(com.abnormalities.entity.HimTracker.weighted(AbnormalitiesConfig.HIM_SIGN_SPAWN_WEIGHT.get())) != 0) return;
             var allHimSigns = signLevel.getEntitiesOfClass(HimSignEntity.class, new net.minecraft.world.phys.AABB(-32000, -64, -32000, 32000, 320, 32000));
             if (allHimSigns.size() < 20) {
                 for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
