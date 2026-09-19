@@ -42,8 +42,8 @@ public class PeakDayManager {
     private static boolean loaded = false;
     private static int giftsSpawned = 0;
 
-    private static final int[] ORE_Y_MIN = { -59, 15, -48, -24, -1, -16, 0, 232 };
-    private static final int[] ORE_Y_MAX = { -53, 10, -16, -48, 64, 112, 80, 256 };
+    private static final int[] ORE_Y_MIN = { -59, 10, -48, -48, -1, -16, 0, 232 };
+    private static final int[] ORE_Y_MAX = { -53, 15, -16, -24, 64, 112, 80, 256 };
     private static final int[] ORE_AMOUNT_MIN = { 5, 8, 4, 10, 6, 8, 10, 2 };
     private static final int[] ORE_AMOUNT_MAX = { 15, 16, 10, 20, 12, 16, 24, 6 };
     private static final ItemStack[] ORE_ITEMS = {
@@ -102,7 +102,7 @@ public class PeakDayManager {
         if (overworld == null) return;
         if (overworld.getServer().getTickCount() % 20 != 0) return;
 
-        ticksRemaining--;
+        ticksRemaining -= 20;
         if (ticksRemaining <= 0) {
             advanceDay(overworld);
         }
@@ -123,6 +123,7 @@ public class PeakDayManager {
             LOGGER.info("[PeakDay] {} day ended", currentType);
             currentType = DayType.NORMAL;
             ticksRemaining = 24000L;
+            save();
             return;
         }
 
