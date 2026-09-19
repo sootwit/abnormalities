@@ -145,6 +145,12 @@ public class ModEvents {
         PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level, targetUUID));
     }
 
+    private static int peakAdjusted(int weight) {
+        double mult = com.abnormalities.horror.PeakDayManager.getSpawnMultiplier();
+        if (mult <= 0.0D || weight <= 1) return Math.max(1, weight);
+        return Math.max(1, (int) (weight / mult));
+    }
+
     public static void forceNurSpawn(ServerPlayer player) {
         if (!AbnormalitiesConfig.NUR_ENABLED.get()) {
             LOGGER.info("[Events] forceNurSpawn skipped for {}, nur disabled", player.getName().getString());
@@ -291,7 +297,7 @@ public class ModEvents {
             for (Player player : overworld.players()) {
                 if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.THE_MOTHER_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get())) != 0) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get()))) != 0) continue;
                 boolean alreadyHasTheMother = false;
                 for (TheMotherEntity existing : overworld.getEntitiesOfClass(TheMotherEntity.class, player.getBoundingBox().inflate(256.0D))) {
                     if (existing.getTargetPlayer() == player && existing.isActive()) {
@@ -341,6 +347,10 @@ public class ModEvents {
                     if (envCount > 0 && amount > envCount) {
                         amount = Math.max(1, envCount);
                     }
+                    int peakItemMult = com.abnormalities.horror.PeakDayManager.getTheMotherItemMultiplier();
+                    if (peakItemMult > 1) {
+                        amount = Math.min(maxStack, amount * peakItemMult);
+                    }
                     int seconds;
                     if (AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.get()) {
                         seconds = AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT_SECONDS.get();
@@ -378,7 +388,7 @@ public class ModEvents {
         for (Player player : overworld.players()) {
             if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.SW_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())) != 0) continue;
+                if (overworld.random.nextInt(HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get()))) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             double sx = player.getX() + Math.cos(angle) * dist;
@@ -425,7 +435,7 @@ public class ModEvents {
             if (!AbnormalitiesConfig.HIM_ENABLED.get()) continue;
             if (player.tickCount % 40 != 0) continue;
             if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
-            int rarity = HimTracker.weighted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250);
+            int rarity = HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250));
             if (overworld.random.nextInt(rarity) != 0) continue;
             LOGGER.debug("[Events] him spawn weight roll passed for {} rarity={}", player.getName().getString(), rarity);
             boolean alreadyHasHim = false;
@@ -448,7 +458,7 @@ public class ModEvents {
         for (Player player : overworld.players()) {
             if (player.tickCount % 20 != 0) continue;
                 if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
-                int nurWeight = AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get();
+                int nurWeight = peakAdjusted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get());
                 if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) nurWeight = Math.max(1, nurWeight / 2);
                 if (overworld.random.nextInt(HimTracker.weighted(nurWeight)) != 0) continue;
             LOGGER.debug("[Events] nur spawn weight roll passed for {}", player.getName().getString());

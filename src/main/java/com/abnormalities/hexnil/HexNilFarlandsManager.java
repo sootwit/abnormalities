@@ -25,6 +25,7 @@ public class HexNilFarlandsManager {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!AbnormalitiesConfig.HN_ENABLED.get()) return;
+        if (com.abnormalities.horror.PeakDayManager.isWindDisabled()) return;
         var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         ServerLevel overworld = srv.getLevel(net.minecraft.world.level.Level.OVERWORLD);
