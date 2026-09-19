@@ -190,9 +190,18 @@ public class V1s1tManager {
         }
     }
 
+    private static boolean areaLoaded(ServerLevel level, BlockPos a, BlockPos b) {
+        return level.isLoaded(a) && level.isLoaded(b)
+                && level.isLoaded(new BlockPos(a.getX(), a.getY(), b.getZ()))
+                && level.isLoaded(new BlockPos(b.getX(), b.getY(), a.getZ()));
+    }
+
     private static BlockPos findChest(ServerLevel level, BlockPos anchor, int radius) {
+        BlockPos min = anchor.offset(-radius, -radius, -radius);
+        BlockPos max = anchor.offset(radius, radius, radius);
+        if (!areaLoaded(level, min, max)) return null;
         List<BlockPos> chests = new ArrayList<>();
-        BlockPos.betweenClosedStream(anchor.offset(-radius, -radius, -radius), anchor.offset(radius, radius, radius))
+        BlockPos.betweenClosedStream(min, max)
                 .forEach(pos -> {
                     if (level.getBlockEntity(pos) instanceof ChestBlockEntity) chests.add(pos.immutable());
                 });
@@ -201,8 +210,11 @@ public class V1s1tManager {
     }
 
     private static BlockPos findGround(ServerLevel level, BlockPos anchor, int radius) {
+        BlockPos min = anchor.offset(-radius, 0, -radius);
+        BlockPos max = anchor.offset(radius, 0, radius);
+        if (!areaLoaded(level, min, max)) return null;
         List<BlockPos> spots = new ArrayList<>();
-        BlockPos.betweenClosedStream(anchor.offset(-radius, 0, -radius), anchor.offset(radius, 0, radius))
+        BlockPos.betweenClosedStream(min, max)
                 .forEach(pos -> {
                     int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
                     BlockPos g = new BlockPos(pos.getX(), top, pos.getZ());
@@ -218,8 +230,11 @@ public class V1s1tManager {
     }
 
     private static BlockPos findStair(ServerLevel level, BlockPos anchor, int radius) {
+        BlockPos min = anchor.offset(-radius, -radius, -radius);
+        BlockPos max = anchor.offset(radius, radius, radius);
+        if (!areaLoaded(level, min, max)) return null;
         List<BlockPos> stairs = new ArrayList<>();
-        BlockPos.betweenClosedStream(anchor.offset(-radius, -radius, -radius), anchor.offset(radius, radius, radius))
+        BlockPos.betweenClosedStream(min, max)
                 .forEach(pos -> {
                     if (level.getBlockState(pos).getBlock() instanceof StairBlock) stairs.add(pos.immutable());
                 });
@@ -228,8 +243,11 @@ public class V1s1tManager {
     }
 
     private static BlockPos findTorch(ServerLevel level, BlockPos anchor, int radius) {
+        BlockPos min = anchor.offset(-radius, -radius, -radius);
+        BlockPos max = anchor.offset(radius, radius, radius);
+        if (!areaLoaded(level, min, max)) return null;
         List<BlockPos> torches = new ArrayList<>();
-        BlockPos.betweenClosedStream(anchor.offset(-radius, -radius, -radius), anchor.offset(radius, radius, radius))
+        BlockPos.betweenClosedStream(min, max)
                 .forEach(pos -> {
                     BlockState st = level.getBlockState(pos);
                     if (st.is(Blocks.TORCH) || st.is(Blocks.WALL_TORCH) || st.is(Blocks.REDSTONE_TORCH) || st.is(Blocks.REDSTONE_WALL_TORCH))
@@ -246,6 +264,7 @@ public class V1s1tManager {
             ItemStack existing = chest.getItem(i);
             if (existing.isEmpty()) {
                 chest.setItem(i, stack);
+                chest.setChanged();
                 return;
             }
             if (ItemStack.isSameItemSameTags(existing, stack) && existing.getCount() < existing.getMaxStackSize()) {

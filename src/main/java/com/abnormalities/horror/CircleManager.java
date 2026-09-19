@@ -27,7 +27,8 @@ public class CircleManager {
         if (event.wakeImmediately()) return;
         long currentDay = sp.level().getDayTime() / 24000L;
         if (currentDay < AbnormalitiesConfig.GRACE_PERIOD_DAYS.get()) return;
-        if (RNG.nextInt(AbnormalitiesConfig.C1RCL_CHANCE.get()) != 0) return;
+        int chance = AbnormalitiesConfig.C1RCL_CHANCE.get();
+        if (chance <= 0 || RNG.nextInt(chance) != 0) return;
         BlockPos bed = sp.getSleepingPos().orElse(sp.blockPosition());
         spawnRing((ServerLevel) sp.level(), bed);
     }

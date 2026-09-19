@@ -128,7 +128,7 @@ public class NurEntity extends Mob {
             AABB box = this.getBoundingBox().inflate(3.0D);
             level().getEntitiesOfClass(net.minecraft.world.entity.vehicle.Boat.class, box, b -> true).forEach(net.minecraft.world.entity.Entity::discard);
         }
-        if (tickCount > 300) { discard(); return; }
+        if (tickCount > 300 && !isChasing() && currentState != State.CHASING && currentState != State.SMART) { discard(); return; }
         if (dummyTriggered && currentState != State.DUMMY && currentState != State.STALKING_DUMMY) dummyTriggered = false;
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
             currentTarget = findNearestPlayer();
@@ -148,6 +148,7 @@ public class NurEntity extends Mob {
             if (isChasing() || currentState == State.CHASING) {
                 this.entityData.set(DATA_CHASING, true);
                 if (chasedPlayerId == null || !chasedPlayerId.equals(currentTarget.getUUID())) {
+                    if (chasedPlayerId != null && !level().isClientSide) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
                     chasedPlayerId = currentTarget.getUUID();
                     if (!level().isClientSide) NurHorrorCycle.start(chasedPlayerId, this.getUUID());
                 }

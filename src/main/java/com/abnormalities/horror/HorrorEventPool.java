@@ -52,6 +52,8 @@ public class HorrorEventPool {
     }
 
     public static void setOngoing(ServerPlayer player, AbstractHorrorEvent event) {
+        AbstractHorrorEvent old = ONGOING.get(player.getUUID());
+        if (old != null && old != event) old.onCleanup(player);
         if (event != null && event.allowsOngoing()) {
             ONGOING.put(player.getUUID(), event);
         } else {

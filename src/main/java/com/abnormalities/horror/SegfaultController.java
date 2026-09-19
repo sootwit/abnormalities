@@ -245,18 +245,18 @@ public class SegfaultController {
         }
         state.lastX = player.getX();
         state.lastZ = player.getZ();
+        float yawDelta = Math.abs(player.getYRot() - state.lastYRot);
+        float pitchDelta = Math.abs(player.getXRot() - state.lastXRot);
+        int curSlot = player.getInventory().selected;
+        boolean slotChanged = curSlot != state.lastSlot;
+        state.lastYRot = player.getYRot();
+        state.lastXRot = player.getXRot();
+        state.lastSlot = curSlot;
 
         if (state.showingStop) {
             if (playerMoved) addWrong(player, uuid, state);
-            float yawDelta = Math.abs(player.getYRot() - state.lastYRot);
-            float pitchDelta = Math.abs(player.getXRot() - state.lastXRot);
-            state.lastYRot = player.getYRot();
-            state.lastXRot = player.getXRot();
             if (yawDelta > 1.0f || pitchDelta > 1.0f) strictViolation(player);
-            if (player.getInventory().selected != state.lastSlot) {
-                state.lastSlot = player.getInventory().selected;
-                strictViolation(player);
-            }
+            if (slotChanged) strictViolation(player);
             if (player.containerMenu != player.inventoryMenu) strictViolation(player);
             if (player.swinging) strictViolation(player);
         } else if (!playerMoved) {

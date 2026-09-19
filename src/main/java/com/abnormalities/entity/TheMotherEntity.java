@@ -474,7 +474,10 @@ public class TheMotherEntity extends Mob {
         this.entityData.set(DATA_ACTIVE, false);
 
         Player victim = attacker != null ? attacker : targetPlayer;
-        if (victim == null || level().isClientSide) return;
+        if (victim == null || level().isClientSide) {
+            discard();
+            return;
+        }
 
         ReputationManager.addRep(victim, -100);
 

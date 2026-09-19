@@ -148,7 +148,7 @@ public class ModEvents {
     private static int peakAdjusted(int weight) {
         double mult = com.abnormalities.horror.PeakDayManager.getSpawnMultiplier();
         if (mult <= 0.0D || weight <= 1) return Math.max(1, weight);
-        return Math.max(1, (int) (weight / mult));
+        return Math.max(1, (int) (weight * mult));
     }
 
     public static void forceNurSpawn(ServerPlayer player) {

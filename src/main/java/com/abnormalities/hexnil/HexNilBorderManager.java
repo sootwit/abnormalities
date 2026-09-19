@@ -155,7 +155,7 @@ public class HexNilBorderManager {
         int playerChunkZ = center.getZ() >> 4;
 
         Set<Long> chunksToProcess = new HashSet<>();
-        for (int ring = Math.max(0, borderDist - 1); ring <= borderDist + 1; ring++) {
+        for (int ring = Math.max(1, borderDist - 1); ring <= borderDist + 1; ring++) {
             for (int cx = playerChunkX - ring; cx <= playerChunkX + ring; cx++) {
                 chunksToProcess.add(chunkKey(cx, playerChunkZ - ring));
                 if (ring > 0) chunksToProcess.add(chunkKey(cx, playerChunkZ + ring));
@@ -177,10 +177,10 @@ public class HexNilBorderManager {
             count++;
         }
 
-        List<Long> shuffledKeys = new ArrayList<>(chunksToProcess);
+        List<Long> shuffledKeys = new ArrayList<>(forced);
         java.util.Collections.shuffle(shuffledKeys);
 
-        int totalChunks = Math.min(chunksToProcess.size(), MAX_CHUNKS);
+        int totalChunks = forced.size();
         BorderDestructionJob job = new BorderDestructionJob(level, shuffledKeys, uuid, borderDist, totalChunks, forced);
         activeJobs.add(job);
 

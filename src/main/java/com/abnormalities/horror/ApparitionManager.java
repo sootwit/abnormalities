@@ -171,6 +171,7 @@ public class ApparitionManager {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() == null) return;
-        ACTIVE.remove(event.getEntity().getUUID());
+        ApparitionState state = ACTIVE.remove(event.getEntity().getUUID());
+        if (state != null && state.entity != null && state.entity.isAlive()) state.entity.discard();
     }
 }
