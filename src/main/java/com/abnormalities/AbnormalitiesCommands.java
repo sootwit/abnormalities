@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nurSpawns", "nurSignSpawns", "friendSpawns", "theMotherSpawns", "himSpawns", "himBossSpawns", "skinwalkerSpawns", "segfault", "segfaultStargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chatDisabled", "chatEnabled", "ang3r", "fakeAch", "f4k3", "f4k3join", "b3drock", "0x0000Pillar", "0x0000Chunk", "0x0000", "0x0000Farlands", "0x0000Furtherlands", "0x0000Border", "slowedMusic", "animalNoise", "peakBad", "peakGood", "signEnter", "signExit", "depths", "0x0000Apparation", "0x0000CurseBiome", "0x0000CurseHouse", "darkAreaEvent", "distant", "distantCircle", "distantAir", "distantAirCircle", "screenShake");
+    private static final List<String> BASE_EVENTS = List.of("nur", "nur_sign", "friend", "the_mother", "him", "him_boss", "skinwalker", "segfault", "segfault_stargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chat_disabled", "chat_enabled", "ang3r", "fake_ach", "f4k3", "f4k3_join", "b3drock", "0x0000_pillar", "0x0000_chunk", "0x0000", "0x0000_farlands", "0x0000_furtherlands", "0x0000_border", "slowed_music", "animal_noise", "peak_bad", "peak_good", "sign_enter", "sign_exit", "depths", "0x0000_apparition", "0x0000_curse_biome", "0x0000_curse_house", "dark_area", "distant", "distant_circle", "distant_air", "distant_air_circle", "screen_shake");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -159,23 +159,23 @@ public class AbnormalitiesCommands {
 
     private static void fireEvent(ServerPlayer player, String eventName, int intensity) {
         switch (eventName) {
-            case "nurSpawns" -> ModEvents.forceNurSpawn(player);
-            case "nurSignSpawns" -> ModEvents.forceNurSignSpawn(player);
-            case "friendSpawns" -> FriendActionTracker.forceFriendSpawn(player);
-            case "theMotherSpawns" -> forceTheMotherSpawn(player);
-            case "himSpawns" -> {
+            case "nur" -> ModEvents.forceNurSpawn(player);
+            case "nur_sign" -> ModEvents.forceNurSignSpawn(player);
+            case "friend" -> FriendActionTracker.forceFriendSpawn(player);
+            case "the_mother" -> forceTheMotherSpawn(player);
+            case "him" -> {
                 if (!ModEvents.forceHimSpawn(player, false)) {
                     player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
-            case "himBossSpawns" -> {
+            case "him_boss" -> {
                 if (!ModEvents.forceHimSpawn(player, true)) {
                     player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
-            case "skinwalkerSpawns" -> forceSkinwalkerSpawn(player);
+            case "skinwalker" -> forceSkinwalkerSpawn(player);
             case "segfault" -> com.abnormalities.horror.SegfaultController.forceStart(player);
-            case "segfaultStargazed" -> com.abnormalities.horror.SegfaultController.forceStartStargazed(player);
+            case "segfault_stargazed" -> com.abnormalities.horror.SegfaultController.forceStartStargazed(player);
             case "v1s1t" -> com.abnormalities.horror.V1s1tManager.forceVisit(player);
             case "hush" -> com.abnormalities.horror.HushController.forceStart(player);
             case "w4k3" -> com.abnormalities.horror.WakeDisplacementEvent.forceDisplace(player);
@@ -185,44 +185,44 @@ public class AbnormalitiesCommands {
             case "br34th" -> com.abnormalities.horror.PhantomDrownManager.forceDrown(player);
             case "h01d" -> com.abnormalities.horror.StillnessManager.forceTrigger(player);
             case "c1rcl" -> com.abnormalities.horror.CircleManager.forceRing(player);
-            case "fakeAch" -> com.abnormalities.horror.FakeAchievementManager.give(player);
+            case "fake_ach" -> com.abnormalities.horror.FakeAchievementManager.give(player);
             case "f4k3" -> com.abnormalities.horror.FakeChatManager.forceChat(player);
-            case "f4k3join" -> com.abnormalities.horror.FakeChatManager.forceJoinLeave();
+            case "f4k3_join" -> com.abnormalities.horror.FakeChatManager.forceJoinLeave();
 
             case "b3drock" -> com.abnormalities.horror.B3drockManager.forceB3drock(player);
-            case "0x0000Pillar" -> com.abnormalities.hexnil.HexNilController.forcePillar(player);
-            case "0x0000Chunk" -> com.abnormalities.hexnil.HexNilChunkManager.forceChunk(player);
+            case "0x0000_pillar" -> com.abnormalities.hexnil.HexNilController.forcePillar(player);
+            case "0x0000_chunk" -> com.abnormalities.hexnil.HexNilChunkManager.forceChunk(player);
             case "0x0000" -> com.abnormalities.hexnil.HexNilController.forceRandom(player);
-            case "0x0000Farlands" -> com.abnormalities.hexnil.HexNilFarlandsManager.forceFarlands(player);
-            case "0x0000Furtherlands" -> com.abnormalities.hexnil.HexNilFurtherlandsManager.forceFurtherlands(player);
-            case "0x0000Border" -> com.abnormalities.hexnil.HexNilBorderManager.forceBorder(player);
-            case "slowedMusic" -> com.abnormalities.horror.SlowedMusicManager.forcePlay();
-            case "animalNoise" -> com.abnormalities.horror.AnimalNoiseManager.forcePlay(player);
-            case "chatDisabled" -> com.abnormalities.horror.ChatLockEvent.forceDisabled(player);
-            case "chatEnabled" -> com.abnormalities.horror.ChatLockEvent.forceEnabled(player);
+            case "0x0000_farlands" -> com.abnormalities.hexnil.HexNilFarlandsManager.forceFarlands(player);
+            case "0x0000_furtherlands" -> com.abnormalities.hexnil.HexNilFurtherlandsManager.forceFurtherlands(player);
+            case "0x0000_border" -> com.abnormalities.hexnil.HexNilBorderManager.forceBorder(player);
+            case "slowed_music" -> com.abnormalities.horror.SlowedMusicManager.forcePlay();
+            case "animal_noise" -> com.abnormalities.horror.AnimalNoiseManager.forcePlay(player);
+            case "chat_disabled" -> com.abnormalities.horror.ChatLockEvent.forceDisabled(player);
+            case "chat_enabled" -> com.abnormalities.horror.ChatLockEvent.forceEnabled(player);
             case "ang3r" -> com.abnormalities.horror.AngerEvent.forceAnger(player);
-            case "peakBad" -> com.abnormalities.horror.PeakDayManager.forceBad(player);
-            case "peakGood" -> com.abnormalities.horror.PeakDayManager.forceGood(player);
-            case "0x0000CurseHouse" -> {
+            case "peak_bad" -> com.abnormalities.horror.PeakDayManager.forceBad(player);
+            case "peak_good" -> com.abnormalities.horror.PeakDayManager.forceGood(player);
+            case "0x0000_curse_house" -> {
                 if (!com.abnormalities.horror.CursedHouseManager.forceCurse(player)) {
                     player.displayClientMessage(Component.literal("couldn't find a house").withStyle(ChatFormatting.GRAY), false);
                 }
             }
-            case "0x0000CurseBiome" -> {
+            case "0x0000_curse_biome" -> {
                 if (!com.abnormalities.horror.CursedBiomeManager.forceCursed(player)) {
                     player.displayClientMessage(Component.literal("couldn't determine biome").withStyle(ChatFormatting.GRAY), false);
                 }
             }
-            case "0x0000Apparation" -> com.abnormalities.horror.ApparitionManager.forceSpawn(player);
-            case "signEnter" -> com.abnormalities.sign.SignDimension.teleportToSign(player, player.blockPosition());
-            case "signExit" -> com.abnormalities.sign.SignDimension.returnFromSign(player);
+            case "0x0000_apparition" -> com.abnormalities.horror.ApparitionManager.forceSpawn(player);
+            case "sign_enter" -> com.abnormalities.sign.SignDimension.teleportToSign(player, player.blockPosition());
+            case "sign_exit" -> com.abnormalities.sign.SignDimension.returnFromSign(player);
             case "depths" -> com.abnormalities.horror.DepthsManager.forceDepths(player);
-            case "darkAreaEvent" -> com.abnormalities.horror.DarkAreaSoundManager.forceDarkArea(player);
+            case "dark_area" -> com.abnormalities.horror.DarkAreaSoundManager.forceDarkArea(player);
             case "distant" -> com.abnormalities.horror.DistantManager.forceSpawn(player);
-            case "distantCircle" -> com.abnormalities.horror.DistantManager.forceCircle(player);
-            case "distantAir" -> com.abnormalities.horror.DistantManager.forceSpawnAir(player);
-            case "distantAirCircle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
-            case "screenShake" -> com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, Math.max(1.0f, intensity), 120);
+            case "distant_circle" -> com.abnormalities.horror.DistantManager.forceCircle(player);
+            case "distant_air" -> com.abnormalities.horror.DistantManager.forceSpawnAir(player);
+            case "distant_air_circle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
+            case "screen_shake" -> com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, Math.max(1.0f, intensity), 120);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
