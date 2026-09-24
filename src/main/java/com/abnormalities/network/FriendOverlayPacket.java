@@ -15,9 +15,11 @@ public class FriendOverlayPacket {
     }
 
     public static void handle(FriendOverlayPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            com.abnormalities.client.FriendCrashOverlay.triggerApparition();
-        });
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            ctx.get().enqueueWork(() -> {
+                com.abnormalities.client.FriendCrashOverlay.triggerApparition();
+            });
+        }
         ctx.get().setPacketHandled(true);
     }
 }

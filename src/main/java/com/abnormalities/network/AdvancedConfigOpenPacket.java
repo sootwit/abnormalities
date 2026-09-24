@@ -10,8 +10,10 @@ public class AdvancedConfigOpenPacket {
     public static AdvancedConfigOpenPacket decode(FriendlyByteBuf buf) { return new AdvancedConfigOpenPacket(); }
     public static void handle(AdvancedConfigOpenPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().setPacketHandled(true);
-        net.minecraft.client.Minecraft.getInstance().execute(() -> {
-            net.minecraft.client.Minecraft.getInstance().setScreen(new com.abnormalities.client.AdvancedConfigScreen());
-        });
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            net.minecraft.client.Minecraft.getInstance().execute(() -> {
+                net.minecraft.client.Minecraft.getInstance().setScreen(new com.abnormalities.client.AdvancedConfigScreen());
+            });
+        }
     }
 }

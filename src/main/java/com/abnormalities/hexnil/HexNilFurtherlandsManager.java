@@ -20,7 +20,9 @@ import java.util.*;
 public class HexNilFurtherlandsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Furtherlands");
     private static long lastFurtherlands = 0;
-    private static final Map<Long, Long> GENERATED_CHUNKS = new HashMap<>();
+    private static final Map<Long, Long> GENERATED_CHUNKS = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<Long, Long> eldest) { return size() > 40; }
+    };
     private static int chunksGeneratedThisSession = 0;
 
     @SubscribeEvent
@@ -72,7 +74,6 @@ public class HexNilFurtherlandsManager {
                 for (int cz = chunkZ - 4; cz <= chunkZ + 3; cz++) {
                     long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
                     if (GENERATED_CHUNKS.containsKey(key)) continue;
-                    if (GENERATED_CHUNKS.size() > 40) GENERATED_CHUNKS.clear();
                     GENERATED_CHUNKS.put(key, level.getGameTime());
                     chunksGeneratedThisSession++;
                     LOGGER.info("[0x0000|Furtherlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());

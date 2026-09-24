@@ -21,7 +21,9 @@ public class FakeAchievementPacket {
     }
 
     public static void handle(FakeAchievementPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> com.abnormalities.client.FakeAchievementClient.show(msg.name));
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            ctx.get().enqueueWork(() -> com.abnormalities.client.FakeAchievementClient.show(msg.name));
+        }
         ctx.get().setPacketHandled(true);
     }
 }

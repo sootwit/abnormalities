@@ -226,7 +226,9 @@ public class ModEvents {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) return;
+        ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
         long currentDay = overworld.getDayTime() / 24000L;

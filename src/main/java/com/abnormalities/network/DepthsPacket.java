@@ -21,9 +21,11 @@ public class DepthsPacket {
     }
 
     public static void handle(DepthsPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            com.abnormalities.client.DepthsClient.handle(msg.active);
-        });
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            ctx.get().enqueueWork(() -> {
+                com.abnormalities.client.DepthsClient.handle(msg.active);
+            });
+        }
         ctx.get().setPacketHandled(true);
     }
 }

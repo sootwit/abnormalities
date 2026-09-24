@@ -20,11 +20,11 @@ public class HexNilShakePacket {
 
     public static void encode(HexNilShakePacket msg, FriendlyByteBuf buf) {
         buf.writeFloat(msg.intensity);
-        buf.writeShort(msg.duration);
+        buf.writeInt(msg.duration);
     }
 
     public static HexNilShakePacket decode(FriendlyByteBuf buf) {
-        return new HexNilShakePacket(buf.readFloat(), buf.readShort());
+        return new HexNilShakePacket(buf.readFloat(), buf.readInt());
     }
 
     public static void handle(HexNilShakePacket msg, Supplier<NetworkEvent.Context> ctx) {

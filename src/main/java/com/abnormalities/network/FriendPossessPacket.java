@@ -24,9 +24,11 @@ public class FriendPossessPacket {
     }
 
     public static void handle(FriendPossessPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            com.abnormalities.client.FriendPossessClient.handle(msg.phase, msg.friendEntityId);
-        });
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            ctx.get().enqueueWork(() -> {
+                com.abnormalities.client.FriendPossessClient.handle(msg.phase, msg.friendEntityId);
+            });
+        }
         ctx.get().setPacketHandled(true);
     }
 }

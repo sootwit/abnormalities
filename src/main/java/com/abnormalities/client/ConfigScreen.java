@@ -45,7 +45,7 @@ public class ConfigScreen extends Screen {
         presets.clear();
 
         presets.add(new PresetEntry("Disable ALL block destruction",
-                "Turns off nur block breaking, friend undo, 0x0000 pillars, corruption, chunks, miner, him tower/bridge",
+                "Turns off nur block breaking, friend undo, 0x0000 pillars, corruption, chunks, miner, him tower/bridge, friend mob undo",
                 () -> {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.NUR_TOWER.set(false);
@@ -53,6 +53,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_LIQUID.set(false);
                     AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(false);
+                    AbnormalitiesConfig.FRIEND_KILL_MOBS.set(false);
+                    AbnormalitiesConfig.FRIEND_REVIVE_MOBS.set(false);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);

@@ -19,7 +19,9 @@ import java.util.*;
 public class HexNilFarlandsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Farlands");
     private static long lastFarlands = 0;
-    private static final Map<Long, Long> GENERATED_CHUNKS = new HashMap<>();
+    private static final Map<Long, Long> GENERATED_CHUNKS = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<Long, Long> eldest) { return size() > 20; }
+    };
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
@@ -60,7 +62,6 @@ public class HexNilFarlandsManager {
             for (int cz = chunkZ - 1; cz <= chunkZ + 1; cz++) {
                 long key = ((long) cx & 0xFFFFFFFFL) << 32 | ((long) cz & 0xFFFFFFFFL);
                 if (GENERATED_CHUNKS.containsKey(key)) continue;
-                if (GENERATED_CHUNKS.size() > 20) GENERATED_CHUNKS.clear();
                 GENERATED_CHUNKS.put(key, level.getGameTime());
                 LOGGER.info("[0x0000|Farlands] Generating chunk ({}, {}) [total chunks: {}]", cx, cz, GENERATED_CHUNKS.size());
                 generateFarlandChunk(level, cx, cz);
