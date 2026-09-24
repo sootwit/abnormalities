@@ -47,7 +47,6 @@ public class HexNilController {
             }
 
             HexNilChunkManager.tick(player, now);
-            HexNilBorderManager.tick(player, now);
         }
     }
 

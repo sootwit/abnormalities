@@ -45,7 +45,7 @@ public class ConfigScreen extends Screen {
         presets.clear();
 
         presets.add(new PresetEntry("Disable ALL block destruction",
-                "Turns off nur block breaking, friend undo, 0x0000 pillars, corruption, chunks, border, miner, him tower/bridge",
+                "Turns off nur block breaking, friend undo, 0x0000 pillars, corruption, chunks, miner, him tower/bridge",
                 () -> {
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(false);
                     AbnormalitiesConfig.NUR_TOWER.set(false);
@@ -55,7 +55,6 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(false);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
-                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(false);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
@@ -87,7 +86,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-
+                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
+                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
                     AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
@@ -95,27 +95,22 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
                     AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
-
-                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
-                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
-                    AbnormalitiesConfig.HN_ENABLED.set(false);
-                    AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
-                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
-                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
-                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
-                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
-
+                    AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
+                    AbnormalitiesConfig.F4DED_ENABLED.set(false);
+                    AbnormalitiesConfig.L3NS_ENABLED.set(false);
+                    AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
+                    AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
+                    AbnormalitiesConfig.DISTANT_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
         presets.add(new PresetEntry("Disable 0x0000 system",
-                "Turns off all corruption, pillars, farlands, chunks, border",
+                "Turns off all corruption, pillars, farlands, chunks",
                 () -> {
                     AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
-                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -137,13 +132,21 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-
+                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
+                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
                     AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
-
-                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
-                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
+                    AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
+                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+                    AbnormalitiesConfig.F4DED_ENABLED.set(false);
+                    AbnormalitiesConfig.L3NS_ENABLED.set(false);
+                    AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
+                    AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
+                    AbnormalitiesConfig.DISTANT_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -166,14 +169,20 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.BR34TH_ENABLED.set(false);
                     AbnormalitiesConfig.H01D_ENABLED.set(false);
                     AbnormalitiesConfig.C1RCL_ENABLED.set(false);
-
+                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
+                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
                     AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
-
-                    AbnormalitiesConfig.F4K3_ENABLED.set(false);
-                    AbnormalitiesConfig.ANG3R_ENABLED.set(false);
+                    AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
                     AbnormalitiesConfig.L3NS_ENABLED.set(false);
+                    AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
+                    AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
+                    AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
+                    AbnormalitiesConfig.F4DED_ENABLED.set(false);
+                    AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
+                    AbnormalitiesConfig.DISTANT_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -201,6 +210,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(true);
                     AbnormalitiesConfig.F4K3_ENABLED.set(true);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(true);
+                    AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(true);
                     AbnormalitiesConfig.L3NS_ENABLED.set(true);
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.NUR_TOWER.set(true);
@@ -211,11 +221,14 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(true);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(true);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(true);
-                    AbnormalitiesConfig.HN_BORDER_ENABLED.set(true);
                     AbnormalitiesConfig.PEAK_DAY_ENABLED.set(true);
                     AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(true);
                     AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(true);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(true);
+                    AbnormalitiesConfig.FAKE_ACH_ENABLED.set(true);
+                    AbnormalitiesConfig.F4DED_ENABLED.set(true);
+                    AbnormalitiesConfig.DEPTHS_ENABLED.set(true);
+                    AbnormalitiesConfig.DISTANT_ENABLED.set(true);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 

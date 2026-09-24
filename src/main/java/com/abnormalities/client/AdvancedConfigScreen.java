@@ -71,6 +71,11 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("l3ns", AbnormalitiesConfig.L3NS_ENABLED, "Screenshot figure");
 
         addToggle("b3drock", AbnormalitiesConfig.B3DROCK_ENABLED, "Bedrock cube event");
+        addToggle("thunder_to_player", AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED, "Lightning strike regardless of weather");
+        addToggle("f4ded", AbnormalitiesConfig.F4DED_ENABLED, "Block texture desync flicker");
+        addToggle("l3ns", AbnormalitiesConfig.L3NS_ENABLED, "Screenshot figure");
+        addToggle("depths", AbnormalitiesConfig.DEPTHS_ENABLED, "Water horror");
+        addToggle("distant", AbnormalitiesConfig.DISTANT_ENABLED, "Eyeless peripheral horror");
 
         addSection("World");
         addToggle("Nur breaks blocks", AbnormalitiesConfig.NUR_BREAK_BLOCKS, "Nur destroys blocks in path");
@@ -84,7 +89,6 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("0x0000 pillars", AbnormalitiesConfig.HN_PILLARS_ENABLED, "Pillar terrain destruction");
         addToggle("0x0000 farlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Farlands terrain generation");
         addToggle("0x0000 chunks", AbnormalitiesConfig.HN_CHUNK_ENABLED, "Vertical terrain removal");
-        addToggle("0x0000 border", AbnormalitiesConfig.HN_BORDER_ENABLED, "Void ring around player");
     }
 
     private String currentSection = "";

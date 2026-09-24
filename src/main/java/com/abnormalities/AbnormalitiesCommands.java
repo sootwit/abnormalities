@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nur", "nur_sign", "friend", "the_mother", "him", "him_boss", "skinwalker", "segfault", "segfault_stargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chat_disabled", "chat_enabled", "ang3r", "fake_ach", "f4k3", "f4k3_join", "b3drock", "0x0000_pillar", "0x0000_chunk", "0x0000", "0x0000_farlands", "0x0000_furtherlands", "0x0000_border", "slowed_music", "animal_noise", "peak_bad", "peak_good", "sign_enter", "sign_exit", "depths", "0x0000_apparition", "0x0000_curse_biome", "0x0000_curse_house", "dark_area", "distant", "distant_circle", "distant_air", "distant_air_circle", "screen_shake");
+    private static final List<String> BASE_EVENTS = List.of("nur", "nur_sign", "friend", "the_mother", "him", "him_boss", "skinwalker", "segfault", "segfault_stargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chat_disabled", "chat_enabled", "ang3r", "fake_ach", "f4k3", "f4k3_join", "b3drock", "0x0000_pillar", "0x0000_chunk", "0x0000", "0x0000_farlands", "0x0000_furtherlands", "slowed_music", "animal_noise", "peak_bad", "peak_good", "sign_enter", "sign_exit", "depths", "0x0000_apparition", "0x0000_curse_biome", "0x0000_curse_house", "dark_area", "distant", "distant_circle", "distant_air", "distant_air_circle", "screen_shake", "thunder_to_player");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -195,7 +195,6 @@ public class AbnormalitiesCommands {
             case "0x0000" -> com.abnormalities.hexnil.HexNilController.forceRandom(player);
             case "0x0000_farlands" -> com.abnormalities.hexnil.HexNilFarlandsManager.forceFarlands(player);
             case "0x0000_furtherlands" -> com.abnormalities.hexnil.HexNilFurtherlandsManager.forceFurtherlands(player);
-            case "0x0000_border" -> com.abnormalities.hexnil.HexNilBorderManager.forceBorder(player);
             case "slowed_music" -> com.abnormalities.horror.SlowedMusicManager.forcePlay();
             case "animal_noise" -> com.abnormalities.horror.AnimalNoiseManager.forcePlay(player);
             case "chat_disabled" -> com.abnormalities.horror.ChatLockEvent.forceDisabled(player);
@@ -223,6 +222,7 @@ public class AbnormalitiesCommands {
             case "distant_air" -> com.abnormalities.horror.DistantManager.forceSpawnAir(player);
             case "distant_air_circle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
             case "screen_shake" -> com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, Math.max(1.0f, intensity), 120);
+            case "thunder_to_player" -> com.abnormalities.horror.ThunderToPlayerEvent.forceThunder(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))

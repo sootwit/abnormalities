@@ -80,7 +80,6 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilFarlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilFurtherlandsManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilChunkManager.class);
-        MinecraftForge.EVENT_BUS.register(com.abnormalities.hexnil.HexNilBorderManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.sign.SignDimension.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DarkAreaSoundManager.class);
         MinecraftForge.EVENT_BUS.register(com.abnormalities.horror.DepthsManager.class);
@@ -106,6 +105,7 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new ChatLockEvent(false));
         HorrorEventPool.register(new VoidEvent());
         HorrorEventPool.register(new AngerEvent());
+        HorrorEventPool.register(new ThunderToPlayerEvent());
         MinecraftForge.EVENT_BUS.register(AngerEvent.class);
 
         CHANNEL.registerMessage(0, SegfaultPacket.class, SegfaultPacket::encode, SegfaultPacket::decode, SegfaultPacket::handle);

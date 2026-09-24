@@ -99,6 +99,7 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue F4DED_CHANCE;
     public static final ForgeConfigSpec.BooleanValue FAKE_ACH_ENABLED;
     public static final ForgeConfigSpec.IntValue FAKE_ACH_COOLDOWN;
+    public static final ForgeConfigSpec.BooleanValue THUNDER_TO_PLAYER_ENABLED;
     public static final ForgeConfigSpec.BooleanValue HIM_ENABLED;
     public static final ForgeConfigSpec.IntValue HIM_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.IntValue HIM_REP_MAX;
@@ -152,11 +153,6 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.IntValue HN_CHUNK_RANGE;
     public static final ForgeConfigSpec.IntValue HN_CHUNK_CHANCE;
     public static final ForgeConfigSpec.IntValue HN_CHUNK_COOLDOWN;
-    public static final ForgeConfigSpec.BooleanValue HN_BORDER_ENABLED;
-    public static final ForgeConfigSpec.IntValue HN_BORDER_COOLDOWN;
-    public static final ForgeConfigSpec.IntValue HN_BORDER_CHANCE;
-    public static final ForgeConfigSpec.IntValue HN_BORDER_DISTANCE;
-
     public static final ForgeConfigSpec.BooleanValue PEAK_DAY_ENABLED;
     public static final ForgeConfigSpec.IntValue PEAK_DAY_BAD_CHANCE;
     public static final ForgeConfigSpec.IntValue PEAK_DAY_GOOD_CHANCE;
@@ -351,6 +347,9 @@ public class AbnormalitiesConfig {
         FAKE_ACH_ENABLED = b.comment("enable fake black achievements (toast only, never in menu)").define("enabled", true);
         FAKE_ACH_COOLDOWN = b.comment("ticks between fake achievements").defineInRange("cooldown", 18000, 600, 240000);
         b.pop();
+        b.push("thunderToPlayer");
+        THUNDER_TO_PLAYER_ENABLED = b.comment("enable thunder to player event (lightning strikes regardless of weather)").define("enabled", true);
+        b.pop();
         b.push("him");
         HIM_ENABLED = b.comment("enable him, the player-like survivor that bridges and towers").define("enabled", true);
         HIM_SPAWN_WEIGHT = b.comment("base spawn weight at low nights (rarity rises with every boss kill)").defineInRange("spawnWeight", 8000, 1, 100000);
@@ -415,12 +414,6 @@ public class AbnormalitiesConfig {
         HN_CHUNK_RANGE = b.comment("max offset from player (blocks)").defineInRange("range", 64, 16, 256);
         HN_CHUNK_CHANCE = b.comment("1 in N checks trigger chunk removal (higher = rarer)").defineInRange("chance", 10000, 100, 100000);
         HN_CHUNK_COOLDOWN = b.comment("ticks between chunk removal events").defineInRange("cooldown", 60000, 600, 600000);
-        b.pop();
-        b.push("0x0000Border");
-        HN_BORDER_ENABLED = b.comment("enable border (void ring around player at distance)").define("enabled", true);
-        HN_BORDER_COOLDOWN = b.comment("ticks between border events (20 = 1s)").defineInRange("cooldown", 180000, 6000, 1800000);
-        HN_BORDER_CHANCE = b.comment("1 in N checks trigger border (higher = rarer)").defineInRange("chance", 40000, 1000, 500000);
-        HN_BORDER_DISTANCE = b.comment("chunk distance from player for the border ring").defineInRange("distance", 8, 4, 32);
         b.pop();
         b.pop();
 
