@@ -188,10 +188,8 @@ public class SignDimension {
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer sp)) return;
         UUID uuid = sp.getUUID();
-        if (sp.level().dimension() != LEVEL_KEY) {
-            PRE_ENTRY_POS.remove(uuid);
-            ENTRY_TIME.remove(uuid);
-        }
+        PRE_ENTRY_POS.remove(uuid);
+        ENTRY_TIME.remove(uuid);
     }
 
     public static boolean isInSignDimension(ServerPlayer player) {

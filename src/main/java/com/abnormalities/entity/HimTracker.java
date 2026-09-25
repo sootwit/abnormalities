@@ -143,6 +143,7 @@ public class HimTracker {
         loaded = false;
         totalKills = 0;
         bossKills = 0;
+        activeBosses = 0;
         dataFile = null;
     }
 }

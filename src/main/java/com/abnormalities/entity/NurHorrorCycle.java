@@ -83,7 +83,9 @@ public class NurHorrorCycle {
             chaseStart.remove(playerId);
             Long orig = originalDayTime.remove(playerId);
             LOGGER.info("[NurHorrorCycle] time acceleration stopped for player {}", playerId);
-            ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+            var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+            if (srv == null) return;
+            ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
             if (overworld == null) return;
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(playerId);
             if (p != null && p.connection != null)

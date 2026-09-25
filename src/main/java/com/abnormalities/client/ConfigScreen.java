@@ -71,6 +71,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+                    AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
+                    AbnormalitiesConfig.SIGN_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -103,6 +105,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
+                    AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
+                    AbnormalitiesConfig.SIGN_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -149,6 +153,9 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+                    AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
+                    AbnormalitiesConfig.SIGN_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -185,6 +192,9 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
+                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
+                    AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
+                    AbnormalitiesConfig.SIGN_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -233,6 +243,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.F4DED_ENABLED.set(true);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(true);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(true);
+                    AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(true);
+                    AbnormalitiesConfig.SIGN_ENABLED.set(true);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 

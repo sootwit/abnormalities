@@ -75,6 +75,12 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("f4ded", AbnormalitiesConfig.F4DED_ENABLED, "Block texture desync flicker");
         addToggle("depths", AbnormalitiesConfig.DEPTHS_ENABLED, "Water horror");
         addToggle("distant", AbnormalitiesConfig.DISTANT_ENABLED, "Eyeless peripheral horror");
+        addToggle("fake_ach", AbnormalitiesConfig.FAKE_ACH_ENABLED, "Fake black achievements");
+        addToggle("peak_day", AbnormalitiesConfig.PEAK_DAY_ENABLED, "Peak day calendar system");
+        addToggle("cursed_house", AbnormalitiesConfig.CURSED_HOUSE_ENABLED, "Cursed house accumulation");
+        addToggle("cursed_biome", AbnormalitiesConfig.CURSED_BIOME_ENABLED, "Cursed biome system");
+        addToggle("apparition", AbnormalitiesConfig.APPARITION_ENABLED, "Entity jumpscares");
+        addToggle("sign", AbnormalitiesConfig.SIGN_ENABLED, "Sign dimension and related mechanics");
 
         addSection("World");
         addToggle("Nur breaks blocks", AbnormalitiesConfig.NUR_BREAK_BLOCKS, "Nur destroys blocks in path");
