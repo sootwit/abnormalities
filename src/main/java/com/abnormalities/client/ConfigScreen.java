@@ -220,6 +220,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_LIQUID.set(true);
                     AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(true);
+                    AbnormalitiesConfig.FRIEND_KILL_MOBS.set(true);
+                    AbnormalitiesConfig.FRIEND_REVIVE_MOBS.set(true);
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(true);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(true);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(true);

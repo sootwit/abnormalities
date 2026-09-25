@@ -116,7 +116,9 @@ public class HorrorEventPool {
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!AbnormalitiesConfig.HORROR_EVENTS_ENABLED.get()) return;
-        ServerLevel overworld = ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        var srv = ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
         long gt = overworld.getGameTime();
 
