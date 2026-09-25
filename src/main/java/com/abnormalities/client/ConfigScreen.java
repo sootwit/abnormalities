@@ -142,6 +142,9 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.ANG3R_ENABLED.set(false);
                     AbnormalitiesConfig.B3D_ENABLED.set(false);
                     AbnormalitiesConfig.HN_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
                     AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
@@ -153,7 +156,6 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
-                    AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
                     AbnormalitiesConfig.SIGN_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
