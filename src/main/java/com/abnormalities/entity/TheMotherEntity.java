@@ -530,6 +530,10 @@ public class TheMotherEntity extends Mob {
                 nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
                 serverLevel.addFreshEntity(nur);
                 nur.startChasing(victim);
+                int ncx = ((int) Math.floor(sx)) >> 4;
+                int ncz = ((int) Math.floor(sz)) >> 4;
+                serverLevel.setChunkForced(ncx, ncz, true);
+                com.abnormalities.registry.ModEvents.registerNurFailureChunk(nur.getUUID(), ncx, ncz);
             }
         }
 

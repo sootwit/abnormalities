@@ -137,8 +137,10 @@ public class ModEvents {
     private static final List<SignSpawnTask> PENDING_SIGN_SPAWNS = new ArrayList<>();
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
     private static final Map<UUID, int[]> THE_MOTHER_CHUNKS = new HashMap<>();
+    private static final Map<UUID, int[]> NUR_FAILURE_CHUNKS = new HashMap<>();
     private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
     private static final Map<String, Integer> THE_MOTHER_RELEASE_QUEUE = new HashMap<>();
+    private static final Map<String, Integer> NUR_FAILURE_RELEASE_QUEUE = new HashMap<>();
     private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
@@ -482,6 +484,7 @@ public class ModEvents {
         }
         tickSkinwalkerChunks(overworld);
         tickTheMotherChunks(overworld);
+        tickNurFailureChunks(overworld);
     }
 
     @SubscribeEvent
@@ -780,6 +783,10 @@ public class ModEvents {
         SW_CHUNKS.put(entityId, new int[]{cx, cz});
     }
 
+    public static void registerNurFailureChunk(UUID entityId, int cx, int cz) {
+        NUR_FAILURE_CHUNKS.put(entityId, new int[]{cx, cz});
+    }
+
     @SubscribeEvent
     public static void onPlayerLogout(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() != null) {
@@ -850,6 +857,44 @@ public class ModEvents {
         }
         THE_MOTHER_RELEASE_QUEUE.keySet().removeAll(active);
         Iterator<Map.Entry<String, Integer>> rit = THE_MOTHER_RELEASE_QUEUE.entrySet().iterator();
+        while (rit.hasNext()) {
+            Map.Entry<String, Integer> r = rit.next();
+            int t = r.getValue() - 1;
+            if (t <= 0) {
+                String[] parts = r.getKey().split(",");
+                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
+                rit.remove();
+            } else {
+                r.setValue(t);
+            }
+        }
+    }
+
+    private static void tickNurFailureChunks(ServerLevel level) {
+        Set<String> active = new HashSet<>();
+        Iterator<Map.Entry<UUID, int[]>> it = NUR_FAILURE_CHUNKS.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, int[]> entry = it.next();
+            net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
+            if (e == null || !e.isAlive()) {
+                int[] p = entry.getValue();
+                NUR_FAILURE_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                it.remove();
+                continue;
+            }
+            int cx = e.blockPosition().getX() >> 4;
+            int cz = e.blockPosition().getZ() >> 4;
+            String key = cx + "," + cz;
+            active.add(key);
+            if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
+                NUR_FAILURE_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                entry.getValue()[0] = cx;
+                entry.getValue()[1] = cz;
+            }
+            level.setChunkForced(cx, cz, true);
+        }
+        NUR_FAILURE_RELEASE_QUEUE.keySet().removeAll(active);
+        Iterator<Map.Entry<String, Integer>> rit = NUR_FAILURE_RELEASE_QUEUE.entrySet().iterator();
         while (rit.hasNext()) {
             Map.Entry<String, Integer> r = rit.next();
             int t = r.getValue() - 1;
