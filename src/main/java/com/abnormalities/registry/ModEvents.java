@@ -235,6 +235,10 @@ public class ModEvents {
         ServerLevel overworld = server.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
+        tickSkinwalkerChunks(overworld);
+        tickTheMotherChunks(overworld);
+        tickNurFailureChunks(overworld);
+
         long currentDay = overworld.getDayTime() / 24000L;
         Iterator<SpawnTask> it = PENDING_SPAWNS.iterator();
         while (it.hasNext()) {
@@ -482,9 +486,6 @@ public class ModEvents {
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
         }
         }
-        tickSkinwalkerChunks(overworld);
-        tickTheMotherChunks(overworld);
-        tickNurFailureChunks(overworld);
     }
 
     @SubscribeEvent
@@ -780,16 +781,19 @@ public class ModEvents {
     }
 
     public static void registerSkinwalkerChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        if (level.dimension() != Level.OVERWORLD) return;
         level.getChunkSource().addRegionTicket(SW_TICKET, new ChunkPos(cx, cz), 2, entityId);
         SW_CHUNKS.put(entityId, new int[]{cx, cz});
     }
 
     public static void registerTheMotherChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        if (level.dimension() != Level.OVERWORLD) return;
         level.getChunkSource().addRegionTicket(THE_MOTHER_TICKET, new ChunkPos(cx, cz), 2, entityId);
         THE_MOTHER_CHUNKS.put(entityId, new int[]{cx, cz});
     }
 
     public static void registerNurFailureChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        if (level.dimension() != Level.OVERWORLD) return;
         level.getChunkSource().addRegionTicket(NUR_FAILURE_TICKET, new ChunkPos(cx, cz), 2, entityId);
         NUR_FAILURE_CHUNKS.put(entityId, new int[]{cx, cz});
     }

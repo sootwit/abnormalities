@@ -22,11 +22,11 @@ public class SegfaultPacket {
 
     public static void encode(SegfaultPacket msg, FriendlyByteBuf buf) {
         buf.writeByte(msg.state);
-        buf.writeShort(msg.duration);
+        buf.writeInt(msg.duration);
     }
 
     public static SegfaultPacket decode(FriendlyByteBuf buf) {
-        return new SegfaultPacket(buf.readByte(), buf.readShort());
+        return new SegfaultPacket(buf.readByte(), buf.readInt());
     }
 
     public static void handle(SegfaultPacket msg, Supplier<NetworkEvent.Context> ctx) {

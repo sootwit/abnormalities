@@ -23,15 +23,19 @@ public class NurHorrorCycle {
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (srv == null) return;
+        ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
         if (overworld == null) return;
 
         for (UUID playerId : Set.copyOf(playerNurs.keySet())) {
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(playerId);
-            if (p == null || !p.isAlive()) {
+            if (p == null || !p.isAlive() || p.isCreative() || p.isSpectator()) {
                 playerNurs.remove(playerId);
                 chaseStart.remove(playerId);
-                originalDayTime.remove(playerId);
+                Long orig = originalDayTime.remove(playerId);
+                if (p != null && p.connection != null)
+                    p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), orig != null ? orig : overworld.getDayTime(), true));
                 continue;
             }
             Set<UUID> nurs = playerNurs.get(playerId);
@@ -64,7 +68,9 @@ public class NurHorrorCycle {
 
     public static void start(UUID playerId, UUID nurId) {
         if (!playerNurs.containsKey(playerId)) {
-            ServerLevel overworld = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+            var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+            if (srv == null) return;
+            ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
             if (overworld == null) return;
             originalDayTime.put(playerId, overworld.getDayTime());
             chaseStart.put(playerId, overworld.getGameTime());
