@@ -56,6 +56,7 @@ public class AbnormalitiesMod {
         MinecraftForge.EVENT_BUS.register(V1s1tManager.class);
         MinecraftForge.EVENT_BUS.register(HushController.class);
         MinecraftForge.EVENT_BUS.register(WakeDisplacementEvent.class);
+        MinecraftForge.EVENT_BUS.register(BedMemoryManager.class);
         MinecraftForge.EVENT_BUS.register(SegfaultStrictListener.class);
         MinecraftForge.EVENT_BUS.register(MisplaceManager.class);
         MinecraftForge.EVENT_BUS.register(MinerController.class);

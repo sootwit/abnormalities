@@ -30,10 +30,12 @@ public class SegfaultPacket {
     }
 
     public static void handle(SegfaultPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            com.abnormalities.client.SegfaultOverlay.currentState = msg.state;
-            com.abnormalities.client.SegfaultOverlay.lastPacketTime = System.currentTimeMillis();
-        });
+        if (ctx.get().getDirection().getReceptionSide().isClient()) {
+            ctx.get().enqueueWork(() -> {
+                com.abnormalities.client.SegfaultOverlay.currentState = msg.state;
+                com.abnormalities.client.SegfaultOverlay.lastPacketTime = System.currentTimeMillis();
+            });
+        }
         ctx.get().setPacketHandled(true);
     }
 }

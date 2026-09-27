@@ -532,8 +532,7 @@ public class TheMotherEntity extends Mob {
                 nur.startChasing(victim);
                 int ncx = ((int) Math.floor(sx)) >> 4;
                 int ncz = ((int) Math.floor(sz)) >> 4;
-                serverLevel.setChunkForced(ncx, ncz, true);
-                com.abnormalities.registry.ModEvents.registerNurFailureChunk(nur.getUUID(), ncx, ncz);
+                com.abnormalities.registry.ModEvents.registerNurFailureChunk(serverLevel, nur.getUUID(), ncx, ncz);
             }
         }
 

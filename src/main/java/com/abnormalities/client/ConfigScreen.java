@@ -23,6 +23,8 @@ public class ConfigScreen extends Screen {
 
     private final List<PresetEntry> presets = new ArrayList<>();
     private int scrollOffset = 0;
+    private int visibleRows = VISIBLE_ROWS;
+    private int listBottom = 36 + VISIBLE_ROWS * (CELL_H + ROW_H);
 
     private static class PresetEntry {
         String label;
@@ -250,7 +252,11 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
-        int btnY = Math.min(36 + VISIBLE_ROWS * (CELL_H + ROW_H) + 10, this.height - 35);
+        int btnY = this.height - 35;
+        int available = (btnY - 8) - 36;
+        visibleRows = Math.max(1, Math.min(VISIBLE_ROWS, available / (CELL_H + ROW_H)));
+        listBottom = 36 + visibleRows * (CELL_H + ROW_H);
+        scrollOffset = Math.min(scrollOffset, Math.max(0, presets.size() - visibleRows));
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> Minecraft.getInstance().setScreen(null)
@@ -270,9 +276,9 @@ public class ConfigScreen extends Screen {
         int startX = MARGIN;
         int startY = 36;
 
-        int maxScroll = Math.max(0, presets.size() - VISIBLE_ROWS);
+        int maxScroll = Math.max(0, presets.size() - visibleRows);
 
-        for (int i = scrollOffset; i < scrollOffset + VISIBLE_ROWS && i < presets.size(); i++) {
+        for (int i = scrollOffset; i < scrollOffset + visibleRows && i < presets.size(); i++) {
             var preset = presets.get(i);
             int y = startY + (i - scrollOffset) * (CELL_H + ROW_H);
 
@@ -294,7 +300,7 @@ public class ConfigScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double delta) {
-        int maxScroll = Math.max(0, presets.size() - VISIBLE_ROWS);
+        int maxScroll = Math.max(0, presets.size() - visibleRows);
         if (maxScroll > 0) {
             scrollOffset = (int) Mth.clamp(scrollOffset - (int) Math.signum(delta), 0, maxScroll);
             return true;
@@ -309,7 +315,7 @@ public class ConfigScreen extends Screen {
         int startY = 36;
 
         if (mx < startX || mx > startX + gridW) return super.mouseClicked(mx, my, btn);
-        if (my < startY || my > startY + VISIBLE_ROWS * (CELL_H + ROW_H)) return super.mouseClicked(mx, my, btn);
+        if (my < startY || my > listBottom) return super.mouseClicked(mx, my, btn);
 
         int row = (int) ((my - startY) / (CELL_H + ROW_H)) + scrollOffset;
         if (row >= 0 && row < presets.size()) {

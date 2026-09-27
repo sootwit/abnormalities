@@ -13,6 +13,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
@@ -135,12 +137,12 @@ public class ModEvents {
         }
     }
     private static final List<SignSpawnTask> PENDING_SIGN_SPAWNS = new ArrayList<>();
+    private static final TicketType<UUID> SW_TICKET = TicketType.create("abnormalities_skinwalker", UUID::compareTo, 0);
+    private static final TicketType<UUID> THE_MOTHER_TICKET = TicketType.create("abnormalities_themother", UUID::compareTo, 0);
+    private static final TicketType<UUID> NUR_FAILURE_TICKET = TicketType.create("abnormalities_nurfailure", UUID::compareTo, 0);
     private static final Map<UUID, int[]> SW_CHUNKS = new HashMap<>();
     private static final Map<UUID, int[]> THE_MOTHER_CHUNKS = new HashMap<>();
     private static final Map<UUID, int[]> NUR_FAILURE_CHUNKS = new HashMap<>();
-    private static final Map<String, Integer> SW_RELEASE_QUEUE = new HashMap<>();
-    private static final Map<String, Integer> THE_MOTHER_RELEASE_QUEUE = new HashMap<>();
-    private static final Map<String, Integer> NUR_FAILURE_RELEASE_QUEUE = new HashMap<>();
     private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
@@ -333,9 +335,8 @@ public class ModEvents {
                     theMother.setTargetPlayer(player);
                     int xc = ((int)Math.floor(sx)) >> 4;
                     int zc = ((int)Math.floor(sz)) >> 4;
-                    overworld.setChunkForced(xc, zc, true);
-                    THE_MOTHER_CHUNKS.put(theMother.getUUID(), new int[]{xc, zc});
                     overworld.addFreshEntity(theMother);
+                    registerTheMotherChunk(overworld, theMother.getUUID(), xc, zc);
 
                     net.minecraft.world.item.Item chosenItem = TheMotherEntity.pickNearbyItem(overworld, player.getX(), player.getZ());
                     int maxStack = chosenItem.getMaxStackSize();
@@ -428,8 +429,7 @@ public class ModEvents {
                 }
                 int cx = ((int)Math.floor(sx)) >> 4;
                 int cz = ((int)Math.floor(sz)) >> 4;
-                overworld.setChunkForced(cx, cz, true);
-                SW_CHUNKS.put(skinwalker.getUUID(), new int[]{cx, cz});
+                registerSkinwalkerChunk(overworld, skinwalker.getUUID(), cx, cz);
             }
         }
         }
@@ -779,11 +779,18 @@ public class ModEvents {
         return cachedDisguiseTypes.get(random.nextInt(cachedDisguiseTypes.size()));
     }
 
-    public static void registerSkinwalkerChunk(UUID entityId, int cx, int cz) {
+    public static void registerSkinwalkerChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        level.getChunkSource().addRegionTicket(SW_TICKET, new ChunkPos(cx, cz), 2, entityId);
         SW_CHUNKS.put(entityId, new int[]{cx, cz});
     }
 
-    public static void registerNurFailureChunk(UUID entityId, int cx, int cz) {
+    public static void registerTheMotherChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        level.getChunkSource().addRegionTicket(THE_MOTHER_TICKET, new ChunkPos(cx, cz), 2, entityId);
+        THE_MOTHER_CHUNKS.put(entityId, new int[]{cx, cz});
+    }
+
+    public static void registerNurFailureChunk(ServerLevel level, UUID entityId, int cx, int cz) {
+        level.getChunkSource().addRegionTicket(NUR_FAILURE_TICKET, new ChunkPos(cx, cz), 2, entityId);
         NUR_FAILURE_CHUNKS.put(entityId, new int[]{cx, cz});
     }
 
@@ -795,115 +802,67 @@ public class ModEvents {
     }
 
     private static void tickSkinwalkerChunks(ServerLevel level) {
-        Set<String> active = new HashSet<>();
         Iterator<Map.Entry<UUID, int[]>> it = SW_CHUNKS.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<UUID, int[]> entry = it.next();
             net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
             if (e == null || !e.isAlive()) {
                 int[] p = entry.getValue();
-                SW_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                level.getChunkSource().removeRegionTicket(SW_TICKET, new ChunkPos(p[0], p[1]), 2, entry.getKey());
                 it.remove();
                 continue;
             }
             int cx = e.blockPosition().getX() >> 4;
             int cz = e.blockPosition().getZ() >> 4;
-            String key = cx + "," + cz;
-            active.add(key);
             if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
-                SW_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                level.getChunkSource().removeRegionTicket(SW_TICKET, new ChunkPos(entry.getValue()[0], entry.getValue()[1]), 2, entry.getKey());
+                level.getChunkSource().addRegionTicket(SW_TICKET, new ChunkPos(cx, cz), 2, entry.getKey());
                 entry.getValue()[0] = cx;
                 entry.getValue()[1] = cz;
-            }
-            level.setChunkForced(cx, cz, true);
-        }
-        SW_RELEASE_QUEUE.keySet().removeAll(active);
-        Iterator<Map.Entry<String, Integer>> rit = SW_RELEASE_QUEUE.entrySet().iterator();
-        while (rit.hasNext()) {
-            Map.Entry<String, Integer> r = rit.next();
-            int t = r.getValue() - 1;
-            if (t <= 0) {
-                String[] parts = r.getKey().split(",");
-                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
-                rit.remove();
-            } else {
-                r.setValue(t);
             }
         }
     }
 
     private static void tickTheMotherChunks(ServerLevel level) {
-        Set<String> active = new HashSet<>();
         Iterator<Map.Entry<UUID, int[]>> it = THE_MOTHER_CHUNKS.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<UUID, int[]> entry = it.next();
             net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
             if (e == null || !e.isAlive()) {
                 int[] p = entry.getValue();
-                THE_MOTHER_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                level.getChunkSource().removeRegionTicket(THE_MOTHER_TICKET, new ChunkPos(p[0], p[1]), 2, entry.getKey());
                 it.remove();
                 continue;
             }
             int cx = e.blockPosition().getX() >> 4;
             int cz = e.blockPosition().getZ() >> 4;
-            String key = cx + "," + cz;
-            active.add(key);
             if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
-                THE_MOTHER_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                level.getChunkSource().removeRegionTicket(THE_MOTHER_TICKET, new ChunkPos(entry.getValue()[0], entry.getValue()[1]), 2, entry.getKey());
+                level.getChunkSource().addRegionTicket(THE_MOTHER_TICKET, new ChunkPos(cx, cz), 2, entry.getKey());
                 entry.getValue()[0] = cx;
                 entry.getValue()[1] = cz;
-            }
-            level.setChunkForced(cx, cz, true);
-        }
-        THE_MOTHER_RELEASE_QUEUE.keySet().removeAll(active);
-        Iterator<Map.Entry<String, Integer>> rit = THE_MOTHER_RELEASE_QUEUE.entrySet().iterator();
-        while (rit.hasNext()) {
-            Map.Entry<String, Integer> r = rit.next();
-            int t = r.getValue() - 1;
-            if (t <= 0) {
-                String[] parts = r.getKey().split(",");
-                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
-                rit.remove();
-            } else {
-                r.setValue(t);
             }
         }
     }
 
     private static void tickNurFailureChunks(ServerLevel level) {
-        Set<String> active = new HashSet<>();
         Iterator<Map.Entry<UUID, int[]>> it = NUR_FAILURE_CHUNKS.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<UUID, int[]> entry = it.next();
             net.minecraft.world.entity.Entity e = level.getEntity(entry.getKey());
             if (e == null || !e.isAlive()) {
                 int[] p = entry.getValue();
-                NUR_FAILURE_RELEASE_QUEUE.put(p[0] + "," + p[1], 100);
+                level.getChunkSource().removeRegionTicket(NUR_FAILURE_TICKET, new ChunkPos(p[0], p[1]), 2, entry.getKey());
                 it.remove();
                 continue;
             }
             int cx = e.blockPosition().getX() >> 4;
             int cz = e.blockPosition().getZ() >> 4;
-            String key = cx + "," + cz;
-            active.add(key);
             if (cx != entry.getValue()[0] || cz != entry.getValue()[1]) {
-                NUR_FAILURE_RELEASE_QUEUE.put(entry.getValue()[0] + "," + entry.getValue()[1], 100);
+                level.getChunkSource().removeRegionTicket(NUR_FAILURE_TICKET, new ChunkPos(entry.getValue()[0], entry.getValue()[1]), 2, entry.getKey());
+                level.getChunkSource().addRegionTicket(NUR_FAILURE_TICKET, new ChunkPos(cx, cz), 2, entry.getKey());
                 entry.getValue()[0] = cx;
                 entry.getValue()[1] = cz;
-            }
-            level.setChunkForced(cx, cz, true);
-        }
-        NUR_FAILURE_RELEASE_QUEUE.keySet().removeAll(active);
-        Iterator<Map.Entry<String, Integer>> rit = NUR_FAILURE_RELEASE_QUEUE.entrySet().iterator();
-        while (rit.hasNext()) {
-            Map.Entry<String, Integer> r = rit.next();
-            int t = r.getValue() - 1;
-            if (t <= 0) {
-                String[] parts = r.getKey().split(",");
-                level.setChunkForced(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), false);
-                rit.remove();
-            } else {
-                r.setValue(t);
             }
         }
     }

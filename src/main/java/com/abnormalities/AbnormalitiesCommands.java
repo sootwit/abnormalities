@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class AbnormalitiesCommands {
-    private static final List<String> BASE_EVENTS = List.of("nur", "nur_sign", "friend", "the_mother", "him", "him_boss", "skinwalker", "segfault", "segfault_stargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chat_disabled", "chat_enabled", "ang3r", "fake_ach", "f4k3", "f4k3_join", "b3drock", "0x0000_pillar", "0x0000_chunk", "0x0000", "0x0000_farlands", "0x0000_furtherlands", "slowed_music", "animal_noise", "peak_bad", "peak_good", "sign_enter", "sign_exit", "depths", "0x0000_apparition", "0x0000_curse_biome", "0x0000_curse_house", "dark_area", "distant", "distant_circle", "distant_air", "distant_air_circle", "screen_shake", "thunder_to_player");
+    private static final List<String> BASE_EVENTS = List.of("nur", "nur_sign", "friend", "the_mother", "him", "him_boss", "skinwalker", "segfault", "segfault_stargazed", "v1s1t", "hush", "w4k3", "m1sl4y", "m1n3r", "s1gn", "br34th", "h01d", "c1rcl", "chat_disabled", "chat_enabled", "ang3r", "fake_ach", "f4k3", "f4k3_join", "b3drock", "0x0000_pillar", "0x0000_chunk", "0x0000", "0x0000_farlands", "0x0000_furtherlands", "slowed_music", "animal_noise", "peak_bad", "peak_good", "sign_enter", "sign_exit", "depths", "0x0000_apparition", "0x0000_curse_biome", "0x0000_curse_house", "dark_area", "distant", "distant_circle", "distant_air", "distant_air_circle", "screen_shake", "thunder_to_player", "b3d");
     private static final Random RNG = new Random();
 
     private static final SuggestionProvider<CommandSourceStack> CONFIG_KEY_SUGGESTIONS =
@@ -223,6 +223,7 @@ public class AbnormalitiesCommands {
             case "distant_air_circle" -> com.abnormalities.horror.DistantManager.forceAirCircle(player);
             case "screen_shake" -> com.abnormalities.hexnil.ScreenShakeManager.sendShake(player, Math.max(1.0f, intensity), 120);
             case "thunder_to_player" -> com.abnormalities.horror.ThunderToPlayerEvent.forceThunder(player);
+            case "b3d" -> com.abnormalities.horror.BedMemoryManager.forceHunt(player);
             default -> {
                 var match = HorrorEventPool.getRegistered().stream()
                     .filter(e -> e.getName().equals(eventName))
@@ -276,8 +277,8 @@ public class AbnormalitiesCommands {
             theMother.setTargetPlayer(player);
             int xc = ((int)Math.floor(sx)) >> 4;
             int zc = ((int)Math.floor(sz)) >> 4;
-            level.setChunkForced(xc, zc, true);
             level.addFreshEntity(theMother);
+            com.abnormalities.registry.ModEvents.registerTheMotherChunk(level, theMother.getUUID(), xc, zc);
             int seconds;
             if (AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.get()) {
                 seconds = AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT_SECONDS.get();
@@ -334,8 +335,7 @@ public class AbnormalitiesCommands {
             level.addFreshEntity(mob);
             int cx = spawnAt.getX() >> 4;
             int cz = spawnAt.getZ() >> 4;
-            level.setChunkForced(cx, cz, true);
-            com.abnormalities.registry.ModEvents.registerSkinwalkerChunk(mob.getUUID(), cx, cz);
+            com.abnormalities.registry.ModEvents.registerSkinwalkerChunk(level, mob.getUUID(), cx, cz);
         }
     }
 
