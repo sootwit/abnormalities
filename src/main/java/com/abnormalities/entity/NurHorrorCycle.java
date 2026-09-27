@@ -40,6 +40,15 @@ public class NurHorrorCycle {
             }
             Set<UUID> nurs = playerNurs.get(playerId);
             if (nurs == null) continue;
+            Long cap = chaseStart.get(playerId);
+            if (cap != null && overworld.getGameTime() - cap > 12000L) {
+                playerNurs.remove(playerId);
+                chaseStart.remove(playerId);
+                Long origCap = originalDayTime.remove(playerId);
+                if (p.connection != null)
+                    p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), origCap != null ? origCap : overworld.getDayTime(), true));
+                continue;
+            }
             nurs.removeIf(id -> {
                 Entity en = overworld.getEntity(id);
                 return en == null || !en.isAlive();

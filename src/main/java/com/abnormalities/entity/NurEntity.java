@@ -672,9 +672,17 @@ public class NurEntity extends Mob {
     }
 
     private Player findNearestPlayer() {
-        Player p = level().getNearestPlayer(this, 64.0D);
-        if (p != null && (p.isCreative() || p.isSpectator())) return null;
-        return p;
+        Player best = null;
+        double bestDist = 64.0D * 64.0D;
+        for (Player p : level().players()) {
+            if (!p.isAlive() || p.isCreative() || p.isSpectator()) continue;
+            double d = p.distanceToSqr(this);
+            if (d < bestDist) {
+                bestDist = d;
+                best = p;
+            }
+        }
+        return best;
     }
 
     @Override
