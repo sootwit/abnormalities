@@ -22,7 +22,7 @@ import java.util.UUID;
 public class BedMemoryManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|BedMemory");
     private static final Map<UUID, List<BlockPos>> KNOWN_BEDS = new HashMap<>();
-    private static final Map<UUID, Integer> REPEAT_COUNT = new HashMap<>();
+    private static final Map<UUID, Map<BlockPos, Integer>> REPEAT_COUNT = new HashMap<>();
     private static final int MAX_BEDS = 8;
     private static final int MATCH_RADIUS = 3;
     private static final int REPEAT_THRESHOLD = 3;
@@ -55,18 +55,19 @@ public class BedMemoryManager {
         if (matched == null) {
             beds.add(bedPos.immutable());
             if (beds.size() > MAX_BEDS) beds.remove(0);
-            REPEAT_COUNT.put(uuid, 1);
+            REPEAT_COUNT.computeIfAbsent(uuid, k -> new HashMap<>()).put(bedPos.immutable(), 1);
             return;
         }
 
-        int count = REPEAT_COUNT.getOrDefault(uuid, 1) + 1;
-        REPEAT_COUNT.put(uuid, count);
+        Map<BlockPos, Integer> counts = REPEAT_COUNT.computeIfAbsent(uuid, k -> new HashMap<>());
+        int count = counts.getOrDefault(matched, 1) + 1;
+        counts.put(matched, count);
         player.level().playSound(null, bedPos, SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 6.0f, 0.3f);
         com.abnormalities.WhisperManager.sendActionBar(player, "...you slept here before...", ChatFormatting.DARK_GRAY);
         if (debug_mode) LOGGER.info("[BedMemory] {} repeat {} at {}", player.getName().getString(), count, bedPos);
 
         if (count >= REPEAT_THRESHOLD) {
-            REPEAT_COUNT.put(uuid, 0);
+            counts.put(matched, 0);
             ModEvents.forceNurSpawn(player);
             LOGGER.info("[BedMemory] {} slept in the same bed {} times and it remembers", player.getName().getString(), REPEAT_THRESHOLD);
         }
