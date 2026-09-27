@@ -130,7 +130,8 @@ public class NurEntity extends Mob {
         }
         if (tickCount > 300 && !isChasing() && currentState != State.CHASING && currentState != State.SMART) { discard(); return; }
         if (dummyTriggered && currentState != State.DUMMY && currentState != State.STALKING_DUMMY) dummyTriggered = false;
-        if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) {
+        if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()
+                || currentTarget.level().dimension() != this.level().dimension()) {
             currentTarget = findNearestPlayer();
             if (currentTarget == null) {
                 LOGGER.debug("[Nur] no target found, discarding if old enough");
@@ -670,7 +671,11 @@ public class NurEntity extends Mob {
         }
     }
 
-    private Player findNearestPlayer() { return level().getNearestPlayer(this, 64.0D); }
+    private Player findNearestPlayer() {
+        Player p = level().getNearestPlayer(this, 64.0D);
+        if (p != null && (p.isCreative() || p.isSpectator())) return null;
+        return p;
+    }
 
     @Override
     public net.minecraft.world.scores.PlayerTeam getTeam() { return null; }
