@@ -95,6 +95,7 @@ public class HexNilFarlandsManager {
                         + rng.nextDouble() * 15;
 
                 int topY = (int) (baseY + noise + 30);
+                if (topY > level.getMaxBuildHeight() - 1) topY = level.getMaxBuildHeight() - 1;
                 int bottomY = baseY - 10 - rng.nextInt(20);
 
                 for (int y = bottomY; y <= topY; y++) {

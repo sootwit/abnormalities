@@ -21,6 +21,15 @@ public class NurHorrorCycle {
     public static int speedMultiplier = 100;
 
     @SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != Level.OVERWORLD) return;
+        playerNurs.clear();
+        chaseStart.clear();
+        originalDayTime.clear();
+    }
+
+    @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();

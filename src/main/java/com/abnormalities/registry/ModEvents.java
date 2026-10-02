@@ -179,7 +179,8 @@ public class ModEvents {
         int preSy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) preSx, (int) preSz);
         player.level().playSound(null, preSx, preSy, preSz,
                 SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
-        PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
+            PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, level, player.getUUID()));
+            if (PENDING_SPAWNS.size() > 50) PENDING_SPAWNS.remove(0);
     }
 
     public static void forceNurSignSpawn(ServerPlayer player) {
@@ -225,6 +226,14 @@ public class ModEvents {
         him.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(him);
         return true;
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogin(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer sp)) return;
+        if (com.abnormalities.entity.FriendEntity.POSSESSED_LOGIN_FIX.remove(sp.getUUID())) {
+            sp.setInvisible(false);
+        }
     }
 
     @SubscribeEvent

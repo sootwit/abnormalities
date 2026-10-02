@@ -54,7 +54,7 @@ public class WhisperManager {
     }
 
     public static void sendPositionedSound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, double x, double y, double z, float vol, float pitch) {
-        if (player == null || player.connection == null) return;
+        if (player == null || player.connection == null || sound == null) return;
         LOGGER.debug("[WhisperManager] positioned sound to {} at {} {} {} vol={} pitch={}", player.getName().getString(), x, y, z, vol, pitch);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(sound), SoundSource.MASTER, x, y, z, vol, pitch, 0));

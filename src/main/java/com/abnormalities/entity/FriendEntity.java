@@ -40,6 +40,7 @@ public class FriendEntity extends Mob {
     private static final int CHAT_DELAY = 600;
     private static final TicketType<FriendEntity> FRIEND_TICKET = TicketType.create("abnormalities_friend", Comparator.comparingInt(System::identityHashCode), 0);
     private static final TicketType<FriendEntity> FRIEND_ENTITY_TICKET = TicketType.create("abnormalities_friend_e", Comparator.comparingInt(System::identityHashCode), 0);
+    public static final java.util.Set<UUID> POSSESSED_LOGIN_FIX = new java.util.HashSet<>();
     private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.STRING);
@@ -223,6 +224,7 @@ public class FriendEntity extends Mob {
                     pos.getX(), pos.getY(), pos.getZ(),
                     state
             ));
+            if (pendingActions.size() > 300) pendingActions.remove(0);
         }
     }
 
@@ -234,6 +236,7 @@ public class FriendEntity extends Mob {
                     pos.getX(), pos.getY(), pos.getZ(),
                     state
             ));
+            if (pendingActions.size() > 300) pendingActions.remove(0);
         }
     }
 
@@ -245,6 +248,7 @@ public class FriendEntity extends Mob {
                     x, y, z,
                     type
             ));
+            if (pendingActions.size() > 300) pendingActions.remove(0);
         }
     }
 
@@ -571,6 +575,8 @@ public class FriendEntity extends Mob {
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
                         new com.abnormalities.network.FriendPossessPacket(-1, this.getId()));
+                } else {
+                    POSSESSED_LOGIN_FIX.add(uuid);
                 }
             }
             possessionActive = false;

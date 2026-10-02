@@ -70,6 +70,7 @@ public class HexNilFurtherlandsManager {
     public static void generateFurtherlands(ServerLevel level, ServerPlayer player) {
         BlockPos center = player.blockPosition();
         int radius = AbnormalitiesConfig.HN_FURTHERLANDS_RADIUS.get();
+        if (radius < 1) radius = 1;
         int chunkX = (center.getX() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
         int chunkZ = (center.getZ() >> 4) + level.random.nextInt(radius * 2 + 1) - radius;
 
