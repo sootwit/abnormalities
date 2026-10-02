@@ -153,7 +153,11 @@ public class HorrorEventPool {
 
         AbstractHorrorEvent ongoing = ONGOING.get(sp.getUUID());
         if (ongoing != null) {
-            ongoing.onPlayerTick(sp);
+            try {
+                ongoing.onPlayerTick(sp);
+            } catch (Exception e) {
+                LOGGER.error("[EventPool] ongoing event {} tick threw for {}", ongoing.getName(), sp.getName().getString(), e);
+            }
         }
     }
 

@@ -458,6 +458,9 @@ public class TheMotherEntity extends Mob {
     };
 
     private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
+        if (cookieAmt < 1) cookieAmt = 1;
+        if (carrotAmt < 1) carrotAmt = 1;
+        if (appleAmt < 1) appleAmt = 1;
         ItemStack base = FOOD_ITEMS[level().random.nextInt(FOOD_ITEMS.length)].copy();
         if (base.getItem() == Items.COOKIE) base.setCount(cookieAmt);
         else if (base.getItem() == Items.GOLDEN_CARROT) base.setCount(carrotAmt);
@@ -616,6 +619,10 @@ public class TheMotherEntity extends Mob {
         this.messageSent = tag.getBoolean("MessageSent");
         this.rewardGiven = tag.getBoolean("RewardGiven");
         this.hasFailed = tag.getBoolean("HasFailed");
+        if (hasFailed || rewardGiven) {
+            this.discard();
+            return;
+        }
         this.entityData.set(DATA_AMOUNT, tag.getInt("Amount"));
         this.entityData.set(DATA_ACTIVE, !hasFailed && !rewardGiven && timerTicks > 0);
         this.setPersistenceRequired();

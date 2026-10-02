@@ -578,7 +578,7 @@ public class FriendEntity extends Mob {
         if (possessionActive) {
             for (UUID uuid : possessedPlayers) {
                 ServerPlayer p = level().getServer() != null ? level().getServer().getPlayerList().getPlayer(uuid) : null;
-                if (p != null) {
+                if (p != null && p.connection != null) {
                     p.setInvisible(false);
                     com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                         net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
@@ -724,14 +724,14 @@ public class FriendEntity extends Mob {
 
         pathPoints.clear();
         net.minecraft.nbt.ListTag pathTag = tag.getList("PathPoints", 10);
-        for (int i = 0; i < pathTag.size(); i++) {
+        for (int i = 0; i < Math.min(pathTag.size(), 500); i++) {
             CompoundTag ptTag = pathTag.getCompound(i);
             pathPoints.add(new double[]{ptTag.getDouble("X"), ptTag.getDouble("Y"), ptTag.getDouble("Z"), ptTag.getFloat("YRot"), ptTag.getFloat("XRot")});
         }
 
         pendingActions.clear();
         net.minecraft.nbt.ListTag actionTag = tag.getList("PendingActions", 10);
-        for (int i = 0; i < actionTag.size(); i++) {
+        for (int i = 0; i < Math.min(actionTag.size(), 300); i++) {
             CompoundTag aTag = actionTag.getCompound(i);
             FriendAction.ActionType type;
             try { type = FriendAction.ActionType.valueOf(aTag.getString("Type")); } catch (Exception ignored) { continue; }
