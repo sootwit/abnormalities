@@ -406,6 +406,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         if (this.entityData.get(DATA_COLLAPSE) > 0.0F) return;
         LOGGER.info("[Him] die() called, boss={} source={}", isBoss(), source.getEntity() != null ? source.getEntity().getName().getString() : "null");
         if (!this.level().isClientSide) {
+            if (!com.abnormalities.config.AbnormalitiesConfig.HIM_ENABLED.get()) { discard(); return; }
             if (isBoss()) {
                 removeBossBar();
                 HimTracker.bossKilled(source.getEntity() instanceof ServerPlayer sp ? sp : null);

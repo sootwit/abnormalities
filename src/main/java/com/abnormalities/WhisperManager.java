@@ -83,6 +83,7 @@ public class WhisperManager {
     }
 
     public static String chatEcho(String chatMessage) {
+        if (chatMessage == null || chatMessage.isEmpty()) return ".....";
         if (chatMessage.length() > 30) chatMessage = chatMessage.substring(0, 30);
         return "\"" + chatMessage + "\"... you said that... why?";
     }

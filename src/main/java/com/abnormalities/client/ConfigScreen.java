@@ -137,6 +137,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
+                    AbnormalitiesConfig.THE_MOTHER_ENABLED.set(true);
                     AbnormalitiesConfig.SEGFAULT_ENABLED.set(false);
                     AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED.set(false);
                     AbnormalitiesConfig.HUSH_ENABLED.set(false);

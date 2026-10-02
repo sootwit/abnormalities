@@ -39,6 +39,13 @@ public class NurEntity extends Mob {
     private static final EntityDataAccessor<Boolean> DATA_CHASING = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_DUMMY = SynchedEntityData.defineId(NurEntity.class, EntityDataSerializers.BOOLEAN);
     private static long lastGlobalKillTick = -100;
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof net.minecraft.server.level.ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        lastGlobalKillTick = -100;
+    }
     public boolean isChasing() { return this.entityData.get(DATA_CHASING); }
     public boolean isDummy() { return this.entityData.get(DATA_DUMMY); }
     public enum State { STALKING, DUMMY, STALKING_DUMMY, CHASING, SMART }

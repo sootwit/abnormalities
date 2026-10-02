@@ -177,9 +177,6 @@ public class HorrorEventPool {
     public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel sl)) return;
         if (sl.dimension() != Level.OVERWORLD) return;
-        for (var entry : ONGOING.entrySet()) {
-            try { entry.getValue().onCleanup(null); } catch (Exception ignored) {}
-        }
         COOLDOWNS.clear();
         ONGOING.clear();
     }

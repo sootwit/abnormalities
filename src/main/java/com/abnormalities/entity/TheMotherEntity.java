@@ -624,7 +624,7 @@ public class TheMotherEntity extends Mob {
             this.discard();
             return;
         }
-        this.entityData.set(DATA_AMOUNT, tag.getInt("Amount"));
+        this.entityData.set(DATA_AMOUNT, Math.max(1, tag.getInt("Amount")));
         this.entityData.set(DATA_ACTIVE, !hasFailed && !rewardGiven && timerTicks > 0);
         this.setPersistenceRequired();
         this.noCulling = true;
