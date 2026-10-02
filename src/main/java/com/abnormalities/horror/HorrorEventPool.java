@@ -129,6 +129,7 @@ public class HorrorEventPool {
             double houseMult = CursedHouseManager.getEventMultiplier(player);
             double biomeMult = CursedBiomeManager.getEventMultiplier(player);
             double totalMult = peakMult * houseMult * biomeMult;
+            if (Double.isNaN(totalMult) || totalMult <= 0) totalMult = 1.0;
             eventChance = (int) Math.max(1, eventChance / totalMult);
             if (overworld.random.nextInt(eventChance) != 0) continue;
 

@@ -15,6 +15,13 @@ public class HexNilController {
     private static long lastPillar = 0;
 
     @SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != Level.OVERWORLD) return;
+        lastPillar = 0;
+    }
+
+    @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (!AbnormalitiesConfig.HN_ENABLED.get()) return;

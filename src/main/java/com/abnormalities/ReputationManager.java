@@ -108,15 +108,17 @@ public class ReputationManager {
 
     private static void load() {
         if (dataFile == null || !dataFile.exists()) return;
-        REP.clear();
         try {
             CompoundTag tag = NbtIo.read(dataFile);
             if (tag == null) return;
             ListTag list = tag.getList("reps", Tag.TAG_COMPOUND);
+            Map<UUID, Integer> loaded = new java.util.HashMap<>();
             for (int i = 0; i < list.size(); i++) {
                 CompoundTag t = list.getCompound(i);
-                REP.put(t.getUUID("u"), t.getInt("v"));
+                loaded.put(t.getUUID("u"), t.getInt("v"));
             }
+            REP.clear();
+            REP.putAll(loaded);
             LOGGER.info("[ReputationManager] loaded {} entries", REP.size());
         } catch (Exception e) {
             LOGGER.warn("[ReputationManager] failed to load rep data: {}", e.getMessage());

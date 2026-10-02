@@ -186,6 +186,7 @@ public class HexNilChunkManager {
         int py = (int) Math.floor(player.getY());
         int pz = (int) Math.floor(player.getZ());
 
+        if (range < 1) range = 1;
         int offset1 = level.random.nextInt(range * 2 + 1) - range;
         int offset2 = level.random.nextInt(range * 2 + 1) - range;
 

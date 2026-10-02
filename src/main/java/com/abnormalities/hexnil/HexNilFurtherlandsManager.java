@@ -50,7 +50,9 @@ public class HexNilFurtherlandsManager {
         if (now < graceTicks) return;
 
         if (now - lastFurtherlands < AbnormalitiesConfig.HN_FURTHERLANDS_COOLDOWN.get()) return;
-        if (overworld.random.nextInt(AbnormalitiesConfig.HN_FURTHERLANDS_CHANCE.get()) != 0) return;
+        int flChance = AbnormalitiesConfig.HN_FURTHERLANDS_CHANCE.get();
+        if (flChance < 1) flChance = 1;
+        if (overworld.random.nextInt(flChance) != 0) return;
 
         for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
             int rep = ReputationManager.getRep(player);

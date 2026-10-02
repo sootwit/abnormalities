@@ -373,6 +373,7 @@ public class ModEvents {
                     LOGGER.info("[Events] theMother spawned for {} requesting {}x {} in {}s", player.getName().getString(), amount, chosenItem, seconds);
 
                     String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
+                    if (itemName.isEmpty()) itemName = "item";
                     String msg;
                     if (amount == 1) {
                         String prefix = "aeiou".indexOf(Character.toLowerCase(itemName.charAt(0))) >= 0 ? "an" : "a";

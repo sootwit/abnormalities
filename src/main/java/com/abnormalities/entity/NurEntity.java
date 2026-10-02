@@ -539,6 +539,7 @@ public class NurEntity extends Mob {
         double dy = currentTarget.getY() - this.getY();
         double horizDist = Math.sqrt(dx * dx + dz * dz);
         double ramp = AbnormalitiesConfig.NUR_SPEED_RAMP.get();
+        if (ramp < 1.0D) ramp = 1.0D;
         double maxMult = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
         double mult = Math.min(maxMult, 1.0D + horizDist / ramp);
         double speed = 1.8D * mult;
