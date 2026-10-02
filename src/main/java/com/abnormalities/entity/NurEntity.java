@@ -649,7 +649,8 @@ public class NurEntity extends Mob {
             double maxMult2 = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
             double mult2 = Math.min(maxMult2, 1.0D + horiz2 / ramp2);
             double sweep = Math.min(24.0D, 0.8D * mult2);
-            Vec3 dir = new Vec3(currentTarget.getX() - this.getX(), currentTarget.getY() - this.getY(), currentTarget.getZ() - this.getZ()).normalize();
+            Vec3 raw = new Vec3(currentTarget.getX() - this.getX(), currentTarget.getY() - this.getY(), currentTarget.getZ() - this.getZ());
+            Vec3 dir = raw.lengthSqr() > 0.001 ? raw.normalize() : new Vec3(0, 0, 0);
             AABB movedBox = this.getBoundingBox().move(dir.scale(sweep));
             VoxelShape movedShape = Shapes.create(movedBox);
             BlockPos.betweenClosedStream(movedBox).forEach(pos -> {

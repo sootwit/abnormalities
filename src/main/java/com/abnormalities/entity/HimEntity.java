@@ -442,7 +442,9 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        float prevHealth = this.getHealth();
         if (tag.contains("Boss") && tag.getBoolean("Boss")) this.markBoss();
+        if (prevHealth > 0) this.setHealth(prevHealth);
         this.summoned = tag.getBoolean("Summoned");
         this.punished = tag.getBoolean("Punished");
         this.lineSent = tag.getBoolean("LineSent");

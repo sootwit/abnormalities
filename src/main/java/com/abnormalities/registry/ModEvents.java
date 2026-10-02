@@ -211,6 +211,7 @@ public class ModEvents {
     }
 
     public static boolean forceHimSpawn(ServerPlayer player, boolean boss) {
+        if (!AbnormalitiesConfig.HIM_ENABLED.get()) return false;
         LOGGER.info("[Events] forceHimSpawn for {} boss={}", player.getName().getString(), boss);
         ServerLevel overworld = (ServerLevel) player.level();
         double angle = overworld.random.nextDouble() * Math.PI * 2;

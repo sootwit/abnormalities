@@ -85,6 +85,7 @@ public class HorrorEventPool {
             AbstractHorrorEvent e = eligible.get(i);
             double mult = ReputationManager.getWeightMultiplier(player, e.getHostilityFactor() * AbnormalitiesConfig.HORROR_EVENT_HOSTILITY_FACTOR.get());
             double w = e.getBaseWeight() * mult;
+            if (Double.isNaN(w) || w < 0) w = 0;
             weights[i] = w;
             totalWeight += w;
         }

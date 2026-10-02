@@ -250,6 +250,8 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_TOWER.set(true);
                     AbnormalitiesConfig.NUR_BRIDGE.set(true);
                     AbnormalitiesConfig.NUR_LIQUID.set(true);
+                    AbnormalitiesConfig.NUR_WATER.set(true);
+                    AbnormalitiesConfig.NUR_LAVA.set(true);
                     AbnormalitiesConfig.FRIEND_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.FRIEND_PLACE_BLOCKS.set(true);
                     AbnormalitiesConfig.FRIEND_KILL_MOBS.set(true);
