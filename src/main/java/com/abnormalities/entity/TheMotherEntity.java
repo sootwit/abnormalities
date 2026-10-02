@@ -463,9 +463,9 @@ public class TheMotherEntity extends Mob {
         if (carrotAmt < 1) carrotAmt = 1;
         if (appleAmt < 1) appleAmt = 1;
         ItemStack base = FOOD_ITEMS[level().random.nextInt(FOOD_ITEMS.length)].copy();
-        if (base.getItem() == Items.COOKIE) base.setCount(cookieAmt);
-        else if (base.getItem() == Items.GOLDEN_CARROT) base.setCount(carrotAmt);
-        else if (base.getItem() == Items.GOLDEN_APPLE) base.setCount(appleAmt);
+        if (base.getItem() == Items.COOKIE) base.setCount(Math.min(cookieAmt, Items.COOKIE.getMaxStackSize()));
+        else if (base.getItem() == Items.GOLDEN_CARROT) base.setCount(Math.min(carrotAmt, Items.GOLDEN_CARROT.getMaxStackSize()));
+        else if (base.getItem() == Items.GOLDEN_APPLE) base.setCount(Math.min(appleAmt, Items.GOLDEN_APPLE.getMaxStackSize()));
         return base;
     }
 

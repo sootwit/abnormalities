@@ -469,7 +469,7 @@ public class ModEvents {
             if (!AbnormalitiesConfig.HIM_ENABLED.get()) continue;
             if (player.tickCount % 40 != 0) continue;
             if (ReputationManager.getRep(player) > AbnormalitiesConfig.HIM_REP_MAX.get()) continue;
-            int rarity = HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250));
+            int rarity = Math.max(1, HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.HIM_SPAWN_WEIGHT.get() + com.abnormalities.entity.HimTracker.getBossKills() * 250)));
             if (overworld.random.nextInt(rarity) != 0) continue;
             LOGGER.debug("[Events] him spawn weight roll passed for {} rarity={}", player.getName().getString(), rarity);
             boolean alreadyHasHim = false;

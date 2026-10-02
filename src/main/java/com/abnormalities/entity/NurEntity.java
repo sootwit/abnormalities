@@ -121,7 +121,11 @@ public class NurEntity extends Mob {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
-        if (!AbnormalitiesConfig.NUR_ENABLED.get()) { discard(); return; }
+        if (!AbnormalitiesConfig.NUR_ENABLED.get()) {
+            if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
+            discard();
+            return;
+        }
         if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
             this.stopRiding();
         }

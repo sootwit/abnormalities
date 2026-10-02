@@ -205,6 +205,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
+                    AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
                     AbnormalitiesConfig.SIGN_ENABLED.set(false);
