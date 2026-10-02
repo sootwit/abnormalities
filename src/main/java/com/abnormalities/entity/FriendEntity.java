@@ -498,6 +498,7 @@ public class FriendEntity extends Mob {
             BlockPos actionPos = new BlockPos(action.x, action.y, action.z);
             if (targetPos.distSqr(actionPos) <= 36 && !undonePositions.contains(actionPos)) {
                 executeUndo(action);
+                if (undonePositions.size() > 200) undonePositions.clear();
                 undonePositions.add(actionPos);
                 it.remove();
             }
@@ -527,7 +528,7 @@ public class FriendEntity extends Mob {
                 }
             }
             case KILL -> {
-                if (!AbnormalitiesConfig.FRIEND_REVIVE_MOBS.get()) return;
+                if (!AbnormalitiesConfig.FRIEND_KILL_MOBS.get() && !AbnormalitiesConfig.FRIEND_REVIVE_MOBS.get()) return;
                 if (action.entityType != null) {
                     boolean alreadyExists = !level().getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
                             new AABB(action.x - 2, action.y - 2, action.z - 2, action.x + 2, action.y + 2, action.z + 2),

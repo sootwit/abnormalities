@@ -157,6 +157,7 @@ public class SignDimension {
         }
         int interval = AbnormalitiesConfig.SIGN_HIM_SPAWN_INTERVAL.get();
         int batchSize = AbnormalitiesConfig.SIGN_HIM_BATCH_SIZE.get();
+        if (!AbnormalitiesConfig.SIGN_ENABLED.get()) return;
         spawnTickAccum++;
         if (spawnTickAccum >= interval) {
             spawnTickAccum = 0;

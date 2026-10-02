@@ -290,6 +290,7 @@ public class AbnormalitiesCommands {
             theMother.startRequest(amount, chosenItem, seconds);
 
             String itemName = new net.minecraft.world.item.ItemStack(chosenItem).getHoverName().getString();
+            if (itemName.isEmpty()) itemName = "item";
             String msg;
             if (amount == 1) {
                 String prefix = "aeiou".indexOf(Character.toLowerCase(itemName.charAt(0))) >= 0 ? "an" : "a";

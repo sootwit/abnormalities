@@ -50,7 +50,7 @@ public class HexNilFarlandsManager {
 
         for (ServerPlayer player : srv.getPlayerList().getPlayers()) {
             int rep = ReputationManager.getRep(player);
-            if (rep > 800) continue;
+            if (rep > AbnormalitiesConfig.HN_FURTHERLANDS_MAX_REP.get()) continue;
 
             lastFarlands = now;
             LOGGER.info("[0x0000|Farlands] Farlands triggered for {} (rep={})", player.getName().getString(), rep);
