@@ -606,6 +606,10 @@ public class FriendEntity extends Mob {
 
     @Override
     public void die(net.minecraft.world.damagesource.DamageSource source) {
+        if (possessionActive && targetPlayer instanceof ServerPlayer spFinal) {
+            punishAllPossessed(spFinal);
+            return;
+        }
         if (forcedChunk != null && level() instanceof ServerLevel sl) {
             sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedChunk), 2, this);
             forcedChunk = null;

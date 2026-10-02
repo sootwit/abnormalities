@@ -309,6 +309,7 @@ public class ModEvents {
             task.ticksRemaining--;
             if (task.ticksRemaining <= 0) {
                 signIt.remove();
+                if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
                 if (target == null) continue;
                 double sx = target.getX() + Math.cos(task.angle) * task.dist;
