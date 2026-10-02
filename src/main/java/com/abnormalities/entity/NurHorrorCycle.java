@@ -68,8 +68,16 @@ public class NurHorrorCycle {
         for (var entry : playerNurs.entrySet()) {
             ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(entry.getKey());
             if (p == null || p.connection == null) continue;
-            long start = chaseStart.get(entry.getKey());
-            long orig = originalDayTime.get(entry.getKey());
+            Long start = chaseStart.get(entry.getKey());
+            Long orig = originalDayTime.get(entry.getKey());
+            if (start == null || orig == null) {
+                playerNurs.remove(entry.getKey());
+                chaseStart.remove(entry.getKey());
+                originalDayTime.remove(entry.getKey());
+                if (p.connection != null)
+                    p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), overworld.getDayTime(), true));
+                continue;
+            }
             long perceived = orig + (realGameTime - start) * speedMultiplier;
             p.connection.send(new ClientboundSetTimePacket(realGameTime, perceived, true));
         }

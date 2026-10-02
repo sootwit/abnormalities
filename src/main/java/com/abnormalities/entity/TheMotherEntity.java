@@ -302,11 +302,17 @@ public class TheMotherEntity extends Mob {
             if (targetPlayer == null) return;
         }
 
-        if (!messageSent) return;
-
         timerTicks--;
         int secondsLeft = Math.max(0, (timerTicks + 19) / 20);
         this.entityData.set(DATA_SECONDS_LEFT, secondsLeft);
+
+        if (!messageSent) {
+            if (timerTicks <= 0) {
+                triggerFailure(targetPlayer);
+                return;
+            }
+            return;
+        }
 
         int mins = secondsLeft / 60;
         int secs = secondsLeft % 60;

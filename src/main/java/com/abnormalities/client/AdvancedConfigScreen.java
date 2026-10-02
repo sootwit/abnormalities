@@ -52,8 +52,14 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("The Mother", AbnormalitiesConfig.THE_MOTHER_ENABLED, "Giant supplier that demands items");
         addToggle("Him", AbnormalitiesConfig.HIM_ENABLED, "Player-like survivor that bridges at you");
         addToggle("Skinwalkers", AbnormalitiesConfig.SW_ENABLED, "Disguised mobs that transform");
+        addToggle("Mother static wait", AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT, "Use fixed wait time");
+        addToggle("Mother static amount", AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT, "Use fixed item count");
+        addToggle("Mother vanilla only", AbnormalitiesConfig.THE_MOTHER_ONLY_VANILLA, "Only request vanilla items");
 
         addSection("Events");
+        addToggle("horror events", AbnormalitiesConfig.HORROR_EVENTS_ENABLED, "Master switch for horror pool");
+        addToggle("peak day wind off", AbnormalitiesConfig.PEAK_DAY_WIND_DISABLED, "0x0000 disabled on good days");
+        addToggle("depths break bedrock", AbnormalitiesConfig.DEPTHS_BREAK_BEDROCK, "Depths breaks bedrock");
         addToggle("segfault", AbnormalitiesConfig.SEGFAULT_ENABLED, "STOP/CONTINUE overlay game");
         addToggle("segfault Stargazed", AbnormalitiesConfig.SEGFAULT_STARGAZED_ENABLED, "Stricter segfault variant");
         addToggle("h1sh", AbnormalitiesConfig.HUSH_ENABLED, "Mobs freeze and stare at you");
@@ -90,7 +96,15 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("Friend undo breaks", AbnormalitiesConfig.FRIEND_BREAK_BLOCKS, "Friend replaces blocks you broke");
         addToggle("Friend undo places", AbnormalitiesConfig.FRIEND_PLACE_BLOCKS, "Friend breaks blocks you placed");
         addToggle("Friend undo kills", AbnormalitiesConfig.FRIEND_KILL_MOBS, "Friend revives mobs you killed");
+        addToggle("Friend undo revive", AbnormalitiesConfig.FRIEND_REVIVE_MOBS, "Friend revives killed mobs");
+        addToggle("Nur water walk", AbnormalitiesConfig.NUR_WATER, "Nur walks on water");
+        addToggle("Nur lava walk", AbnormalitiesConfig.NUR_LAVA, "Nur walks on lava");
+        addToggle("Nur block drops", AbnormalitiesConfig.NUR_BREAK_DROPS, "Broken blocks drop items");
         addToggle("0x0000", AbnormalitiesConfig.HN_ENABLED, "0x0000 corruption system");
+        addToggle("0x0000 pillar random size", AbnormalitiesConfig.HN_PILLARS_RANDOM_SIZE, "Randomize pillar dimensions");
+        addToggle("0x0000 pillar dump inventory", AbnormalitiesConfig.HN_PILLARS_DUMP_INVENTORY, "Dump container contents on destroy");
+        addToggle("0x0000 pillar break sounds", AbnormalitiesConfig.HN_PILLARS_BREAK_SOUNDS, "Play break sounds during descent");
+        addToggle("0x0000 shake", AbnormalitiesConfig.HN_SHAKE_ENABLED, "Screen shake on pillar impact");
         addToggle("0x0000 pillars", AbnormalitiesConfig.HN_PILLARS_ENABLED, "Pillar terrain destruction");
         addToggle("0x0000 farlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Farlands terrain generation");
         addToggle("0x0000 chunks", AbnormalitiesConfig.HN_CHUNK_ENABLED, "Vertical terrain removal");

@@ -249,6 +249,18 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.DISTANT_ENABLED.set(true);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(true);
                     AbnormalitiesConfig.SIGN_ENABLED.set(true);
+                    AbnormalitiesConfig.NUR_WATER.set(true);
+                    AbnormalitiesConfig.NUR_LAVA.set(true);
+                    AbnormalitiesConfig.NUR_BREAK_DROPS.set(false);
+                    AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.set(false);
+                    AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT.set(false);
+                    AbnormalitiesConfig.THE_MOTHER_ONLY_VANILLA.set(true);
+                    AbnormalitiesConfig.HN_PILLARS_RANDOM_SIZE.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_DUMP_INVENTORY.set(true);
+                    AbnormalitiesConfig.HN_PILLARS_BREAK_SOUNDS.set(true);
+                    AbnormalitiesConfig.HN_SHAKE_ENABLED.set(true);
+                    AbnormalitiesConfig.PEAK_DAY_WIND_DISABLED.set(true);
+                    AbnormalitiesConfig.DEPTHS_BREAK_BEDROCK.set(true);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
