@@ -164,12 +164,16 @@ public class AbnormalitiesCommands {
             case "friend" -> FriendActionTracker.forceFriendSpawn(player);
             case "the_mother" -> forceTheMotherSpawn(player);
             case "him" -> {
-                if (!ModEvents.forceHimSpawn(player, false)) {
+                if (!AbnormalitiesConfig.HIM_ENABLED.get()) {
+                    player.displayClientMessage(Component.literal("him is disabled").withStyle(ChatFormatting.GRAY), false);
+                } else if (!ModEvents.forceHimSpawn(player, false)) {
                     player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
             case "him_boss" -> {
-                if (!ModEvents.forceHimSpawn(player, true)) {
+                if (!AbnormalitiesConfig.HIM_ENABLED.get()) {
+                    player.displayClientMessage(Component.literal("him is disabled").withStyle(ChatFormatting.GRAY), false);
+                } else if (!ModEvents.forceHimSpawn(player, true)) {
                     player.displayClientMessage(Component.literal("him couldn't spawn here").withStyle(ChatFormatting.GRAY), false);
                 }
             }
