@@ -176,6 +176,9 @@ public class ConfigScreen extends Screen {
                 "Only nur spawns. Everything else off.",
                 () -> {
                     AbnormalitiesConfig.NUR_ENABLED.set(true);
+                    AbnormalitiesConfig.NUR_BREAK_DROPS.set(false);
+                    AbnormalitiesConfig.NUR_WATER.set(false);
+                    AbnormalitiesConfig.NUR_LAVA.set(false);
                     AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);
@@ -273,7 +276,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_PILLARS_DUMP_INVENTORY.set(true);
                     AbnormalitiesConfig.HN_PILLARS_BREAK_SOUNDS.set(true);
                     AbnormalitiesConfig.HN_SHAKE_ENABLED.set(true);
-                    AbnormalitiesConfig.PEAK_DAY_WIND_DISABLED.set(true);
+                    AbnormalitiesConfig.PEAK_DAY_WIND_DISABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_BREAK_BEDROCK.set(true);
                     AbnormalitiesConfig.SPEC.save();
                 }));

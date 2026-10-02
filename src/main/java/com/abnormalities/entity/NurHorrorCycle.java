@@ -116,7 +116,8 @@ public class NurHorrorCycle {
             playerNurs.put(playerId, new HashSet<>());
             LOGGER.info("[NurHorrorCycle] time acceleration started for player {}", playerId);
         }
-        playerNurs.get(playerId).add(nurId);
+        Set<UUID> nurs = playerNurs.get(playerId);
+        if (nurs != null) nurs.add(nurId);
     }
 
     public static void stop(UUID playerId, UUID nurId) {

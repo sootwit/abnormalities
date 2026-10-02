@@ -147,6 +147,7 @@ public class NurEntity extends Mob {
                     chasedPlayerId = null;
                 }
                 currentState = State.STALKING;
+                if (tickCount > 300) discard();
                 return;
             }
             soundLoopTick = 0;
