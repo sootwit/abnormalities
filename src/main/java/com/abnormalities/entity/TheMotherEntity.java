@@ -420,7 +420,7 @@ public class TheMotherEntity extends Mob {
                     BlockPos adj = chestPos.offset(dx, 0, dz);
                     if (level().getBlockState(adj).canBeReplaced()) { chestPos = adj; break; }
                 }
-                if (chestPos != this.blockPosition()) break;
+                if (!chestPos.equals(this.blockPosition())) break;
             }
         }
         level().setBlockAndUpdate(chestPos, net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState());

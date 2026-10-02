@@ -632,6 +632,7 @@ public class NurEntity extends Mob {
             double dz2 = currentTarget.getZ() - this.getZ();
             double horiz2 = Math.sqrt(dx2 * dx2 + dz2 * dz2);
             double ramp2 = AbnormalitiesConfig.NUR_SPEED_RAMP.get();
+            if (ramp2 < 1.0D) ramp2 = 1.0D;
             double maxMult2 = AbnormalitiesConfig.NUR_MAX_SPEED_MULT.get();
             double mult2 = Math.min(maxMult2, 1.0D + horiz2 / ramp2);
             double sweep = Math.min(24.0D, 0.8D * mult2);

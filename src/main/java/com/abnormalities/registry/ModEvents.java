@@ -509,6 +509,7 @@ public class ModEvents {
             }
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.AMBIENT_CAVE.get(), SoundSource.MASTER, 6.0f, 0.3f);
+            if (PENDING_SPAWNS.size() > 50) continue;
             PENDING_SPAWNS.add(new SpawnTask(100, angle, dist, overworld, player.getUUID()));
         }
         }

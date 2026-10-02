@@ -214,6 +214,7 @@ public class FriendEntity extends Mob {
     public void setInitialActions(List<FriendAction> actions) {
         this.pendingActions.clear();
         this.pendingActions.addAll(actions);
+        if (this.pendingActions.size() > 300) this.pendingActions.subList(300, this.pendingActions.size()).clear();
     }
 
     public void recordBlockBreak(Player player, BlockPos pos, BlockState state) {
