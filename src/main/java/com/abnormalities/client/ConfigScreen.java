@@ -62,6 +62,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.M1NER_ENABLED.set(false);
+                    AbnormalitiesConfig.DEPTHS_BREAK_BEDROCK.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
