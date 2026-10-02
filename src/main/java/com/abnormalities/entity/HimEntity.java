@@ -190,7 +190,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
                 }
             }
             default -> com.abnormalities.horror.HorrorEventPool.getRegistered().stream()
-                    .filter(e -> e.getName().equals("the tally"))
+                    .filter(e -> e.getName().equals("the_tally"))
                     .findFirst()
                     .ifPresent(e -> com.abnormalities.horror.HorrorEventPool.fireEvent((ServerPlayer) target, e));
         }

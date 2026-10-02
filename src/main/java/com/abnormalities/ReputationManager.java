@@ -140,7 +140,10 @@ public class ReputationManager {
     public static void onWorldSave(LevelEvent.Save event) {
         if (!(event.getLevel() instanceof ServerLevel sl)) return;
         if (sl.dimension() != Level.OVERWORLD) return;
-        if (dataFile != null) save();
+        if (dataFile != null) {
+            lastSaveTime = 0;
+            save();
+        }
     }
 
     @SubscribeEvent

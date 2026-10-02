@@ -146,6 +146,7 @@ public class ModEvents {
     private static final Map<UUID, Integer> REP_LOOK_TICKS = new HashMap<>();
 
     public static void scheduleSkinwalkerSpawn(int delay, double x, double y, double z, ServerLevel level, java.util.UUID targetUUID) {
+        if (PENDING_SKINWALKER_SPAWNS.size() > 30) return;
         PENDING_SKINWALKER_SPAWNS.add(new SkinwalkerSpawnTask(delay, x, y, z, level, targetUUID));
     }
 
@@ -205,6 +206,7 @@ public class ModEvents {
         }
         double angle = level.random.nextDouble() * Math.PI * 2;
         double dist = 10.0D + level.random.nextDouble() * 15.0D;
+        if (PENDING_SIGN_SPAWNS.size() > 30) return;
         PENDING_SIGN_SPAWNS.add(new SignSpawnTask(100, angle, dist, level, player.getUUID()));
     }
 
