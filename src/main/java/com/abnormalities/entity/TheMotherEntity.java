@@ -430,6 +430,10 @@ public class TheMotherEntity extends Mob {
             chest.setItem(0, reward);
             if (!reward2.isEmpty()) chest.setItem(1, reward2);
             if (!reward3.isEmpty()) chest.setItem(2, reward3);
+        } else {
+            dropReward(level(), chestPos, reward);
+            dropReward(level(), chestPos, reward2);
+            dropReward(level(), chestPos, reward3);
         }
 
         level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -458,6 +462,11 @@ public class TheMotherEntity extends Mob {
     private static final ItemStack[] BONUS_ITEMS = {
         new ItemStack(Items.HEART_OF_THE_SEA), new ItemStack(Items.ELYTRA)
     };
+
+    private static void dropReward(net.minecraft.world.level.Level level, BlockPos pos, ItemStack stack) {
+        if (stack.isEmpty()) return;
+        level.addFreshEntity(new net.minecraft.world.entity.item.ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5, stack));
+    }
 
     private ItemStack rollGoody(int cookieAmt, int carrotAmt, int appleAmt) {
         if (cookieAmt < 1) cookieAmt = 1;

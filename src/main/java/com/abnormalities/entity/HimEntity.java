@@ -227,6 +227,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         if (this.level().isClientSide) {
             return;
         }
+        if (!com.abnormalities.config.AbnormalitiesConfig.HIM_ENABLED.get()) { discard(); return; }
         if (this.isPassenger() && this.getVehicle() instanceof net.minecraft.world.entity.vehicle.Boat) {
             this.stopRiding();
         }

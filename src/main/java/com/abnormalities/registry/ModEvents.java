@@ -310,6 +310,7 @@ public class ModEvents {
             if (task.ticksRemaining <= 0) {
                 signIt.remove();
                 if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
+                if (!AbnormalitiesConfig.SIGN_ENABLED.get()) continue;
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
                 if (target == null) continue;
                 double sx = target.getX() + Math.cos(task.angle) * task.dist;
@@ -331,7 +332,7 @@ public class ModEvents {
         long time = overworld.getDayTime() % 24000L;
 
         if (time < 13000L && time > 2000L) {
-            for (Player player : overworld.players()) {
+            for (Player player : new ArrayList<>(overworld.players())) {
                 if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.THE_MOTHER_ENABLED.get()) continue;
                 if (overworld.random.nextInt(Math.max(1, HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get())))) != 0) continue;
