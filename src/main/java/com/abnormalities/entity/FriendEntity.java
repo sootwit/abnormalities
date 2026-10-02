@@ -849,6 +849,7 @@ public class FriendEntity extends Mob {
         if (level().getServer() == null) return null;
         for (ServerPlayer p : level().getServer().getPlayerList().getPlayers()) {
             if (p.level().dimension() != this.level().dimension()) continue;
+            if (p.isCreative() || p.isSpectator() || !p.isAlive()) continue;
             if (possessedPlayers.contains(p.getUUID())) continue;
             if (p.getUUID().equals(possessingPlayer)) continue;
             return p;
@@ -861,7 +862,10 @@ public class FriendEntity extends Mob {
         if (level().getServer() == null) return;
         for (UUID uuid : possessedPlayers) {
             ServerPlayer p = level().getServer().getPlayerList().getPlayer(uuid);
-            if (p == null) continue;
+            if (p == null) {
+                POSSESSED_LOGIN_FIX.add(uuid);
+                continue;
+            }
             p.setInvisible(false);
             com.abnormalities.AbnormalitiesMod.CHANNEL.send(
                 net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> p),
