@@ -23,6 +23,14 @@ import java.util.*;
 
 public class HexNilPillarManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Pillar");
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        ACTIVE_PILLARS.clear();
+    }
+
     private static final List<Block> HOUSE_BLOCKS = List.of(
             Blocks.OAK_PLANKS, Blocks.SPRUCE_PLANKS, Blocks.BIRCH_PLANKS, Blocks.JUNGLE_PLANKS,
             Blocks.ACACIA_PLANKS, Blocks.DARK_OAK_PLANKS, Blocks.MANGROVE_PLANKS, Blocks.CHERRY_PLANKS,
@@ -174,9 +182,9 @@ public class HexNilPillarManager {
         int length = AbnormalitiesConfig.HN_PILLARS_LENGTH.get();
 
         if (AbnormalitiesConfig.HN_PILLARS_RANDOM_SIZE.get()) {
-            width = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_W.get() + level.random.nextInt(AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_W.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_W.get() + 1);
-            depth = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_D.get() + level.random.nextInt(AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_D.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_D.get() + 1);
-            length = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_L.get() + level.random.nextInt(AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_L.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_L.get() + 1);
+            width = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_W.get() + level.random.nextInt(Math.max(1, AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_W.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_W.get() + 1));
+            depth = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_D.get() + level.random.nextInt(Math.max(1, AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_D.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_D.get() + 1));
+            length = AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_L.get() + level.random.nextInt(Math.max(1, AbnormalitiesConfig.HN_PILLARS_RANDOM_MAX_L.get() - AbnormalitiesConfig.HN_PILLARS_RANDOM_MIN_L.get() + 1));
         }
 
         BlockPos target = findTarget(player, width, depth);

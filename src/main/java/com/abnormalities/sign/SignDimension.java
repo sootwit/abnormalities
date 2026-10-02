@@ -32,6 +32,15 @@ public class SignDimension {
     private static final Map<UUID, Long> ENTRY_TIME = new HashMap<>();
     private static int spawnTickAccum = 0;
 
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        PRE_ENTRY_POS.clear();
+        ENTRY_TIME.clear();
+        spawnTickAccum = 0;
+    }
+
     public static void teleportToSign(ServerPlayer player, BlockPos overworldPos) {
         if (player.level().isClientSide) return;
         if (!com.abnormalities.config.AbnormalitiesConfig.SIGN_ENABLED.get()) return;

@@ -50,7 +50,8 @@ public class ReputationManager {
     public static void addRep(Player player, int delta) {
         if (delta == 0) return;
         int current = getRep(player);
-        int clamped = Math.max(MIN, Math.min(MAX, current + delta));
+        long raw = (long) current + delta;
+        int clamped = (int) Math.max(MIN, Math.min(MAX, raw));
         int actualDelta = clamped - current;
         if (actualDelta == 0) return;
         REP.put(player.getUUID(), clamped);
@@ -144,7 +145,10 @@ public class ReputationManager {
     public static void onWorldUnload(LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel sl)) return;
         if (sl.dimension() != Level.OVERWORLD) return;
-        if (dataFile != null) save();
+        if (dataFile != null) {
+            lastSaveTime = 0;
+            save();
+        }
         LOGGER.info("[ReputationManager] world unloaded, clearing {} entries", REP.size());
         loaded = false;
         REP.clear();

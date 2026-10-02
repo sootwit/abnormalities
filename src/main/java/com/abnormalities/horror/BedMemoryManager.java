@@ -54,7 +54,11 @@ public class BedMemoryManager {
 
         if (matched == null) {
             beds.add(bedPos.immutable());
-            if (beds.size() > MAX_BEDS) beds.remove(0);
+            if (beds.size() > MAX_BEDS) {
+                BlockPos evicted = beds.remove(0);
+                Map<BlockPos, Integer> counts = REPEAT_COUNT.get(uuid);
+                if (counts != null) counts.remove(evicted);
+            }
             REPEAT_COUNT.computeIfAbsent(uuid, k -> new HashMap<>()).put(bedPos.immutable(), 1);
             return;
         }

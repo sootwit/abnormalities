@@ -24,7 +24,9 @@ public class HexNilShakePacket {
     }
 
     public static HexNilShakePacket decode(FriendlyByteBuf buf) {
-        return new HexNilShakePacket(buf.readFloat(), buf.readInt());
+        float intensity = buf.readFloat();
+        if (Float.isNaN(intensity) || Float.isInfinite(intensity)) intensity = 1.0f;
+        return new HexNilShakePacket(intensity, buf.readInt());
     }
 
     public static void handle(HexNilShakePacket msg, Supplier<NetworkEvent.Context> ctx) {

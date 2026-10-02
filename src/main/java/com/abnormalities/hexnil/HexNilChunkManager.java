@@ -24,6 +24,22 @@ import java.util.UUID;
 public class HexNilChunkManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|0x0000|Chunk");
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        for (ChunkDestructionJob job : activeJobs) {
+            if (job.level != null && job.forcedChunks != null) {
+                for (long[] pair : job.forcedChunks) {
+                    try { job.level.setChunkForced((int) pair[0], (int) pair[1], false); } catch (Throwable t) {}
+                }
+            }
+        }
+        activeJobs.clear();
+        playerCooldowns.clear();
+    }
+
     private static final int FLAG = 2;
     private static final int BLOCKS_PER_TICK = 15000;
     private static final int MAX_ITERATIONS_PER_TICK = 20000;
