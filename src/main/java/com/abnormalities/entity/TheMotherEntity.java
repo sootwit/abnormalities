@@ -294,6 +294,7 @@ public class TheMotherEntity extends Mob {
         this.setDeltaMovement(0, 0, 0);
 
         if (hasFailed || rewardGiven) return;
+        if (!com.abnormalities.config.AbnormalitiesConfig.THE_MOTHER_ENABLED.get()) { discard(); return; }
 
         if (targetPlayer == null || targetPlayer.isRemoved() || !targetPlayer.isAlive()) {
             if (targetUUID != null && level().getServer() != null) {

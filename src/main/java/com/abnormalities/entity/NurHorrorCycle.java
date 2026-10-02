@@ -24,6 +24,16 @@ public class NurHorrorCycle {
     public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
         if (!(event.getLevel() instanceof ServerLevel sl)) return;
         if (sl.dimension() != Level.OVERWORLD) return;
+        var srv = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+        if (srv != null) {
+            for (var entry : playerNurs.entrySet()) {
+                ServerPlayer p = srv.getPlayerList().getPlayer(entry.getKey());
+                if (p != null && p.connection != null) {
+                    Long orig = originalDayTime.get(entry.getKey());
+                    p.connection.send(new ClientboundSetTimePacket(sl.getGameTime(), orig != null ? orig : sl.getDayTime(), true));
+                }
+            }
+        }
         playerNurs.clear();
         chaseStart.clear();
         originalDayTime.clear();
