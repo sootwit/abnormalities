@@ -59,8 +59,11 @@ public class NurHorrorCycle {
                 continue;
             }
             nurs.removeIf(id -> {
-                Entity en = overworld.getEntity(id);
-                return en == null || !en.isAlive();
+                for (ServerLevel dim : srv.getAllLevels()) {
+                    var en = dim.getEntity(id);
+                    if (en != null && en.isAlive()) return false;
+                }
+                return true;
             });
             if (nurs.isEmpty()) {
                 playerNurs.remove(playerId);

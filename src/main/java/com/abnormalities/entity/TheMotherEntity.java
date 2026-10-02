@@ -520,13 +520,15 @@ public class TheMotherEntity extends Mob {
         for (int i = 0; i < 4; i++) {
             String msg = spawnMessages[i];
             LOGGER.info("[TheMother] spawning nur {}/4 for failure", i + 1);
-            var srv = serverLevel.getServer();
-            if (srv != null) {
-                for (var p : srv.getPlayerList().getPlayers()) {
+        var srv = serverLevel.getServer();
+        if (srv != null) {
+            for (var p : srv.getPlayerList().getPlayers()) {
+                if (p.connection != null) {
                     p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
                             Component.literal(msg).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false));
                 }
             }
+        }
 
             double angle = level().random.nextDouble() * Math.PI * 2;
             double dist = 4.0D + level().random.nextDouble() * 8.0D;

@@ -106,7 +106,7 @@ public class AdvancedConfigScreen extends Screen {
         addToggle("0x0000 pillar break sounds", AbnormalitiesConfig.HN_PILLARS_BREAK_SOUNDS, "Play break sounds during descent");
         addToggle("0x0000 shake", AbnormalitiesConfig.HN_SHAKE_ENABLED, "Screen shake on pillar impact");
         addToggle("0x0000 pillars", AbnormalitiesConfig.HN_PILLARS_ENABLED, "Pillar terrain destruction");
-        addToggle("0x0000 farlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Farlands terrain generation");
+        addToggle("0x0000 furtherlands", AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED, "Denser corruption terrain");
         addToggle("0x0000 chunks", AbnormalitiesConfig.HN_CHUNK_ENABLED, "Vertical terrain removal");
     }
 

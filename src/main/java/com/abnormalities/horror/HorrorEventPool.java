@@ -168,4 +168,12 @@ public class HorrorEventPool {
             cleanup(sp);
         }
     }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != Level.OVERWORLD) return;
+        COOLDOWNS.clear();
+        ONGOING.clear();
+    }
 }
