@@ -180,6 +180,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.NUR_BREAK_DROPS.set(false);
                     AbnormalitiesConfig.NUR_WATER.set(false);
                     AbnormalitiesConfig.NUR_LAVA.set(false);
+                    AbnormalitiesConfig.NUR_LIQUID.set(false);
                     AbnormalitiesConfig.FRIEND_ENABLED.set(false);
                     AbnormalitiesConfig.HIM_ENABLED.set(false);
                     AbnormalitiesConfig.SW_ENABLED.set(false);

@@ -87,6 +87,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         this.entityData.set(DATA_BOSS, true);
         LOGGER.info("[Him] boss mode activated");
         if (!this.level().isClientSide) {
+            removeBossBar();
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(120.0D);
             this.setHealth(120.0F);
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(8.0D);

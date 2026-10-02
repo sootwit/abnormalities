@@ -615,7 +615,9 @@ public class FriendEntity extends Mob {
             forcedEntityChunk = null;
         }
         if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide && !possessionActive) {
-            targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
+            if (AbnormalitiesConfig.FRIEND_PUNISH.get() != AbnormalitiesConfig.PunishMode.NONE) {
+                targetPlayer.hurt(targetPlayer.damageSources().genericKill(), Float.MAX_VALUE);
+            }
         }
         super.die(source);
     }

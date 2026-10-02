@@ -368,7 +368,8 @@ public class TheMotherEntity extends Mob {
         this.hasFailed = false;
         this.fadeOutTick = 0;
 
-        this.timerTicks = seconds * 20;
+        long timerCalc = (long) seconds * 20L;
+        this.timerTicks = (int) Math.min(Integer.MAX_VALUE - 1, Math.max(1, timerCalc));
         this.entityData.set(DATA_SECONDS_LEFT, seconds);
         this.entityData.set(DATA_ACTIVE, true);
     }
