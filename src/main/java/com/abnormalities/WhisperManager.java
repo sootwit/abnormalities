@@ -88,6 +88,7 @@ public class WhisperManager {
     }
 
     public static void whisperSequence(ServerPlayer player, int rep, int count, int interval) {
+        if (player == null) return;
         LOGGER.info("[WhisperManager] starting sequence for {} count={} interval={} rep={}", player.getName().getString(), count, interval, rep);
         player.server.tell(new net.minecraft.server.TickTask(
             player.server.getTickCount() + interval,
