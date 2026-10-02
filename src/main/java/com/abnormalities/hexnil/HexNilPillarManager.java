@@ -231,7 +231,8 @@ public class HexNilPillarManager {
                 player.kill();
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                     double dist = p.distanceToSqr(player.getX(), player.getY(), player.getZ());
-                    if (dist < AbnormalitiesConfig.HN_SHAKE_RANGE.get() * AbnormalitiesConfig.HN_SHAKE_RANGE.get()) {
+                    long range2 = AbnormalitiesConfig.HN_SHAKE_RANGE.get();
+                    if (dist < (double) range2 * range2) {
                         if (AbnormalitiesConfig.HN_SHAKE_ENABLED.get()) com.abnormalities.hexnil.ScreenShakeManager.sendShake(p, (float) AbnormalitiesConfig.HN_SHAKE_CRUSH.get().doubleValue(), 120);
                     }
                 }
