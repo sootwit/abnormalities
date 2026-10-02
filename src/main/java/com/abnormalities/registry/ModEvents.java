@@ -332,7 +332,7 @@ public class ModEvents {
             for (Player player : overworld.players()) {
                 if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.THE_MOTHER_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get()))) != 0) continue;
+                if (overworld.random.nextInt(Math.max(1, HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.THE_MOTHER_SPAWN_WEIGHT.get())))) != 0) continue;
                 boolean alreadyHasTheMother = false;
                 for (TheMotherEntity existing : overworld.getEntitiesOfClass(TheMotherEntity.class, player.getBoundingBox().inflate(256.0D))) {
                     if (existing.getTargetPlayer() == player && existing.isActive()) {
@@ -423,7 +423,7 @@ public class ModEvents {
         for (Player player : overworld.players()) {
             if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.SW_ENABLED.get()) continue;
-                if (overworld.random.nextInt(HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get()))) != 0) continue;
+                if (overworld.random.nextInt(Math.max(1, HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())))) != 0) continue;
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
             double sx = player.getX() + Math.cos(angle) * dist;
@@ -494,7 +494,7 @@ public class ModEvents {
                 if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
                 int nurWeight = peakAdjusted(AbnormalitiesConfig.NUR_SPAWN_WEIGHT.get());
                 if (player.level().dimension() == com.abnormalities.sign.SignDimension.LEVEL_KEY) nurWeight = Math.max(1, nurWeight / 2);
-                if (overworld.random.nextInt(HimTracker.weighted(nurWeight)) != 0) continue;
+                if (overworld.random.nextInt(Math.max(1, HimTracker.weighted(nurWeight))) != 0) continue;
             LOGGER.debug("[Events] nur spawn weight roll passed for {}", player.getName().getString());
             double angle = overworld.random.nextDouble() * Math.PI * 2;
             double dist = 35.0D + overworld.random.nextDouble() * 30.0D;

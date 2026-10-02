@@ -41,6 +41,13 @@ public class FriendEntity extends Mob {
     private static final TicketType<FriendEntity> FRIEND_TICKET = TicketType.create("abnormalities_friend", Comparator.comparingInt(System::identityHashCode), 0);
     private static final TicketType<FriendEntity> FRIEND_ENTITY_TICKET = TicketType.create("abnormalities_friend_e", Comparator.comparingInt(System::identityHashCode), 0);
     public static final java.util.Set<UUID> POSSESSED_LOGIN_FIX = new java.util.HashSet<>();
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof net.minecraft.server.level.ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        POSSESSED_LOGIN_FIX.clear();
+    }
     private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.STRING);

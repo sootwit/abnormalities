@@ -27,6 +27,7 @@ public class ThunderToPlayerEvent extends AbstractHorrorEvent {
     }
 
     public static void forceThunder(ServerPlayer player) {
+        if (!AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.get()) return;
         strike(player);
     }
 

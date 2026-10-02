@@ -595,6 +595,12 @@ public class TheMotherEntity extends Mob {
         if (tag.contains("RequestedItemId")) {
             this.requestedItemId = new ResourceLocation(tag.getString("RequestedItemId"));
             this.requestedItem = BuiltInRegistries.ITEM.get(this.requestedItemId);
+            if (this.requestedItem == null || this.requestedItem == net.minecraft.world.item.Items.AIR) {
+                this.hasFailed = true;
+                this.entityData.set(DATA_ACTIVE, false);
+                this.discard();
+                return;
+            }
             this.entityData.set(DATA_REQUEST_NAME, new ItemStack(this.requestedItem).getHoverName().getString());
         }
         this.timerTicks = tag.getInt("TimerTicks");
