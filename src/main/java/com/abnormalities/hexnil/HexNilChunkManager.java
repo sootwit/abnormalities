@@ -165,6 +165,7 @@ public class HexNilChunkManager {
         if (last != null && now - last < cooldown) return;
 
         int chance = AbnormalitiesConfig.HN_CHUNK_CHANCE.get();
+        if (chance < 1) chance = 1;
         if (player.level().random.nextInt(chance) != 0) return;
 
         playerCooldowns.put(player.getUUID(), now);

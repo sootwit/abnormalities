@@ -26,7 +26,9 @@ public class SegfaultPacket {
     }
 
     public static SegfaultPacket decode(FriendlyByteBuf buf) {
-        return new SegfaultPacket(buf.readByte(), buf.readInt());
+        int state = buf.readByte();
+        if (state < 0 || state > 4) state = STATE_STOP;
+        return new SegfaultPacket(state, buf.readInt());
     }
 
     public static void handle(SegfaultPacket msg, Supplier<NetworkEvent.Context> ctx) {

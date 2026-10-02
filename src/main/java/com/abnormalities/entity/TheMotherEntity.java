@@ -547,10 +547,12 @@ public class TheMotherEntity extends Mob {
             }
         }
 
-        var nearbyNurs = level().getEntitiesOfClass(NurEntity.class, this.getBoundingBox().inflate(128.0D));
-        for (NurEntity nur : nearbyNurs) {
-            if (nur.currentState != NurEntity.State.CHASING) {
-                nur.startChasing(victim);
+        if (com.abnormalities.config.AbnormalitiesConfig.NUR_ENABLED.get()) {
+            var nearbyNurs = level().getEntitiesOfClass(NurEntity.class, this.getBoundingBox().inflate(128.0D));
+            for (NurEntity nur : nearbyNurs) {
+                if (nur.currentState != NurEntity.State.CHASING) {
+                    nur.startChasing(victim);
+                }
             }
         }
 

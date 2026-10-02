@@ -267,6 +267,7 @@ public class ModEvents {
             task.ticksRemaining--;
             if (task.ticksRemaining > 0) continue;
             sit.remove();
+            if (!AbnormalitiesConfig.NUR_ENABLED.get()) continue;
             NurEntity nur = ModEntities.NUR.get().create(task.level);
             if (nur == null) continue;
             nur.moveTo(task.x, task.y, task.z, 0, 0);
@@ -659,6 +660,7 @@ public class ModEvents {
             }
         }
         if (!(killer instanceof ServerPlayer player)) return;
+        if (!AbnormalitiesConfig.SW_ENABLED.get()) return;
         if (event.getEntity().level().random.nextInt(100) >= AbnormalitiesConfig.SW_KILL_SPAWN_CHANCE.get()) return;
         LOGGER.info("[Events] skinwalker killed by {}, scheduling nur spawn", player.getName().getString());
         scheduleSkinwalkerSpawn(40, event.getEntity().getX(), event.getEntity().getY(), event.getEntity().getZ(),

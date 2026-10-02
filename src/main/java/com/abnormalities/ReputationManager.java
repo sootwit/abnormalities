@@ -118,7 +118,7 @@ public class ReputationManager {
                 REP.put(t.getUUID("u"), t.getInt("v"));
             }
             LOGGER.info("[ReputationManager] loaded {} entries", REP.size());
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.warn("[ReputationManager] failed to load rep data: {}", e.getMessage());
         }
     }

@@ -95,7 +95,8 @@ public class WhisperManager {
             () -> {
                 if (player.connection == null || !player.connection.isAcceptingMessages()) return;
                 for (int i = 0; i < count; i++) {
-                    int delay = interval * (i + 1);
+                    long delayLong = (long) interval * (i + 1);
+                    int delay = (int) Math.max(0, Math.min(Integer.MAX_VALUE - 1000, delayLong));
                     player.server.tell(new net.minecraft.server.TickTask(
                         player.server.getTickCount() + delay + i * 20,
                         () -> {
