@@ -39,6 +39,7 @@ public class FriendEntity extends Mob {
     private static final Logger LOGGER = LoggerFactory.getLogger("Abnormalities|Friend");
     private static final int CHAT_DELAY = 600;
     private static final TicketType<FriendEntity> FRIEND_TICKET = TicketType.create("abnormalities_friend", Comparator.comparingInt(System::identityHashCode), 0);
+    private static final TicketType<FriendEntity> FRIEND_ENTITY_TICKET = TicketType.create("abnormalities_friend_e", Comparator.comparingInt(System::identityHashCode), 0);
     private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET_UUID = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> DATA_CRASHING = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<String> DATA_SKIN = SynchedEntityData.defineId(FriendEntity.class, EntityDataSerializers.STRING);
@@ -277,11 +278,11 @@ public class FriendEntity extends Mob {
             }
             if (entityChunkChanged || needsChunkForce) {
                 if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
-                    sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+                    sl.getChunkSource().removeRegionTicket(FRIEND_ENTITY_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
                 }
                 forcedEntityChunk = entityChunk;
                 if (level() instanceof ServerLevel sl) {
-                    sl.getChunkSource().addRegionTicket(FRIEND_TICKET, new ChunkPos(entityChunk), 2, this);
+                    sl.getChunkSource().addRegionTicket(FRIEND_ENTITY_TICKET, new ChunkPos(entityChunk), 2, this);
                 }
             }
         } else {
@@ -290,7 +291,7 @@ public class FriendEntity extends Mob {
                 forcedChunk = null;
             }
             if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
-                sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+                sl.getChunkSource().removeRegionTicket(FRIEND_ENTITY_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
                 forcedEntityChunk = null;
             }
         }
@@ -578,7 +579,7 @@ public class FriendEntity extends Mob {
             forcedChunk = null;
         }
         if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
-            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+            sl.getChunkSource().removeRegionTicket(FRIEND_ENTITY_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
             forcedEntityChunk = null;
         }
         super.remove(reason);
@@ -595,7 +596,7 @@ public class FriendEntity extends Mob {
             forcedChunk = null;
         }
         if (forcedEntityChunk != null && level() instanceof ServerLevel sl) {
-            sl.getChunkSource().removeRegionTicket(FRIEND_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
+            sl.getChunkSource().removeRegionTicket(FRIEND_ENTITY_TICKET, new ChunkPos(forcedEntityChunk), 2, this);
             forcedEntityChunk = null;
         }
         if (targetPlayer != null && targetPlayer.isAlive() && !level().isClientSide && !possessionActive) {

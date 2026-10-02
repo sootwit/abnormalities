@@ -100,7 +100,9 @@ public class ReputationManager {
             dataFile.getParentFile().mkdirs();
             NbtIo.write(tag, dataFile);
             LOGGER.debug("[ReputationManager] saved {} entries", REP.size());
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.warn("[ReputationManager] failed to save rep data: {}", e.getMessage());
+        }
     }
 
     private static void load() {
@@ -115,7 +117,9 @@ public class ReputationManager {
                 REP.put(t.getUUID("u"), t.getInt("v"));
             }
             LOGGER.info("[ReputationManager] loaded {} entries", REP.size());
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            LOGGER.warn("[ReputationManager] failed to load rep data: {}", e.getMessage());
+        }
     }
 
     @SubscribeEvent

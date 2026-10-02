@@ -109,6 +109,10 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
                     AbnormalitiesConfig.SIGN_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_SHAKE_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -199,6 +203,10 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
                     AbnormalitiesConfig.SIGN_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_SHAKE_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 

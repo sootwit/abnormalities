@@ -42,19 +42,19 @@ public class WhisperManager {
     );
 
     public static void sendWhisper(ServerPlayer player, String text) {
-        if (player.connection == null) return;
+        if (player == null || player.connection == null) return;
         LOGGER.debug("[WhisperManager] whisper to {}: {}", player.getName().getString(), text);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
             Component.literal(text).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), false));
     }
 
     public static void sendActionBar(ServerPlayer player, String text, ChatFormatting color) {
-        if (player.connection == null) return;
+        if (player == null || player.connection == null) return;
         player.displayClientMessage(Component.literal(text).withStyle(color), true);
     }
 
     public static void sendPositionedSound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, double x, double y, double z, float vol, float pitch) {
-        if (player.connection == null) return;
+        if (player == null || player.connection == null) return;
         LOGGER.debug("[WhisperManager] positioned sound to {} at {} {} {} vol={} pitch={}", player.getName().getString(), x, y, z, vol, pitch);
         player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
             net.minecraft.core.Holder.direct(sound), SoundSource.MASTER, x, y, z, vol, pitch, 0));

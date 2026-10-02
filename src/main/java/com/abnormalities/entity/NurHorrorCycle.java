@@ -65,15 +65,15 @@ public class NurHorrorCycle {
         if (playerNurs.isEmpty()) return;
 
         long realGameTime = overworld.getGameTime();
-        for (var entry : playerNurs.entrySet()) {
-            ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(entry.getKey());
+        for (UUID pid : Set.copyOf(playerNurs.keySet())) {
+            ServerPlayer p = overworld.getServer().getPlayerList().getPlayer(pid);
             if (p == null || p.connection == null) continue;
-            Long start = chaseStart.get(entry.getKey());
-            Long orig = originalDayTime.get(entry.getKey());
+            Long start = chaseStart.get(pid);
+            Long orig = originalDayTime.get(pid);
             if (start == null || orig == null) {
-                playerNurs.remove(entry.getKey());
-                chaseStart.remove(entry.getKey());
-                originalDayTime.remove(entry.getKey());
+                playerNurs.remove(pid);
+                chaseStart.remove(pid);
+                originalDayTime.remove(pid);
                 if (p.connection != null)
                     p.connection.send(new ClientboundSetTimePacket(overworld.getGameTime(), overworld.getDayTime(), true));
                 continue;

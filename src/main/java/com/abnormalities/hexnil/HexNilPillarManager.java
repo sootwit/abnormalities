@@ -228,8 +228,13 @@ public class HexNilPillarManager {
                 }
             } else if (near) {
                 player.hurt(level.damageSources().generic(), damageAmount);
-                net.minecraft.world.phys.Vec3 knock = player.position().subtract(target.getX() + 0.5, player.getY(), target.getZ() + 0.5).normalize().scale(1.5);
-                player.push(knock.x, 0.5, knock.z);
+                net.minecraft.world.phys.Vec3 offset = player.position().subtract(target.getX() + 0.5, player.getY(), target.getZ() + 0.5);
+                if (offset.lengthSqr() > 0.001) {
+                    net.minecraft.world.phys.Vec3 knock = offset.normalize().scale(1.5);
+                    player.push(knock.x, 0.5, knock.z);
+                } else {
+                    player.push(0, 0.5, 0);
+                }
             }
         }
     }

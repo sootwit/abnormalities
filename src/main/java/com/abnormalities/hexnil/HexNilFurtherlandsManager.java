@@ -25,6 +25,15 @@ public class HexNilFurtherlandsManager {
     };
     private static int chunksGeneratedThisSession = 0;
 
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        GENERATED_CHUNKS.clear();
+        lastFurtherlands = 0;
+        chunksGeneratedThisSession = 0;
+    }
+
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;

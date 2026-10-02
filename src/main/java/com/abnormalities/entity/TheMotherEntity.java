@@ -299,7 +299,10 @@ public class TheMotherEntity extends Mob {
             if (targetUUID != null && level().getServer() != null) {
                 targetPlayer = level().getServer().getPlayerList().getPlayer(targetUUID);
             }
-            if (targetPlayer == null) return;
+            if (targetPlayer == null) {
+                discard();
+                return;
+            }
         }
 
         timerTicks--;
@@ -531,14 +534,16 @@ public class TheMotherEntity extends Mob {
             double sz = this.getZ() + Math.sin(angle) * dist;
             int sy = serverLevel.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
 
-            NurEntity nur = com.abnormalities.registry.ModEntities.NUR.get().create(serverLevel);
-            if (nur != null) {
-                nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
-                serverLevel.addFreshEntity(nur);
-                nur.startChasing(victim);
-                int ncx = ((int) Math.floor(sx)) >> 4;
-                int ncz = ((int) Math.floor(sz)) >> 4;
-                com.abnormalities.registry.ModEvents.registerNurFailureChunk(serverLevel, nur.getUUID(), ncx, ncz);
+            if (com.abnormalities.config.AbnormalitiesConfig.NUR_ENABLED.get()) {
+                NurEntity nur = com.abnormalities.registry.ModEntities.NUR.get().create(serverLevel);
+                if (nur != null) {
+                    nur.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
+                    serverLevel.addFreshEntity(nur);
+                    nur.startChasing(victim);
+                    int ncx = ((int) Math.floor(sx)) >> 4;
+                    int ncz = ((int) Math.floor(sz)) >> 4;
+                    com.abnormalities.registry.ModEvents.registerNurFailureChunk(serverLevel, nur.getUUID(), ncx, ncz);
+                }
             }
         }
 

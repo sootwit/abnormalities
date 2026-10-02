@@ -23,6 +23,14 @@ public class HexNilFarlandsManager {
         @Override protected boolean removeEldestEntry(Map.Entry<Long, Long> eldest) { return size() > 20; }
     };
 
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        GENERATED_CHUNKS.clear();
+        lastFarlands = 0;
+    }
+
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
