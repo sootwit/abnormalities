@@ -593,8 +593,15 @@ public class TheMotherEntity extends Mob {
             }
         }
         if (tag.contains("RequestedItemId")) {
-            this.requestedItemId = new ResourceLocation(tag.getString("RequestedItemId"));
-            this.requestedItem = BuiltInRegistries.ITEM.get(this.requestedItemId);
+            try {
+                this.requestedItemId = new ResourceLocation(tag.getString("RequestedItemId"));
+                this.requestedItem = BuiltInRegistries.ITEM.get(this.requestedItemId);
+            } catch (Exception e) {
+                this.hasFailed = true;
+                this.entityData.set(DATA_ACTIVE, false);
+                this.discard();
+                return;
+            }
             if (this.requestedItem == null || this.requestedItem == net.minecraft.world.item.Items.AIR) {
                 this.hasFailed = true;
                 this.entityData.set(DATA_ACTIVE, false);

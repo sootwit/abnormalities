@@ -109,7 +109,12 @@ public class HorrorEventPool {
         LOGGER.info("[EventPool] firing {} for {}", event.getName(), player.getName().getString());
         setCooldown(player, event);
         if (event.allowsOngoing()) setOngoing(player, event);
-        event.execute(player);
+        try {
+            event.execute(player);
+        } catch (Exception e) {
+            LOGGER.error("[EventPool] event {} threw for {}", event.getName(), player.getName().getString(), e);
+            if (event.allowsOngoing()) clearOngoing(player);
+        }
     }
 
     @SubscribeEvent

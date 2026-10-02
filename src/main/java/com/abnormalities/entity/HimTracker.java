@@ -144,6 +144,7 @@ public class HimTracker {
         totalKills = 0;
         bossKills = 0;
         activeBosses = 0;
+        pendingBoss = false;
         dataFile = null;
     }
 }

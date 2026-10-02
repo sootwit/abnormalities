@@ -4,6 +4,7 @@ import com.abnormalities.config.AbnormalitiesConfig;
 import com.abnormalities.registry.ModEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -86,5 +87,13 @@ public class BedMemoryManager {
         UUID uuid = event.getEntity().getUUID();
         KNOWN_BEDS.remove(uuid);
         REPEAT_COUNT.remove(uuid);
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != net.minecraft.world.level.Level.OVERWORLD) return;
+        KNOWN_BEDS.clear();
+        REPEAT_COUNT.clear();
     }
 }
