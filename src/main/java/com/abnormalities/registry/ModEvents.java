@@ -228,6 +228,19 @@ public class ModEvents {
     }
 
     @SubscribeEvent
+    public static void onWorldUnload(net.minecraftforge.event.level.LevelEvent.Unload event) {
+        if (!(event.getLevel() instanceof ServerLevel sl)) return;
+        if (sl.dimension() != Level.OVERWORLD) return;
+        PENDING_SPAWNS.clear();
+        PENDING_SKINWALKER_SPAWNS.clear();
+        PENDING_SIGN_SPAWNS.clear();
+        SW_CHUNKS.clear();
+        THE_MOTHER_CHUNKS.clear();
+        NUR_FAILURE_CHUNKS.clear();
+        REP_LOOK_TICKS.clear();
+    }
+
+    @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         var server = ServerLifecycleHooks.getCurrentServer();

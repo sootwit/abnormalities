@@ -160,6 +160,7 @@ public class ReputationManager {
     @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() != null) {
+            lastSaveTime = 0;
             save();
         }
     }

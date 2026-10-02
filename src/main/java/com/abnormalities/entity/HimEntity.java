@@ -433,6 +433,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         tag.putBoolean("Summoned", this.summoned);
         tag.putBoolean("Punished", this.punished);
         tag.putBoolean("LineSent", this.lineSent);
+        tag.putBoolean("AchSent", this.achSent);
     }
 
     @Override
@@ -442,6 +443,7 @@ public class HimEntity extends PathfinderMob implements RangedAttackMob, GeoEnti
         this.summoned = tag.getBoolean("Summoned");
         this.punished = tag.getBoolean("Punished");
         this.lineSent = tag.getBoolean("LineSent");
+        this.achSent = tag.getBoolean("AchSent");
     }
 
     @Override
