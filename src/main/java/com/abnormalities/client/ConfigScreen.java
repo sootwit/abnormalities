@@ -123,6 +123,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_SHAKE_ENABLED.set(false);
                     AbnormalitiesConfig.SPEC.save();
                 }));
 
@@ -151,6 +152,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_PILLARS_ENABLED.set(false);
                     AbnormalitiesConfig.HN_CHUNK_ENABLED.set(false);
                     AbnormalitiesConfig.HN_FURTHERLANDS_ENABLED.set(false);
+                    AbnormalitiesConfig.HN_SHAKE_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
                     AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
