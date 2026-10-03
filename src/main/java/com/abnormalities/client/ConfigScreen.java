@@ -23,6 +23,7 @@ public class ConfigScreen extends Screen {
 
     private final List<PresetEntry> presets = new ArrayList<>();
     private int scrollOffset = 0;
+    private float scrollOffsetF = 0;
     private int visibleRows = VISIBLE_ROWS;
     private int listBottom = 36 + VISIBLE_ROWS * (CELL_H + ROW_H);
 
@@ -213,7 +214,6 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.DEPTHS_ENABLED.set(false);
                     AbnormalitiesConfig.DISTANT_ENABLED.set(false);
-                    AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(false);
                     AbnormalitiesConfig.SIGN_ENABLED.set(false);
@@ -273,8 +273,6 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.DISTANT_ENABLED.set(true);
                     AbnormalitiesConfig.HORROR_EVENTS_ENABLED.set(true);
                     AbnormalitiesConfig.SIGN_ENABLED.set(true);
-                    AbnormalitiesConfig.NUR_WATER.set(true);
-                    AbnormalitiesConfig.NUR_LAVA.set(true);
                     AbnormalitiesConfig.NUR_BREAK_DROPS.set(false);
                     AbnormalitiesConfig.THE_MOTHER_STATIC_WAIT.set(false);
                     AbnormalitiesConfig.THE_MOTHER_STATIC_AMOUNT.set(false);
@@ -293,6 +291,7 @@ public class ConfigScreen extends Screen {
         visibleRows = Math.max(1, Math.min(VISIBLE_ROWS, available / (CELL_H + ROW_H)));
         listBottom = 36 + visibleRows * (CELL_H + ROW_H);
         scrollOffset = Math.min(scrollOffset, Math.max(0, presets.size() - visibleRows));
+        scrollOffsetF = scrollOffset;
         addRenderableWidget(Button.builder(
                 Component.literal("Done"),
                 button -> Minecraft.getInstance().setScreen(null)
@@ -304,6 +303,10 @@ public class ConfigScreen extends Screen {
         renderBackground(gfx);
         super.render(gfx, mx, my, partial);
 
+        float target = scrollOffset;
+        scrollOffsetF += (target - scrollOffsetF) * 0.3f;
+        if (Math.abs(target - scrollOffsetF) < 0.01f) scrollOffsetF = target;
+
         int cx = width / 2;
         gfx.drawCenteredString(font, Component.literal("Abnormalities Config").withStyle(ChatFormatting.BOLD), cx, 8, 0xFFFFFF);
         gfx.drawCenteredString(font, Component.literal("Click a preset to apply it").withStyle(ChatFormatting.GRAY), cx, 20, 0xAAAAAA);
@@ -312,11 +315,12 @@ public class ConfigScreen extends Screen {
         int startX = MARGIN;
         int startY = 36;
 
-        int maxScroll = Math.max(0, presets.size() - visibleRows);
+        int firstIdx = Math.max(0, (int) Math.floor(scrollOffsetF) - 1);
+        int lastIdx = Math.min(presets.size(), (int) Math.ceil(scrollOffsetF + visibleRows) + 1);
 
-        for (int i = scrollOffset; i < scrollOffset + visibleRows && i < presets.size(); i++) {
+        for (int i = firstIdx; i < lastIdx; i++) {
             var preset = presets.get(i);
-            int y = startY + (i - scrollOffset) * (CELL_H + ROW_H);
+            int y = (int) (startY + (i - scrollOffsetF) * (CELL_H + ROW_H));
 
             boolean hover = mx >= startX && mx <= startX + gridW && my >= y && my <= y + CELL_H;
 
@@ -328,6 +332,7 @@ public class ConfigScreen extends Screen {
             gfx.drawString(font, Component.literal(preset.description).withStyle(ChatFormatting.DARK_GRAY), startX + 8, y + TITLE_H + 2, 0x888888);
         }
 
+        int maxScroll = Math.max(0, presets.size() - visibleRows);
         if (maxScroll > 0) {
             String scrollHint = "\u00a7e\u25b2/\u25bc \u00a7fscroll to see more";
             gfx.drawCenteredString(font, Component.literal(scrollHint), cx, this.height - 14, 0xAAAAAA);
@@ -338,7 +343,7 @@ public class ConfigScreen extends Screen {
     public boolean mouseScrolled(double mx, double my, double delta) {
         int maxScroll = Math.max(0, presets.size() - visibleRows);
         if (maxScroll > 0) {
-            scrollOffset = (int) Mth.clamp(scrollOffset - (int) Math.signum(delta), 0, maxScroll);
+            scrollOffset = (int) Mth.clamp(scrollOffset - Math.signum(delta), 0, maxScroll);
             return true;
         }
         return super.mouseScrolled(mx, my, delta);
@@ -353,7 +358,7 @@ public class ConfigScreen extends Screen {
         if (mx < startX || mx > startX + gridW) return super.mouseClicked(mx, my, btn);
         if (my < startY || my > listBottom) return super.mouseClicked(mx, my, btn);
 
-        int row = (int) ((my - startY) / (CELL_H + ROW_H)) + scrollOffset;
+        int row = (int) ((my - startY) / (CELL_H + ROW_H)) + (int) scrollOffsetF;
         if (row >= 0 && row < presets.size()) {
             var preset = presets.get(row);
             net.minecraft.client.Minecraft.getInstance().getSoundManager().play(

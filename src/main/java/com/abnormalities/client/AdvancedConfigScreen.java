@@ -24,6 +24,7 @@ public class AdvancedConfigScreen extends Screen {
     private final List<ToggleEntry> entries = new ArrayList<>();
     private final Map<String, List<Integer>> sections = new LinkedHashMap<>();
     private int scrollOffset = 0;
+    private float scrollOffsetF = 0;
 
     private static class ToggleEntry {
         String label;
@@ -127,6 +128,10 @@ public class AdvancedConfigScreen extends Screen {
         renderBackground(gfx);
         super.render(gfx, mx, my, partial);
 
+        float target = scrollOffset;
+        scrollOffsetF += (target - scrollOffsetF) * 0.3f;
+        if (Math.abs(target - scrollOffsetF) < 0.01f) scrollOffsetF = target;
+
         int cx = width / 2;
         gfx.drawCenteredString(font, Component.literal("Abnormalities Advanced Config").withStyle(ChatFormatting.BOLD), cx, 8, 0xFFFFFF);
 
@@ -138,16 +143,16 @@ public class AdvancedConfigScreen extends Screen {
         int visibleIdx = 0;
 
         for (var sectionEntry : sections.entrySet()) {
-            if (visibleIdx >= scrollOffset && visibleIdx < scrollOffset + VISIBLE_ROWS) {
-                int y = startY + (visibleIdx - scrollOffset) * ROW_H;
+            int y = (int) (startY + (visibleIdx - scrollOffsetF) * ROW_H);
+            if (y + ROW_H >= startY && y < startY + VISIBLE_ROWS * ROW_H) {
                 gfx.drawString(font, Component.literal(sectionEntry.getKey()).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD), startX, y, 0xFFFFFF);
             }
             visibleIdx++;
 
             for (int idx : sectionEntry.getValue()) {
-                if (visibleIdx >= scrollOffset && visibleIdx < scrollOffset + VISIBLE_ROWS) {
+                y = (int) (startY + (visibleIdx - scrollOffsetF) * ROW_H);
+                if (y + CELL_H >= startY && y < startY + VISIBLE_ROWS * ROW_H) {
                     var entry = entries.get(idx);
-                    int y = startY + (visibleIdx - scrollOffset) * ROW_H;
 
                     boolean hover = mx >= startX && mx <= startX + gridW && my >= y && my <= y + CELL_H;
                     boolean enabled = entry.config != null && entry.config.get();
@@ -196,7 +201,7 @@ public class AdvancedConfigScreen extends Screen {
         if (mx < startX || mx > startX + gridW) return super.mouseClicked(mx, my, btn);
         if (my < startY || my > startY + VISIBLE_ROWS * ROW_H) return super.mouseClicked(mx, my, btn);
 
-        int row = (int) ((my - startY) / ROW_H) + scrollOffset;
+        int row = (int) ((my - startY) / ROW_H) + (int) scrollOffsetF;
 
         int visibleIdx = 0;
         for (var sectionEntry : sections.entrySet()) {
