@@ -373,11 +373,6 @@ public class NurEntity extends Mob {
 
     private void tickChasing() {
         if (currentTarget == null || currentTarget.isRemoved() || !currentTarget.isAlive()) { discard(); return; }
-        if (currentTarget.isCreative() || currentTarget.isSpectator()) {
-            if (chasedPlayerId != null) NurHorrorCycle.stop(chasedPlayerId, this.getUUID());
-            discard();
-            return;
-        }
         if (soundTick < 0) soundTick = 0;
         if (soundTick >= 0 && soundTick < 60) {
             soundTick++;

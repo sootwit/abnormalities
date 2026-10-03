@@ -172,8 +172,8 @@ public class AdvancedConfigScreen extends Screen {
         }
 
         if (maxScroll > 0) {
-            String scrollHint = "\u00a78\u25b2/\u25bc \u00a77scroll";
-            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, height - 24, 0x444444);
+            String scrollHint = "\u00a7e\u25b2/\u25bc \u00a7fscroll to see more";
+            gfx.drawCenteredString(font, Component.literal(scrollHint), cx, height - 26, 0xAAAAAA);
         }
     }
 
