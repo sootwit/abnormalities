@@ -527,7 +527,7 @@ public class ModEvents {
         if (player.tickCount % 2 != 0) return;
         var entities = level.getEntitiesOfClass(NurEntity.class, player.getBoundingBox().inflate(16.0D));
         for (NurEntity nur : entities) {
-            if (nur.currentState == NurEntity.State.CHASING || nur.currentState == NurEntity.State.SMART) continue;
+            if (nur.currentState == NurEntity.State.CHASING) continue;
             if ((isPlayerLookingAtEntity(player, nur) || isCursorCloseToHitbox(player, nur))) {
                 LOGGER.info("[Events] player {} triggered nur chase by looking at it", player.getName().getString());
                 nur.startChasing(player);

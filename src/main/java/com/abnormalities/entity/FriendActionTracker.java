@@ -205,11 +205,9 @@ public class FriendActionTracker {
         if (buf == null || buf.isEmpty()) return null;
         int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
-        int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
-        int elapsed = Math.max(0, spawnTick - followTicks);
         double[][] arr = buf.toArray(new double[0][]);
-        int target = Math.min(elapsed, arr.length - 1);
-        target = Math.max(0, target);
+        int target = arr.length - 1 - followTicks;
+        target = Math.max(0, Math.min(target, arr.length - 1));
         double[] pt = arr[target];
         LOGGER.debug("[FriendActionTracker] delayed position for {} buffer={} target={}", player.getName().getString(), buf.size(), target);
         return new double[]{pt[0], pt[1], pt[2], pt[3], pt[4]};
@@ -221,11 +219,9 @@ public class FriendActionTracker {
         if (buf == null || buf.isEmpty()) return null;
         int followTicks = FOLLOW_TIMES.getOrDefault(uuid, 140);
         if (buf.size() < followTicks) return null;
-        int spawnTick = SPAWN_TICKS.getOrDefault(uuid, 0);
-        int elapsed = Math.max(0, spawnTick - followTicks);
         double[][] arr = buf.toArray(new double[0][]);
-        int target = Math.min(elapsed, arr.length - 1);
-        target = Math.max(0, target);
+        int target = arr.length - 1 - followTicks;
+        target = Math.max(0, Math.min(target, arr.length - 1));
         double[] pt = arr[target];
         return new double[]{pt[6], pt[7]};
     }
