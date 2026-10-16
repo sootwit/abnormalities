@@ -456,49 +456,23 @@ public class FriendEntity extends Mob {
             return;
         }
 
-        double[] target;
-        if (currentPathIndex >= pathPoints.size()) {
-            target = FriendActionTracker.getDelayedPosition(targetPlayer);
-            if (target == null) {
-                if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && pathDist > 32) {
-                    this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
-                    this.setNoGravity(true);
-                    this.noPhysics = true;
-                }
-                runUndoLoop();
-                return;
+        double[] target = FriendActionTracker.getDelayedPosition(targetPlayer);
+        if (target == null) {
+            if (targetPlayer != null && targetPlayer.isAlive() && !targetPlayer.isRemoved() && pathDist > 32) {
+                this.teleportTo(targetPlayer.getX(), targetPlayer.getY(), targetPlayer.getZ());
+                this.setNoGravity(true);
+                this.noPhysics = true;
             }
-            LOGGER.debug("[Friend] path complete, following delayed position");
-            this.teleportTo(target[0], target[1], target[2]);
-            this.setYRot((float) target[3]);
-            this.setXRot((float) target[4]);
-            this.yHeadRot = this.getYRot();
-            this.yBodyRot = this.getYRot();
-            this.setNoGravity(true);
-            this.noPhysics = true;
             runUndoLoop();
             return;
         }
-        target = pathPoints.get(currentPathIndex);
-        double off = Math.sqrt(
-            (target[0] - this.getX()) * (target[0] - this.getX()) +
-            (target[1] - this.getY()) * (target[1] - this.getY()) +
-            (target[2] - this.getZ()) * (target[2] - this.getZ())
-        );
-
-        if (off > 10) {
-            this.teleportTo(target[0], target[1], target[2]);
-        } else {
-            this.setPos(target[0], target[1], target[2]);
-        }
-        this.setNoGravity(true);
-        this.noPhysics = true;
+        this.teleportTo(target[0], target[1], target[2]);
         this.setYRot((float) target[3]);
         this.setXRot((float) target[4]);
         this.yHeadRot = this.getYRot();
         this.yBodyRot = this.getYRot();
-        if (currentPathIndex < pathPoints.size()) currentPathIndex++;
-
+        this.setNoGravity(true);
+        this.noPhysics = true;
         runUndoLoop();
     }
 
