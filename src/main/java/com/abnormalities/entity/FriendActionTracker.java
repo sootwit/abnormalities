@@ -121,11 +121,13 @@ public class FriendActionTracker {
             int totalDelay = spawnAt + FOLLOW_TIMES.getOrDefault(uuid, 140);
 
             if (!MESSAGES_SENT.getOrDefault(uuid, false) && timer >= spawnAt) {
-                var server = ServerLifecycleHooks.getCurrentServer();
-                if (server != null) {
-                    for (var p : server.getPlayerList().getPlayers()) {
-                        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                                Component.literal("<" + player.getName().getString() + "> run").withStyle(ChatFormatting.WHITE), false));
+                if (new Random().nextInt(2) == 0) {
+                    var server = ServerLifecycleHooks.getCurrentServer();
+                    if (server != null) {
+                        for (var p : server.getPlayerList().getPlayers()) {
+                            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                    Component.literal("<" + player.getName().getString() + "> run").withStyle(ChatFormatting.WHITE), false));
+                        }
                     }
                 }
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -188,11 +190,13 @@ public class FriendActionTracker {
         SPAWN_TICKS.put(uuid, 0);
         LOGGER.info("[FriendActionTracker] forced spawn for {}", player.getName().getString());
         if (player instanceof ServerPlayer) {
-            var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
-            if (server != null) {
-                for (var p : server.getPlayerList().getPlayers()) {
-                            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
-                                    net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+            if (new Random().nextInt(2) == 0) {
+                var server = net.minecraftforge.server.ServerLifecycleHooks.getCurrentServer();
+                if (server != null) {
+                    for (var p : server.getPlayerList().getPlayers()) {
+                                p.connection.send(new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(
+                                        net.minecraft.network.chat.Component.literal("<" + player.getName().getString() + "> run").withStyle(net.minecraft.ChatFormatting.WHITE), false));
+                    }
                 }
             }
         }
