@@ -59,10 +59,18 @@ public class NoIdeaEvent extends AbstractHorrorEvent {
         AbnormalitiesMod.CHANNEL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> player), new NoIdeaPacket(1, 0));
     }
 
+    private static boolean anyActive() {
+        return !ACTIVE.isEmpty();
+    }
+
+    public static boolean isFrozen() {
+        return anyActive();
+    }
+
     @SubscribeEvent
     public static void onWorlTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (ACTIVE.isEmpty()) return;
+        
         MinecraftServer srv = ServerLifecycleHooks.getCurrentServer();
         if (srv == null) return;
         ServerLevel overworld = srv.getLevel(Level.OVERWORLD);
@@ -72,15 +80,37 @@ public class NoIdeaEvent extends AbstractHorrorEvent {
         for (ServerPlayer sp : new java.util.ArrayList<>(srv.getPlayerList().getPlayers())) {
             UUID uid = sp.getUUID();
             Long end = ACTIVE.get(uid);
-            if (end == null) continue;
-            if (gt >= end) {
+            if (end != null && gt >= end) {
                 ACTIVE.remove(uid);
                 AbnormalitiesMod.CHANNEL.send(net.minecraftforge.network.PacketDistributor.PLAYER.with(() -> sp), new NoIdeaPacket(1, 0));
-                continue;
             }
+        }
+
+        if (ACTIVE.isEmpty()) return;
+        for (ServerPlayer sp : srv.getPlayerList().getPlayers()) {
             sp.setDeltaMovement(0.0, 0.0, 0.0);
             sp.hasImpulse = false;
         }
+    }
+
+    @SubscribeEvent
+    public static void onLeftClick(net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getEntity() instanceof ServerPlayer && anyActive()) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity() instanceof ServerPlayer && anyActive()) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onRightClickItem(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem event) {
+        if (event.getEntity() instanceof ServerPlayer && anyActive()) event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract event) {
+        if (event.getEntity() instanceof ServerPlayer && anyActive()) event.setCanceled(true);
     }
 
     @SubscribeEvent
