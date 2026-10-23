@@ -79,6 +79,7 @@ public class AdvancedConfigScreen extends Screen {
 
         addToggle("b3drock", AbnormalitiesConfig.B3DROCK_ENABLED, "Bedrock cube event");
         addToggle("thunder_to_player", AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED, "Lightning strike regardless of weather");
+        addToggle("no_idea", AbnormalitiesConfig.NO_IDEA_ENABLED, "Total blackout and freeze, audio burst, then jumpscare image");
         addToggle("f4ded", AbnormalitiesConfig.F4DED_ENABLED, "Block texture desync flicker");
         addToggle("depths", AbnormalitiesConfig.DEPTHS_ENABLED, "Water horror");
         addToggle("distant", AbnormalitiesConfig.DISTANT_ENABLED, "Eyeless peripheral horror");

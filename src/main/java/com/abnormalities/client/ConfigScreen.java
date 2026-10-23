@@ -106,6 +106,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
                     AbnormalitiesConfig.APPARITION_ENABLED.set(false);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
+                    AbnormalitiesConfig.NO_IDEA_ENABLED.set(false);
                     AbnormalitiesConfig.F4DED_ENABLED.set(false);
                     AbnormalitiesConfig.L3NS_ENABLED.set(false);
                     AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
@@ -160,6 +161,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_SHAKE_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
+                    AbnormalitiesConfig.NO_IDEA_ENABLED.set(false);
                     AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
                     AbnormalitiesConfig.CURSED_HOUSE_ENABLED.set(false);
                     AbnormalitiesConfig.CURSED_BIOME_ENABLED.set(false);
@@ -206,6 +208,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.HN_ENABLED.set(false);
                     AbnormalitiesConfig.B3DROCK_ENABLED.set(false);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(false);
+                    AbnormalitiesConfig.NO_IDEA_ENABLED.set(false);
                     AbnormalitiesConfig.L3NS_ENABLED.set(false);
                     AbnormalitiesConfig.FAKE_ACH_ENABLED.set(false);
                     AbnormalitiesConfig.PEAK_DAY_ENABLED.set(false);
@@ -249,6 +252,7 @@ public class ConfigScreen extends Screen {
                     AbnormalitiesConfig.F4K3_ENABLED.set(true);
                     AbnormalitiesConfig.ANG3R_ENABLED.set(true);
                     AbnormalitiesConfig.THUNDER_TO_PLAYER_ENABLED.set(true);
+                    AbnormalitiesConfig.NO_IDEA_ENABLED.set(true);
                     AbnormalitiesConfig.L3NS_ENABLED.set(true);
                     AbnormalitiesConfig.NUR_BREAK_BLOCKS.set(true);
                     AbnormalitiesConfig.NUR_TOWER.set(true);

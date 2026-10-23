@@ -167,6 +167,12 @@ public class HorrorEventPool {
         clearOngoing(player);
     }
 
+    public static void clearAllOngoing() {
+        for (UUID uid : new ArrayList<>(ONGOING.keySet())) {
+            ONGOING.remove(uid);
+        }
+    }
+
     @SubscribeEvent
     public static void onPlayerLogout(net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer sp) {

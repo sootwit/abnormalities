@@ -100,6 +100,8 @@ public class AbnormalitiesConfig {
     public static final ForgeConfigSpec.BooleanValue FAKE_ACH_ENABLED;
     public static final ForgeConfigSpec.IntValue FAKE_ACH_COOLDOWN;
     public static final ForgeConfigSpec.BooleanValue THUNDER_TO_PLAYER_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue NO_IDEA_ENABLED;
+    public static final ForgeConfigSpec.IntValue NO_IDEA_DURATION;
     public static final ForgeConfigSpec.BooleanValue HIM_ENABLED;
     public static final ForgeConfigSpec.IntValue HIM_SPAWN_WEIGHT;
     public static final ForgeConfigSpec.IntValue HIM_REP_MAX;
@@ -349,6 +351,10 @@ public class AbnormalitiesConfig {
         b.pop();
         b.push("thunderToPlayer");
         THUNDER_TO_PLAYER_ENABLED = b.comment("enable thunder to player event (lightning strikes regardless of weather)").define("enabled", true);
+        b.pop();
+        b.push("noIdea");
+        NO_IDEA_ENABLED = b.comment("enable you have no idea event (total blackout, freeze, audio burst, jumpscare image)").define("enabled", true);
+        NO_IDEA_DURATION = b.comment("total event duration in ticks (image appears after the audio burst ends)").defineInRange("duration", 200, 40, 12000);
         b.pop();
         b.push("him");
         HIM_ENABLED = b.comment("enable him, the player-like survivor that bridges and towers").define("enabled", true);

@@ -108,6 +108,7 @@ public class AbnormalitiesMod {
         HorrorEventPool.register(new VoidEvent());
         HorrorEventPool.register(new AngerEvent());
         HorrorEventPool.register(new ThunderToPlayerEvent());
+        HorrorEventPool.register(new com.abnormalities.horror.NoIdeaEvent());
         MinecraftForge.EVENT_BUS.register(AngerEvent.class);
 
         CHANNEL.registerMessage(0, SegfaultPacket.class, SegfaultPacket::encode, SegfaultPacket::decode, SegfaultPacket::handle);
@@ -142,6 +143,9 @@ public class AbnormalitiesMod {
         CHANNEL.registerMessage(15, com.abnormalities.network.DistantFlashbackPacket.class,
                 com.abnormalities.network.DistantFlashbackPacket::encode, com.abnormalities.network.DistantFlashbackPacket::decode,
                 com.abnormalities.network.DistantFlashbackPacket::handle);
+        CHANNEL.registerMessage(16, com.abnormalities.network.NoIdeaPacket.class,
+                com.abnormalities.network.NoIdeaPacket::encode, com.abnormalities.network.NoIdeaPacket::decode,
+                com.abnormalities.network.NoIdeaPacket::handle);
 
     }
 }

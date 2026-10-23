@@ -47,4 +47,6 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "thump")));
     public static final RegistryObject<SoundEvent> LOWFREQ = SOUNDS.register("lowfreq",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "lowfreq")));
+    public static final RegistryObject<SoundEvent> NO_IDEA_SOUND = SOUNDS.register("youhavenoidea",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(AbnormalitiesMod.MODID, "youhavenoidea")));
 }

@@ -19,6 +19,15 @@
             }
         ]
     },
+    "youhavenoidea": {
+        "category": "master",
+        "sounds": [
+            {
+                "name": "abnormalities:youhavenoidea",
+                "stream": true
+            }
+        ]
+    },
     "friend_crash2": {
         "category": "master",
         "range": 64,
