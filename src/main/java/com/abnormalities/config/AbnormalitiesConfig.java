@@ -259,7 +259,7 @@ public class AbnormalitiesConfig {
         SW_SPAWN_WEIGHT = b.comment("higher = rarer skinwalker spawns").defineInRange("spawnWeight", 4000, 1, 100000);
         SW_APPROACH_SPEED = b.comment("speed multiplier at which skinwalkers approach player (1.0 = the disguised animal's own speed)").defineInRange("approachSpeed", 1.0, 0.2, 2.0);
         SW_DETECTION_RANGE = b.comment("range at which skinwalkers detect players").defineInRange("detectionRange", 16.0, 8.0, 32.0);
-        SW_TRANSFORM_TIME = b.comment("ticks within 2 blocks before transformation (240 = 12s)").defineInRange("transformTime", 240, 100, 600);
+        SW_TRANSFORM_TIME = b.comment("ticks within 2 blocks before transformation (80 = 4s)").defineInRange("transformTime", 80, 20, 600);
         SW_KILL_SPAWN_CHANCE = b.comment("percent chance to spawn nur on death").defineInRange("killSpawnChance", 75, 0, 100);
         b.pop();
         b.push("horror");

@@ -36,7 +36,11 @@ public class EscDisable {
         for (NurEntity nur : mc.level.getEntitiesOfClass(NurEntity.class, mc.player.getBoundingBox().inflate(256.0D))) {
             if (nur.isChasing()) { nurChasing = true; break; }
         }
-        if (!stargazed && !nurChasing) return;
+        boolean motherActive = false;
+        for (com.abnormalities.entity.TheMotherEntity mother : mc.level.getEntitiesOfClass(com.abnormalities.entity.TheMotherEntity.class, mc.player.getBoundingBox().inflate(128.0D))) {
+            if (mother.isActive()) { motherActive = true; break; }
+        }
+        if (!stargazed && !nurChasing && !motherActive) return;
         event.setCanceled(true);
         if (pauseField != null) {
             try {
