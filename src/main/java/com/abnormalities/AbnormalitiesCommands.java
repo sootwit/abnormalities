@@ -257,24 +257,14 @@ public class AbnormalitiesCommands {
             amount = Math.max(1, envCount);
         }
 
-        double angle = level.random.nextDouble() * Math.PI * 2;
-        double dist = 25.0D + level.random.nextDouble() * 20.0D;
-        double sx = player.getX() + Math.cos(angle) * dist;
-        double sz = player.getZ() + Math.sin(angle) * dist;
-        int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!level.getBlockState(spawnPos.below()).canOcclude()) {
+        double[] spot = com.abnormalities.registry.ModEvents.findSpawnSpot(level, player, 25.0D, 45.0D, 48, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        if (spot == null) {
             player.displayClientMessage(Component.literal("the mother couldn't find ground here").withStyle(ChatFormatting.GRAY), false);
             return;
         }
-        if (!level.getBlockState(spawnPos).canBeReplaced()) {
-            player.displayClientMessage(Component.literal("the mother couldn't fit here").withStyle(ChatFormatting.GRAY), false);
-            return;
-        }
-        if (level.getBlockState(spawnPos).liquid()) {
-            player.displayClientMessage(Component.literal("the mother won't spawn in water").withStyle(ChatFormatting.GRAY), false);
-            return;
-        }
+        double sx = spot[0];
+        double sy = spot[1];
+        double sz = spot[2];
 
         TheMotherEntity theMother = ModEntities.XYZ.get().create(level);
         if (theMother != null) {

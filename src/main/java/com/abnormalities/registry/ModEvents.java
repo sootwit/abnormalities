@@ -214,14 +214,11 @@ public class ModEvents {
         if (!AbnormalitiesConfig.HIM_ENABLED.get()) return false;
         LOGGER.info("[Events] forceHimSpawn for {} boss={}", player.getName().getString(), boss);
         ServerLevel overworld = (ServerLevel) player.level();
-        double angle = overworld.random.nextDouble() * Math.PI * 2;
-        double dist = 12.0D + overworld.random.nextDouble() * 14.0D;
-        double sx = player.getX() + Math.cos(angle) * dist;
-        double sz = player.getZ() + Math.sin(angle) * dist;
-        int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-        BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-        if (!overworld.getBlockState(spawnPos.below()).canOcclude()) { LOGGER.warn("[Events] forceHimSpawn failed for {}: no ground below", player.getName().getString()); return false; }
-        if (!overworld.getBlockState(spawnPos).canBeReplaced()) { LOGGER.warn("[Events] forceHimSpawn failed for {}: spawn pos blocked", player.getName().getString()); return false; }
+        double[] spot = findSpawnSpot(overworld, player, 12.0D, 26.0D, 24, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        if (spot == null) { LOGGER.warn("[Events] forceHimSpawn failed for {}: no valid spot in 24 tries", player.getName().getString()); return false; }
+        double sx = spot[0];
+        double sy = spot[1];
+        double sz = spot[2];
 
         HimEntity him = ModEntities.HIM.get().create(overworld);
         if (him == null) { LOGGER.warn("[Events] forceHimSpawn failed for {}: entity create returned null", player.getName().getString()); return false; }
@@ -229,6 +226,31 @@ public class ModEvents {
         him.moveTo(sx + 0.5, sy, sz + 0.5, 0, 0);
         overworld.addFreshEntity(him);
         return true;
+    }
+
+    public static double[] findSpawnSpot(ServerLevel level, Player anchor, double minDist, double maxDist, int attempts, boolean requireSky, int maxY, int maxAbove) {
+        for (int i = 0; i < attempts; i++) {
+            double angle = level.random.nextDouble() * Math.PI * 2;
+            double dist = minDist + level.random.nextDouble() * (maxDist - minDist);
+            double sx = anchor.getX() + Math.cos(angle) * dist;
+            double sz = anchor.getZ() + Math.sin(angle) * dist;
+            int sy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+            if (sy > maxY || sy < level.getMinBuildHeight() + 10) continue;
+            BlockPos airPos = null;
+            for (int dy = 1; dy >= 0; dy--) {
+                BlockPos p = BlockPos.containing(sx, sy + dy, sz);
+                var st = level.getBlockState(p);
+                if (level.getBlockState(p.below()).canOcclude() && st.canBeReplaced() && !st.liquid()) {
+                    airPos = p;
+                    break;
+                }
+            }
+            if (airPos == null) continue;
+            if (airPos.getY() > anchor.getY() + maxAbove) continue;
+            if (requireSky && !level.canSeeSky(airPos.above(20))) continue;
+            return new double[]{sx, airPos.getY(), sz};
+        }
+        return null;
     }
 
     @SubscribeEvent
@@ -273,9 +295,20 @@ public class ModEvents {
                 it.remove();
                 Player target = task.level.getServer().getPlayerList().getPlayer(task.playerUUID);
                 if (target == null) { LOGGER.debug("[Events] pending nur spawn: target offline, skipping"); continue; }
-                double sx = target.getX() + Math.cos(task.angle) * task.dist;
-                double sz = target.getZ() + Math.sin(task.angle) * task.dist;
-                int sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                double[] nspot = findSpawnSpot(task.level, target, 35.0D, 65.0D, 32, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                double sx;
+                double sz;
+                double sy;
+                if (nspot != null) {
+                    sx = nspot[0];
+                    sy = nspot[1];
+                    sz = nspot[2];
+                } else {
+                    double ang = task.level.random.nextDouble() * Math.PI * 2;
+                    sx = target.getX() + Math.cos(ang) * task.dist;
+                    sz = target.getZ() + Math.sin(ang) * task.dist;
+                    sy = task.level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
+                }
                 NurEntity nur = ModEntities.NUR.get().create(task.level);
                 if (nur == null) continue;
                 nur.moveTo(sx + 0.5, sy + 1, sz + 0.5, 0, 0);
@@ -346,20 +379,13 @@ public class ModEvents {
                 if (alreadyHasTheMother) continue;
 
                 LOGGER.debug("[Events] theMother spawn weight roll passed for {}", player.getName().getString());
-                double angle = overworld.random.nextDouble() * Math.PI * 2;
-                double dist = 45.0D + overworld.random.nextDouble() * 35.0D;
-                double sx = player.getX() + Math.cos(angle) * dist;
-                double sz = player.getZ() + Math.sin(angle) * dist;
-                int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-                if (sy > 200 || sy < overworld.getMinBuildHeight() + 10) continue;
-                BlockPos spawnPos = BlockPos.containing(sx, sy, sz);
-                if (!overworld.getBlockState(spawnPos).canBeReplaced() || overworld.getBlockState(spawnPos).liquid()) continue;
-                if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
-                if (spawnPos.getY() > (int) player.getY() + 100) continue;
-                if (!overworld.canSeeSky(spawnPos.above(20))) continue;
-                sy = spawnPos.getY();
+                double[] spot = findSpawnSpot(overworld, player, 45.0D, 80.0D, 32, true, 200, 100);
+                if (spot == null) { LOGGER.debug("[Events] theMother found no valid spot for {} in 32 tries", player.getName().getString()); continue; }
+                double sx = spot[0];
+                double sy = spot[1];
+                double sz = spot[2];
 
-                LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, sy, (int)sz);
+                LOGGER.debug("[Events] theMother spawn pos valid at ({}, {}, {})", (int)sx, (int)sy, (int)sz);
 
                 TheMotherEntity theMother = ModEntities.XYZ.get().create(overworld);
                 if (theMother != null) {
@@ -427,14 +453,11 @@ public class ModEvents {
             if (player.tickCount % 40 != 0) continue;
                 if (!AbnormalitiesConfig.SW_ENABLED.get()) continue;
                 if (overworld.random.nextInt(Math.max(1, HimTracker.weighted(peakAdjusted(AbnormalitiesConfig.SW_SPAWN_WEIGHT.get())))) != 0) continue;
-            double angle = overworld.random.nextDouble() * Math.PI * 2;
-            double dist = 35.0D + overworld.random.nextDouble() * 30.0D;
-            double sx = player.getX() + Math.cos(angle) * dist;
-            double sz = player.getZ() + Math.sin(angle) * dist;
-            int sy = overworld.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) sx, (int) sz);
-            BlockPos spawnPos = BlockPos.containing(sx, sy + 1, sz);
-            if (!overworld.getBlockState(spawnPos.below()).canOcclude()) continue;
-            if (overworld.getBlockState(spawnPos).canOcclude()) continue;
+            double[] swSpot = findSpawnSpot(overworld, player, 35.0D, 65.0D, 32, false, Integer.MAX_VALUE, Integer.MAX_VALUE);
+            if (swSpot == null) continue;
+            double sx = swSpot[0];
+            double sy = swSpot[1];
+            double sz = swSpot[2];
             EntityType<?> disguise = pickRandomDisguise(overworld.random);
             if (disguise == null) continue;
             var nearby = overworld.getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(64.0D),
